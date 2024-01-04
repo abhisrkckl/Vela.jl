@@ -1,6 +1,8 @@
 using GeometricUnits
 using Quadmath
 
+export TOA
+
 struct TOA
     val::GQ{Float128}
     err::GQ{Float64}
