@@ -1,5 +1,4 @@
 channels = ["conda-forge"]
-offline = true
 
-[deps.pint-pulsar]
-channel = "conda-forge"
+[pip.deps]
+pint-pulsar = ""

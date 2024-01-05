@@ -13,6 +13,7 @@ Quadmath = "be4d8f0f-7fa4-5f49-b795-2f01399ab2dd"
 julia = "1.9"
 
 [extras]
+CondaPkg = "992eb4ea-22a4-4c89-a5bb-47a3300528ab"
 JuliaFormatter = "98e50ef6-434e-11e9-1051-2b60c6c9e899"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
