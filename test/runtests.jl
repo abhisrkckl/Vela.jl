@@ -64,6 +64,18 @@ using JuliaFormatter
         @test toa4.level == 2
     end
 
+    @testset "read_toas" begin
+        toas = read_toas("NGC6440E.par", "NGC6440E.tim")
+        @test !isempty(toas)
+        @test all([toa.value.d == 1 for toa in toas])
+        @test all([toa.error.d == 1 for toa in toas])
+        @test all([toa.frequency.d == -1 for toa in toas])
+        @test all([toa.phase.d == 0 for toa in toas])
+        @test all([toa.level == 0 for toa in toas])
+        @test all([!is_barycentered(toa) for toa in toas])
+        @test all([!toa.tzr for toa in toas])
+    end
+
     @testset "formatting" begin
         @test format(".")
     end
