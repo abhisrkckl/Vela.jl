@@ -1,0 +1,3 @@
+
+[deps.pint-pulsar]
+channel = "conda-forge"
