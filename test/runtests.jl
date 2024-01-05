@@ -88,8 +88,6 @@ using JuliaFormatter
         @test all([is_barycentered(toa) for toa in toas])
     end
 
-
-
     @testset "formatting" begin
         @test format(".")
     end

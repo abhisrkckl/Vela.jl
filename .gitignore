@@ -2,3 +2,5 @@ Manifest.toml
 .CondaPkg/*
 
 *.pickle.gz
+
+*.cov
