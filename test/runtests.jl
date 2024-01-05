@@ -74,6 +74,10 @@ using JuliaFormatter
         @test all([toa.level == 0 for toa in toas])
         @test all([!is_barycentered(toa) for toa in toas])
         @test all([!toa.tzr for toa in toas])
+
+        toas = read_toas("pure_rotator.par", "pure_rotator.tim")
+        @test !isempty(toas)
+        @test all([is_barycentered(toa) for toa in toas])
     end
 
     @testset "formatting" begin
