@@ -1,7 +1,7 @@
 using GeometricUnits
 using Quadmath
 
-export EphemerisVectors, TOA, is_barycentered, correct_toa_delay, correct_toa_phase
+export EphemerisVectors, TOA, is_barycentered, correct_toa_delay, correct_toa_phase, make_tzr_toa
 
 struct EphemerisVectors
     ssb_obs_pos::Vector{GQ{Float64}}
@@ -24,6 +24,8 @@ TOA(value, error, frequency, phase, ephem_vectors) =
 TOA(value, error, frequency, phase) = TOA(value, error, frequency, phase, nothing, 0, false)
 
 is_barycentered(toa::TOA) = isnothing(toa.ephem_vectors)
+
+make_tzr_toa(tzrtdb, tzrfreq, ephem_vectors) = TOA(tzrtdb, time(0.0), tzrfreq, dimensionless(Float128(0.0)), ephem_vectors, 0, true)
 
 correct_toa_delay(toa::TOA, delay::GQ) = TOA(
     toa.value - delay,

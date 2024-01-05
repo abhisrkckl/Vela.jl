@@ -62,6 +62,14 @@ using JuliaFormatter
         @test is_barycentered(toa4) == is_barycentered(toa3)
         @test toa4.tzr == toa3.tzr
         @test toa4.level == 2
+
+        @testset "tzr_toa" begin
+            tzrtoa = make_tzr_toa(toaval, freq, ephem_vecs)
+            @test tzrtoa.tzr
+            @test !is_barycentered(tzrtoa)
+            @test tzrtoa.error == time(0.0)
+            @test tzrtoa.level == 0
+        end
     end
 
     @testset "read_toas" begin
@@ -79,6 +87,8 @@ using JuliaFormatter
         @test !isempty(toas)
         @test all([is_barycentered(toa) for toa in toas])
     end
+
+
 
     @testset "formatting" begin
         @test format(".")
