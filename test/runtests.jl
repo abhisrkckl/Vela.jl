@@ -11,6 +11,15 @@ using JuliaFormatter
         ssb_obs_vel = speed.([-9.96231954e-05, 3.31555854e-06, 1.12968547e-06])
         obs_sun_pos = distance.([-15.89483533, -450.17185232, -195.18212616])
 
+        @test_throws AssertionError EphemerisVectors(ssb_obs_vel, ssb_obs_vel, obs_sun_pos)
+        @test_throws AssertionError EphemerisVectors(ssb_obs_pos, ssb_obs_pos, obs_sun_pos)
+        @test_throws AssertionError EphemerisVectors(ssb_obs_pos, ssb_obs_vel, ssb_obs_vel)
+        @test_throws AssertionError EphemerisVectors(
+            ssb_obs_pos,
+            1e6 * ssb_obs_vel,
+            obs_sun_pos,
+        )
+
         ephem_vecs = EphemerisVectors(ssb_obs_pos, ssb_obs_vel, obs_sun_pos)
 
         # Aphelion distance
