@@ -42,6 +42,18 @@ using JuliaFormatter
         freq = frequency(1.4e9)
         phase = dimensionless(Float128(1000.0))
 
+        @test_throws MethodError TOA(time(4610197611.8), toaerr, freq, phase)
+        @test_throws AssertionError TOA(
+            dimensionless(parse(Float128, "4610197611.8464445127")),
+            toaerr,
+            freq,
+            phase,
+        )
+        @test_throws AssertionError TOA(toaval, dimensionless(1e-6), freq, phase)
+        @test_throws AssertionError TOA(toaval, toaerr, time(1.4e9), phase)
+        @test_throws MethodError TOA(toaval, toaerr, freq, dimensionless(1000.0))
+        @test_throws AssertionError TOA(toaval, toaerr, freq, time(Float128(1000.0)))
+
         toa1 = TOA(toaval, toaerr, freq, phase)
         @test is_barycentered(toa1)
         @test !toa1.tzr
