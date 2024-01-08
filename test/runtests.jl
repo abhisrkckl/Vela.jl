@@ -133,6 +133,24 @@ using JuliaFormatter
         @test read_param(f0, 101.0) == frequency(101.0)
     end
 
+    @testset "param handler" begin
+        pepoch = Parameter(
+            "pepoch",
+            time(56000.0 * 86400),
+            time(55000.0 * 86400),
+            time(57000.0 * 86400),
+            true,
+        )
+        f0 = Parameter("F0", frequency(100.0), frequency(0.0), frequency(Inf), false)
+        f1 = Parameter("F1", GQ(-1e-14, -2), GQ(-Inf, -2), GQ(Inf, -2), false)
+
+        @test_throws AssertionError ParamHandler([pepoch, f0, f0])
+
+        param_handler = ParamHandler([pepoch, f0, f1])
+        @assert param_handler._free_params == [f0, f1]
+        @assert keys(param_handler._default_params_dict) == Set(["PEPOCH", "F0", "F1"])
+    end
+
     @testset "formatting" begin
         @test format(".")
     end

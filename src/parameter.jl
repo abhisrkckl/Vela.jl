@@ -1,6 +1,6 @@
 using GeometricUnits
 
-export Parameter, read_param, read_params
+export Parameter, read_param, ParamHandler, read_params
 
 struct Parameter
     name::String
@@ -28,7 +28,7 @@ end
 
 struct ParamHandler
     params::Vector{Parameter}
-    _free_params::Vector{String}
+    _free_params::Vector{Parameter}
     _default_params_dict::Dict{String,GQ{Float64}}
 
     function ParamHandler(params)
@@ -39,7 +39,7 @@ struct ParamHandler
         _default_params_dict =
             Dict(param.name => param.default_quantity for param in params)
 
-        return new(default_params, _free_params, _default_params_dict)
+        return new(params, _free_params, _default_params_dict)
     end
 end
 
