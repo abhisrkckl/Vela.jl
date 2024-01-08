@@ -109,6 +109,30 @@ using JuliaFormatter
         @test all([is_barycentered(toa) for toa in toas])
     end
 
+    @testset "parameter" begin
+        @test_throws AssertionError Parameter(
+            "PEPOCH",
+            time(58000.0 * 86400),
+            time(55000.0 * 86400),
+            time(57000.0 * 86400),
+            true,
+        )
+
+        pepoch = Parameter(
+            "pepoch",
+            time(56000.0 * 86400),
+            time(55000.0 * 86400),
+            time(57000.0 * 86400),
+            true,
+        )
+        @assert pepoch.name == "PEPOCH"
+        @test_throws AssertionError read_param(pepoch, 56000.0 * 86400)
+
+        f0 = Parameter("F0", frequency(100.0), frequency(0.0), frequency(Inf), false)
+        @test_throws AssertionError read_param(f0, -100.0)
+        @test read_param(f0, 101.0) == frequency(101.0)
+    end
+
     @testset "formatting" begin
         @test format(".")
     end
