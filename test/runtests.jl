@@ -147,8 +147,11 @@ using JuliaFormatter
         @test_throws AssertionError ParamHandler([pepoch, f0, f0])
 
         param_handler = ParamHandler([pepoch, f0, f1])
-        @assert param_handler._free_params == [f0, f1]
-        @assert keys(param_handler._default_params_dict) == Set(["PEPOCH", "F0", "F1"])
+        @test param_handler._free_params == [f0, f1]
+        @test keys(param_handler._default_params_dict) == Set(["PEPOCH", "F0", "F1"])
+
+        params_dict = read_params(param_handler, [100.01, -1.01e-14])
+        @test keys(params_dict) == Set(["PEPOCH", "F0", "F1"])
     end
 
     @testset "formatting" begin
