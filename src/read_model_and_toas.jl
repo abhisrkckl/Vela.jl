@@ -205,6 +205,12 @@ function read_model_and_toas(parfile::String, timfile::String)
     pint_model, pint_toas = get_model_and_toas(parfile, timfile, add_tzr_to_model = true)
     pint_toas.compute_pulse_numbers(pint_model)
 
+    if !pyin("PhaseOffset", pint_model.components)
+        PhaseOffset = pyimport("pint.models" => "PhaseOffset")
+        pint_model.add_component(PhaseOffset())
+        pint_model.PHOFF.frozen = pybuiltins.False
+    end
+
     toas = _read_toas(pint_toas)
     model = _read_model(pint_model, pint_toas)
 

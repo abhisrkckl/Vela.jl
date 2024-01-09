@@ -93,8 +93,8 @@ using JuliaFormatter
         end
     end
 
-    @testset "read_toas" begin
-        toas = read_toas("NGC6440E.par", "NGC6440E.tim")
+    @testset "read_model_and_toas" begin
+        model, toas = read_model_and_toas("NGC6440E.par", "NGC6440E.tim")
         @test !isempty(toas)
         @test all([toa.value.d == 1 for toa in toas])
         @test all([toa.error.d == 1 for toa in toas])
@@ -104,9 +104,21 @@ using JuliaFormatter
         @test all([!is_barycentered(toa) for toa in toas])
         @test all([!toa.tzr for toa in toas])
 
-        toas = read_toas("pure_rotator.par", "pure_rotator.tim")
+        @test "F0" in keys(model.param_handler._default_params_dict)
+        @test "PHOFF" in keys(model.param_handler._default_params_dict)
+        @test "NE_SW" in keys(model.param_handler._default_params_dict)
+        @test !("DM1" in keys(model.param_handler._default_params_dict))
+        @test !any([p.name == "PEPOCH" for p in model.param_handler._free_params])
+        @test any([p.name == "PEPOCH" for p in model.param_handler.params])
+
+        model, toas = read_model_and_toas("pure_rotator.par", "pure_rotator.tim")
         @test !isempty(toas)
         @test all([is_barycentered(toa) for toa in toas])
+
+        @test "F0" in keys(model.param_handler._default_params_dict)
+        @test "PHOFF" in keys(model.param_handler._default_params_dict)
+        @test !any([p.name == "PEPOCH" for p in model.param_handler._free_params])
+        @test any([p.name == "PEPOCH" for p in model.param_handler.params])
     end
 
     @testset "parameter" begin
@@ -152,6 +164,31 @@ using JuliaFormatter
 
         params_dict = read_params(param_handler, [100.01, -1.01e-14])
         @test keys(params_dict) == Set(["PEPOCH", "F0", "F1"])
+    end
+
+    @testset "timing model" begin
+        pepoch = Parameter(
+            "pepoch",
+            time(56000.0 * 86400),
+            time(55000.0 * 86400),
+            time(57000.0 * 86400),
+            true,
+        )
+        f0 = Parameter("F0", frequency(100.0), frequency(0.0), frequency(Inf), false)
+        f1 = Parameter("F1", GQ(-1e-14, -2), GQ(-Inf, -2), GQ(Inf, -2), false)
+
+        param_handler = ParamHandler([pepoch, f0, f1])
+
+        tzrtdb = time(Float128(55000.0))
+        tzrfrq = frequency(1400.0)
+        tzr_ephem = EphemerisVectors(
+            distance.([18.0354099, 450.01472245, 195.05827732]),
+            speed.([-9.96231954e-05, 3.31555854e-06, 1.12968547e-06]),
+            distance.([-15.89483533, -450.17185232, -195.18212616]),
+        )
+        tzrtoa = make_tzr_toa(tzrtdb, tzrfrq, tzr_ephem)
+
+        model = TimingModel(param_handler, tzrtoa)
     end
 
     @testset "formatting" begin
