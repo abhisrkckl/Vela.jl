@@ -2,7 +2,7 @@ using GeometricUnits
 using Quadmath
 using PythonCall
 
-export _read_toas, _read_tzr_toa
+export read_model_and_toas
 
 parse_quantity(quantity_func, convert_func, values) =
     [quantity_func(convert_func(val)) for val in values]
@@ -85,87 +85,128 @@ function _read_tzr_toa(pint_model, pint_toas)::TOA
     return make_tzr_toa(tzr_tdb, tzr_frq, tzr_ephem)
 end
 
-# function _read_model(pint_model, pint_toas)
-#     tzr_toa = _read_tzr_toa(pint_model, pint_toas)
-#     params = _read_params(pint_model)
-    
-#     return TimingModel(ParamHandler(params), tzr_toa)
-# end
+function _parse_astropy_quantity(astropy_quantity, scale_factor = 1)
+    u = pyimport("astropy" => "units")
 
-# function _read_params(pint_model)
-#     FloatParameter, MaskParameter, PrefixParameter, AngleParameter, MJDParameter = pyimport(
-#         "pint.models.parameter" => (
-#             "floatParameter",
-#             "maskParameter",
-#             "prefixParameter",
-#             "AngleParameter",
-#             "MJDParameter",
-#         ),
-#     )
+    scaled_quantity = (astropy_quantity * scale_factor).si
 
-#     ignore_params =
-#         ["START", "FINISH", "RM", "CHI2", "CHI2R", "TRES", "DMRES", "TZRMJD", "TZRFRQ"]
+    value = pyconvert(Float64, scaled_quantity.value)
 
-#     params = Vector{Parameter}([])
-#     for param_name in param_names
-#         if pyin(param_name, ignore_params)
-#             or ! pyisinstance(
-#                 pint_model[param_name],
-#                 (
-#                     FloatParameter,
-#                     MJDParameter,
-#                     AngleParameter,
-#                     MaskParameter,
-#                     PrefixParameter,
-#                 ),
-#             )
-#             continue
-#         end
+    if isempty(scaled_quantity.unit.bases) ||
+       pyconvert(Bool, scaled_quantity.unit.bases == pylist([u.rad]))
+        return dimensionless(value)
+    elseif pyconvert(Bool, scaled_quantity.unit.bases == pylist([u.s]))
+        d = pyconvert(Int, scaled_quantity.unit.powers[0])
+        return GQ(value, d)
+    elseif pyconvert(Bool, pyset(scaled_quantity.unit.bases) == pyset([u.s, u.rad]))
+        d = pyconvert(
+            Int,
+            scaled_quantity.unit.powers[scaled_quantity.unit.bases.index(u.s)],
+        )
+        return GQ(value, d)
+    else
+        throw(
+            DomainError(
+                scaled_quantity,
+                "The scaled quantity has an unsupported unit. Check the scale_factor.",
+            ),
+        )
+    end
+end
 
-#         frozen = pyconvert(Bool, pint_model[param_name].frozen)
+function _get_scale_factor(pint_param)
+    dmconst = pyimport("pint" => "DMconst")
+    u = pyimport("astropy" => "units")
+    c = pyimport("astropy" => "constants")
 
-#         default_quantity =
-#             pyisinstance(pint_model[param_name], MJDParameter) ?
-#             time(f64_convert(pint_model[param_name].value * day_to_s)) :
-#             parse_astropy_quantity(pint_model[param_name].quantity)
+    scale_factors = Dict("DM" => dmconst, "NE_SW" => c.c * dmconst, "PX" => c.c / u.au)
 
-#         param = Parameter(param_name, default_quantity, angle(-Inf), angle(Inf), frozen)
+    param_name = pyconvert(String, pint_param.name)
+    prefix =
+        pyhasattr(pint_param, "prefix") ? pyconvert(String, pint_param.prefix) : Nothing
 
-#         push!(params, param)
-#     end
+    if param_name in keys(scale_factors)
+        return scale_factors[param_name]
+    elseif !isnothing(prefix) && prefix in keys(scale_factors)
+        return scale_factors[prefix]
+    else
+        return 1
+    end
+end
 
-#     return params
-# end
+function _read_params(pint_model)
+    FloatParameter, MaskParameter, PrefixParameter, AngleParameter, MJDParameter = pyimport(
+        "pint.models.parameter" => (
+            "floatParameter",
+            "maskParameter",
+            "prefixParameter",
+            "AngleParameter",
+            "MJDParameter",
+        ),
+    )
 
-# function _parse_astropy_quantity(astropy_quantity, scale_factor=1)
-#     u = pyimport("astropy" => "units")
+    ignore_params =
+        ["START", "FINISH", "RM", "CHI2", "CHI2R", "TRES", "DMRES", "TZRMJD", "TZRFRQ"]
 
-#     scaled_quantity = (astropy_quantity * scale_factor).si
+    params = Vector{Parameter}([])
+    for param_name in pint_model.params
+        if pyin(param_name, ignore_params) ||
+           !pyisinstance(
+               pint_model[param_name],
+               (
+                   FloatParameter,
+                   MJDParameter,
+                   AngleParameter,
+                   MaskParameter,
+                   PrefixParameter,
+               ),
+           ) ||
+           pyis(pint_model[param_name].quantity, pybuiltins.None)
+            continue
+        end
 
-#     if isempty(scaled_quantity.unit.bases)
-#         return dimensionless(scaled_quantity.value)
-#     elseif scaled_quantity.unit.bases == pylist([u.rad])
-#         return dimensionless(scaled_quantity.value)
-#     elseif scaled_quantity.unit.bases == pylist([u.s])
-#         return GQ(scaled_quantity.value, scaled_quantity.unit.powers[0])
-#     elseif pyset(scaled_quantity.unit.bases) == pyset([u.s, u.rad])
-#         return GQ(scaled_quantity.value, scaled_quantity.unit.powers[scaled_quantity.unit.bases.index(u.s)])
-#     else
-#         throw(DomainError(scaled_quantity, "The scaled quantity has an unsupported unit. Check the scale_factor."))
-#     end
-# end
+        pint_param = pint_model[param_name]
 
-# function read_model_and_toas(parfile::String, timfile::String)
-#     get_model_and_toas = pyimport("pint.models" => "get_model_and_toas")
-#     setup_log = pyimport("pint.logging" => "setup")
+        frozen = pyconvert(Bool, pint_param.frozen)
 
-#     setup_log(level = "WARNING")
+        scale_factor = _get_scale_factor(pint_param)
 
-#     pint_model, pint_toas = get_model_and_toas(parfile, timfile, add_tzr_to_model = true)
-#     pint_toas.compute_pulse_numbers(pint_model)
+        default_quantity =
+            pyisinstance(pint_param, MJDParameter) ?
+            time(f64_convert(pint_param.value * day_to_s)) :
+            _parse_astropy_quantity(pint_param.quantity, scale_factor)
 
-#     toas = _read_toas(pint_toas)
-#     model = _read_model(pint_model, pint_toas)
+        param = Parameter(
+            pyconvert(String, param_name),
+            default_quantity,
+            quantity_like(default_quantity, -Inf),
+            quantity_like(default_quantity, Inf),
+            frozen,
+        )
 
-#     return model, toas
-# end
+        push!(params, param)
+    end
+
+    return params
+end
+
+function _read_model(pint_model, pint_toas)
+    tzr_toa = _read_tzr_toa(pint_model, pint_toas)
+    params = _read_params(pint_model)
+
+    return TimingModel(ParamHandler(params), tzr_toa)
+end
+
+function read_model_and_toas(parfile::String, timfile::String)
+    setup_log = pyimport("pint.logging" => "setup")
+    setup_log(level = "WARNING")
+
+    get_model_and_toas = pyimport("pint.models" => "get_model_and_toas")
+    pint_model, pint_toas = get_model_and_toas(parfile, timfile, add_tzr_to_model = true)
+    pint_toas.compute_pulse_numbers(pint_model)
+
+    toas = _read_toas(pint_toas)
+    model = _read_model(pint_model, pint_toas)
+
+    return model, toas
+end
