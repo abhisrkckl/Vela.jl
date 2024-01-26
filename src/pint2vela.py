@@ -1,17 +1,29 @@
-from pint.models import get_model_and_toas, TimingModel
-from pint.models.parameter import floatParameter, MJDParameter, AngleParameter, maskParameter, prefixParameter
-from pint.toa import TOAs
-from pint import DMconst
-import numpy as np
-from astropy import units as u
-from astropy import constants as c
-from astropy.table import Table
+#!/usr/bin/env python
+
 import json
+import sys
+
+import h5py as h5
+import numpy as np
+from astropy import constants as c
+from astropy import units as u
+from astropy.table import Table
+from pint import DMconst
+from pint.logging import setup as setup_log
+from pint.models import TimingModel, get_model_and_toas
+from pint.models.parameter import (
+    AngleParameter,
+    MJDParameter,
+    floatParameter,
+    maskParameter,
+    prefixParameter,
+)
+from pint.toa import TOAs
 
 day_to_s = 86400
 
 
-def write_tim(toas: TOAs, file_prefix: str):
+def toas_to_table(toas: TOAs):
     assert toas.planets
     assert toas.get_pulse_numbers() is not None
 
@@ -96,14 +108,15 @@ def write_tim(toas: TOAs, file_prefix: str):
     ]
 
     table = Table(data=data, names=colnames)
-    table.write(f"{file_prefix}.tim.hdf5", format="hdf5", path="TOAs")
+
+    return table
 
 
 def _get_scale_factor(param):
     scale_factors = {
-        "DM" : DMconst, 
-        "NE_SW" : c.c * DMconst, 
-        "PX" : c.c / u.au,
+        "DM": DMconst,
+        "NE_SW": c.c * DMconst,
+        "PX": c.c / u.au,
     }
 
     if param.name in scale_factors:
@@ -112,6 +125,7 @@ def _get_scale_factor(param):
         return scale_factors[param.prefix]
     else:
         return 1
+
 
 def _parse_quantity(quantity, scale_factor=1):
     scaled_quantity = (quantity * scale_factor).si
@@ -128,24 +142,40 @@ def _parse_quantity(quantity, scale_factor=1):
         return value, d
     else:
         raise ValueError(
-                "The scaled quantity has an unsupported unit. Check the scale_factor.",
-            )
+            "The scaled quantity has an unsupported unit. Check the scale_factor.",
+        )
 
-def write_params(model:TimingModel, file_prefix:str):
-    ignore_params = ["START", "FINISH", "RM", "CHI2", "CHI2R", "TRES", "DMRES", "TZRMJD", "TZRFRQ", "SWM"]
+
+def params_from_model(model: TimingModel) -> list:
+    ignore_params = [
+        "START",
+        "FINISH",
+        "RM",
+        "CHI2",
+        "CHI2R",
+        "TRES",
+        "DMRES",
+        "TZRMJD",
+        "TZRFRQ",
+        "SWM",
+    ]
 
     params = []
     for param_name in model.params:
-        if param_name in ignore_params or not isinstance(
-               model[param_name],
-               (
-                   floatParameter,
-                   MJDParameter,
-                   AngleParameter,
-                   maskParameter,
-                   prefixParameter,
-               ),
-           ) or model[param_name].quantity is None:
+        if (
+            param_name in ignore_params
+            or not isinstance(
+                model[param_name],
+                (
+                    floatParameter,
+                    MJDParameter,
+                    AngleParameter,
+                    maskParameter,
+                    prefixParameter,
+                ),
+            )
+            or model[param_name].quantity is None
+        ):
             continue
 
         param = model[param_name]
@@ -154,20 +184,25 @@ def write_params(model:TimingModel, file_prefix:str):
 
         scale_factor = _get_scale_factor(param)
 
-        value, dim = (param.value * day_to_s, 1) if isinstance(param, MJDParameter) else _parse_quantity(param.quantity, scale_factor)
+        value, dim = (
+            (param.value * day_to_s, 1)
+            if isinstance(param, MJDParameter)
+            else _parse_quantity(param.quantity, scale_factor)
+        )
 
-        params.append({
-            "name": param_name,
-            "default_value": float(value),
-            "dimension": dim,
-            "frozen": frozen
-        })
-    
-    with open(f"{file_prefix}.params.json", "w") as f:
-        json.dump(params, f, indent=True)
-    # print(param_name, value, int(frozen))
-        
-def write_model(model:TimingModel, file_prefix:str):
+        params.append(
+            {
+                "name": param_name,
+                "default_value": float(value),
+                "dimension": dim,
+                "frozen": frozen,
+            }
+        )
+
+    return params
+
+
+def components_from_model(model: TimingModel) -> list:
     component_names = list(model.components.keys())
 
     components = []
@@ -175,30 +210,58 @@ def write_model(model:TimingModel, file_prefix:str):
         if component_name in ["AbsPhase", "SolarSystemShapiro"]:
             continue
         elif component_name == "Spindown":
-            components.append({
-                "name": "Spindown",
-                "number_of_terms": len(model.get_spin_terms())
-            })
+            components.append(
+                {"name": "Spindown", "number_of_terms": len(model.get_spin_terms())}
+            )
         elif component_name.startswith("Astrometry"):
-            components.append({
-                "name": "SolarSystem",
-                "coordinates": component_name[len("Astrometry"):].upper(),
-                "planet_shapiro": model.PLANET_SHAPIRO.value
-            })
+            components.append(
+                {
+                    "name": "SolarSystem",
+                    "coordinates": component_name[len("Astrometry") :].upper(),
+                    "planet_shapiro": model.PLANET_SHAPIRO.value,
+                }
+            )
         elif component_name == "SolarWindDispersion":
-            components.append({
-                "name": "SolarWind",
-                "model": int(model.SWM.value)
-            })
+            components.append({"name": "SolarWind", "model": int(model.SWM.value)})
         elif component_name == "DispersionDM":
-            components.append({
-                "name": "DispersionTaylor",
-                "number_of_terms": len(model.get_DM_terms())
-            })
+            components.append(
+                {
+                    "name": "DispersionTaylor",
+                    "number_of_terms": len(model.get_DM_terms()),
+                }
+            )
         else:
-            components.append({
-                "name": component_name
-            })
-    
-    with open(f"{file_prefix}.model.json", "w") as f:
-        json.dump(components, f, indent=True)
+            components.append({"name": component_name})
+
+    return components
+
+
+if __name__ == "__main__":
+    par, tim, prefix = sys.argv[1:]
+
+    setup_log(level="WARNING")
+
+    model: TimingModel
+    toas: TOAs
+
+    model, toas = get_model_and_toas(par, tim, planets=True, add_tzr_to_model=True)
+    toas.compute_pulse_numbers(model)
+
+    filename = f"{prefix}.hdf5"
+
+    toas_table = toas_to_table(toas)
+
+    components_dict = components_from_model(model)
+    params_dict = params_from_model(model)
+
+    tzr_toa: TOAs = model.get_TZR_toa(toas)
+    tzr_toa.compute_pulse_numbers(model)
+    tzr_table = toas_to_table(tzr_toa)
+
+    toas_table.write(filename, path="TOAs", format="hdf5", overwrite=True)
+
+    with h5.File(filename, "a") as f:
+        f.create_dataset("Components", data=json.dumps(components_dict))
+        f.create_dataset("Parameters", data=json.dumps(params_dict))
+
+    tzr_table.write(filename, path="TZRTOA", format="hdf5", append=True)
