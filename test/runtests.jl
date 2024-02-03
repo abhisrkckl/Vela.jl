@@ -4,6 +4,7 @@ using GeometricUnits
 using LinearAlgebra
 using Quadmath
 using JuliaFormatter
+using HDF5
 
 const day_to_s = 86400
 
@@ -147,7 +148,24 @@ const day_to_s = 86400
         end
     end
 
-    # @testset "read_model_and_toas" begin
+    @testset "read_model_and_toas" begin
+        @testset "read_toas" begin
+            f = h5open("NGC6440E.hdf5")
+            toas = read_toas(f)
+            @test !any([toa.tzr for toa in toas])
+            @test length(toas) == 62
+            @test all([toa.level == 0 for toa in toas])
+            @test all([frequency(1e9) < toa.frequency < frequency(2.5e9) for toa in toas])
+            @test all([
+                time(53470.0 * day_to_s) < toa.value < time(54200.0 * day_to_s) for
+                toa in toas
+            ])
+            @test all([modf(toa.phase.x)[1] == 0 for toa in toas])
+            @test all([toa.error > time(0.0) for toa in toas])
+        end
+    end
+
+    # 
     #     @testset "read_toas" begin
     #         get_model_and_toas = pyimport("pint.models" => "get_model_and_toas")
     #     end
