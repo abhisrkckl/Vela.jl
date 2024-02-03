@@ -80,7 +80,7 @@ def toas_to_table(toas: TOAs):
         "frequency",
         "ssb_obs_pos_x",
         "ssb_obs_pos_y",
-        "ssb_obs_p os_z",
+        "ssb_obs_pos_z",
         "ssb_obs_vel_x",
         "ssb_obs_vel_y",
         "ssb_obs_vel_z",
