@@ -6,6 +6,7 @@ version = "0.0.0-DEV"
 [deps]
 GeometricUnits = "43c95830-f66f-43f3-8298-be5f3865d5b9"
 HDF5 = "f67ccb44-e63f-5c2f-98bd-6dc0ccc4ba2f"
+JSON = "682c06a0-de6a-54ab-a142-c8b1cf79cde6"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 LocalRegistry = "89398ba2-070a-4b16-a995-9893c55d93cf"
 Quadmath = "be4d8f0f-7fa4-5f49-b795-2f01399ab2dd"

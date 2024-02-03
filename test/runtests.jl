@@ -178,6 +178,14 @@ const day_to_s = 86400
                 @test time(53470.0 * day_to_s) < tzrtoa.value < time(54200.0 * day_to_s)
             end
 
+            @testset "read_param_handler" begin
+                param_handler = read_param_handler(f)
+                @assert length(param_handler.params) >= length(param_handler._free_params)
+                @assert length(param_handler.params) ==
+                        length(param_handler._default_params_dict)
+                @assert Set([p.name for p in param_handler._free_params]) == Set(["F0", "F1", "DECJ", "RAJ", "DM"])
+            end
+
         end
     end
 

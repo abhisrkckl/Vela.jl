@@ -1,8 +1,9 @@
 using GeometricUnits
 using Quadmath
 using HDF5
+using JSON
 
-export read_toas, read_tzr_toa
+export read_toas, read_tzr_toa, read_param_handler
 
 function read_ephem_vectors(toa_data::NamedTuple)::EphemerisVectors
     ssb_obs_pos =
@@ -74,6 +75,12 @@ end
 read_toas(f::HDF5.File)::Vector{TOA} = [read_toa(toa_data) for toa_data in read(f["TOAs"])]
 
 read_tzr_toa(f::HDF5.File) = read_toa(read(f["TZRTOA"])[1], true)
+
+function read_param_handler(f::HDF5.File)
+    param_dicts = JSON.parse(read(f["Parameters"]))
+    params = [Parameter(pd["name"], GQ(pd["default_value"], pd["dimension"]), GQ(-Inf, pd["dimension"]), GQ(Inf, pd["dimension"]), pd["frozen"]) for pd in param_dicts]
+    return ParamHandler(params)
+end
 
 # function _parse_astropy_quantity(astropy_quantity, scale_factor = 1)
 #     u = pyimport("astropy" => "units")
