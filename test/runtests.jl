@@ -5,6 +5,8 @@ using LinearAlgebra
 using Quadmath
 using JuliaFormatter
 
+const day_to_s = 86400
+
 @testset "Vela" begin
     @testset "toa" begin
         ssb_obs_pos = distance.([18.0354099, 450.01472245, 195.05827732])
@@ -179,21 +181,21 @@ using JuliaFormatter
     @testset "parameter" begin
         @test_throws AssertionError Parameter(
             "PEPOCH",
-            time(58000.0 * 86400),
-            time(55000.0 * 86400),
-            time(57000.0 * 86400),
+            time(58000.0 * day_to_s),
+            time(55000.0 * day_to_s),
+            time(57000.0 * day_to_s),
             true,
         )
 
         pepoch = Parameter(
             "pepoch",
-            time(56000.0 * 86400),
-            time(55000.0 * 86400),
-            time(57000.0 * 86400),
+            time(56000.0 * day_to_s),
+            time(55000.0 * day_to_s),
+            time(57000.0 * day_to_s),
             true,
         )
         @assert pepoch.name == "PEPOCH"
-        @test_throws AssertionError read_param(pepoch, 56000.0 * 86400)
+        @test_throws AssertionError read_param(pepoch, 56000.0 * day_to_s)
 
         f0 = Parameter("F0", frequency(100.0), frequency(0.0), frequency(Inf), false)
         @test_throws AssertionError read_param(f0, -100.0)
@@ -203,9 +205,9 @@ using JuliaFormatter
     @testset "param handler" begin
         pepoch = Parameter(
             "pepoch",
-            time(56000.0 * 86400),
-            time(55000.0 * 86400),
-            time(57000.0 * 86400),
+            time(56000.0 * day_to_s),
+            time(55000.0 * day_to_s),
+            time(57000.0 * day_to_s),
             true,
         )
         f0 = Parameter("F0", frequency(100.0), frequency(0.0), frequency(Inf), false)
@@ -224,9 +226,9 @@ using JuliaFormatter
     # @testset "timing model" begin
     #     pepoch = Parameter(
     #         "pepoch",
-    #         time(56000.0 * 86400),
-    #         time(55000.0 * 86400),
-    #         time(57000.0 * 86400),
+    #         time(56000.0 * day_to_s),
+    #         time(55000.0 * day_to_s),
+    #         time(57000.0 * day_to_s),
     #         true,
     #     )
     #     f0 = Parameter("F0", frequency(100.0), frequency(0.0), frequency(Inf), false)
