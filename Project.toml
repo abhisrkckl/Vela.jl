@@ -8,14 +8,12 @@ GeometricUnits = "43c95830-f66f-43f3-8298-be5f3865d5b9"
 HDF5 = "f67ccb44-e63f-5c2f-98bd-6dc0ccc4ba2f"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 LocalRegistry = "89398ba2-070a-4b16-a995-9893c55d93cf"
-PythonCall = "6099a3de-0909-46bc-b1f4-468b9a2dfc0d"
 Quadmath = "be4d8f0f-7fa4-5f49-b795-2f01399ab2dd"
 
 [compat]
 julia = "1.9"
 
 [extras]
-CondaPkg = "992eb4ea-22a4-4c89-a5bb-47a3300528ab"
 JuliaFormatter = "98e50ef6-434e-11e9-1051-2b60c6c9e899"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
