@@ -2,7 +2,7 @@ using GeometricUnits
 using Quadmath
 using HDF5
 
-export read_toas
+export read_toas, read_tzr_toa
 
 function read_ephem_vectors(toa_data::NamedTuple)::EphemerisVectors
     ssb_obs_pos =
