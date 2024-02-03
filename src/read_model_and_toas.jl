@@ -78,7 +78,15 @@ read_tzr_toa(f::HDF5.File) = read_toa(read(f["TZRTOA"])[1], true)
 
 function read_param_handler(f::HDF5.File)
     param_dicts = JSON.parse(read(f["Parameters"]))
-    params = [Parameter(pd["name"], GQ(pd["default_value"], pd["dimension"]), GQ(-Inf, pd["dimension"]), GQ(Inf, pd["dimension"]), pd["frozen"]) for pd in param_dicts]
+    params = [
+        Parameter(
+            pd["name"],
+            GQ(pd["default_value"], pd["dimension"]),
+            GQ(-Inf, pd["dimension"]),
+            GQ(Inf, pd["dimension"]),
+            pd["frozen"],
+        ) for pd in param_dicts
+    ]
     return ParamHandler(params)
 end
 
