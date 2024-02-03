@@ -149,19 +149,35 @@ const day_to_s = 86400
     end
 
     @testset "read_model_and_toas" begin
-        @testset "read_toas" begin
-            f = h5open("NGC6440E.hdf5")
-            toas = read_toas(f)
-            @test !any([toa.tzr for toa in toas])
-            @test length(toas) == 62
-            @test all([toa.level == 0 for toa in toas])
-            @test all([frequency(1e9) < toa.frequency < frequency(2.5e9) for toa in toas])
-            @test all([
-                time(53470.0 * day_to_s) < toa.value < time(54200.0 * day_to_s) for
-                toa in toas
-            ])
-            @test all([modf(toa.phase.x)[1] == 0 for toa in toas])
-            @test all([toa.error > time(0.0) for toa in toas])
+        h5open("NGC6440E.hdf5") do f
+
+            @testset "read_toas" begin
+                toas = read_toas(f)
+                @test !any([toa.tzr for toa in toas])
+                @test length(toas) == 62
+                @test all([toa.level == 0 for toa in toas])
+                @test all([
+                    frequency(1e9) < toa.frequency < frequency(2.5e9) for toa in toas
+                ])
+                @test all([
+                    time(53470.0 * day_to_s) < toa.value < time(54200.0 * day_to_s) for
+                    toa in toas
+                ])
+                @test all([modf(toa.phase.x)[1] == 0 for toa in toas])
+                @test all([toa.error > time(0.0) for toa in toas])
+
+            end
+
+            @testset "read_tzr_toa" begin
+                tzrtoa = read_tzr_toa(f)
+                @test tzrtoa.tzr
+                @test tzrtoa.level == 0
+                @test tzrtoa.error > time(0.0)
+                @test modf(tzrtoa.phase.x)[1] == 0
+                @test frequency(1e9) < tzrtoa.frequency < frequency(2.5e9)
+                @test time(53470.0 * day_to_s) < tzrtoa.value < time(54200.0 * day_to_s)
+            end
+
         end
     end
 
