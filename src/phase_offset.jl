@@ -1,5 +1,7 @@
 using GeometricUnits
 
+export PhaseOffset, phase
+
 struct PhaseOffset <: PhaseComponent end
 
 phase(::PhaseOffset, toa::TOA, params::Dict)::GQ =

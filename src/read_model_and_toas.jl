@@ -3,7 +3,7 @@ using Quadmath
 using HDF5
 using JSON
 
-export read_toas, read_tzr_toa, read_param_handler
+export read_toas, read_tzr_toa, read_param_handler, read_components
 
 function read_ephem_vectors(toa_data::NamedTuple)::EphemerisVectors
     ssb_obs_pos =
@@ -90,110 +90,20 @@ function read_param_handler(f::HDF5.File)
     return ParamHandler(params)
 end
 
-# function _parse_astropy_quantity(astropy_quantity, scale_factor = 1)
-#     u = pyimport("astropy" => "units")
+function read_components(f::HDF5.File)
+    component_dicts = JSON.parse(read(f["Components"]))
 
-#     scaled_quantity = (astropy_quantity * scale_factor).si
+    components = Vector{Component}()
+    for cdict in component_dicts
+        if cdict["name"] == "Spindown"
+            push!(components, Spindown(cdict["number_of_terms"]))
+        elseif cdict["name"] == "PhaseOffset"
+            push!(components, PhaseOffset())
+        end
+    end
 
-#     value = pyconvert(Float64, scaled_quantity.value)
-
-#     if isempty(scaled_quantity.unit.bases) ||
-#        pyconvert(Bool, scaled_quantity.unit.bases == pylist([u.rad]))
-#         return dimensionless(value)
-#     elseif pyconvert(Bool, scaled_quantity.unit.bases == pylist([u.s]))
-#         d = pyconvert(Int, scaled_quantity.unit.powers[0])
-#         return GQ(value, d)
-#     elseif pyconvert(Bool, pyset(scaled_quantity.unit.bases) == pyset([u.s, u.rad]))
-#         d = pyconvert(
-#             Int,
-#             scaled_quantity.unit.powers[scaled_quantity.unit.bases.index(u.s)],
-#         )
-#         return GQ(value, d)
-#     else
-#         throw(
-#             DomainError(
-#                 scaled_quantity,
-#                 "The scaled quantity has an unsupported unit. Check the scale_factor.",
-#             ),
-#         )
-#     end
-# end
-
-# function _get_scale_factor(pint_param)
-#     dmconst = pyimport("pint" => "DMconst")
-#     u = pyimport("astropy" => "units")
-#     c = pyimport("astropy" => "constants")
-
-#     scale_factors = Dict("DM" => dmconst, "NE_SW" => c.c * dmconst, "PX" => c.c / u.au)
-
-#     param_name = pyconvert(String, pint_param.name)
-#     prefix =
-#         pyhasattr(pint_param, "prefix") ? pyconvert(String, pint_param.prefix) : Nothing
-
-#     if param_name in keys(scale_factors)
-#         return scale_factors[param_name]
-#     elseif !isnothing(prefix) && prefix in keys(scale_factors)
-#         return scale_factors[prefix]
-#     else
-#         return 1
-#     end
-# end
-
-# function _read_params(pint_model)
-#     FloatParameter, MaskParameter, PrefixParameter, AngleParameter, MJDParameter = pyimport(
-#         "pint.models.parameter" => (
-#             "floatParameter",
-#             "maskParameter",
-#             "prefixParameter",
-#             "AngleParameter",
-#             "MJDParameter",
-#         ),
-#     )
-
-#     ignore_params =
-#         ["START", "FINISH", "RM", "CHI2", "CHI2R", "TRES", "DMRES", "TZRMJD", "TZRFRQ"]
-
-#     params = Vector{Parameter}([])
-#     for param_name in pint_model.params
-#         if pyin(param_name, ignore_params) ||
-#            !pyisinstance(
-#                pint_model[param_name],
-#                (
-#                    FloatParameter,
-#                    MJDParameter,
-#                    AngleParameter,
-#                    MaskParameter,
-#                    PrefixParameter,
-#                ),
-#            ) ||
-#            pyis(pint_model[param_name].quantity, pybuiltins.None)
-#             continue
-#         end
-
-#         pint_param = pint_model[param_name]
-
-#         frozen = pyconvert(Bool, pint_param.frozen)
-
-#         scale_factor = _get_scale_factor(pint_param)
-
-#         default_quantity =
-#             pyisinstance(pint_param, MJDParameter) ?
-#             time(f64_convert(pint_param.value * day_to_s)) :
-#             _parse_astropy_quantity(pint_param.quantity, scale_factor)
-
-#         param = Parameter(
-#             pyconvert(String, param_name),
-#             default_quantity,
-#             quantity_like(default_quantity, -Inf),
-#             quantity_like(default_quantity, Inf),
-#             frozen,
-#         )
-
-#         push!(params, param)
-#     end
-
-#     return params
-# end
+    return components
+end
 
 # function _read_model(pint_model, pint_toas)
 #     tzr_toa = _read_tzr_toa(pint_model, pint_toas)
