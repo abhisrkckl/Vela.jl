@@ -148,53 +148,6 @@ const day_to_s = 86400
         end
     end
 
-    @testset "read_model_and_toas" begin
-        h5open("NGC6440E.hdf5") do f
-
-            @testset "read_toas" begin
-                toas = read_toas(f)
-                @test !any([toa.tzr for toa in toas])
-                @test length(toas) == 62
-                @test all([toa.level == 0 for toa in toas])
-                @test all([
-                    frequency(1e9) < toa.frequency < frequency(2.5e9) for toa in toas
-                ])
-                @test all([
-                    time(53470.0 * day_to_s) < toa.value < time(54200.0 * day_to_s) for
-                    toa in toas
-                ])
-                @test all([modf(toa.phase.x)[1] == 0 for toa in toas])
-                @test all([toa.error > time(0.0) for toa in toas])
-
-            end
-
-            @testset "read_tzr_toa" begin
-                tzrtoa = read_tzr_toa(f)
-                @test tzrtoa.tzr
-                @test tzrtoa.level == 0
-                @test tzrtoa.error > time(0.0)
-                @test modf(tzrtoa.phase.x)[1] == 0
-                @test frequency(1e9) < tzrtoa.frequency < frequency(2.5e9)
-                @test time(53470.0 * day_to_s) < tzrtoa.value < time(54200.0 * day_to_s)
-            end
-
-            @testset "read_param_handler" begin
-                param_handler = read_param_handler(f)
-                @assert length(param_handler.params) >= length(param_handler._free_params)
-                @assert length(param_handler.params) ==
-                        length(param_handler._default_params_dict)
-                @assert Set([p.name for p in param_handler._free_params]) == Set(["F0", "F1", "DECJ", "RAJ", "DM", "PHOFF"])
-            end
-
-            @testset "read_components" begin
-                components = read_components(f)
-                @assert length(components) == 2
-                @assert components[1].number_of_terms == 2
-            end
-
-        end
-    end
-
     @testset "parameter" begin
         @test_throws AssertionError Parameter(
             "PEPOCH",
@@ -241,7 +194,70 @@ const day_to_s = 86400
     end
 
 
-    @testset "components" begin end
+    @testset "components" begin
+        toa = TOA(
+            time(Float128(53470.0 * day_to_s)),
+            time(1e-6),
+            frequency(2.5e9),
+            dimensionless(Float128(0.0)),
+        )
+        tzrtoa = make_tzr_toa(time(Float128(53475.0 * day_to_s)), frequency(2.5e9), nothing)
+
+        @testset "PhaseOffset" begin
+            poff = PhaseOffset()
+            @test phase(poff, toa, Dict("PHOFF" => dimensionless(1e-6))) ==
+                  dimensionless(1e-6)
+            @test phase(poff, tzrtoa, Dict("PHOFF" => dimensionless(1e-6))) ==
+                  dimensionless(0.0)
+        end
+    end
+
+    @testset "read_model_and_toas" begin
+        h5open("NGC6440E.hdf5") do f
+
+            @testset "read_toas" begin
+                toas = read_toas(f)
+                @test !any([toa.tzr for toa in toas])
+                @test length(toas) == 62
+                @test all([toa.level == 0 for toa in toas])
+                @test all([
+                    frequency(1e9) < toa.frequency < frequency(2.5e9) for toa in toas
+                ])
+                @test all([
+                    time(53470.0 * day_to_s) < toa.value < time(54200.0 * day_to_s) for
+                    toa in toas
+                ])
+                @test all([modf(toa.phase.x)[1] == 0 for toa in toas])
+                @test all([toa.error > time(0.0) for toa in toas])
+
+            end
+
+            @testset "read_tzr_toa" begin
+                tzrtoa = read_tzr_toa(f)
+                @test tzrtoa.tzr
+                @test tzrtoa.level == 0
+                @test tzrtoa.error > time(0.0)
+                @test modf(tzrtoa.phase.x)[1] == 0
+                @test frequency(1e9) < tzrtoa.frequency < frequency(2.5e9)
+                @test time(53470.0 * day_to_s) < tzrtoa.value < time(54200.0 * day_to_s)
+            end
+
+            @testset "read_param_handler" begin
+                param_handler = read_param_handler(f)
+                @assert length(param_handler.params) >= length(param_handler._free_params)
+                @assert length(param_handler.params) ==
+                        length(param_handler._default_params_dict)
+                @assert Set([p.name for p in param_handler._free_params]) == Set(["F0", "F1", "DECJ", "RAJ", "DM", "PHOFF"])
+            end
+
+            @testset "read_components" begin
+                components = read_components(f)
+                @assert length(components) == 2
+                @assert components[1].number_of_terms == 2
+            end
+
+        end
+    end
 
     # @testset "timing model" begin
     #     pepoch = Parameter(
