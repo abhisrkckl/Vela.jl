@@ -8,7 +8,7 @@ using HDF5
 
 const day_to_s = 86400
 
-@testset "Vela" begin
+@testset "Vela" verbose = true begin
     @testset "toa" begin
         ssb_obs_pos = distance.([18.0354099, 450.01472245, 195.05827732])
         ssb_obs_vel = speed.([-9.96231954e-05, 3.31555854e-06, 1.12968547e-06])
