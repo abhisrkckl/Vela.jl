@@ -10,7 +10,7 @@ from astropy import units as u
 from astropy.table import Table
 from pint import DMconst
 from pint.logging import setup as setup_log
-from pint.models import TimingModel, get_model_and_toas
+from pint.models import TimingModel, get_model_and_toas, PhaseOffset
 from pint.models.parameter import (
     AngleParameter,
     MJDParameter,
@@ -246,6 +246,10 @@ if __name__ == "__main__":
 
     model, toas = get_model_and_toas(par, tim, planets=True, add_tzr_to_model=True)
     toas.compute_pulse_numbers(model)
+
+    if "PhaseOffset" not in model.components:
+        model.add_component(PhaseOffset())
+        model.PHOFF.frozen = False
 
     filename = f"{prefix}.hdf5"
 
