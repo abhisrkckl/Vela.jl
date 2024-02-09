@@ -183,42 +183,17 @@ const day_to_s = 86400
                 @assert length(param_handler.params) >= length(param_handler._free_params)
                 @assert length(param_handler.params) ==
                         length(param_handler._default_params_dict)
-                @assert Set([p.name for p in param_handler._free_params]) == Set(["F0", "F1", "DECJ", "RAJ", "DM"])
+                @assert Set([p.name for p in param_handler._free_params]) == Set(["F0", "F1", "DECJ", "RAJ", "DM", "PHOFF"])
+            end
+
+            @testset "read_components" begin
+                components = read_components(f)
+                @assert length(components) == 2
+                @assert components[1].number_of_terms == 2
             end
 
         end
     end
-
-    # 
-    #     @testset "read_toas" begin
-    #         get_model_and_toas = pyimport("pint.models" => "get_model_and_toas")
-    #     end
-    #     model, toas = read_model_and_toas("NGC6440E.par", "NGC6440E.tim")
-    #     @test !isempty(toas)
-    #     @test all([toa.value.d == 1 for toa in toas])
-    #     @test all([toa.error.d == 1 for toa in toas])
-    #     @test all([toa.frequency.d == -1 for toa in toas])
-    #     @test all([toa.phase.d == 0 for toa in toas])
-    #     @test all([toa.level == 0 for toa in toas])
-    #     @test all([!is_barycentered(toa) for toa in toas])
-    #     @test all([!toa.tzr for toa in toas])
-
-    #     @test "F0" in keys(model.param_handler._default_params_dict)
-    #     @test "PHOFF" in keys(model.param_handler._default_params_dict)
-    #     @test "NE_SW" in keys(model.param_handler._default_params_dict)
-    #     @test !("DM1" in keys(model.param_handler._default_params_dict))
-    #     @test !any([p.name == "PEPOCH" for p in model.param_handler._free_params])
-    #     @test any([p.name == "PEPOCH" for p in model.param_handler.params])
-
-    #     model, toas = read_model_and_toas("pure_rotator.par", "pure_rotator.tim")
-    #     @test !isempty(toas)
-    #     @test all([is_barycentered(toa) for toa in toas])
-
-    #     @test "F0" in keys(model.param_handler._default_params_dict)
-    #     @test "PHOFF" in keys(model.param_handler._default_params_dict)
-    #     @test !any([p.name == "PEPOCH" for p in model.param_handler._free_params])
-    #     @test any([p.name == "PEPOCH" for p in model.param_handler.params])
-    # end
 
     @testset "parameter" begin
         @test_throws AssertionError Parameter(
@@ -264,6 +239,9 @@ const day_to_s = 86400
         params_dict = read_params(param_handler, [100.01, -1.01e-14])
         @test keys(params_dict) == Set(["PEPOCH", "F0", "F1"])
     end
+
+
+    @testset "components" begin end
 
     # @testset "timing model" begin
     #     pepoch = Parameter(
