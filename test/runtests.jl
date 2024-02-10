@@ -274,14 +274,22 @@ const day_to_s = 86400
 
             @testset "read_components" begin
                 components = read_components(f)
-                @test length(components) == 3
+                @test length(components) == 4
 
+                @test isa(components[1], SolarSystem)
                 @test !components[1].ecliptic_coordinates
                 @test !components[1].planet_shapiro
 
-                @test components[2].number_of_terms == 2
-            end
+                @test isa(components[2], DispersionTaylor)
+                @test components[2].number_of_terms == 1
 
+                @test isa(components[3], Spindown)
+                @test components[3].number_of_terms == 2
+
+                @test isa(components[4], PhaseOffset)
+
+                @test all([!isa(c, Troposphere) for c in components])
+            end
         end
     end
 
