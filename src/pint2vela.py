@@ -222,7 +222,7 @@ def components_from_model(model: TimingModel) -> list:
                 }
             )
         elif component_name == "SolarWindDispersion":
-            components.append({"name": "SolarWind", "model": int(model.SWM.value)})
+            components.append({"name": "SolarWindDispersion", "model": int(model.SWM.value)})
         elif component_name == "DispersionDM":
             components.append(
                 {

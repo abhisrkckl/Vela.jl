@@ -232,6 +232,13 @@ const day_to_s = 86400
             dmt = DispersionTaylor(2)
             @test dispersion_slope(dmt, toa, params) == GQ(0.0, -1)
         end
+
+        @testset "SolarWindDispersion" begin
+            @test_throws AssertionError SolarWindDispersion(2)
+
+            swd = SolarWindDispersion(0)
+            @test dispersion_slope(swd, toa, params) == GQ(0.0, -1)
+        end
     end
 
     @testset "read_model_and_toas" begin
@@ -274,19 +281,22 @@ const day_to_s = 86400
 
             @testset "read_components" begin
                 components = read_components(f)
-                @test length(components) == 4
+                @test length(components) == 5
 
                 @test isa(components[1], SolarSystem)
                 @test !components[1].ecliptic_coordinates
                 @test !components[1].planet_shapiro
 
-                @test isa(components[2], DispersionTaylor)
-                @test components[2].number_of_terms == 1
+                @test isa(components[2], SolarWindDispersion)
+                @test components[2].model == 0
 
-                @test isa(components[3], Spindown)
-                @test components[3].number_of_terms == 2
+                @test isa(components[3], DispersionTaylor)
+                @test components[3].number_of_terms == 1
 
-                @test isa(components[4], PhaseOffset)
+                @test isa(components[4], Spindown)
+                @test components[4].number_of_terms == 2
+
+                @test isa(components[5], PhaseOffset)
 
                 @test all([!isa(c, Troposphere) for c in components])
             end
