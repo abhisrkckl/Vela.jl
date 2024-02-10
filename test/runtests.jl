@@ -244,16 +244,20 @@ const day_to_s = 86400
 
             @testset "read_param_handler" begin
                 param_handler = read_param_handler(f)
-                @assert length(param_handler.params) >= length(param_handler._free_params)
-                @assert length(param_handler.params) ==
-                        length(param_handler._default_params_dict)
-                @assert Set([p.name for p in param_handler._free_params]) == Set(["F0", "F1", "DECJ", "RAJ", "DM", "PHOFF"])
+                @test length(param_handler.params) >= length(param_handler._free_params)
+                @test length(param_handler.params) ==
+                      length(param_handler._default_params_dict)
+                @test Set([p.name for p in param_handler._free_params]) == Set(["F0", "F1", "DECJ", "RAJ", "DM", "PHOFF"])
             end
 
             @testset "read_components" begin
                 components = read_components(f)
-                @assert length(components) == 2
-                @assert components[1].number_of_terms == 2
+                @test length(components) == 3
+
+                @test !components[1].ecliptic_coordinates
+                @test !components[1].planet_shapiro
+
+                @test components[2].number_of_terms == 2
             end
 
         end

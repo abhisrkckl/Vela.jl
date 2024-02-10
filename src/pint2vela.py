@@ -217,7 +217,7 @@ def components_from_model(model: TimingModel) -> list:
             components.append(
                 {
                     "name": "SolarSystem",
-                    "coordinates": component_name[len("Astrometry") :].upper(),
+                    "ecliptic_coordinates": component_name == "AstrometryEcliptic",
                     "planet_shapiro": model.PLANET_SHAPIRO.value,
                 }
             )
