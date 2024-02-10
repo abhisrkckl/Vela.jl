@@ -230,6 +230,8 @@ def components_from_model(model: TimingModel) -> list:
                     "number_of_terms": len(model.get_DM_terms()),
                 }
             )
+        elif component_name == "TroposphereDelay" and model.CORRECT_TROPOSPHERE.value:
+            components.append({"name": "Troposphere"})
         else:
             components.append({"name": component_name})
 

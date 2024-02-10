@@ -210,6 +210,21 @@ const day_to_s = 86400
             @test phase(poff, tzrtoa, Dict("PHOFF" => dimensionless(1e-6))) ==
                   dimensionless(0.0)
         end
+
+        @testset "Spindown" begin
+            @test Spindown(2).number_of_terms == 2
+        end
+
+        @testset "SolarSystem" begin
+            ss = SolarSystem(true, true)
+            @test ss.ecliptic_coordinates && ss.planet_shapiro
+        end
+
+        @testset "Troposphere" begin
+            tropo = Troposphere()
+        end
+
+
     end
 
     @testset "read_model_and_toas" begin
