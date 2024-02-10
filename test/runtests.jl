@@ -203,28 +203,35 @@ const day_to_s = 86400
         )
         tzrtoa = make_tzr_toa(time(Float128(53475.0 * day_to_s)), frequency(2.5e9), nothing)
 
+        params = Dict("PHOFF" => dimensionless(1e-6))
+
         @testset "PhaseOffset" begin
             poff = PhaseOffset()
-            @test phase(poff, toa, Dict("PHOFF" => dimensionless(1e-6))) ==
-                  dimensionless(1e-6)
-            @test phase(poff, tzrtoa, Dict("PHOFF" => dimensionless(1e-6))) ==
-                  dimensionless(0.0)
+            @test phase(poff, toa, params) == dimensionless(1e-6)
+            @test phase(poff, tzrtoa, params) == dimensionless(0.0)
         end
 
         @testset "Spindown" begin
-            @test Spindown(2).number_of_terms == 2
+            spn = Spindown(2)
+            @test spn.number_of_terms == 2
+            @test phase(spn, toa, params) == dimensionless(0.0)
         end
 
         @testset "SolarSystem" begin
             ss = SolarSystem(true, true)
             @test ss.ecliptic_coordinates && ss.planet_shapiro
+            @test delay(ss, toa, params) == time(0.0)
         end
 
         @testset "Troposphere" begin
             tropo = Troposphere()
+            @test delay(tropo, toa, params) == time(0.0)
         end
 
-
+        @testset "DispersionTaylor" begin
+            dmt = DispersionTaylor(2)
+            @test dispersion_slope(dmt, toa, params) == GQ(0.0, -1)
+        end
     end
 
     @testset "read_model_and_toas" begin
@@ -277,31 +284,6 @@ const day_to_s = 86400
 
         end
     end
-
-    # @testset "timing model" begin
-    #     pepoch = Parameter(
-    #         "pepoch",
-    #         time(56000.0 * day_to_s),
-    #         time(55000.0 * day_to_s),
-    #         time(57000.0 * day_to_s),
-    #         true,
-    #     )
-    #     f0 = Parameter("F0", frequency(100.0), frequency(0.0), frequency(Inf), false)
-    #     f1 = Parameter("F1", GQ(-1e-14, -2), GQ(-Inf, -2), GQ(Inf, -2), false)
-
-    #     param_handler = ParamHandler([pepoch, f0, f1])
-
-    #     tzrtdb = time(Float128(55000.0))
-    #     tzrfrq = frequency(1400.0)
-    #     tzr_ephem = EphemerisVectors(
-    #         distance.([18.0354099, 450.01472245, 195.05827732]),
-    #         speed.([-9.96231954e-05, 3.31555854e-06, 1.12968547e-06]),
-    #         distance.([-15.89483533, -450.17185232, -195.18212616]),
-    #     )
-    #     tzrtoa = make_tzr_toa(tzrtdb, tzrfrq, tzr_ephem)
-
-    #     model = TimingModel(param_handler, tzrtoa)
-    # end
 
     @testset "formatting" begin
         @test format(".")

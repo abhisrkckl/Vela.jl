@@ -1,4 +1,4 @@
-export Troposphere
+export Troposphere, delay
 
 struct Troposphere <: DelayComponent end
 
