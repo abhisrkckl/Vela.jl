@@ -9,7 +9,7 @@ end
 
 _to_f128(q::GQ) = GQ(Float128(q.x), q.d)
 
-function phase(spindown::Spindown, toa::TOA, params)
+function phase(spindown::Spindown, toa::TOA, params)::GQ{Float128}
     t0 = _to_f128(params["PEPOCH"])
     t = toa.value
     cs = [_to_f128(params["F$i"]) for i = 0:(spindown.number_of_terms-1)]
