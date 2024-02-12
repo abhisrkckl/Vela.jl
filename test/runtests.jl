@@ -248,10 +248,10 @@ const day_to_s = 86400
     end
 
     @testset "read_model_and_toas" begin
-        h5open("NGC6440E.hdf5") do f
+        @testset "NGC6440E" begin
+            model, toas = read_model_and_toas("NGC6440E.hdf5")
 
             @testset "read_toas" begin
-                toas = read_toas(f)
                 @test !any([toa.tzr for toa in toas])
                 @test length(toas) == 62
                 @test all([toa.level == 0 for toa in toas])
@@ -268,7 +268,7 @@ const day_to_s = 86400
             end
 
             @testset "read_tzr_toa" begin
-                tzrtoa = read_tzr_toa(f)
+                tzrtoa = model.tzr_toa
                 @test tzrtoa.tzr
                 @test tzrtoa.level == 0
                 @test tzrtoa.error > time(0.0)
@@ -278,7 +278,7 @@ const day_to_s = 86400
             end
 
             @testset "read_param_handler" begin
-                param_handler = read_param_handler(f)
+                param_handler = model.param_handler
                 @test length(param_handler.params) >= length(param_handler._free_params)
                 @test length(param_handler.params) ==
                       length(param_handler._default_params_dict)
@@ -286,7 +286,7 @@ const day_to_s = 86400
             end
 
             @testset "read_components" begin
-                components = read_components(f)
+                components = model.components
                 @test length(components) == 5
 
                 @test isa(components[1], SolarSystem)

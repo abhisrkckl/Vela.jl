@@ -10,7 +10,7 @@ include("troposphere.jl")
 include("dispersion.jl")
 include("solarwind.jl")
 # include("selection.jl")
-# include("timing_model.jl")
+include("timing_model.jl")
 include("read_model_and_toas.jl")
 
 end

@@ -3,7 +3,7 @@ using Quadmath
 using HDF5
 using JSON
 
-export read_toas, read_tzr_toa, read_param_handler, read_components
+export read_toas, read_tzr_toa, read_param_handler, read_components, read_model_and_toas
 
 function read_ephem_vectors(toa_data::NamedTuple)::EphemerisVectors
     ssb_obs_pos =
@@ -116,6 +116,19 @@ function read_components(f::HDF5.File)
     end
 
     return components
+end
+
+function read_model_and_toas(filename::String)
+    h5open(filename) do f
+        toas = read_toas(f)
+
+        param_handler = read_param_handler(f)
+        components = read_components(f)
+        tzr_toa = read_tzr_toa(f)
+        model = TimingModel(components, param_handler, tzr_toa)
+
+        return model, toas
+    end
 end
 
 # function _read_model(pint_model, pint_toas)
