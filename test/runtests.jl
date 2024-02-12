@@ -203,7 +203,12 @@ const day_to_s = 86400
         )
         tzrtoa = make_tzr_toa(time(Float128(53475.0 * day_to_s)), frequency(2.5e9), nothing)
 
-        params = Dict("PHOFF" => dimensionless(1e-6))
+        params = Dict(
+            "PHOFF" => dimensionless(1e-6),
+            "PEPOCH" => time(53470.0 * day_to_s),
+            "F0" => frequency(100.0),
+            "F1" => GQ(-1e-14, -2),
+        )
 
         @testset "PhaseOffset" begin
             poff = PhaseOffset()
@@ -215,6 +220,7 @@ const day_to_s = 86400
             spn = Spindown(2)
             @test spn.number_of_terms == 2
             @test phase(spn, toa, params) == dimensionless(0.0)
+            @test rotational_frequency(spn, toa, params) == frequency(100.0)
         end
 
         @testset "SolarSystem" begin
