@@ -304,6 +304,6 @@ const day_to_s = 86400
     end
 
     @testset "formatting" begin
-        @test format(".")
+        @test format(Vela)
     end
 end
