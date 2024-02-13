@@ -55,36 +55,66 @@ end
 struct TOA
     value::GQ{Float128}
     error::GQ{Float64}
-    frequency::GQ{Float64}
+    observing_frequency::GQ{Float64}
     phase::GQ{Float128}
+    spin_frequency::Union{GQ{Float64},Nothing}
     ephem_vectors::Union{EphemerisVectors,Nothing}
     level::UInt
     tzr::Bool
 
-    function TOA(value, error, frequency, phase, ephem_vectors, level, tzr)
+    function TOA(
+        value,
+        error,
+        observing_frequency,
+        phase,
+        spin_frequency,
+        ephem_vectors,
+        level,
+        tzr,
+    )
         @assert value.d == 1 "Dimension mismatch in value (given $(value.d), expected 1)."
         @assert error.d == 1 "Dimension mismatch in error (given $(error.d), expected 1)."
-        @assert frequency.d == -1 "Dimension mismatch in frequency (given $(frequency.d), expected -1)."
+        @assert observing_frequency.d == -1 "Dimension mismatch in observing_frequency (given $(observing_frequency.d), expected -1)."
+        @assert isnothing(spin_frequency) || spin_frequency.d == -1 "Dimension mismatch in spin_frequency (given $(spin_frequency.d), expected -1)."
         @assert phase.d == 0 "Dimension mismatch in phase (given $(phase.d), expected 0)."
 
-        return new(value, error, frequency, phase, ephem_vectors, level, tzr)
+        return new(
+            value,
+            error,
+            observing_frequency,
+            phase,
+            spin_frequency,
+            ephem_vectors,
+            level,
+            tzr,
+        )
     end
 end
 
-TOA(value, error, frequency, phase, ephem_vectors) =
-    TOA(value, error, frequency, phase, ephem_vectors, 0, false)
-TOA(value, error, frequency, phase) = TOA(value, error, frequency, phase, nothing, 0, false)
+TOA(value, error, observing_frequency, phase, ephem_vectors) =
+    TOA(value, error, observing_frequency, phase, nothing, ephem_vectors, 0, false)
+TOA(value, error, observing_frequency, phase) =
+    TOA(value, error, observing_frequency, phase, nothing, nothing, 0, false)
 
 is_barycentered(toa::TOA) = isnothing(toa.ephem_vectors)
 
-make_tzr_toa(tzrtdb, tzrfreq, ephem_vectors) =
-    TOA(tzrtdb, time(0.0), tzrfreq, dimensionless(Float128(0.0)), ephem_vectors, 0, true)
+make_tzr_toa(tzrtdb, tzrfreq, ephem_vectors) = TOA(
+    tzrtdb,
+    time(0.0),
+    tzrfreq,
+    dimensionless(Float128(0.0)),
+    nothing,
+    ephem_vectors,
+    0,
+    true,
+)
 
 correct_toa_delay(toa::TOA, delay::GQ) = TOA(
     toa.value - delay,
     toa.error,
-    toa.frequency,
+    toa.observing_frequency,
     toa.phase,
+    toa.spin_frequency,
     toa.ephem_vectors,
     toa.level + 1,
     toa.tzr,
@@ -92,8 +122,9 @@ correct_toa_delay(toa::TOA, delay::GQ) = TOA(
 correct_toa_phase(toa::TOA, phase::GQ) = TOA(
     toa.value,
     toa.error,
-    toa.frequency,
+    toa.observing_frequency,
     toa.phase + phase,
+    toa.spin_frequency,
     toa.ephem_vectors,
     toa.level + 1,
     toa.tzr,

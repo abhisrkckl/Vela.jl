@@ -69,7 +69,7 @@ function read_toa(toa_data::NamedTuple, tzr = false)::TOA
 
     ephem_vectors = read_ephem_vectors(toa_data)
 
-    return TOA(value, error, freq, phase, ephem_vectors, 0, tzr)
+    return TOA(value, error, freq, phase, nothing, ephem_vectors, 0, tzr)
 end
 
 read_toas(f::HDF5.File)::Vector{TOA} = [read_toa(toa_data) for toa_data in read(f["TOAs"])]

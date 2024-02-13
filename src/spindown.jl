@@ -18,7 +18,7 @@ function phase(spindown::Spindown, toa::TOA, params)::GQ{Float128}
     return th(t)
 end
 
-function rotational_frequency(spindown::Spindown, toa::TOA, params)
+function spin_frequency(spindown::Spindown, toa::TOA, params)
     if spindown.number_of_terms == 1
         return params["F0"]
     end
@@ -30,3 +30,14 @@ function rotational_frequency(spindown::Spindown, toa::TOA, params)
     th = TaylorSeries(t0, f0, cs)
     return th(t)
 end
+
+correct_toa(spindown::Spindown, toa::TOA, params) = TOA(
+    toa.value,
+    toa.error,
+    toa.observing_frequency,
+    toa.phase + phase(spindown, toa, params),
+    spin_frequency(spindown, toa, params),
+    toa.ephem_vectors,
+    toa.level + 1,
+    toa.tzr,
+)

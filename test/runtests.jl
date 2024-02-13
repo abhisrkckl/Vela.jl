@@ -123,7 +123,7 @@ const day_to_s = 86400
         toa3 = correct_toa_delay(toa1, dt)
         @test toa3.value == toa1.value - dt
         @test toa3.error == toa1.error
-        @test toa3.frequency == toa1.frequency
+        @test toa3.observing_frequency == toa1.observing_frequency
         @test toa3.phase == toa1.phase
         @test is_barycentered(toa3) == is_barycentered(toa1)
         @test toa3.tzr == toa1.tzr
@@ -133,7 +133,7 @@ const day_to_s = 86400
         toa4 = correct_toa_phase(toa3, dphi)
         @test toa4.value == toa3.value
         @test toa4.error == toa3.error
-        @test toa4.frequency == toa3.frequency
+        @test toa4.observing_frequency == toa3.observing_frequency
         @test toa4.phase == toa3.phase + dphi
         @test is_barycentered(toa4) == is_barycentered(toa3)
         @test toa4.tzr == toa3.tzr
@@ -256,7 +256,8 @@ const day_to_s = 86400
                 @test length(toas) == 62
                 @test all([toa.level == 0 for toa in toas])
                 @test all([
-                    frequency(1e9) < toa.frequency < frequency(2.5e9) for toa in toas
+                    frequency(1e9) < toa.observing_frequency < frequency(2.5e9) for
+                    toa in toas
                 ])
                 @test all([
                     time(53470.0 * day_to_s) < toa.value < time(54200.0 * day_to_s) for
@@ -273,7 +274,7 @@ const day_to_s = 86400
                 @test tzrtoa.level == 0
                 @test tzrtoa.error > time(0.0)
                 @test modf(tzrtoa.phase.x)[1] == 0
-                @test frequency(1e9) < tzrtoa.frequency < frequency(2.5e9)
+                @test frequency(1e9) < tzrtoa.observing_frequency < frequency(2.5e9)
                 @test time(53470.0 * day_to_s) < tzrtoa.value < time(54200.0 * day_to_s)
             end
 

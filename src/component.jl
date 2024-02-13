@@ -23,7 +23,7 @@ correct_toa(component::DelayComponent, toa::TOA, params) =
 
 abstract type DispersionComponent <: DelayComponent end
 delay(component::DispersionComponent, toa::TOA, params) =
-    dispersion_slope(component, toa, params) / toa.frequency^2
+    dispersion_slope(component, toa, params) / toa.observing_frequency^2
 
 abstract type BasisDelayComponent <: DelayComponent end
 delay(component::BasisDelayComponent, toa::TOA, params) =
