@@ -130,30 +130,3 @@ function read_model_and_toas(filename::String)
         return model, toas
     end
 end
-
-# function _read_model(pint_model, pint_toas)
-#     tzr_toa = _read_tzr_toa(pint_model, pint_toas)
-#     params = _read_params(pint_model)
-
-#     return TimingModel(ParamHandler(params), tzr_toa)
-# end
-
-# function read_model_and_toas(parfile::String, timfile::String)
-#     setup_log = pyimport("pint.logging" => "setup")
-#     setup_log(level = "WARNING")
-
-#     get_model_and_toas = pyimport("pint.models" => "get_model_and_toas")
-#     pint_model, pint_toas = get_model_and_toas(parfile, timfile, add_tzr_to_model = true)
-#     pint_toas.compute_pulse_numbers(pint_model)
-
-#     if !pyin("PhaseOffset", pint_model.components)
-#         PhaseOffset = pyimport("pint.models" => "PhaseOffset")
-#         pint_model.add_component(PhaseOffset())
-#         pint_model.PHOFF.frozen = pybuiltins.False
-#     end
-
-#     toas = _read_toas(pint_toas)
-#     model = _read_model(pint_model, pint_toas)
-
-#     return model, toas
-# end
