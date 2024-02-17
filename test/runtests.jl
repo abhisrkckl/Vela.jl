@@ -225,6 +225,13 @@ const day_to_s = 86400
             @test spn.number_of_terms == 2
             @test phase(spn, toa, params) == dimensionless(0.0)
             @test spin_frequency(spn, toa, params) == frequency(100.0)
+
+            ctoa = correct_toa(spn, toa, params)
+            @test ctoa.value == toa.value
+            @test ctoa.error == toa.error
+            @test ctoa.observing_frequency == toa.observing_frequency
+            @test isnothing(toa.spin_frequency) && !isnothing(ctoa.spin_frequency)
+            @test ctoa.phase == toa.phase - phase(spn, toa, params)
         end
 
         @testset "SolarSystem" begin
@@ -312,6 +319,51 @@ const day_to_s = 86400
                 @test isa(components[6], PhaseOffset)
 
                 # @test all([!isa(c, Troposphere) for c in components])
+            end
+        end
+
+        @testset "pure_rotator" begin
+            model, toas = read_model_and_toas("pure_rotator.hdf5")
+
+            @testset "read_toas" begin
+                @test !any([toa.tzr for toa in toas])
+                @test length(toas) == 100
+                @test all([toa.level == 0 for toa in toas])
+                @test all([toa.observing_frequency == frequency(1.4e9) for toa in toas])
+                @test all([
+                    time(53400.0 * day_to_s) < toa.value < time(56002.0 * day_to_s) for
+                    toa in toas
+                ])
+                @test all([modf(toa.phase.x)[1] == 0 for toa in toas])
+                @test all([toa.error > time(0.0) for toa in toas])
+            end
+
+            @testset "read_tzr_toa" begin
+                tzrtoa = model.tzr_toa
+                @test tzrtoa.tzr
+                @test tzrtoa.level == 0
+                @test tzrtoa.error > time(0.0)
+                @test modf(tzrtoa.phase.x)[1] == 0
+                @test frequency(1e9) < tzrtoa.observing_frequency < frequency(2.5e9)
+                @test time(53400.0 * day_to_s) < tzrtoa.value < time(56002.0 * day_to_s)
+            end
+
+            @testset "read_param_handler" begin
+                param_handler = model.param_handler
+                @test length(param_handler.params) >= length(param_handler._free_params)
+                @test length(param_handler.params) ==
+                      length(param_handler._default_params_dict)
+                @test Set([p.name for p in param_handler._free_params]) == Set(["F0", "F1", "PHOFF"])
+            end
+
+            @testset "read_components" begin
+                components = model.components
+                @test length(components) == 2
+
+                @test isa(components[1], Spindown)
+                @test components[1].number_of_terms == 2
+
+                @test isa(components[2], PhaseOffset)
             end
         end
     end

@@ -1,7 +1,7 @@
 using GeometricUnits
 using Quadmath
 
-export Spindown, phase, spin_frequency
+export Spindown, phase, spin_frequency, correct_toa
 
 struct Spindown <: PhaseComponent
     number_of_terms::UInt
