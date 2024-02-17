@@ -220,7 +220,7 @@ const day_to_s = 86400
             spn = Spindown(2)
             @test spn.number_of_terms == 2
             @test phase(spn, toa, params) == dimensionless(0.0)
-            @test rotational_frequency(spn, toa, params) == frequency(100.0)
+            @test spin_frequency(spn, toa, params) == frequency(100.0)
         end
 
         @testset "SolarSystem" begin
