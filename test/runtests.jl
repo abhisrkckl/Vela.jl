@@ -217,6 +217,10 @@ const day_to_s = 86400
         end
 
         @testset "Spindown" begin
+            spn = Spindown(1)
+            @test phase(spn, toa, params) == dimensionless(0.0)
+            @test spin_frequency(spn, toa, params) == frequency(100.0)
+
             spn = Spindown(2)
             @test spn.number_of_terms == 2
             @test phase(spn, toa, params) == dimensionless(0.0)
