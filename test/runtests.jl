@@ -214,6 +214,20 @@ const day_to_s = 86400
             poff = PhaseOffset()
             @test phase(poff, toa, params) == dimensionless(1e-6)
             @test phase(poff, tzrtoa, params) == dimensionless(0.0)
+
+            ctoa = correct_toa(poff, toa, params)
+            @test ctoa.value == toa.value
+            @test ctoa.error == toa.error
+            @test ctoa.observing_frequency == toa.observing_frequency
+            @test isnothing(toa.spin_frequency) && isnothing(ctoa.spin_frequency)
+            @test ctoa.phase ≈ toa.phase + phase(poff, toa, params)
+
+            ctzrtoa = correct_toa(poff, tzrtoa, params)
+            @test ctzrtoa.value == tzrtoa.value
+            @test ctzrtoa.error == tzrtoa.error
+            @test ctzrtoa.observing_frequency == tzrtoa.observing_frequency
+            @test isnothing(toa.spin_frequency) && isnothing(ctzrtoa.spin_frequency)
+            @test ctzrtoa.phase == tzrtoa.phase
         end
 
         @testset "Spindown" begin
@@ -231,7 +245,7 @@ const day_to_s = 86400
             @test ctoa.error == toa.error
             @test ctoa.observing_frequency == toa.observing_frequency
             @test isnothing(toa.spin_frequency) && !isnothing(ctoa.spin_frequency)
-            @test ctoa.phase == toa.phase - phase(spn, toa, params)
+            @test ctoa.phase == toa.phase + phase(spn, toa, params)
         end
 
         @testset "SolarSystem" begin
