@@ -272,7 +272,7 @@ const day_to_s = 86400
         end
     end
 
-    @testset "read_model_and_toas" begin
+    @testset "Test datasets" begin
         @testset "NGC6440E" begin
             model, toas = read_model_and_toas("NGC6440E.hdf5")
 
@@ -378,6 +378,21 @@ const day_to_s = 86400
                 @test components[1].number_of_terms == 2
 
                 @test isa(components[2], PhaseOffset)
+            end
+
+            @testset "correct_toa" begin
+                ctoa = correct_toa(model, toas[1], model.param_handler._default_params_dict)
+                @test ctoa.value == toas[1].value
+            end
+
+            @testset "form_residuals" begin
+                resids =
+                    form_residuals(model, toas, model.param_handler._default_params_dict)
+                @test all(isfinite.(resids))
+            end
+
+            @testset "calc_lnlike" begin
+                chi2 = calc_lnlike(model, toas, model.param_handler._default_params_dict)
             end
         end
     end
