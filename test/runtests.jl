@@ -208,6 +208,9 @@ const day_to_s = 86400
             "PEPOCH" => time(53470.0 * day_to_s),
             "F0" => frequency(100.0),
             "F1" => GQ(-1e-14, -2),
+            "DMEPOCH" => time(53470.0 * day_to_s),
+            "DM" => GQ(10.0, -1),
+            "DM1" => GQ(1e-4, -2),
         )
 
         @testset "PhaseOffset" begin
@@ -261,7 +264,9 @@ const day_to_s = 86400
 
         @testset "DispersionTaylor" begin
             dmt = DispersionTaylor(2)
-            @test dispersion_slope(dmt, toa, params) == GQ(0.0, -1)
+            @test dispersion_slope(dmt, toa, params) == GQ(10.0, -1)
+            @test delay(dmt, toa, params) ==
+                  dispersion_slope(dmt, toa, params) / toa.observing_frequency^2
         end
 
         @testset "SolarWindDispersion" begin
