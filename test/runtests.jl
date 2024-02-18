@@ -392,7 +392,8 @@ const day_to_s = 86400
             end
 
             @testset "calc_lnlike" begin
-                chi2 = calc_lnlike(model, toas, model.param_handler._default_params_dict)
+                lnlike = calc_lnlike(model, toas, model.param_handler._default_params_dict)
+                @test isfinite(lnlike)
             end
         end
     end
