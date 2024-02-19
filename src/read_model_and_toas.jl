@@ -102,7 +102,7 @@ function read_components(f::HDF5.File)
         elseif cdict["name"] == "SolarSystem"
             push!(
                 components,
-                SolarSystem(cdict["ecliptic_coordinates"], cdict["planet_shapiro"]),
+                SolarSystem(cdict["ecliptic_coordinates"], cdict["proper_motion"], cdict["planet_shapiro"]),
             )
         elseif cdict["name"] == "Troposphere"
             push!(components, Troposphere())

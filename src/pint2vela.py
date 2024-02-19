@@ -214,10 +214,13 @@ def components_from_model(model: TimingModel) -> list:
                 {"name": "Spindown", "number_of_terms": len(model.get_spin_terms())}
             )
         elif component_name.startswith("Astrometry"):
+            ecliptic_coordinates = component_name == "AstrometryEcliptic"
+            is_frozen_at_0 = lambda ps: all(model[p].frozen and model[p].value == 0 for p in ps)
             components.append(
                 {
                     "name": "SolarSystem",
-                    "ecliptic_coordinates": component_name == "AstrometryEcliptic",
+                    "ecliptic_coordinates": ecliptic_coordinates,
+                    "proper_motion": not (is_frozen_at_0(["PMELAT", "PMELONG"]) if ecliptic_coordinates else is_frozen_at_0(["PMRA", "PMDEC"])),
                     "planet_shapiro": model.PLANET_SHAPIRO.value,
                 }
             )
