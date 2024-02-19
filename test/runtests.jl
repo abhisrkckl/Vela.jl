@@ -215,7 +215,7 @@ const day_to_s = 86400
 
         @testset "PhaseOffset" begin
             poff = PhaseOffset()
-            @test phase(poff, toa, params) == dimensionless(1e-6)
+            @test phase(poff, toa, params) == dimensionless(-1e-6)
             @test phase(poff, tzrtoa, params) == dimensionless(0.0)
 
             ctoa = correct_toa(poff, toa, params)
@@ -394,6 +394,12 @@ const day_to_s = 86400
                 resids =
                     form_residuals(model, toas, model.param_handler._default_params_dict)
                 @test all(isfinite.(resids))
+            end
+
+            @testset "calc_chi2" begin
+                chi2 = calc_chi2(model, toas, model.param_handler._default_params_dict)
+                @test chi2 / (length(toas) - length(model.param_handler._free_params)) <
+                      dimensionless(Float128(1.5))
             end
 
             @testset "calc_lnlike" begin

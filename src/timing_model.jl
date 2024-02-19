@@ -1,6 +1,6 @@
 using GeometricUnits
 
-export TimingModel, correct_toa, form_residuals, calc_lnlike
+export TimingModel, correct_toa, form_residuals, calc_chi2, calc_lnlike
 
 struct TimingModel
     components::Vector{Component}
@@ -35,6 +35,11 @@ function form_residuals(model::TimingModel, toas::Vector{TOA}, params)
         (corrected_toa.phase - corrected_tzr_toa.phase) / corrected_toa.spin_frequency for
         corrected_toa in corrected_toas
     ]
+end
+
+function calc_chi2(model::TimingModel, toas::Vector{TOA}, params)
+    resids = form_residuals(model, toas, params)
+    return sum((resid / toa.error)^2 for (resid, toa) in zip(resids, toas))
 end
 
 function calc_lnlike(model::TimingModel, toas::Vector{TOA}, params)
