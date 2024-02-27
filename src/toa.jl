@@ -3,7 +3,7 @@ using Quadmath
 using LinearAlgebra
 
 export EphemerisVectors,
-    TOA, is_barycentered, correct_toa_delay, correct_toa_phase, make_tzr_toa
+    TOA, is_barycentered, correct_toa_delay!, correct_toa_phase!, make_tzr_toa
 
 struct EphemerisVectors
     ssb_obs_pos::Vector{GQ{Float64}}
@@ -52,13 +52,13 @@ struct EphemerisVectors
     end
 end
 
-struct TOA
+mutable struct TOA
     value::GQ{Float128}
     error::GQ{Float64}
     observing_frequency::GQ{Float64}
     phase::GQ{Float128}
-    spin_frequency::Union{GQ{Float64},Nothing}
-    ephem_vectors::Union{EphemerisVectors,Nothing}
+    spin_frequency::GQ{Float64}
+    ephem_vectors::EphemerisVectors
     level::UInt
     tzr::Bool
 
@@ -92,40 +92,29 @@ struct TOA
 end
 
 TOA(value, error, observing_frequency, phase, ephem_vectors) =
-    TOA(value, error, observing_frequency, phase, nothing, ephem_vectors, 0, false)
-TOA(value, error, observing_frequency, phase) =
-    TOA(value, error, observing_frequency, phase, nothing, nothing, 0, false)
+    TOA(value, error, observing_frequency, phase, frequency(-1.0), ephem_vectors, 0, false)
+# TOA(value, error, observing_frequency, phase) =
+#     TOA(value, error, observing_frequency, phase, frequency(-1.0), nothing, 0, false)
 
-is_barycentered(toa::TOA) = isnothing(toa.ephem_vectors)
+# is_barycentered(toa::TOA) = isnothing(toa.ephem_vectors)
 
 make_tzr_toa(tzrtdb, tzrfreq, ephem_vectors) = TOA(
     tzrtdb,
     time(0.0),
     tzrfreq,
     dimensionless(Float128(0.0)),
-    nothing,
+    frequency(-1.0),
     ephem_vectors,
     0,
     true,
 )
 
-correct_toa_delay(toa::TOA, delay::GQ) = TOA(
-    toa.value - delay,
-    toa.error,
-    toa.observing_frequency,
-    toa.phase,
-    toa.spin_frequency,
-    toa.ephem_vectors,
-    toa.level + 1,
-    toa.tzr,
-)
-correct_toa_phase(toa::TOA, phase::GQ) = TOA(
-    toa.value,
-    toa.error,
-    toa.observing_frequency,
-    toa.phase + phase,
-    toa.spin_frequency,
-    toa.ephem_vectors,
-    toa.level + 1,
-    toa.tzr,
-)
+function correct_toa_delay!(toa::TOA, delay::GQ)
+    toa.value -= delay
+    toa.level += 1
+end
+
+function correct_toa_phase!(toa::TOA, phase::GQ)
+    toa.phase += phase
+    toa.level += 1
+end

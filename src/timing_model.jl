@@ -1,6 +1,6 @@
 using GeometricUnits
 
-export TimingModel, correct_toa, form_residuals, calc_chi2, calc_lnlike
+export TimingModel, correct_toas, form_residuals, calc_chi2, calc_lnlike
 
 struct TimingModel
     components::Vector{Component}
@@ -18,14 +18,14 @@ struct TimingModel
     end
 end
 
-function correct_toa(model::TimingModel, toa::TOA, params)::TOA
-    corrected_toa = toa
+function correct_toas(model::TimingModel, toas::Vector{TOA}, params::Dict)
+    corrected_toas::Vector{TOA} = copy(toas)
 
     for component in model.components
-        corrected_toa = correct_toa(component, corrected_toa, params)
+        correct_toas!(component, corrected_toas, params)
     end
 
-    return corrected_toa
+    return corrected_toas
 end
 
 function form_residuals(model::TimingModel, toas::Vector{TOA}, params)
