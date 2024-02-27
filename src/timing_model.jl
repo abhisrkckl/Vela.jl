@@ -29,8 +29,8 @@ function correct_toas(model::TimingModel, toas::Vector{TOA}, params::Dict)
 end
 
 function form_residuals(model::TimingModel, toas::Vector{TOA}, params)
-    corrected_tzr_toa = correct_toa(model, model.tzr_toa, params)
-    corrected_toas = [correct_toa(model, toa, params) for toa in toas]
+    corrected_tzr_toa = correct_toas(model, [model.tzr_toa], params)[1]
+    corrected_toas = correct_toas(model, toas, params)
     return [
         (corrected_toa.phase - corrected_tzr_toa.phase) / corrected_toa.spin_frequency for
         corrected_toa in corrected_toas
