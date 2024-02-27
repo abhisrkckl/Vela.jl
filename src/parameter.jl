@@ -1,52 +1,71 @@
 using GeometricUnits
 
-export Parameter, read_param, ParamHandler, read_params
+export Parameter,
+    MultiParameter, read_param, ParamHandler, read_params, get_free_param_names
 
 struct Parameter
-    name::String
+    display_name::String
     default_quantity::GQ{Float64}
-    upper_limit::GQ{Float64}
-    lower_limit::GQ{Float64}
     frozen::Bool
 
-    function Parameter(name, default_quantity, lower_limit, upper_limit, frozen)
-        @assert default_quantity.d == upper_limit.d == lower_limit.d "upper_limit and lower_limit must have the same dimension as default_quantity."
-        @assert lower_limit <= default_quantity <= upper_limit "default_quantity outside limits."
-
-        return new(uppercase(name), default_quantity, upper_limit, lower_limit, frozen)
+    function Parameter(name, default_quantity, frozen)
+        return new(uppercase(name), default_quantity, frozen)
     end
 end
 
 function read_param(param::Parameter, value::Float64)
-    @assert !param.frozen "Refusing to read a frozen parameter $(param.name)."
+    @assert !param.frozen "Refusing to read a frozen parameter $(param.display_name)."
 
-    q = quantity_like(param.default_quantity, value)
-    @assert param.lower_limit <= q <= param.upper_limit "Given value is outside the limits for $(param.name)."
+    return quantity_like(param.default_quantity, value)
+end
 
-    return q
+struct MultiParameter
+    name::String
+    parameters::Vector{Parameter}
 end
 
 struct ParamHandler
-    params::Vector{Parameter}
-    _free_params::Vector{Parameter}
-    _default_params_dict::Dict{String,GQ{Float64}}
+    multi_params::Vector{MultiParameter}
+    _default_params_dict::Dict{String,Vector{GQ{Float64}}}
 
-    function ParamHandler(params)
-        param_names = [param.name for param in params]
-        @assert length(param_names) == length(Set(param_names)) "Repeated parameter names found in default_params."
+    function ParamHandler(multi_params)
+        _default_params_dict = Dict{String,Vector{GQ{Float64}}}()
 
-        _free_params = [param for param in params if !param.frozen]
-        _default_params_dict =
-            Dict(param.name => param.default_quantity for param in params)
+        for mpar in multi_params
+            _default_params_dict[mpar.name] =
+                [param.default_quantity for param in mpar.parameters]
+        end
 
-        return new(params, _free_params, _default_params_dict)
+        return new(multi_params, _default_params_dict)
     end
 end
 
 function read_params(param_handler::ParamHandler, values::Vector{Float64})
-    free_params_dict = Dict(
-        param.name => read_param(param, value) for
-        (param, value) in zip(param_handler._free_params, values)
-    )
-    return merge(param_handler._default_params_dict, free_params_dict)
+    param_dict = copy(param_handler._default_params_dict)
+    ii = 1
+    for mpar in param_handler.multi_params
+        for (jj, param) in enumerate(mpar.parameters)
+            if !param.frozen
+                @inbounds param_dict[mpar.name][jj] = read_param(param, values[ii])
+                ii += 1
+            end
+        end
+    end
+
+    return param_dict
+end
+
+function get_free_param_names(param_handler::ParamHandler)
+    pnames = Vector{String}()
+    ii = 1
+    for mpar in param_handler.multi_params
+        for param in mpar.parameters
+            if !param.frozen
+                @inbounds push!(pnames, param.display_name)
+                ii += 1
+            end
+        end
+    end
+
+    return pnames
 end

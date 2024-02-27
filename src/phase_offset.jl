@@ -5,4 +5,4 @@ export PhaseOffset, phase
 struct PhaseOffset <: PhaseComponent end
 
 phase(::PhaseOffset, toa::TOA, params::Dict)::GQ =
-    toa.tzr ? dimensionless(0.0) : -params["PHOFF"]
+    toa.tzr ? dimensionless(0.0) : -params["PHOFF"][1]

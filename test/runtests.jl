@@ -148,51 +148,31 @@ const day_to_s = 86400
         end
     end
 
-    @testset "parameter" begin
-        @test_throws AssertionError Parameter(
-            "PEPOCH",
-            time(58000.0 * day_to_s),
-            time(55000.0 * day_to_s),
-            time(57000.0 * day_to_s),
-            true,
-        )
-
-        pepoch = Parameter(
-            "pepoch",
-            time(56000.0 * day_to_s),
-            time(55000.0 * day_to_s),
-            time(57000.0 * day_to_s),
-            true,
-        )
-        @assert pepoch.name == "PEPOCH"
+    @testset "parameter & param handler" begin
+        pepoch = Parameter("pepoch", time(56000.0 * day_to_s), true)
+        @test pepoch.display_name == "PEPOCH"
         @test_throws AssertionError read_param(pepoch, 56000.0 * day_to_s)
 
-        f0 = Parameter("F0", frequency(100.0), frequency(0.0), frequency(Inf), false)
-        @test_throws AssertionError read_param(f0, -100.0)
+        f0 = Parameter("F0", frequency(100.0), false)
         @test read_param(f0, 101.0) == frequency(101.0)
+
+        f1 = Parameter("F1", GQ(-1e-14, -2), false)
+        @test read_param(f1, -1.1e-14) == GQ(-1.1e-14, -2)
+
+        mparT = MultiParameter("PEPOCH", [pepoch])
+        @test length(mparT.parameters) == 1
+
+        mparF = MultiParameter("F", [f0, f1])
+        @test length(mparF.parameters) == 2
+
+        ph = ParamHandler([mparT, mparF])
+        @test get_free_param_names(ph) == ["F0", "F1"]
+        @test keys(ph._default_params_dict) == Set(["PEPOCH", "F"])
+
+        params_dict = read_params(ph, [100.01, -1.01e-14])
+        @test keys(params_dict) == Set(["PEPOCH", "F"])
+        @test params_dict["F"] == [frequency(100.01), GQ(-1.01e-14, -2)]
     end
-
-    @testset "param handler" begin
-        pepoch = Parameter(
-            "pepoch",
-            time(56000.0 * day_to_s),
-            time(55000.0 * day_to_s),
-            time(57000.0 * day_to_s),
-            true,
-        )
-        f0 = Parameter("F0", frequency(100.0), frequency(0.0), frequency(Inf), false)
-        f1 = Parameter("F1", GQ(-1e-14, -2), GQ(-Inf, -2), GQ(Inf, -2), false)
-
-        @test_throws AssertionError ParamHandler([pepoch, f0, f0])
-
-        param_handler = ParamHandler([pepoch, f0, f1])
-        @test param_handler._free_params == [f0, f1]
-        @test keys(param_handler._default_params_dict) == Set(["PEPOCH", "F0", "F1"])
-
-        params_dict = read_params(param_handler, [100.01, -1.01e-14])
-        @test keys(params_dict) == Set(["PEPOCH", "F0", "F1"])
-    end
-
 
     @testset "components" begin
         toa = TOA(
@@ -204,13 +184,11 @@ const day_to_s = 86400
         tzrtoa = make_tzr_toa(time(Float128(53475.0 * day_to_s)), frequency(2.5e9), nothing)
 
         params = Dict(
-            "PHOFF" => dimensionless(1e-6),
-            "PEPOCH" => time(53470.0 * day_to_s),
-            "F0" => frequency(100.0),
-            "F1" => GQ(-1e-14, -2),
-            "DMEPOCH" => time(53470.0 * day_to_s),
-            "DM" => GQ(10.0, -1),
-            "DM1" => GQ(1e-4, -2),
+            "PHOFF" => [dimensionless(1e-6)],
+            "PEPOCH" => [time(53470.0 * day_to_s)],
+            "F" => [frequency(100.0), GQ(-1e-14, -2)],
+            "DMEPOCH" => [time(53470.0 * day_to_s)],
+            "DM" => [GQ(10.0, -1), GQ(1e-4, -2)],
         )
 
         @testset "PhaseOffset" begin
@@ -234,12 +212,7 @@ const day_to_s = 86400
         end
 
         @testset "Spindown" begin
-            spn = Spindown(1)
-            @test phase(spn, toa, params) == dimensionless(0.0)
-            @test spin_frequency(spn, toa, params) == frequency(100.0)
-
-            spn = Spindown(2)
-            @test spn.number_of_terms == 2
+            spn = Spindown()
             @test phase(spn, toa, params) == dimensionless(0.0)
             @test spin_frequency(spn, toa, params) == frequency(100.0)
 
@@ -263,7 +236,7 @@ const day_to_s = 86400
         end
 
         @testset "DispersionTaylor" begin
-            dmt = DispersionTaylor(2)
+            dmt = DispersionTaylor()
             @test dispersion_slope(dmt, toa, params) == GQ(10.0, -1)
             @test delay(dmt, toa, params) ==
                   dispersion_slope(dmt, toa, params) / toa.observing_frequency^2
@@ -310,10 +283,10 @@ const day_to_s = 86400
 
             @testset "read_param_handler" begin
                 param_handler = model.param_handler
-                @test length(param_handler.params) >= length(param_handler._free_params)
-                @test length(param_handler.params) ==
+                @test length(param_handler.multi_params) ==
                       length(param_handler._default_params_dict)
-                @test Set([p.name for p in param_handler._free_params]) == Set(["F0", "F1", "DECJ", "RAJ", "DM", "PHOFF"])
+                @test Set(get_free_param_names(param_handler)) ==
+                      Set(["F0", "F1", "DECJ", "RAJ", "DM", "PHOFF"])
             end
 
             @testset "read_components" begin
@@ -331,10 +304,8 @@ const day_to_s = 86400
                 @test components[3].model == 0
 
                 @test isa(components[4], DispersionTaylor)
-                @test components[4].number_of_terms == 1
 
                 @test isa(components[5], Spindown)
-                @test components[5].number_of_terms == 2
 
                 @test isa(components[6], PhaseOffset)
 
@@ -370,19 +341,15 @@ const day_to_s = 86400
 
             @testset "read_param_handler" begin
                 param_handler = model.param_handler
-                @test length(param_handler.params) >= length(param_handler._free_params)
-                @test length(param_handler.params) ==
+                @test length(param_handler.multi_params) ==
                       length(param_handler._default_params_dict)
-                @test Set([p.name for p in param_handler._free_params]) == Set(["F0", "F1", "PHOFF"])
+                @test Set(get_free_param_names(param_handler)) == Set(["F0", "F1", "PHOFF"])
             end
 
             @testset "read_components" begin
                 components = model.components
                 @test length(components) == 2
-
                 @test isa(components[1], Spindown)
-                @test components[1].number_of_terms == 2
-
                 @test isa(components[2], PhaseOffset)
             end
 
@@ -399,8 +366,8 @@ const day_to_s = 86400
 
             @testset "calc_chi2" begin
                 chi2 = calc_chi2(model, toas, model.param_handler._default_params_dict)
-                @test chi2 / (length(toas) - length(model.param_handler._free_params)) <
-                      dimensionless(Float128(1.5))
+                nfree = length(get_free_param_names(model.param_handler))
+                @test chi2 / (length(toas) - nfree) < dimensionless(Float128(1.5))
             end
 
             @testset "calc_lnlike" begin

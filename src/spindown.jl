@@ -3,32 +3,24 @@ using Quadmath
 
 export Spindown, phase, spin_frequency, correct_toa
 
-struct Spindown <: PhaseComponent
-    number_of_terms::UInt
-end
+struct Spindown <: PhaseComponent end
 
 _to_f128(q::GQ) = GQ(Float128(q.x), q.d)
 
-function phase(spindown::Spindown, toa::TOA, params)::GQ{Float128}
-    t0 = _to_f128(params["PEPOCH"])
+function phase(::Spindown, toa::TOA, params)::GQ{Float128}
+    t0 = params["PEPOCH"][1]
     t = toa.value
-    cs = [_to_f128(params["F$i"]) for i = 0:(spindown.number_of_terms-1)]
-    c0 = dimensionless(Float128(0.0))
-    th = TaylorSeries(t0, c0, cs)
-    return th(t)
+    fs = params["F"]
+    phase0 = dimensionless(0.0)
+    return taylor_horner_integral(t - t0, fs, phase0)
 end
 
-function spin_frequency(spindown::Spindown, toa::TOA, params)
-    if spindown.number_of_terms == 1
-        return params["F0"]
-    end
-
-    t0 = params["PEPOCH"]
+function spin_frequency(::Spindown, toa::TOA, params)
+    t0 = params["PEPOCH"][1]
     t = toa.value
-    f0 = params["F0"]
-    cs = [params["F$i"] for i = 1:(spindown.number_of_terms-1)]
-    th = TaylorSeries(t0, f0, cs)
-    return th(t)
+    fs = params["F"]
+    f = taylor_horner(t - t0, fs)
+    return quantity_like(fs[1], f.x)
 end
 
 correct_toa(spindown::Spindown, toa::TOA, params) = TOA(

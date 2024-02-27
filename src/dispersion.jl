@@ -1,18 +1,11 @@
 export DispersionTaylor, dispersion_slope
 
-struct DispersionTaylor <: DispersionComponent
-    number_of_terms::UInt
-end
+struct DispersionTaylor <: DispersionComponent end
 
-function dispersion_slope(dmt::DispersionTaylor, toa::TOA, params)
-    if dmt.number_of_terms == 1
-        return params["DM"]
-    end
-
-    t0 = params["DMEPOCH"]
+function dispersion_slope(::DispersionTaylor, toa::TOA, params)
+    t0 = params["DMEPOCH"][1]
     t = toa.value
-    cs = [params["DM$i"] for i = 1:(dmt.number_of_terms-1)]
-    c0 = params["DM"]
-    th = TaylorSeries(t0, c0, cs)
-    return th(t)
+    dms = params["DM"]
+    dm = taylor_horner(t - t0, dms)
+    return quantity_like(dms[1], dm.x)
 end

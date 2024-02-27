@@ -77,17 +77,28 @@ read_toas(f::HDF5.File)::Vector{TOA} = [read_toa(toa_data) for toa_data in read(
 read_tzr_toa(f::HDF5.File) = read_toa(read(f["TZRTOA"])[1], true)
 
 function read_param_handler(f::HDF5.File)
-    param_dicts = JSON.parse(read(f["Parameters"]))
-    params = [
-        Parameter(
-            pd["name"],
-            GQ(pd["default_value"], pd["dimension"]),
-            GQ(-Inf, pd["dimension"]),
-            GQ(Inf, pd["dimension"]),
-            pd["frozen"],
-        ) for pd in param_dicts
-    ]
-    return ParamHandler(params)
+    params_info = JSON.parse(read(f["Parameters"]))
+
+    multi_params = Vector{MultiParameter}()
+    for (mpname, param_dicts) in params_info
+        params = [
+            Parameter(
+                pdict["display_name"],
+                GQ(pdict["default_value"], pdict["dimension"]),
+                pdict["frozen"],
+            ) for pdict in param_dicts
+        ]
+        push!(multi_params, MultiParameter(mpname, params))
+    end
+
+    # params = [
+    #     Parameter(
+    #         pd["name"],
+    #         GQ(pd["default_value"], pd["dimension"]),
+    #         pd["frozen"],
+    #     ) for pd in param_dicts
+    # ]
+    return ParamHandler(multi_params)
 end
 
 function read_components(f::HDF5.File)
@@ -96,7 +107,7 @@ function read_components(f::HDF5.File)
     components = Vector{Component}()
     for cdict in component_dicts
         if cdict["name"] == "Spindown"
-            push!(components, Spindown(cdict["number_of_terms"]))
+            push!(components, Spindown())
         elseif cdict["name"] == "PhaseOffset"
             push!(components, PhaseOffset())
         elseif cdict["name"] == "SolarSystem"
@@ -111,7 +122,7 @@ function read_components(f::HDF5.File)
         elseif cdict["name"] == "Troposphere"
             push!(components, Troposphere())
         elseif cdict["name"] == "DispersionTaylor"
-            push!(components, DispersionTaylor(cdict["number_of_terms"]))
+            push!(components, DispersionTaylor())
         elseif cdict["name"] == "SolarWindDispersion"
             swm = cdict["model"]
             @assert swm in [0, 1]

@@ -146,6 +146,23 @@ def _parse_quantity(quantity, scale_factor=1):
         )
 
 
+def fix_params(model: TimingModel):
+    assert model.PEPOCH.value is not None
+
+    for param in model.params:
+        if (
+            param.endswith("EPOCH")
+            and isinstance(model[param], MJDParameter)
+            and model[param].value is None
+        ):
+            model[param].quantity = model.PEPOCH.quantity
+
+    if "PhaseOffset" not in model.components:
+        model.add_component(PhaseOffset())
+
+    model.PHOFF.frozen = False
+
+
 def params_from_model(model: TimingModel) -> list:
     ignore_params = [
         "START",
@@ -159,6 +176,8 @@ def params_from_model(model: TimingModel) -> list:
         "TZRFRQ",
         "SWM",
     ]
+
+    processed_multi_params = ["DM"]
 
     params = []
     for param_name in model.params:
@@ -180,24 +199,68 @@ def params_from_model(model: TimingModel) -> list:
 
         param = model[param_name]
 
-        frozen = param.frozen
+        if param.name == "DM" or (
+            hasattr(param, "prefix") and param.prefix not in processed_multi_params
+        ):
+            prefix_param_names = (
+                ["DM"] + list(model.get_prefix_mapping("DM").values())
+                if param.name == "DM"
+                else list(model.get_prefix_mapping(param.prefix).values())
+            )
 
-        scale_factor = _get_scale_factor(param)
+            elements = []
+            for pxname in prefix_param_names:
+                pxparam = model[pxname]
 
-        value, dim = (
-            (param.value * day_to_s, 1)
-            if isinstance(param, MJDParameter)
-            else _parse_quantity(param.quantity, scale_factor)
-        )
+                if pxparam.value is None:
+                    break
 
-        params.append(
-            {
-                "name": param_name,
-                "default_value": float(value),
-                "dimension": dim,
-                "frozen": frozen,
-            }
-        )
+                scale_factor = _get_scale_factor(param)
+
+                value, dim = (
+                    (pxparam.value * day_to_s, 1)
+                    if isinstance(pxparam, MJDParameter)
+                    else _parse_quantity(pxparam.quantity, scale_factor)
+                )
+
+                elements.append(
+                    {
+                        "display_name": pxparam.name,
+                        "default_value": float(value),
+                        "dimension": dim,
+                        "frozen": pxparam.frozen,
+                    }
+                )
+
+            params.append(((param.prefix if param.name != "DM" else "DM"), elements))
+
+            if param.name != "DM":
+                processed_multi_params.append(param.prefix)
+
+        elif not hasattr(param, "prefix"):
+            frozen = param.frozen
+
+            scale_factor = _get_scale_factor(param)
+
+            value, dim = (
+                (param.value * day_to_s, 1)
+                if isinstance(param, MJDParameter)
+                else _parse_quantity(param.quantity, scale_factor)
+            )
+
+            params.append(
+                (
+                    param_name,
+                    [
+                        {
+                            "display_name": param_name,
+                            "default_value": float(value),
+                            "dimension": dim,
+                            "frozen": frozen,
+                        }
+                    ],
+                )
+            )
 
     return params
 
@@ -211,26 +274,33 @@ def components_from_model(model: TimingModel) -> list:
             continue
         elif component_name == "Spindown":
             components.append(
-                {"name": "Spindown", "number_of_terms": len(model.get_spin_terms())}
+                {"name": "Spindown"}
             )
         elif component_name.startswith("Astrometry"):
             ecliptic_coordinates = component_name == "AstrometryEcliptic"
-            is_frozen_at_0 = lambda ps: all(model[p].frozen and model[p].value == 0 for p in ps)
+            is_frozen_at_0 = lambda ps: all(
+                model[p].frozen and model[p].value == 0 for p in ps
+            )
             components.append(
                 {
                     "name": "SolarSystem",
                     "ecliptic_coordinates": ecliptic_coordinates,
-                    "proper_motion": not (is_frozen_at_0(["PMELAT", "PMELONG"]) if ecliptic_coordinates else is_frozen_at_0(["PMRA", "PMDEC"])),
+                    "proper_motion": not (
+                        is_frozen_at_0(["PMELAT", "PMELONG"])
+                        if ecliptic_coordinates
+                        else is_frozen_at_0(["PMRA", "PMDEC"])
+                    ),
                     "planet_shapiro": model.PLANET_SHAPIRO.value,
                 }
             )
         elif component_name == "SolarWindDispersion":
-            components.append({"name": "SolarWindDispersion", "model": int(model.SWM.value)})
+            components.append(
+                {"name": "SolarWindDispersion", "model": int(model.SWM.value)}
+            )
         elif component_name == "DispersionDM":
             components.append(
                 {
-                    "name": "DispersionTaylor",
-                    "number_of_terms": len(model.get_DM_terms()),
+                    "name": "DispersionTaylor"
                 }
             )
         elif component_name == "TroposphereDelay" and model.CORRECT_TROPOSPHERE.value:
@@ -251,10 +321,7 @@ if __name__ == "__main__":
 
     model, toas = get_model_and_toas(par, tim, planets=True, add_tzr_to_model=True)
     toas.compute_pulse_numbers(model)
-
-    if "PhaseOffset" not in model.components:
-        model.add_component(PhaseOffset())
-        model.PHOFF.frozen = False
+    fix_params(model)
 
     filename = f"{prefix}.hdf5"
 
