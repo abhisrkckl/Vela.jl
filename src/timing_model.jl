@@ -19,7 +19,7 @@ struct TimingModel
 end
 
 function correct_toas(model::TimingModel, toas::Vector{TOA}, params::Dict)
-    corrected_toas::Vector{TOA} = copy(toas)
+    corrected_toas::Vector{TOA} = map(copy, toas)
 
     for component in model.components
         correct_toas!(component, corrected_toas, params)

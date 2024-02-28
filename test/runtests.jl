@@ -412,7 +412,7 @@ const day_to_s = 86400
             @testset "calc_chi2" begin
                 chi2 = calc_chi2(model, toas, model.param_handler._default_params_dict)
                 nfree = length(get_free_param_names(model.param_handler))
-                @test_broken chi2 / (length(toas) - nfree) < dimensionless(Float128(1.5))
+                @test chi2 / (length(toas) - nfree) < dimensionless(Float128(1.5))
             end
 
             @testset "calc_lnlike" begin

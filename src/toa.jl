@@ -1,6 +1,7 @@
 using GeometricUnits
 using Quadmath
 using LinearAlgebra
+import Base.copy
 
 export EphemerisVectors,
     TOA, is_barycentered, correct_toa_delay!, correct_toa_phase!, make_tzr_toa
@@ -93,8 +94,17 @@ end
 
 TOA(value, error, observing_frequency, phase, ephem_vectors) =
     TOA(value, error, observing_frequency, phase, frequency(-1.0), ephem_vectors, 0, false)
-# TOA(value, error, observing_frequency, phase) =
-#     TOA(value, error, observing_frequency, phase, frequency(-1.0), nothing, 0, false)
+
+copy(toa::TOA) = TOA(
+    toa.value,
+    toa.error,
+    toa.observing_frequency,
+    toa.phase,
+    toa.spin_frequency,
+    toa.ephem_vectors,
+    toa.level,
+    toa.tzr,
+)
 
 # is_barycentered(toa::TOA) = isnothing(toa.ephem_vectors)
 
