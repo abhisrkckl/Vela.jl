@@ -18,7 +18,7 @@ end
 
 function spin_frequency(::Spindown, toa::TOA, params::NamedTuple)
     t0 = params.PEPOCH
-    t = time(Float64(toa.value.x))
+    t = GQ{Float64}(toa.value)
     fs = params.F
     f = taylor_horner(t - t0, fs)
     return quantity_like(fs[1], f.x)

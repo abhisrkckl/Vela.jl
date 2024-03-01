@@ -32,7 +32,7 @@ end
 
 function form_residual(model::TimingModel, toa::TOA, params::NamedTuple, tzrphase::GQ)::GQ
     ctoa = correct_toa(model, toa, params)
-    dphase = dimensionless(Float64((ctoa.phase - tzrphase).x))
+    dphase = GQ{Float64}(ctoa.phase - tzrphase)
     return dphase / ctoa.spin_frequency
 end
 
@@ -42,9 +42,9 @@ function calc_tzr_phase(model::TimingModel, params::NamedTuple)
 end
 
 function calc_chi2(model::TimingModel, toas::Vector{TOA}, params::NamedTuple)
-    chisq = Atomic{Float64}(0.0)
     tzrphase = calc_tzr_phase(model, params)
 
+    chisq = Atomic{Float64}(0.0)
     @threads for toa in toas
         res = form_residual(model, toa, params, tzrphase)
         err = toa.error
@@ -56,9 +56,9 @@ function calc_chi2(model::TimingModel, toas::Vector{TOA}, params::NamedTuple)
 end
 
 function calc_chi2_serial(model::TimingModel, toas::Vector{TOA}, params::NamedTuple)
-    chisq = 0.0
     tzrphase = calc_tzr_phase(model, params)
 
+    chisq = 0.0
     for toa in toas
         res = form_residual(model, toa, params, tzrphase)
         err = toa.error
@@ -73,24 +73,24 @@ calc_chi2(model::TimingModel, toas::Vector{TOA}, params::Vector{Float64}) =
     calc_chi2(model, toas, read_params(model, params))
 
 function calc_lnlike(model::TimingModel, toas::Vector{TOA}, params::NamedTuple)
-    result = Atomic{Float64}(0.0)
     tzrphase = calc_tzr_phase(model, params)
 
+    result = Atomic{Float64}(0.0)
     @threads for toa in toas
         res = form_residual(model, toa, params, tzrphase)
         err = toa.error
         norm = log(toa.error.x)
 
-        atomic_add!(result, Float64(((res / err)^2).x + norm))
+        atomic_add!(result, ((res / err)^2).x + norm)
     end
 
     return -result[] / 2
 end
 
 function calc_lnlike_serial(model::TimingModel, toas::Vector{TOA}, params::NamedTuple)
-    result = 0.0
     tzrphase = calc_tzr_phase(model, params)
 
+    result = 0.0
     for toa in toas
         res = form_residual(model, toa, params, tzrphase)
         err = toa.error
