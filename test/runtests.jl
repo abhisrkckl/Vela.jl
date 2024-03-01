@@ -9,6 +9,7 @@ using HDF5
 const day_to_s = 86400
 
 @testset "Vela" verbose = true begin
+
     ssb_obs_pos = distance.([18.0354099, 450.01472245, 195.05827732])
     ssb_obs_vel = speed.([-9.96231954e-05, 3.31555854e-06, 1.12968547e-06])
     obs_sun_pos = distance.([-15.89483533, -450.17185232, -195.18212616])
@@ -19,7 +20,7 @@ const day_to_s = 86400
     obs_neptune_pos = distance.([11518.60924426, -9405.0693235, -4126.91030657])
     obs_earth_pos = distance.([0.01199435, 0.01159591, -0.01316261])
 
-    @testset "toa" begin
+    @testset "ephemeris" begin
         @test_throws AssertionError EphemerisVectors(
             ssb_obs_vel,
             ssb_obs_vel,
@@ -92,40 +93,44 @@ const day_to_s = 86400
         # Speed of light
         @test dot(ephem_vecs.ssb_obs_vel, ephem_vecs.ssb_obs_vel) < 1
 
+    end
+
+    @testset "toa" begin
         toaval = time(parse(Float128, "4610197611.8464445127"))
         toaerr = time(1e-6)
         freq = frequency(1.4e9)
         phase = dimensionless(Float128(1000.0))
+        barycentered = false
 
-        @test_throws MethodError TOA(time(4610197611.8), toaerr, freq, phase, ephem_vecs)
+        @test_throws MethodError TOA(time(4610197611.8), toaerr, freq, phase, barycentered)
         @test_throws AssertionError TOA(
-            dimensionless(parse(Float128, "4610197611.8464445127")),
+            dimensionless(toaval.x),
             toaerr,
             freq,
             phase,
-            ephem_vecs,
+            barycentered,
         )
         @test_throws AssertionError TOA(
             toaval,
             dimensionless(1e-6),
             freq,
             phase,
-            ephem_vecs,
+            barycentered,
         )
-        @test_throws AssertionError TOA(toaval, toaerr, time(1.4e9), phase, ephem_vecs)
+        @test_throws AssertionError TOA(toaval, toaerr, time(1.4e9), phase, barycentered)
         @test_throws MethodError TOA(
             toaval,
             toaerr,
             freq,
             dimensionless(1000.0),
-            ephem_vecs,
+            barycentered,
         )
         @test_throws AssertionError TOA(
             toaval,
             toaerr,
             freq,
             time(Float128(1000.0)),
-            ephem_vecs,
+            barycentered,
         )
 
         # toa1 = TOA(toaval, toaerr, freq, phase)
@@ -133,37 +138,35 @@ const day_to_s = 86400
         # @test !toa1.tzr
         # @test toa1.level == 0
 
-        toa1 = TOA(toaval, toaerr, freq, phase, ephem_vecs)
+        toa1 = TOA(toaval, toaerr, freq, phase, barycentered)
         # @test !is_barycentered(toa1)
         @test !toa1.tzr
         @test toa1.level == 0
 
         dt = time(1.0)
-        toa3 = deepcopy(toa1)
-        correct_toa_delay!(toa3, dt)
+        toa3 = correct_toa_delay(toa1, dt)
         @test toa3.value == toa1.value - dt
         @test toa3.error == toa1.error
         @test toa3.observing_frequency == toa1.observing_frequency
+        @test toa3.barycentered == toa1.barycentered
         @test toa3.phase == toa1.phase
-        # @test is_barycentered(toa3) == is_barycentered(toa1)
         @test toa3.tzr == toa1.tzr
         @test toa3.level == 1
 
         dphi = dimensionless(0.3)
-        toa4 = deepcopy(toa3)
-        correct_toa_phase!(toa4, dphi)
+        toa4 = correct_toa_phase(toa3, dphi)
         @test toa4.value == toa3.value
         @test toa4.error == toa3.error
         @test toa4.observing_frequency == toa3.observing_frequency
         @test toa4.phase == toa3.phase + dphi
-        # @test is_barycentered(toa4) == is_barycentered(toa3)
+        @test toa4.barycentered == toa3.barycentered
         @test toa4.tzr == toa3.tzr
         @test toa4.level == 2
 
         @testset "tzr_toa" begin
-            tzrtoa = make_tzr_toa(toaval, freq, ephem_vecs)
+            tzrtoa = make_tzr_toa(toaval, freq, true)
             @test tzrtoa.tzr
-            # @test !is_barycentered(tzrtoa)
+            @test tzrtoa.barycentered
             @test tzrtoa.error == time(0.0)
             @test tzrtoa.level == 0
         end
@@ -196,27 +199,26 @@ const day_to_s = 86400
     end
 
     @testset "components" begin
-        ephem_vecs = EphemerisVectors(
-            ssb_obs_pos,
-            ssb_obs_vel,
-            obs_sun_pos,
-            obs_jupiter_pos,
-            obs_saturn_pos,
-            obs_venus_pos,
-            obs_uranus_pos,
-            obs_neptune_pos,
-            obs_earth_pos,
-        )
+        # ephem_vecs = EphemerisVectors(
+        #     ssb_obs_pos,
+        #     ssb_obs_vel,
+        #     obs_sun_pos,
+        #     obs_jupiter_pos,
+        #     obs_saturn_pos,
+        #     obs_venus_pos,
+        #     obs_uranus_pos,
+        #     obs_neptune_pos,
+        #     obs_earth_pos,
+        # )
 
         toa = TOA(
             time(Float128(53470.0 * day_to_s)),
             time(1e-6),
             frequency(2.5e9),
             dimensionless(Float128(0.0)),
-            ephem_vecs,
+            false,
         )
-        tzrtoa =
-            make_tzr_toa(time(Float128(53475.0 * day_to_s)), frequency(2.5e9), ephem_vecs)
+        tzrtoa = make_tzr_toa(time(Float128(53475.0 * day_to_s)), frequency(2.5e9), false)
 
         params = Dict(
             "PHOFF" => [dimensionless(1e-6)],
@@ -232,8 +234,7 @@ const day_to_s = 86400
             @test phase(poff, toa, poff_params) == dimensionless(-1e-6)
             @test phase(poff, tzrtoa, poff_params) == dimensionless(0.0)
 
-            ctoa = copy(toa)
-            correct_toa!(poff, ctoa, poff_params)
+            ctoa = correct_toa(poff, toa, poff_params)
             @test ctoa.value == toa.value
             @test ctoa.error == toa.error
             @test ctoa.observing_frequency == toa.observing_frequency
@@ -241,8 +242,7 @@ const day_to_s = 86400
                   ctoa.spin_frequency == frequency(-1.0)
             @test ctoa.phase ≈ toa.phase + phase(poff, toa, poff_params)
 
-            ctzrtoa = copy(tzrtoa)
-            correct_toa!(poff, ctzrtoa, poff_params)
+            ctzrtoa = correct_toa(poff, tzrtoa, poff_params)
             @test ctzrtoa.value == tzrtoa.value
             @test ctzrtoa.error == tzrtoa.error
             @test ctzrtoa.observing_frequency == tzrtoa.observing_frequency
@@ -257,8 +257,7 @@ const day_to_s = 86400
             @test phase(spn, toa, spn_params) == dimensionless(0.0)
             @test spin_frequency(spn, toa, spn_params) == frequency(100.0)
 
-            ctoa = copy(toa)
-            correct_toa!(spn, ctoa, spn_params)
+            ctoa = correct_toa(spn, toa, spn_params)
             @test ctoa.value == toa.value
             @test ctoa.error == toa.error
             @test ctoa.observing_frequency == toa.observing_frequency
@@ -398,9 +397,8 @@ const day_to_s = 86400
                 @test isa(components[2], PhaseOffset)
             end
 
-            @testset "correct_toa!" begin
-                ctoa = copy(toas[1])
-                correct_toa!(model, ctoa, params)
+            @testset "correct_toa" begin
+                ctoa = correct_toa(model, toas[1], params)
                 @test ctoa.value == toas[1].value
             end
 
@@ -413,11 +411,13 @@ const day_to_s = 86400
                 chi2 = calc_chi2(model, toas, params)
                 nfree = length(get_free_param_names(model.param_handler))
                 @test chi2 / (length(toas) - nfree) < dimensionless(Float128(1.5))
+                @test chi2 ≈ Vela.calc_chi2_serial(model, toas, params)
             end
 
             @testset "calc_lnlike" begin
                 lnlike = calc_lnlike(model, toas, params)
                 @test isfinite(lnlike)
+                @test lnlike ≈ Vela.calc_lnlike(model, toas, params)
             end
         end
     end

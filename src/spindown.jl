@@ -1,6 +1,5 @@
 using GeometricUnits
 using Quadmath
-using .Threads
 
 export Spindown, phase, spin_frequency, read_params_from_dict
 
@@ -25,8 +24,13 @@ function spin_frequency(::Spindown, toa::TOA, params::NamedTuple)
     return quantity_like(fs[1], f.x)
 end
 
-function correct_toa!(spindown::Spindown, toa::TOA, params::NamedTuple)
-    toa.phase += phase(spindown, toa, params)
-    toa.spin_frequency = spin_frequency(spindown, toa, params)
-    toa.level += 1
-end
+correct_toa(spindown::Spindown, toa::TOA, params::NamedTuple) = TOA(
+    toa.value,
+    toa.error,
+    toa.observing_frequency,
+    toa.phase + phase(spindown, toa, params),
+    spin_frequency(spindown, toa, params),
+    toa.barycentered,
+    toa.tzr,
+    toa.level + 1,
+)

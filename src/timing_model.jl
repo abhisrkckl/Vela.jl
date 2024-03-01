@@ -1,7 +1,7 @@
 using GeometricUnits
 using .Threads
 
-export TimingModel, correct_toa!, form_residual, calc_chi2, calc_lnlike
+export TimingModel, correct_toa, form_residual, calc_chi2, calc_lnlike, calc_tzr_phase
 
 struct TimingModel{ComponentsTuple<:Tuple}
     components::ComponentsTuple
@@ -22,23 +22,22 @@ read_params_from_dict(model::TimingModel, params::Dict)::NamedTuple =
 read_params(model::TimingModel, values::Vector{Float64}) =
     return read_params_from_dict(model, read_params(model.param_handler, values))
 
-function correct_toa!(model::TimingModel, toa::TOA, params::NamedTuple)
+function correct_toa(model::TimingModel, toa::TOA, params::NamedTuple)
+    ctoa::TOA = toa
     for component in model.components
-        correct_toa!(component, toa, params)
+        ctoa = correct_toa(component, ctoa, params)
     end
+    return ctoa
 end
 
 function form_residual(model::TimingModel, toa::TOA, params::NamedTuple, tzrphase::GQ)::GQ
-    ctoa = copy(toa)
-    correct_toa!(model, ctoa, params)
-    phase = dimensionless(Float64(ctoa.phase.x))
-    return (phase - tzrphase) / ctoa.spin_frequency
+    ctoa = correct_toa(model, toa, params)
+    dphase = dimensionless(Float64((ctoa.phase - tzrphase).x))
+    return dphase / ctoa.spin_frequency
 end
 
 function calc_tzr_phase(model::TimingModel, params::NamedTuple)
-    ctzrtoa = copy(model.tzr_toa)
-    correct_toa!(model, ctzrtoa, params)
-
+    ctzrtoa = correct_toa(model, model.tzr_toa, params)
     return ctzrtoa.phase
 end
 
@@ -54,6 +53,20 @@ function calc_chi2(model::TimingModel, toas::Vector{TOA}, params::NamedTuple)
     end
 
     return chisq[]
+end
+
+function calc_chi2_serial(model::TimingModel, toas::Vector{TOA}, params::NamedTuple)
+    chisq = 0.0
+    tzrphase = calc_tzr_phase(model, params)
+
+    for toa in toas
+        res = form_residual(model, toa, params, tzrphase)
+        err = toa.error
+
+        chisq += ((res / err)^2).x
+    end
+
+    return chisq
 end
 
 calc_chi2(model::TimingModel, toas::Vector{TOA}, params::Vector{Float64}) =
@@ -72,6 +85,21 @@ function calc_lnlike(model::TimingModel, toas::Vector{TOA}, params::NamedTuple)
     end
 
     return -result[] / 2
+end
+
+function calc_lnlike_serial(model::TimingModel, toas::Vector{TOA}, params::NamedTuple)
+    result = 0.0
+    tzrphase = calc_tzr_phase(model, params)
+
+    for toa in toas
+        res = form_residual(model, toa, params, tzrphase)
+        err = toa.error
+        norm = log(toa.error.x)
+
+        result += ((res / err)^2).x + norm
+    end
+
+    return -result / 2
 end
 
 calc_lnlike(model::TimingModel, toas::Vector{TOA}, params::Vector{Float64}) =

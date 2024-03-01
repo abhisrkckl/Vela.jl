@@ -7,7 +7,7 @@ export Component,
     DelayComponent,
     UncorrelatedNoiseComponent,
     CorrelatedNoiseComponent,
-    correct_toas!
+    correct_toa
 
 abstract type Component end
 
@@ -16,13 +16,13 @@ abstract type CorrelatedComponent <: Component end
 
 abstract type PhaseComponent <: UncorrelatedComponent end
 
-correct_toa!(component::PhaseComponent, toa::TOA, params::NamedTuple) =
-    correct_toa_phase!(toa, phase(component, toa, params))
+correct_toa(component::PhaseComponent, toa::TOA, params::NamedTuple) =
+    correct_toa_phase(toa, phase(component, toa, params))
 
 abstract type DelayComponent <: UncorrelatedComponent end
 
-correct_toa!(component::DelayComponent, toa::TOA, params::NamedTuple) =
-    correct_toa_delay!(toa, delay(component, toa, params))
+correct_toa(component::DelayComponent, toa::TOA, params::NamedTuple) =
+    correct_toa_delay(toa, delay(component, toa, params))
 
 abstract type DispersionComponent <: DelayComponent end
 
