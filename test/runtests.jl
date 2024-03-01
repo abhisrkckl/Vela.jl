@@ -417,7 +417,7 @@ const day_to_s = 86400
             @testset "calc_lnlike" begin
                 lnlike = calc_lnlike(model, toas, params)
                 @test isfinite(lnlike)
-                @test lnlike ≈ Vela.calc_lnlike(model, toas, params)
+                @test lnlike ≈ Vela.calc_lnlike_serial(model, toas, params)
             end
         end
     end
