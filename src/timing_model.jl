@@ -104,3 +104,7 @@ end
 
 calc_lnlike(model::TimingModel, toas::Vector{TOA}, params::Vector{Float64}) =
     calc_lnlike(model, toas, read_params(model, params))
+
+
+show(io::IO, model::TimingModel) = print(io, "TimingModel[$(string(model.components))]")
+show(io::IO, ::MIME"text/plain", model::TimingModel) = show(io, model)

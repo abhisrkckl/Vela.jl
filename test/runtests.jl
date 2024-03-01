@@ -410,12 +410,14 @@ const day_to_s = 86400
             @testset "calc_chi2" begin
                 chi2 = calc_chi2(model, toas, params)
                 nfree = length(get_free_param_names(model.param_handler))
-                @test chi2 / (length(toas) - nfree) < dimensionless(Float128(1.5))
+                @test isa(chi2, Float64)
+                @test chi2 / (length(toas) - nfree) < dimensionless(1.5)
                 @test chi2 ≈ Vela.calc_chi2_serial(model, toas, params)
             end
 
             @testset "calc_lnlike" begin
                 lnlike = calc_lnlike(model, toas, params)
+                @test isa(lnlike, Float64)
                 @test isfinite(lnlike)
                 @test lnlike ≈ Vela.calc_lnlike_serial(model, toas, params)
             end

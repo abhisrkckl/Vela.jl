@@ -1,7 +1,7 @@
 using GeometricUnits
 using Quadmath
 using LinearAlgebra
-import Base.copy
+import Base.copy, Base.show
 
 export TOA, correct_toa_delay, correct_toa_phase, make_tzr_toa
 
@@ -90,3 +90,14 @@ correct_toa_phase(toa::TOA, phase::GQ) = TOA(
     toa.tzr,
     toa.level + 1,
 )
+
+const day_to_s = 86400
+const tzrstr = "TZR"
+show(io::IO, toa::TOA) = print(
+    io,
+    "$(toa.tzr ? "TZR" : "")TOA[MJD:$(trunc(Int, toa.value.x/day_to_s)), Freq(MHz):$(trunc(Int, toa.observing_frequency.x/1e6))]",
+)
+show(io::IO, ::MIME"text/plain", toa::TOA) = show(io, toa)
+
+show(io::IO, toas::Vector{TOA}) = print(io, "[Vector of $(length(toas)) TOAs.]")
+show(io::IO, ::MIME"text/plain", toas::Vector{TOA}) = show(io, toas)
