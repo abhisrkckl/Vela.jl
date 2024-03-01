@@ -16,23 +16,13 @@ abstract type CorrelatedComponent <: Component end
 
 abstract type PhaseComponent <: UncorrelatedComponent end
 
-function correct_toas!(component::PhaseComponent, toas::Vector{TOA}, params::Dict)
-    params_tuple = read_params_from_dict(component, params)
-
-    @threads for toa in toas
-        correct_toa_phase!(toa, phase(component, toa, params_tuple))
-    end
-end
+correct_toa!(component::PhaseComponent, toa::TOA, params::NamedTuple) =
+    correct_toa_phase!(toa, phase(component, toa, params))
 
 abstract type DelayComponent <: UncorrelatedComponent end
 
-function correct_toas!(component::DelayComponent, toas::Vector{TOA}, params::Dict)
-    params_tuple = read_params_from_dict(component, params)
-
-    @threads for toa in toas
-        correct_toa_delay!(toa, delay(component, toa, params_tuple))
-    end
-end
+correct_toa!(component::DelayComponent, toa::TOA, params::NamedTuple) =
+    correct_toa_delay!(toa, delay(component, toa, params))
 
 abstract type DispersionComponent <: DelayComponent end
 

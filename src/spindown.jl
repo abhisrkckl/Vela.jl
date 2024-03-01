@@ -19,18 +19,14 @@ end
 
 function spin_frequency(::Spindown, toa::TOA, params::NamedTuple)
     t0 = params.PEPOCH
-    t = toa.value
+    t = time(Float64(toa.value.x))
     fs = params.F
     f = taylor_horner(t - t0, fs)
     return quantity_like(fs[1], f.x)
 end
 
-function correct_toas!(spindown::Spindown, toas::Vector{TOA}, params::Dict)
-    params_tuple = read_params_from_dict(spindown, params)
-
-    @threads for toa in toas
-        toa.phase += phase(spindown, toa, params_tuple)
-        toa.spin_frequency = spin_frequency(spindown, toa, params_tuple)
-        toa.level += 1
-    end
+function correct_toa!(spindown::Spindown, toa::TOA, params::NamedTuple)
+    toa.phase += phase(spindown, toa, params)
+    toa.spin_frequency = spin_frequency(spindown, toa, params)
+    toa.level += 1
 end

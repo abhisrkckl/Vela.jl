@@ -130,7 +130,7 @@ function read_components(f::HDF5.File)
         end
     end
 
-    return components
+    return Tuple(components)
 end
 
 function read_model_and_toas(filename::String)

@@ -41,7 +41,7 @@ struct ParamHandler
 end
 
 function read_params(param_handler::ParamHandler, values::Vector{Float64})
-    param_dict = copy(param_handler._default_params_dict)
+    param_dict = deepcopy(param_handler._default_params_dict)
     ii = 1
     for mpar in param_handler.multi_params
         for (jj, param) in enumerate(mpar.parameters)

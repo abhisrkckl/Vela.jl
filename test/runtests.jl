@@ -232,18 +232,17 @@ const day_to_s = 86400
             @test phase(poff, toa, poff_params) == dimensionless(-1e-6)
             @test phase(poff, tzrtoa, poff_params) == dimensionless(0.0)
 
-            ctoas = [deepcopy(toa)]
-            correct_toas!(poff, ctoas, params)
-            @test ctoas[1].value == toa.value
-            @test ctoas[1].error == toa.error
-            @test ctoas[1].observing_frequency == toa.observing_frequency
+            ctoa = copy(toa)
+            correct_toa!(poff, ctoa, poff_params)
+            @test ctoa.value == toa.value
+            @test ctoa.error == toa.error
+            @test ctoa.observing_frequency == toa.observing_frequency
             @test toa.spin_frequency == frequency(-1.0) &&
-                  ctoas[1].spin_frequency == frequency(-1.0)
-            @test ctoas[1].phase ≈ toa.phase + phase(poff, toa, poff_params)
+                  ctoa.spin_frequency == frequency(-1.0)
+            @test ctoa.phase ≈ toa.phase + phase(poff, toa, poff_params)
 
-            ctzrtoa_ = [deepcopy(tzrtoa)]
-            correct_toas!(poff, ctzrtoa_, params)
-            ctzrtoa = ctzrtoa_[1]
+            ctzrtoa = copy(tzrtoa)
+            correct_toa!(poff, ctzrtoa, poff_params)
             @test ctzrtoa.value == tzrtoa.value
             @test ctzrtoa.error == tzrtoa.error
             @test ctzrtoa.observing_frequency == tzrtoa.observing_frequency
@@ -258,9 +257,8 @@ const day_to_s = 86400
             @test phase(spn, toa, spn_params) == dimensionless(0.0)
             @test spin_frequency(spn, toa, spn_params) == frequency(100.0)
 
-            ctoas = [deepcopy(toa)]
-            correct_toas!(spn, ctoas, params)
-            ctoa = ctoas[1]
+            ctoa = copy(toa)
+            correct_toa!(spn, ctoa, spn_params)
             @test ctoa.value == toa.value
             @test ctoa.error == toa.error
             @test ctoa.observing_frequency == toa.observing_frequency
@@ -361,6 +359,8 @@ const day_to_s = 86400
         @testset "pure_rotator" begin
             model, toas = read_model_and_toas("pure_rotator.hdf5")
 
+            params = read_params_from_dict(model, model.param_handler._default_params_dict)
+
             @testset "read_toas" begin
                 @test !any([toa.tzr for toa in toas])
                 @test length(toas) == 100
@@ -398,25 +398,25 @@ const day_to_s = 86400
                 @test isa(components[2], PhaseOffset)
             end
 
-            @testset "correct_toas!" begin
-                ctoas = correct_toas(model, toas, model.param_handler._default_params_dict)
-                @test all(ctoa.value == toa.value for (ctoa, toa) in zip(ctoas, toas))
+            @testset "correct_toa!" begin
+                ctoa = copy(toas[1])
+                correct_toa!(model, ctoa, params)
+                @test ctoa.value == toas[1].value
             end
 
-            @testset "form_residuals" begin
-                resids =
-                    form_residuals(model, toas, model.param_handler._default_params_dict)
-                @test all(isfinite.(resids))
+            @testset "form_residual" begin
+                resid = form_residual(model, toas[1], params, dimensionless(0.0))
+                @test abs(resid) < time(1e-2)
             end
 
             @testset "calc_chi2" begin
-                chi2 = calc_chi2(model, toas, model.param_handler._default_params_dict)
+                chi2 = calc_chi2(model, toas, params)
                 nfree = length(get_free_param_names(model.param_handler))
                 @test chi2 / (length(toas) - nfree) < dimensionless(Float128(1.5))
             end
 
             @testset "calc_lnlike" begin
-                lnlike = calc_lnlike(model, toas, model.param_handler._default_params_dict)
+                lnlike = calc_lnlike(model, toas, params)
                 @test isfinite(lnlike)
             end
         end
