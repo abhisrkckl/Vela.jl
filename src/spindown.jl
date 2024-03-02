@@ -13,15 +13,14 @@ function phase(::Spindown, toa::TOA, params::NamedTuple)::GQ{Float128}
     t = toa.value
     fs = params.F
     phase0 = dimensionless(0.0)
-    return taylor_horner_integral(t - t0, fs, phase0)
+    return @fastmath(taylor_horner_integral(t - t0, fs, phase0))
 end
 
 function spin_frequency(::Spindown, toa::TOA, params::NamedTuple)
     t0 = params.PEPOCH
     t = GQ{Float64}(toa.value)
     fs = params.F
-    f = taylor_horner(t - t0, fs)
-    return quantity_like(fs[1], f.x)
+    return taylor_horner(t - t0, fs)
 end
 
 correct_toa(spindown::Spindown, toa::TOA, params::NamedTuple) = TOA(

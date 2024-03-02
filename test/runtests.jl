@@ -398,6 +398,13 @@ const day_to_s = 86400
                 @test isa(components[2], PhaseOffset)
             end
 
+            @testset "repr" begin
+                @test startswith(string(toas[1]), "TOA")
+                @test startswith(string(model.tzr_toa), "TZRTOA")
+                @test startswith(string(toas), "[Vector")
+                @test startswith(string(model), "TimingModel")
+            end
+
             @testset "correct_toa" begin
                 ctoa = correct_toa(model, toas[1], params)
                 @test ctoa.value == toas[1].value
