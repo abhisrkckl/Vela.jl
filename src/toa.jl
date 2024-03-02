@@ -47,16 +47,16 @@ end
 TOA(value, error, observing_frequency, phase, barycentered) =
     TOA(value, error, observing_frequency, phase, frequency(-1.0), barycentered, false, 0)
 
-copy(toa::TOA) = TOA(
-    toa.value,
-    toa.error,
-    toa.observing_frequency,
-    toa.phase,
-    toa.spin_frequency,
-    toa.barycentered,
-    toa.tzr,
-    toa.level,
-)
+# copy(toa::TOA) = TOA(
+#     toa.value,
+#     toa.error,
+#     toa.observing_frequency,
+#     toa.phase,
+#     toa.spin_frequency,
+#     toa.barycentered,
+#     toa.tzr,
+#     toa.level,
+# )
 
 make_tzr_toa(tzrtdb, tzrfreq, tzrbary) = TOA(
     tzrtdb,
