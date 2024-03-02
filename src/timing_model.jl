@@ -72,6 +72,9 @@ end
 calc_chi2(model::TimingModel, toas::Vector{TOA}, params::Vector{Float64}) =
     calc_chi2(model, toas, read_params(model, params))
 
+calc_chi2_serial(model::TimingModel, toas::Vector{TOA}, params::Vector{Float64}) =
+    calc_chi2_serial(model, toas, read_params(model, params))
+
 function calc_lnlike(model::TimingModel, toas::Vector{TOA}, params::NamedTuple)
     tzrphase = calc_tzr_phase(model, params)
 
@@ -105,6 +108,8 @@ end
 calc_lnlike(model::TimingModel, toas::Vector{TOA}, params::Vector{Float64}) =
     calc_lnlike(model, toas, read_params(model, params))
 
+calc_lnlike_serial(model::TimingModel, toas::Vector{TOA}, params::Vector{Float64}) =
+    calc_lnlike_serial(model, toas, read_params(model, params))
 
 show(io::IO, model::TimingModel) = print(io, "TimingModel[$(string(model.components))]")
 show(io::IO, ::MIME"text/plain", model::TimingModel) = show(io, model)

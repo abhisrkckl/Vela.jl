@@ -359,6 +359,7 @@ const day_to_s = 86400
             model, toas = read_model_and_toas("pure_rotator.hdf5")
 
             params = read_params_from_dict(model, model.param_handler._default_params_dict)
+            parv = [params.F[1].x, params.F[2].x, params.PHOFF.x]
 
             @testset "read_toas" begin
                 @test !any([toa.tzr for toa in toas])
@@ -412,14 +413,18 @@ const day_to_s = 86400
                 nfree = length(get_free_param_names(model.param_handler))
                 @test isa(chi2, Float64)
                 @test chi2 / (length(toas) - nfree) < dimensionless(1.5)
+                @test chi2 ≈ calc_chi2(model, toas, parv)
                 @test chi2 ≈ Vela.calc_chi2_serial(model, toas, params)
+                @test chi2 ≈ Vela.calc_chi2_serial(model, toas, parv)
             end
 
             @testset "calc_lnlike" begin
                 lnlike = calc_lnlike(model, toas, params)
                 @test isa(lnlike, Float64)
                 @test isfinite(lnlike)
+                @test lnlike ≈ calc_lnlike(model, toas, parv)
                 @test lnlike ≈ Vela.calc_lnlike_serial(model, toas, params)
+                @test lnlike ≈ Vela.calc_lnlike_serial(model, toas, parv)
             end
         end
     end
