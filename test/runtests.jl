@@ -173,29 +173,29 @@ const day_to_s = 86400
     end
 
     @testset "parameter & param handler" begin
-        pepoch = Parameter("pepoch", time(56000.0 * day_to_s), true)
-        @test pepoch.display_name == "PEPOCH"
+        pepoch = Parameter(:PEPOCH, time(56000.0 * day_to_s), true)
+        @test pepoch.display_name == :PEPOCH
         @test_throws AssertionError read_param(pepoch, 56000.0 * day_to_s)
 
-        f0 = Parameter("F0", frequency(100.0), false)
+        f0 = Parameter(:F0, frequency(100.0), false)
         @test read_param(f0, 101.0) == frequency(101.0)
 
-        f1 = Parameter("F1", GQ(-1e-14, -2), false)
+        f1 = Parameter(:F1, GQ(-1e-14, -2), false)
         @test read_param(f1, -1.1e-14) == GQ(-1.1e-14, -2)
 
-        mparT = MultiParameter("PEPOCH", [pepoch])
+        mparT = MultiParameter(:PEPOCH, [pepoch])
         @test length(mparT.parameters) == 1
 
-        mparF = MultiParameter("F", [f0, f1])
+        mparF = MultiParameter(:F, [f0, f1])
         @test length(mparF.parameters) == 2
 
         ph = ParamHandler([mparT, mparF])
         @test get_free_param_names(ph) == ["F0", "F1"]
-        @test keys(ph._default_params_dict) == Set(["PEPOCH", "F"])
+        @test keys(ph._default_params_dict) == Set([:PEPOCH, :F])
 
         params_dict = read_params(ph, [100.01, -1.01e-14])
-        @test keys(params_dict) == Set(["PEPOCH", "F"])
-        @test params_dict["F"] == [frequency(100.01), GQ(-1.01e-14, -2)]
+        @test keys(params_dict) == Set([:PEPOCH, :F])
+        @test params_dict[:F] == [frequency(100.01), GQ(-1.01e-14, -2)]
     end
 
     @testset "components" begin
@@ -221,11 +221,11 @@ const day_to_s = 86400
         tzrtoa = make_tzr_toa(time(Float128(53475.0 * day_to_s)), frequency(2.5e9), false)
 
         params = Dict(
-            "PHOFF" => [dimensionless(1e-6)],
-            "PEPOCH" => [time(53470.0 * day_to_s)],
-            "F" => [frequency(100.0), GQ(-1e-14, -2)],
-            "DMEPOCH" => [time(53470.0 * day_to_s)],
-            "DM" => [GQ(10.0, -1), GQ(1e-4, -2)],
+            :PHOFF => [dimensionless(1e-6)],
+            :PEPOCH => [time(53470.0 * day_to_s)],
+            :F => [frequency(100.0), GQ(-1e-14, -2)],
+            :DMEPOCH => [time(53470.0 * day_to_s)],
+            :DM => [GQ(10.0, -1), GQ(1e-4, -2)],
         )
 
         @testset "PhaseOffset" begin
@@ -279,9 +279,10 @@ const day_to_s = 86400
 
         @testset "DispersionTaylor" begin
             dmt = DispersionTaylor()
-            @test dispersion_slope(dmt, toa, params) == GQ(10.0, -1)
-            @test delay(dmt, toa, params) ==
-                  dispersion_slope(dmt, toa, params) / toa.observing_frequency^2
+            dmt_params = read_params_from_dict(dmt, params)
+            @test dispersion_slope(dmt, toa, dmt_params) == GQ(10.0, -1)
+            @test delay(dmt, toa, dmt_params) ==
+                  dispersion_slope(dmt, toa, dmt_params) / toa.observing_frequency^2
         end
 
         @testset "SolarWindDispersion" begin

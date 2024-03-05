@@ -83,12 +83,12 @@ function read_param_handler(f::HDF5.File)
     for (mpname, param_dicts) in params_info
         params = [
             Parameter(
-                pdict["display_name"],
+                Symbol(pdict["display_name"]),
                 GQ(pdict["default_value"], pdict["dimension"]),
                 pdict["frozen"],
             ) for pdict in param_dicts
         ]
-        push!(multi_params, MultiParameter(mpname, params))
+        push!(multi_params, MultiParameter(Symbol(mpname), params))
     end
 
     # params = [
