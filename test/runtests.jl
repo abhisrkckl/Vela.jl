@@ -5,6 +5,7 @@ using LinearAlgebra
 using Quadmath
 using JuliaFormatter
 using HDF5
+using BenchmarkTools
 
 const day_to_s = 86400
 
@@ -362,6 +363,8 @@ const day_to_s = 86400
             params = read_params_from_dict(model, model.param_handler._default_params_dict)
             parv = [params.F[1].x, params.F[2].x, params.PHOFF.x]
 
+            @test read_param_values_to_vector(model.param_handler, params) == parv
+
             @testset "read_toas" begin
                 @test !any([toa.tzr for toa in toas])
                 @test length(toas) == 100
@@ -428,6 +431,8 @@ const day_to_s = 86400
                 @test chi2 ≈ calc_chi2(model, toas, parv)
                 @test chi2 ≈ Vela.calc_chi2_serial(model, toas, params)
                 @test chi2 ≈ Vela.calc_chi2_serial(model, toas, parv)
+
+                @test @ballocated(Vela.calc_chi2_serial($model, $toas, $params)) == 0
             end
 
             @testset "calc_lnlike" begin
@@ -437,6 +442,8 @@ const day_to_s = 86400
                 @test lnlike ≈ calc_lnlike(model, toas, parv)
                 @test lnlike ≈ Vela.calc_lnlike_serial(model, toas, params)
                 @test lnlike ≈ Vela.calc_lnlike_serial(model, toas, parv)
+
+                @test @ballocated(Vela.calc_lnlike_serial($model, $toas, $params)) == 0
             end
         end
     end

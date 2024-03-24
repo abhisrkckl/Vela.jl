@@ -1,7 +1,12 @@
 using GeometricUnits
 
 export Parameter,
-    MultiParameter, read_param, ParamHandler, read_params, get_free_param_names
+    MultiParameter,
+    read_param,
+    ParamHandler,
+    read_params,
+    get_free_param_names,
+    read_param_values_to_vector
 
 struct Parameter
     display_name::Symbol
@@ -68,4 +73,24 @@ function get_free_param_names(param_handler::ParamHandler)
     end
 
     return pnames
+end
+
+function read_param_values_to_vector(param_handler::ParamHandler, params::NamedTuple)
+    param_vec = Float64[]
+    @inbounds for mpar in param_handler.multi_params
+        if length(mpar.parameters) == 1
+            if !mpar.parameters[1].frozen
+                push!(param_vec, Float64(params[mpar.name].x))
+            end
+        else
+            for (jj, param) in enumerate(mpar.parameters)
+                if !param.frozen
+                    push!(param_vec, Float64(params[mpar.name][jj].x))
+                end
+            end
+        end
+
+    end
+
+    return param_vec
 end
