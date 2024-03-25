@@ -1,17 +1,19 @@
-export EphemerisVectors
+using GeometricUnits
 
-struct EphemerisVectors
-    ssb_obs_pos::Vector{GQ{Float64}}
-    ssb_obs_vel::Vector{GQ{Float64}}
-    obs_sun_pos::Vector{GQ{Float64}}
-    obs_jupiter_pos::Vector{GQ{Float64}}
-    obs_saturn_pos::Vector{GQ{Float64}}
-    obs_venus_pos::Vector{GQ{Float64}}
-    obs_uranus_pos::Vector{GQ{Float64}}
-    obs_neptune_pos::Vector{GQ{Float64}}
-    obs_earth_pos::Vector{GQ{Float64}}
+export SolarSystemEphemeris
 
-    function EphemerisVectors(
+struct SolarSystemEphemeris
+    ssb_obs_pos::NTuple{3,GQ{Float64}}
+    ssb_obs_vel::NTuple{3,GQ{Float64}}
+    obs_sun_pos::NTuple{3,GQ{Float64}}
+    obs_jupiter_pos::NTuple{3,GQ{Float64}}
+    obs_saturn_pos::NTuple{3,GQ{Float64}}
+    obs_venus_pos::NTuple{3,GQ{Float64}}
+    obs_uranus_pos::NTuple{3,GQ{Float64}}
+    obs_neptune_pos::NTuple{3,GQ{Float64}}
+    obs_earth_pos::NTuple{3,GQ{Float64}}
+
+    function SolarSystemEphemeris(
         ssb_obs_pos,
         ssb_obs_vel,
         obs_sun_pos,

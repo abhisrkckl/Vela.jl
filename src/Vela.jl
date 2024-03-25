@@ -1,7 +1,7 @@
 module Vela
 
-include("toa.jl")
 include("ephemeris.jl")
+include("toa.jl")
 include("parameter.jl")
 include("component.jl")
 include("spindown.jl")

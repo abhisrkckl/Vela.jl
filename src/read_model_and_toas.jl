@@ -5,50 +5,50 @@ using JSON
 
 export read_toas, read_tzr_toa, read_param_handler, read_components, read_model_and_toas
 
-function read_ephem_vectors(toa_data::NamedTuple)::EphemerisVectors
+function read_ephemeris(toa_data::NamedTuple)::SolarSystemEphemeris
     ssb_obs_pos =
-        distance.([toa_data.ssb_obs_pos_x, toa_data.ssb_obs_pos_y, toa_data.ssb_obs_pos_z])
+        distance.((toa_data.ssb_obs_pos_x, toa_data.ssb_obs_pos_y, toa_data.ssb_obs_pos_z))
     ssb_obs_vel =
-        speed.([toa_data.ssb_obs_vel_x, toa_data.ssb_obs_vel_y, toa_data.ssb_obs_vel_z])
+        speed.((toa_data.ssb_obs_vel_x, toa_data.ssb_obs_vel_y, toa_data.ssb_obs_vel_z))
     obs_sun_pos =
-        distance.([toa_data.obs_sun_pos_x, toa_data.obs_sun_pos_y, toa_data.obs_sun_pos_z])
+        distance.((toa_data.obs_sun_pos_x, toa_data.obs_sun_pos_y, toa_data.obs_sun_pos_z))
     obs_jupiter_pos =
-        distance.([
+        distance.((
             toa_data.obs_jupiter_pos_x,
             toa_data.obs_jupiter_pos_y,
             toa_data.obs_jupiter_pos_z,
-        ])
+        ))
     obs_saturn_pos =
-        distance.([
+        distance.((
             toa_data.obs_saturn_pos_x,
             toa_data.obs_saturn_pos_y,
             toa_data.obs_saturn_pos_z,
-        ])
+        ))
     obs_venus_pos =
-        distance.([
+        distance.((
             toa_data.obs_venus_pos_x,
             toa_data.obs_venus_pos_y,
             toa_data.obs_venus_pos_z,
-        ])
+        ))
     obs_uranus_pos =
-        distance.([
+        distance.((
             toa_data.obs_uranus_pos_x,
             toa_data.obs_uranus_pos_y,
             toa_data.obs_uranus_pos_z,
-        ])
+        ))
     obs_neptune_pos =
-        distance.([
+        distance.((
             toa_data.obs_neptune_pos_x,
             toa_data.obs_neptune_pos_y,
             toa_data.obs_neptune_pos_z,
-        ])
+        ))
     obs_earth_pos =
-        distance.([
+        distance.((
             toa_data.obs_earth_pos_x,
             toa_data.obs_earth_pos_y,
             toa_data.obs_earth_pos_z,
-        ])
-    return EphemerisVectors(
+        ))
+    return SolarSystemEphemeris(
         ssb_obs_pos,
         ssb_obs_vel,
         obs_sun_pos,
@@ -66,10 +66,9 @@ function read_toa(toa_data::NamedTuple, tzr = false)::TOA
     error = time(toa_data.error)
     freq = frequency(toa_data.frequency)
     phase = dimensionless(Float128(toa_data.phase_int) + Float128(toa_data.phase_frac))
+    ephem = read_ephemeris(toa_data)
 
-    # ephem_vectors = read_ephem_vectors(toa_data)
-
-    return TOA(value, error, freq, phase, frequency(-1.0), false, tzr, 0)
+    return TOA(value, error, freq, phase, frequency(-1.0), false, tzr, 0, ephem)
 end
 
 read_toas(f::HDF5.File)::Vector{TOA} = [read_toa(toa_data) for toa_data in read(f["TOAs"])]

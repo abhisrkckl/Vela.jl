@@ -32,4 +32,5 @@ correct_toa(spindown::Spindown, toa::TOA, params::NamedTuple) = TOA(
     toa.barycentered,
     toa.tzr,
     toa.level + 1,
+    toa.ephem,
 )

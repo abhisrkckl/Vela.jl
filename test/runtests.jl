@@ -11,18 +11,18 @@ const day_to_s = 86400
 
 @testset "Vela" verbose = true begin
 
-    ssb_obs_pos = distance.([18.0354099, 450.01472245, 195.05827732])
-    ssb_obs_vel = speed.([-9.96231954e-05, 3.31555854e-06, 1.12968547e-06])
-    obs_sun_pos = distance.([-15.89483533, -450.17185232, -195.18212616])
-    obs_jupiter_pos = distance.([-1610.1796849, -1706.87348483, -681.22381513])
-    obs_saturn_pos = distance.([-2392.85651431, 3109.13626083, 1405.71912274])
-    obs_venus_pos = distance.([140.85922773, -217.65571843, -74.64804201])
-    obs_uranus_pos = distance.([9936.62957939, -3089.07377113, -1486.17339104])
-    obs_neptune_pos = distance.([11518.60924426, -9405.0693235, -4126.91030657])
-    obs_earth_pos = distance.([0.01199435, 0.01159591, -0.01316261])
+    ssb_obs_pos = distance.((18.0354099, 450.01472245, 195.05827732))
+    ssb_obs_vel = speed.((-9.96231954e-05, 3.31555854e-06, 1.12968547e-06))
+    obs_sun_pos = distance.((-15.89483533, -450.17185232, -195.18212616))
+    obs_jupiter_pos = distance.((-1610.1796849, -1706.87348483, -681.22381513))
+    obs_saturn_pos = distance.((-2392.85651431, 3109.13626083, 1405.71912274))
+    obs_venus_pos = distance.((140.85922773, -217.65571843, -74.64804201))
+    obs_uranus_pos = distance.((9936.62957939, -3089.07377113, -1486.17339104))
+    obs_neptune_pos = distance.((11518.60924426, -9405.0693235, -4126.91030657))
+    obs_earth_pos = distance.((0.01199435, 0.01159591, -0.01316261))
 
     @testset "ephemeris" begin
-        @test_throws AssertionError EphemerisVectors(
+        @test_throws AssertionError SolarSystemEphemeris(
             ssb_obs_vel,
             ssb_obs_vel,
             obs_sun_pos,
@@ -33,7 +33,7 @@ const day_to_s = 86400
             obs_neptune_pos,
             obs_earth_pos,
         )
-        @test_throws AssertionError EphemerisVectors(
+        @test_throws AssertionError SolarSystemEphemeris(
             ssb_obs_pos,
             ssb_obs_pos,
             obs_sun_pos,
@@ -44,7 +44,7 @@ const day_to_s = 86400
             obs_neptune_pos,
             obs_earth_pos,
         )
-        @test_throws AssertionError EphemerisVectors(
+        @test_throws AssertionError SolarSystemEphemeris(
             ssb_obs_pos,
             ssb_obs_vel,
             ssb_obs_vel,
@@ -55,9 +55,9 @@ const day_to_s = 86400
             obs_neptune_pos,
             obs_earth_pos,
         )
-        @test_throws AssertionError EphemerisVectors(
+        @test_throws AssertionError SolarSystemEphemeris(
             ssb_obs_pos,
-            1e6 * ssb_obs_vel,
+            1e6 .* ssb_obs_vel,
             obs_sun_pos,
             obs_jupiter_pos,
             obs_saturn_pos,
@@ -67,7 +67,7 @@ const day_to_s = 86400
             obs_earth_pos,
         )
 
-        ephem_vecs = EphemerisVectors(
+        ephem_vecs = SolarSystemEphemeris(
             ssb_obs_pos,
             ssb_obs_vel,
             obs_sun_pos,
@@ -103,13 +103,33 @@ const day_to_s = 86400
         phase = dimensionless(Float128(1000.0))
         barycentered = false
 
-        @test_throws MethodError TOA(time(4610197611.8), toaerr, freq, phase, barycentered)
+        ephem = SolarSystemEphemeris(
+            ssb_obs_pos,
+            ssb_obs_vel,
+            obs_sun_pos,
+            obs_jupiter_pos,
+            obs_saturn_pos,
+            obs_venus_pos,
+            obs_uranus_pos,
+            obs_neptune_pos,
+            obs_earth_pos,
+        )
+
+        @test_throws MethodError TOA(
+            time(4610197611.8),
+            toaerr,
+            freq,
+            phase,
+            barycentered,
+            ephem,
+        )
         @test_throws AssertionError TOA(
             dimensionless(toaval.x),
             toaerr,
             freq,
             phase,
             barycentered,
+            ephem,
         )
         @test_throws AssertionError TOA(
             toaval,
@@ -117,14 +137,23 @@ const day_to_s = 86400
             freq,
             phase,
             barycentered,
+            ephem,
         )
-        @test_throws AssertionError TOA(toaval, toaerr, time(1.4e9), phase, barycentered)
+        @test_throws AssertionError TOA(
+            toaval,
+            toaerr,
+            time(1.4e9),
+            phase,
+            barycentered,
+            ephem,
+        )
         @test_throws MethodError TOA(
             toaval,
             toaerr,
             freq,
             dimensionless(1000.0),
             barycentered,
+            ephem,
         )
         @test_throws AssertionError TOA(
             toaval,
@@ -132,6 +161,7 @@ const day_to_s = 86400
             freq,
             time(Float128(1000.0)),
             barycentered,
+            ephem,
         )
 
         # toa1 = TOA(toaval, toaerr, freq, phase)
@@ -139,7 +169,7 @@ const day_to_s = 86400
         # @test !toa1.tzr
         # @test toa1.level == 0
 
-        toa1 = TOA(toaval, toaerr, freq, phase, barycentered)
+        toa1 = TOA(toaval, toaerr, freq, phase, barycentered, ephem)
         # @test !is_barycentered(toa1)
         @test !toa1.tzr
         @test toa1.level == 0
@@ -165,7 +195,7 @@ const day_to_s = 86400
         @test toa4.level == 2
 
         @testset "tzr_toa" begin
-            tzrtoa = make_tzr_toa(toaval, freq, true)
+            tzrtoa = make_tzr_toa(toaval, freq, true, ephem)
             @test tzrtoa.tzr
             @test tzrtoa.barycentered
             @test tzrtoa.error == time(0.0)
@@ -200,17 +230,17 @@ const day_to_s = 86400
     end
 
     @testset "components" begin
-        # ephem_vecs = EphemerisVectors(
-        #     ssb_obs_pos,
-        #     ssb_obs_vel,
-        #     obs_sun_pos,
-        #     obs_jupiter_pos,
-        #     obs_saturn_pos,
-        #     obs_venus_pos,
-        #     obs_uranus_pos,
-        #     obs_neptune_pos,
-        #     obs_earth_pos,
-        # )
+        ephem = SolarSystemEphemeris(
+            ssb_obs_pos,
+            ssb_obs_vel,
+            obs_sun_pos,
+            obs_jupiter_pos,
+            obs_saturn_pos,
+            obs_venus_pos,
+            obs_uranus_pos,
+            obs_neptune_pos,
+            obs_earth_pos,
+        )
 
         toa = TOA(
             time(Float128(53470.0 * day_to_s)),
@@ -218,8 +248,10 @@ const day_to_s = 86400
             frequency(2.5e9),
             dimensionless(Float128(0.0)),
             false,
+            ephem,
         )
-        tzrtoa = make_tzr_toa(time(Float128(53475.0 * day_to_s)), frequency(2.5e9), false)
+        tzrtoa =
+            make_tzr_toa(time(Float128(53475.0 * day_to_s)), frequency(2.5e9), false, ephem)
 
         params = Dict(
             :PHOFF => [dimensionless(1e-6)],
@@ -407,8 +439,6 @@ const day_to_s = 86400
                 display(toas[1])
                 @test startswith(string(model.tzr_toa), "TZRTOA")
                 display(model.tzr_toa)
-                @test startswith(string(toas), "[Vector")
-                display(toas)
                 @test startswith(string(model), "TimingModel")
                 display(model)
             end

@@ -14,6 +14,7 @@ struct TOA
     barycentered::Bool
     tzr::Bool
     level::UInt
+    ephem::SolarSystemEphemeris
 
     function TOA(
         value,
@@ -24,6 +25,7 @@ struct TOA
         barycentered,
         tzr,
         level,
+        ephem,
     )
         @assert value.d == 1 "Dimension mismatch in value (given $(value.d), expected 1)."
         @assert error.d == 1 "Dimension mismatch in error (given $(error.d), expected 1)."
@@ -40,25 +42,24 @@ struct TOA
             barycentered,
             tzr,
             level,
+            ephem,
         )
     end
 end
 
-TOA(value, error, observing_frequency, phase, barycentered) =
-    TOA(value, error, observing_frequency, phase, frequency(-1.0), barycentered, false, 0)
+TOA(value, error, observing_frequency, phase, barycentered, ephem) = TOA(
+    value,
+    error,
+    observing_frequency,
+    phase,
+    frequency(-1.0),
+    barycentered,
+    false,
+    0,
+    ephem,
+)
 
-# copy(toa::TOA) = TOA(
-#     toa.value,
-#     toa.error,
-#     toa.observing_frequency,
-#     toa.phase,
-#     toa.spin_frequency,
-#     toa.barycentered,
-#     toa.tzr,
-#     toa.level,
-# )
-
-make_tzr_toa(tzrtdb, tzrfreq, tzrbary) = TOA(
+make_tzr_toa(tzrtdb, tzrfreq, tzrbary, tzrephem) = TOA(
     tzrtdb,
     time(0.0),
     tzrfreq,
@@ -67,6 +68,7 @@ make_tzr_toa(tzrtdb, tzrfreq, tzrbary) = TOA(
     tzrbary,
     true,
     0,
+    tzrephem,
 )
 
 correct_toa_delay(toa::TOA, delay::GQ) = TOA(
@@ -78,6 +80,7 @@ correct_toa_delay(toa::TOA, delay::GQ) = TOA(
     toa.barycentered,
     toa.tzr,
     toa.level + 1,
+    toa.ephem,
 )
 
 correct_toa_phase(toa::TOA, phase::GQ) = TOA(
@@ -89,14 +92,14 @@ correct_toa_phase(toa::TOA, phase::GQ) = TOA(
     toa.barycentered,
     toa.tzr,
     toa.level + 1,
+    toa.ephem,
 )
 
 const day_to_s = 86400
-const tzrstr = "TZR"
 show(io::IO, toa::TOA) = print(
     io,
     "$(toa.tzr ? "TZR" : "")TOA[MJD:$(trunc(Int, toa.value.x/day_to_s)), Freq(MHz):$(trunc(Int, toa.observing_frequency.x/1e6))]",
 )
 show(io::IO, ::MIME"text/plain", toa::TOA) = show(io, toa)
-show(io::IO, toas::Vector{TOA}) = print(io, "[Vector of $(length(toas)) TOAs.]")
+show(io::IO, toas::Vector{TOA}) = print(io, "[Vector containing $(length(toas)) TOAs.]")
 show(io::IO, ::MIME"text/plain", toas::Vector{TOA}) = show(io, toas)
