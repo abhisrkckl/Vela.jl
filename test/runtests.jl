@@ -300,8 +300,8 @@ const day_to_s = 86400
         end
 
         @testset "SolarSystem" begin
-            ss = SolarSystem(true, true, true)
-            @test ss.ecliptic_coordinates && ss.planet_shapiro && ss.proper_motion
+            ss = SolarSystem(true, true)
+            @test ss.ecliptic_coordinates && ss.planet_shapiro
             @test delay(ss, toa, params) == time(0.0)
         end
 
@@ -372,7 +372,6 @@ const day_to_s = 86400
                 @test isa(components[1], SolarSystem)
                 @test !components[1].ecliptic_coordinates
                 @test !components[1].planet_shapiro
-                @test !components[1].proper_motion
 
                 @test isa(components[2], Troposphere)
 

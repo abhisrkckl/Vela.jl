@@ -285,11 +285,6 @@ def components_from_model(model: TimingModel) -> list:
                 {
                     "name": "SolarSystem",
                     "ecliptic_coordinates": ecliptic_coordinates,
-                    "proper_motion": not (
-                        is_frozen_at_0(["PMELAT", "PMELONG"])
-                        if ecliptic_coordinates
-                        else is_frozen_at_0(["PMRA", "PMDEC"])
-                    ),
                     "planet_shapiro": model.PLANET_SHAPIRO.value,
                 }
             )
