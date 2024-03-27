@@ -16,12 +16,6 @@ struct TimingModel{ComponentsTuple<:Tuple}
     end
 end
 
-read_params_from_dict(model::TimingModel, params::Dict)::NamedTuple =
-    merge((read_params_from_dict(component, params) for component in model.components)...)
-
-read_params(model::TimingModel, values::Vector{Float64}) =
-    return read_params_from_dict(model, read_params(model.param_handler, values))
-
 function correct_toa(model::TimingModel, toa::TOA, params::NamedTuple)
     ctoa::TOA = toa
     for component in model.components
