@@ -435,6 +435,7 @@ const day_to_s = 86400
 
             @testset "repr" begin
                 @test startswith(string(toas[1]), "TOA")
+                display(toas)
                 display(toas[1])
                 @test startswith(string(model.tzr_toa), "TZRTOA")
                 display(model.tzr_toa)
