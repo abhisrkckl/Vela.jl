@@ -1,7 +1,8 @@
 using GeometricUnits
 using .Threads
 
-export TimingModel, correct_toa, form_residual, calc_chi2, calc_lnlike, calc_tzr_phase
+export TimingModel,
+    correct_toa, form_residual, calc_chi2, calc_lnlike, calc_tzr_phase, get_lnlike_func
 
 struct TimingModel{ComponentsTuple<:Tuple}
     components::ComponentsTuple

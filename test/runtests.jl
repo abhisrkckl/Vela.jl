@@ -466,9 +466,13 @@ const day_to_s = 86400
             end
 
             @testset "calc_lnlike" begin
-                lnlike = calc_lnlike(model, toas, params)
+                lnlike_func = get_lnlike_func(model, toas)
+
+                # lnlike = calc_lnlike(model, toas, params)
+                lnlike = lnlike_func(params)
                 @test isa(lnlike, Float64)
                 @test isfinite(lnlike)
+
                 @test lnlike ≈ calc_lnlike(model, toas, parv)
                 @test lnlike ≈ Vela.calc_lnlike_serial(model, toas, params)
                 @test lnlike ≈ Vela.calc_lnlike_serial(model, toas, parv)
