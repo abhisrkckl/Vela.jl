@@ -108,6 +108,8 @@ correct_toa_phase(toa::TOA, phase::GQ) = TOA(
     toa.ephem,
 )
 
+topocentric_frequency(toa::TOA)::GQ = toa.spin_frequency * (1 - toa.doppler)
+
 const day_to_s = 86400
 show(io::IO, toa::TOA) = print(
     io,
