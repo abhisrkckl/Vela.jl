@@ -5,6 +5,9 @@ import Base.copy, Base.show
 
 export TOA, correct_toa_delay, correct_toa_phase, make_tzr_toa
 
+"""
+    A type representing a single narrow-band TOA.
+"""
 struct TOA
     value::GQ{Float128}
     error::GQ{Float64}
@@ -59,6 +62,7 @@ TOA(value, error, observing_frequency, phase, barycentered, ephem) = TOA(
     ephem,
 )
 
+"""Create a TZR TOA object."""
 make_tzr_toa(tzrtdb, tzrfreq, tzrbary, tzrephem) = TOA(
     tzrtdb,
     time(0.0),
@@ -71,6 +75,7 @@ make_tzr_toa(tzrtdb, tzrfreq, tzrbary, tzrephem) = TOA(
     tzrephem,
 )
 
+"""Correct the TOA object by a given time delay."""
 correct_toa_delay(toa::TOA, delay::GQ) = TOA(
     toa.value - delay,
     toa.error,
@@ -83,6 +88,7 @@ correct_toa_delay(toa::TOA, delay::GQ) = TOA(
     toa.ephem,
 )
 
+"""Correct a TOA object by a given phase."""
 correct_toa_phase(toa::TOA, phase::GQ) = TOA(
     toa.value,
     toa.error,
