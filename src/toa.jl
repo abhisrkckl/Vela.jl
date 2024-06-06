@@ -14,6 +14,7 @@ struct TOA
     observing_frequency::GQ{Float64}
     phase::GQ{Float128}
     spin_frequency::GQ{Float64}
+    doppler::GQ{Float64}
     barycentered::Bool
     tzr::Bool
     level::UInt
@@ -25,6 +26,7 @@ struct TOA
         observing_frequency,
         phase,
         spin_frequency,
+        doppler,
         barycentered,
         tzr,
         level,
@@ -42,6 +44,7 @@ struct TOA
             observing_frequency,
             phase,
             spin_frequency,
+            doppler,
             barycentered,
             tzr,
             level,
@@ -56,6 +59,7 @@ TOA(value, error, observing_frequency, phase, barycentered, ephem) = TOA(
     observing_frequency,
     phase,
     frequency(-1.0),
+    dimensionless(0.0),
     barycentered,
     false,
     0,
@@ -69,6 +73,7 @@ make_tzr_toa(tzrtdb, tzrfreq, tzrbary, tzrephem) = TOA(
     tzrfreq,
     dimensionless(Float128(0.0)),
     frequency(-1.0),
+    dimensionless(0.0),
     tzrbary,
     true,
     0,
@@ -82,6 +87,7 @@ correct_toa_delay(toa::TOA, delay::GQ) = TOA(
     toa.observing_frequency,
     toa.phase,
     toa.spin_frequency,
+    toa.doppler,
     toa.barycentered,
     toa.tzr,
     toa.level + 1,
@@ -95,6 +101,7 @@ correct_toa_phase(toa::TOA, phase::GQ) = TOA(
     toa.observing_frequency,
     toa.phase + phase,
     toa.spin_frequency,
+    toa.doppler,
     toa.barycentered,
     toa.tzr,
     toa.level + 1,
