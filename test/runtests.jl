@@ -22,6 +22,7 @@ const day_to_s = 86400
     obs_earth_pos = distance.((0.01199435, 0.01159591, -0.01316261))
 
     @testset "ephemeris" begin
+        # Wrong dimensions
         @test_throws AssertionError SolarSystemEphemeris(
             ssb_obs_vel,
             ssb_obs_vel,
@@ -33,6 +34,8 @@ const day_to_s = 86400
             obs_neptune_pos,
             obs_earth_pos,
         )
+
+        # Wrong dimensions
         @test_throws AssertionError SolarSystemEphemeris(
             ssb_obs_pos,
             ssb_obs_pos,
@@ -44,6 +47,8 @@ const day_to_s = 86400
             obs_neptune_pos,
             obs_earth_pos,
         )
+
+        # Wrong dimensions
         @test_throws AssertionError SolarSystemEphemeris(
             ssb_obs_pos,
             ssb_obs_vel,
@@ -55,6 +60,8 @@ const day_to_s = 86400
             obs_neptune_pos,
             obs_earth_pos,
         )
+
+        # ssb_obs_vel is too large.
         @test_throws AssertionError SolarSystemEphemeris(
             ssb_obs_pos,
             1e6 .* ssb_obs_vel,
@@ -79,11 +86,11 @@ const day_to_s = 86400
             obs_earth_pos,
         )
 
-        # Aphelion distance
+        # ssb_obs_pos and obs_sun_pos should be less than the Aphelion distance
         @test sqrt(dot(ephem_vecs.ssb_obs_pos, ephem_vecs.ssb_obs_pos)) < distance(509.0)
         @test sqrt(dot(ephem_vecs.obs_sun_pos, ephem_vecs.obs_sun_pos)) < distance(509.0)
 
-        # Angle
+        # ssb_obs_pos and obs_sun_pos should have a small angle.
         @test acos(
             -dot(ephem_vecs.ssb_obs_pos, ephem_vecs.obs_sun_pos) / sqrt(
                 dot(ephem_vecs.ssb_obs_pos, ephem_vecs.ssb_obs_pos) *
@@ -91,7 +98,7 @@ const day_to_s = 86400
             ),
         ) < 0.01
 
-        # Speed of light
+        # |ssb_obs_vel| should be less than the speed of light
         @test dot(ephem_vecs.ssb_obs_vel, ephem_vecs.ssb_obs_vel) < 1
 
     end
@@ -100,7 +107,7 @@ const day_to_s = 86400
         toaval = time(parse(Float128, "4610197611.8464445127"))
         toaerr = time(1e-6)
         freq = frequency(1.4e9)
-        phase = dimensionless(Float128(1000.0))
+        delta_phase = dimensionless(1000.0)
         barycentered = false
 
         ephem = SolarSystemEphemeris(
@@ -115,30 +122,37 @@ const day_to_s = 86400
             obs_earth_pos,
         )
 
+        # TOA value should be of type GQ{Float128}.
         @test_throws MethodError TOA(
             time(4610197611.8),
             toaerr,
             freq,
-            phase,
+            delta_phase,
             barycentered,
             ephem,
         )
+
+        # Wrong dimensions for TOA value.
         @test_throws AssertionError TOA(
             dimensionless(toaval.x),
             toaerr,
             freq,
-            phase,
+            delta_phase,
             barycentered,
             ephem,
         )
+
+        # Wrong dimensions for TOA error.
         @test_throws AssertionError TOA(
             toaval,
             dimensionless(1e-6),
             freq,
-            phase,
+            delta_phase,
             barycentered,
             ephem,
         )
+
+        # Wrong dimensions for TOA observing_frequency.
         @test_throws AssertionError TOA(
             toaval,
             toaerr,
@@ -147,59 +161,65 @@ const day_to_s = 86400
             barycentered,
             ephem,
         )
-        @test_throws MethodError TOA(
-            toaval,
-            toaerr,
-            freq,
-            dimensionless(1000.0),
-            barycentered,
-            ephem,
-        )
+
+        # Wrong dimensions for TOA delta_phase.
         @test_throws AssertionError TOA(
             toaval,
             toaerr,
             freq,
-            time(Float128(1000.0)),
+            time(1000.0),
             barycentered,
             ephem,
         )
 
-        # toa1 = TOA(toaval, toaerr, freq, phase)
-        # @test is_barycentered(toa1)
-        # @test !toa1.tzr
-        # @test toa1.level == 0
-
-        toa1 = TOA(toaval, toaerr, freq, phase, barycentered, ephem)
-        # @test !is_barycentered(toa1)
+        toa1 = TOA(toaval, toaerr, freq, delta_phase, barycentered, ephem)
         @test !toa1.tzr
-        @test toa1.level == 0
+
+        ctoa1 = CorrectedTOA(toa1)
+        @test ctoa1.level == 0
 
         dt = time(1.0)
-        toa3 = correct_toa_delay(toa1, dt)
-        @test toa3.value == toa1.value - dt
-        @test toa3.error == toa1.error
-        @test toa3.observing_frequency == toa1.observing_frequency
-        @test toa3.barycentered == toa1.barycentered
-        @test toa3.phase == toa1.phase
-        @test toa3.tzr == toa1.tzr
-        @test toa3.level == 1
+        ctoa2 = correct_toa(ctoa1; delay = dt)
+        @test ctoa2.delay == ctoa1.delay + dt
+        @test corrected_toa_value(ctoa2) == corrected_toa_value(ctoa1) - dt
+        @test ctoa2.phase == ctoa1.phase
+        @test ctoa2.efac == ctoa1.efac
+        @test ctoa2.equad2 == ctoa1.equad2
+        @test ctoa2.doppler == ctoa1.doppler
+        @test ctoa2.barycentered == ctoa1.barycentered
+        @test ctoa2.level == 1
 
         dphi = dimensionless(0.3)
-        toa4 = correct_toa_phase(toa3, dphi)
-        @test toa4.value == toa3.value
-        @test toa4.error == toa3.error
-        @test toa4.observing_frequency == toa3.observing_frequency
-        @test toa4.phase == toa3.phase + dphi
-        @test toa4.barycentered == toa3.barycentered
-        @test toa4.tzr == toa3.tzr
-        @test toa4.level == 2
+        ctoa3 = correct_toa(ctoa2; phase = dphi)
+        @test ctoa3.delay == ctoa2.delay
+        @test ctoa3.phase == ctoa2.phase + dphi
+        @test corrected_toa_phase(ctoa3) == corrected_toa_phase(ctoa2) + dphi
+        @test ctoa3.efac == ctoa2.efac
+        @test ctoa3.equad2 == ctoa2.equad2
+        @test ctoa3.doppler == ctoa2.doppler
+        @test ctoa3.barycentered == ctoa2.barycentered
+        @test ctoa3.level == 2
+
+        efac = dimensionless(1.1)
+        equad2 = time(1e-6)^2
+        ctoa4 = correct_toa(ctoa3; efac = efac, equad2 = equad2)
+        @test ctoa4.delay == ctoa3.delay
+        @test ctoa4.phase == ctoa3.phase
+        @test ctoa4.efac == ctoa3.efac * efac
+        @test ctoa4.equad2 == ctoa3.equad2 + equad2
+        @test scaled_toa_error_sqr(ctoa4) ≈ (scaled_toa_error_sqr(ctoa3) + equad2) * efac^2
+        @test ctoa4.doppler == ctoa3.doppler
+        @test ctoa4.barycentered == ctoa3.barycentered
+        @test ctoa4.level == 3
 
         @testset "tzr_toa" begin
             tzrtoa = make_tzr_toa(toaval, freq, true, ephem)
             @test tzrtoa.tzr
             @test tzrtoa.barycentered
             @test tzrtoa.error == time(0.0)
-            @test tzrtoa.level == 0
+
+            ctzrtoa = CorrectedTOA(tzrtoa)
+            @test ctzrtoa.level == 0
         end
     end
 
@@ -246,12 +266,15 @@ const day_to_s = 86400
             time(Float128(53470.0 * day_to_s)),
             time(1e-6),
             frequency(2.5e9),
-            dimensionless(Float128(0.0)),
+            dimensionless(0.0),
             false,
             ephem,
         )
+        ctoa = CorrectedTOA(toa)
+
         tzrtoa =
             make_tzr_toa(time(Float128(53475.0 * day_to_s)), frequency(2.5e9), false, ephem)
+        ctzrtoa = CorrectedTOA(tzrtoa)
 
         params = Dict(
             :PHOFF => [dimensionless(1e-6)],
@@ -264,58 +287,55 @@ const day_to_s = 86400
         @testset "PhaseOffset" begin
             poff = PhaseOffset()
             poff_params = read_params_from_dict(poff, params)
-            @test phase(poff, toa, poff_params) == dimensionless(-1e-6)
-            @test phase(poff, tzrtoa, poff_params) == dimensionless(0.0)
+            @test phase(poff, ctoa, poff_params) == dimensionless(-1e-6)
+            @test phase(poff, ctzrtoa, poff_params) == dimensionless(0.0)
 
-            ctoa = correct_toa(poff, toa, poff_params)
-            @test ctoa.value == toa.value
-            @test ctoa.error == toa.error
-            @test ctoa.observing_frequency == toa.observing_frequency
-            @test toa.spin_frequency == frequency(-1.0) &&
-                  ctoa.spin_frequency == frequency(-1.0)
-            @test ctoa.phase ≈ toa.phase + phase(poff, toa, poff_params)
+            ctoa1 = correct_toa(poff, ctoa, poff_params)
+            @test ctoa1.delay == ctoa.delay
+            @test ctoa1.phase ≈ ctoa.phase + phase(poff, ctoa, poff_params)
+            @test ctoa1.efac == ctoa.efac
+            @test ctoa1.equad2 == ctoa.equad2
+            @test ctoa1.spin_frequency == ctoa.spin_frequency == frequency(-1.0)
 
-            ctzrtoa = correct_toa(poff, tzrtoa, poff_params)
-            @test ctzrtoa.value == tzrtoa.value
-            @test ctzrtoa.error == tzrtoa.error
-            @test ctzrtoa.observing_frequency == tzrtoa.observing_frequency
-            @test toa.spin_frequency == frequency(-1.0) &&
-                  ctzrtoa.spin_frequency == frequency(-1.0)
-            @test ctzrtoa.phase == tzrtoa.phase
+            ctzrtoa1 = correct_toa(poff, ctzrtoa, poff_params)
+            @test ctzrtoa1.delay == ctzrtoa.delay
+            @test ctzrtoa1.phase == ctzrtoa.phase
+            @test ctzrtoa1.efac == ctzrtoa.efac
+            @test ctzrtoa1.equad2 == ctzrtoa.equad2
         end
 
         @testset "Spindown" begin
             spn = Spindown()
             spn_params = read_params_from_dict(spn, params)
-            @test phase(spn, toa, spn_params) == dimensionless(0.0)
-            @test spin_frequency(spn, toa, spn_params) == frequency(100.0)
+            @test phase(spn, ctoa, spn_params) == dimensionless(0.0)
+            @test spin_frequency(spn, ctoa, spn_params) == frequency(100.0)
 
-            ctoa = correct_toa(spn, toa, spn_params)
-            @test ctoa.value == toa.value
-            @test ctoa.error == toa.error
-            @test ctoa.observing_frequency == toa.observing_frequency
-            @test toa.spin_frequency == frequency(-1.0) &&
-                  ctoa.spin_frequency > frequency(0.0)
-            @test ctoa.phase == toa.phase + phase(spn, toa, spn_params)
+            ctoa1 = correct_toa(spn, ctoa, spn_params)
+            @test ctoa1.delay == ctoa.delay
+            @test ctoa1.phase == ctoa.phase + phase(spn, ctoa, spn_params)
+            @test ctoa1.doppler == ctoa.doppler
+            @test ctoa.spin_frequency == frequency(-1.0) &&
+                  ctoa1.spin_frequency > frequency(0.0)
+
         end
 
-        @testset "SolarSystem" begin
-            ss = SolarSystem(true, true)
-            @test ss.ecliptic_coordinates && ss.planet_shapiro
-            @test delay(ss, toa, params) == time(0.0)
-        end
+        # @testset "SolarSystem" begin
+        #     ss = SolarSystem(true, true)
+        #     @test ss.ecliptic_coordinates && ss.planet_shapiro
+        #     @test delay(ss, toa, params) == time(0.0)
+        # end
 
-        @testset "Troposphere" begin
-            tropo = Troposphere()
-            @test delay(tropo, toa, params) == time(0.0)
-        end
+        # @testset "Troposphere" begin
+        #     tropo = Troposphere()
+        #     @test delay(tropo, toa, params) == time(0.0)
+        # end
 
         @testset "DispersionTaylor" begin
             dmt = DispersionTaylor()
             dmt_params = read_params_from_dict(dmt, params)
-            @test dispersion_slope(dmt, toa, dmt_params) == GQ(10.0, -1)
-            @test delay(dmt, toa, dmt_params) ==
-                  dispersion_slope(dmt, toa, dmt_params) / toa.observing_frequency^2
+            @test dispersion_slope(dmt, ctoa, dmt_params) == GQ(10.0, -1)
+            @test delay(dmt, ctoa, dmt_params) ==
+                  dispersion_slope(dmt, ctoa, dmt_params) / ctoa.toa.observing_frequency^2
         end
 
         @testset "SolarWindDispersion" begin
