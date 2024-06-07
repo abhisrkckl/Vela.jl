@@ -10,7 +10,7 @@ export TOA,
     doppler_shifted_spin_frequency,
     doppler_corrected_observing_frequency,
     corrected_toa_value,
-    corrected_toa_phase,
+    phase_residual,
     correct_toa
 
 """A single narrowband TOA observation."""
@@ -18,27 +18,35 @@ struct TOA
     value::GQ{Float128}
     error::GQ{Float64}
     observing_frequency::GQ{Float64}
-    delta_phase::GQ{Float64}
+    pulse_number::GQ{Float128}
     barycentered::Bool
     tzr::Bool
     ephem::SolarSystemEphemeris
 
-    function TOA(value, error, observing_frequency, delta_phase, barycentered, tzr, ephem)
+    function TOA(value, error, observing_frequency, pulse_number, barycentered, tzr, ephem)
         @assert value.d == 1 "Dimension mismatch in value (given $(value.d), expected 1)."
         @assert error.d == 1 "Dimension mismatch in error (given $(error.d), expected 1)."
         @assert observing_frequency.d == -1 "Dimension mismatch in observing_frequency (given $(observing_frequency.d), expected -1)."
-        @assert delta_phase.d == 0 "Dimension mismatch in delta_phase (given $(delta_phase.d), expected 0)."
+        @assert pulse_number.d == 0 "Dimension mismatch in pulse_number (given $(pulse_number.d), expected 0)."
 
-        return new(value, error, observing_frequency, delta_phase, barycentered, tzr, ephem)
+        return new(
+            value,
+            error,
+            observing_frequency,
+            pulse_number,
+            barycentered,
+            tzr,
+            ephem,
+        )
     end
 end
 
-TOA(value, error, observing_frequency, delta_phase, barycentered, ephem) =
-    TOA(value, error, observing_frequency, delta_phase, barycentered, false, ephem)
+TOA(value, error, observing_frequency, pulse_number, barycentered, ephem) =
+    TOA(value, error, observing_frequency, pulse_number, barycentered, false, ephem)
 
 """Create a TZR TOA object."""
 make_tzr_toa(tzrtdb, tzrfreq, tzrbary, tzrephem) =
-    TOA(tzrtdb, time(0.0), tzrfreq, dimensionless(0.0), tzrbary, true, tzrephem)
+    TOA(tzrtdb, time(0.0), tzrfreq, dimensionless(Float128(0.0)), tzrbary, true, tzrephem)
 
 """The accumulated timing & noise model corrections applied to a narrowband TOA."""
 struct CorrectedTOA
@@ -121,11 +129,10 @@ corrected_toa_value_F128(ctoa::CorrectedTOA) = ctoa.toa.value - ctoa.delay
 """TOA value after delay correction with 64-bit precision."""
 corrected_toa_value(ctoa::CorrectedTOA) = GQ{Float64}(ctoa.toa.value) - ctoa.delay
 
-"""TOA phase including delta_phase."""
-corrected_toa_phase(ctoa::CorrectedTOA) = ctoa.toa.delta_phase + ctoa.phase
+"""TOA phase residual"""
+phase_residual(ctoa::CorrectedTOA) = ctoa.phase - ctoa.toa.pulse_number
 
-"""Apply a correction to a CorrectedTOA object.
-"""
+"""Apply a correction to a CorrectedTOA object."""
 correct_toa(
     ctoa::CorrectedTOA;
     delay::GQ = time(0.0),
