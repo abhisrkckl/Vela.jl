@@ -3,7 +3,7 @@ using Quadmath
 using LinearAlgebra
 import Base.copy, Base.show
 
-export TOA, correct_toa_delay, correct_toa_phase, make_tzr_toa
+export TOA, correct_toa_delay, correct_toa_phase, make_tzr_toa, topocentric_frequency
 
 """
     A type representing a single narrow-band TOA.
