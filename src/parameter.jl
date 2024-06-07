@@ -36,26 +36,23 @@ struct ParamHandler
 
     function ParamHandler(multi_params)
         # _default_quantities = collect(Iterators.flatten(map(mp -> map(p -> p.default_quantity, mp.parameters), multi_params)))
-        
+
         keys = Tuple([mpar.name for mpar in multi_params])
         types = [
             (
-                length(mpar.parameters) == 1 ? 
-                typeof(mpar.parameters[1].default_quantity) : 
-                NTuple{length(mpar.parameters), typeof(mpar.parameters[1].default_quantity)}
-            )
-            for mpar in multi_params
+                length(mpar.parameters) == 1 ?
+                typeof(mpar.parameters[1].default_quantity) :
+                NTuple{length(mpar.parameters),typeof(mpar.parameters[1].default_quantity)}
+            ) for mpar in multi_params
         ]
         args = [
             (
-                length(mpar.parameters) == 1 ? 
-                mpar.parameters[1].default_quantity : 
+                length(mpar.parameters) == 1 ? mpar.parameters[1].default_quantity :
                 Tuple([param.default_quantity for param in mpar.parameters])
-            )
-            for mpar in multi_params
+            ) for mpar in multi_params
         ]
 
-        _params_tuple = NamedTuple{keys, Tuple{types...,}}(args)
+        _params_tuple = NamedTuple{keys,Tuple{types...}}(args)
 
         return new(multi_params, _params_tuple)
     end
@@ -65,12 +62,12 @@ function read_params(param_handler::ParamHandler, values::Vector{Float64})
     result = param_handler._params_tuple
     jj = 1
     for (ii, mpar) in enumerate(param_handler.multi_params)
-        if length(mpar.parameters) == 1 
+        if length(mpar.parameters) == 1
             if !mpar.parameters[1].frozen
                 @reset result[ii] = quantity_like(result[ii], values[jj])
                 jj += 1
             end
-        else 
+        else
             for (ij, param) in enumerate(mpar.parameters)
                 if !param.frozen
                     @reset result[ii][ij] = quantity_like(result[ii][ij], values[jj])
