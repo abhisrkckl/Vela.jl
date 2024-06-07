@@ -38,4 +38,4 @@ abstract type DispersionComponent <: DelayComponent end
 """Compute a dispersopn delay."""
 delay(component::DispersionComponent, ctoa::CorrectedTOA, params) =
     dispersion_slope(component, ctoa, params) /
-    (ctoa.toa.observing_frequency * (1 - ctoa.doppler))^2
+    doppler_corrected_observing_frequency(ctoa)^2
