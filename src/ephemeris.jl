@@ -2,6 +2,8 @@ using GeometricUnits
 
 export SolarSystemEphemeris
 
+"""Struct containing solar system ephemeris vectors corresponding to a TOA.
+These are computed using PINT."""
 struct SolarSystemEphemeris
     ssb_obs_pos::NTuple{3,GQ{Float64}}
     ssb_obs_vel::NTuple{3,GQ{Float64}}

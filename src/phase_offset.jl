@@ -2,6 +2,9 @@ using GeometricUnits
 
 export PhaseOffset, phase
 
+"""Phase offset between measured TOAs and the TZR TOA."""
 struct PhaseOffset <: PhaseComponent end
 
-phase(::PhaseOffset, toa::TOA, params::NamedTuple)::GQ = -Int(!toa.tzr) * params.PHOFF
+phase(::PhaseOffset, ctoa::CorrectedTOA, params::NamedTuple)::GQ =
+    -Int(!ctoa.toa.tzr) * params.PHOFF
+    
