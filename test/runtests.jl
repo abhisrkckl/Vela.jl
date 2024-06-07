@@ -446,6 +446,7 @@ const day_to_s = 86400
             @testset "correct_toa" begin
                 ctoa = correct_toa(model, toas[1], params)
                 @test ctoa.value == toas[1].value
+                @test topocentric_frequency(ctoa) == ctoa.spin_frequency
             end
 
             @testset "form_residual" begin

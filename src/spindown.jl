@@ -29,6 +29,7 @@ correct_toa(spindown::Spindown, toa::TOA, params::NamedTuple) = TOA(
     toa.observing_frequency,
     toa.phase + phase(spindown, toa, params),
     spin_frequency(spindown, toa, params),
+    toa.doppler,
     toa.barycentered,
     toa.tzr,
     toa.level + 1,

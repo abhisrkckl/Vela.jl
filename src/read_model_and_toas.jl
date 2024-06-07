@@ -68,7 +68,18 @@ function read_toa(toa_data::NamedTuple, tzr = false)::TOA
     phase = dimensionless(Float128(toa_data.phase_int) + Float128(toa_data.phase_frac))
     ephem = read_ephemeris(toa_data)
 
-    return TOA(value, error, freq, phase, frequency(-1.0), false, tzr, 0, ephem)
+    return TOA(
+        value,
+        error,
+        freq,
+        phase,
+        frequency(-1.0),
+        dimensionless(0.0),
+        false,
+        tzr,
+        0,
+        ephem,
+    )
 end
 
 read_toas(f::HDF5.File)::Vector{TOA} = [read_toa(toa_data) for toa_data in read(f["TOAs"])]
