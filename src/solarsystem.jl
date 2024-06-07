@@ -28,8 +28,6 @@ read_params_from_dict(::SolarSystem, params::Dict) = (
     PX = params[:PX][1],
 )
 
-delay(::SolarSystem, toa::TOA, params) = time(0.0)
-
 """Compute the Shapiro delay due to a solar system object."""
 function solar_system_shapiro_delay(M::GQ, obs_obj_pos::Tuple, obj_psr_pos::Tuple)
     Lhat = obj_psr_pos
@@ -39,21 +37,25 @@ function solar_system_shapiro_delay(M::GQ, obs_obj_pos::Tuple, obj_psr_pos::Tupl
     return -2 * M * log((r - Lhat_dot_rvec) / AU)
 end
 
-function correct_toa(ss::SolarSystem, toa::TOA, params::NamedTuple)
+function correct_toa(ss::SolarSystem, ctoa::CorrectedTOA, params::NamedTuple)
+    if ctoa.barycentered
+        return correct_toa(ctoa)
+    end
+
     long0 = params.LONG
     lat0 = params.LAT
 
     # TODO: Do this properly.
-    if params.PMLONG.x == 0 && params.PMLAT.x
+    if params.PMLONG == dimensionless(0.0) && params.PMLAT == dimensionless(0.0)
         long, lat = long0, lat0
     else
-        dt = GQ{Float64}(toa.value) - params.POSEPOCH
+        dt = corrected_toa_value(ctoa) - params.POSEPOCH
         long = long0 + params.PMLONG * dt / cos(params.LAT)
         lat = lat0 + params.PMLAT * dt
     end
 
     Lhat = (cos(long) * cos(lat), sin(long) * cos(lat), sin(lat))
-    Rvec = toa.ephem.ssb_obs_pos
+    Rvec = ctoa.toa.ephem.ssb_obs_pos
 
     if ss.ecliptic_coordinates
         x, y, z = Lhat
@@ -82,11 +84,11 @@ function correct_toa(ss::SolarSystem, toa::TOA, params::NamedTuple)
     if ss.planet_shapiro
         masses = (M_JUPITER, M_SATURN, M_VENUS, M_URANUS, M_NEPTUNE)
         positions = (
-            toa.ephem.obs_jupiter_pos,
-            toa.ephem.obs_saturn_pos,
-            toa.ephem.obs_venus_pos,
-            toa.ephem.obs_uranus_pos,
-            toa.ephem.obs_neptune_pos,
+            ctoa.toa.ephem.obs_jupiter_pos,
+            ctoa.toa.ephem.obs_saturn_pos,
+            ctoa.toa.ephem.obs_venus_pos,
+            ctoa.toa.ephem.obs_uranus_pos,
+            ctoa.toa.ephem.obs_neptune_pos,
         )
 
         for (M, obs_obj_pos) in zip(masses, positions)
@@ -95,23 +97,12 @@ function correct_toa(ss::SolarSystem, toa::TOA, params::NamedTuple)
         end
     end
 
-    vvec = toa.ephem.ssb_obs_vel
+    vvec = ctoa.toa.ephem.ssb_obs_vel
     Lhat_dot_vvec = dot(Lhat, vvec)
     # Doppler factor due to solar system motion
     # doppler = -d_roemerdelay / d_t
     # This applies to the frequency as freq*(1-doppler)
     doppler = Lhat_dot_vvec
 
-    return TOA(
-        toa.value - delay,
-        toa.error,
-        toa.observing_frequency,
-        toa.phase,
-        toa.spin_frequency,
-        toa.doppler + doppler,
-        true,
-        toa.tzr,
-        toa.level + 1,
-        toa.ephem,
-    )
+    return correct_toa(ctoa; delay = delay, doppler = doppler, barycentered = true)
 end
