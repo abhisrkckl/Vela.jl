@@ -112,21 +112,6 @@ def toas_to_table(toas: TOAs):
     return table
 
 
-def _get_scale_factor(param):
-    scale_factors = {
-        "DM": DMconst,
-        "NE_SW": c.c * DMconst,
-        "PX": c.c / u.au,
-    }
-
-    if param.name in scale_factors:
-        return scale_factors[param.name]
-    elif hasattr(param, "prefix") and param.prefix in scale_factors:
-        return scale_factors[param.prefix]
-    else:
-        return 1
-
-
 def _parse_quantity(quantity, scale_factor=1):
     scaled_quantity = (quantity * scale_factor).si
 
@@ -215,7 +200,7 @@ def params_from_model(model: TimingModel) -> list:
                 if pxparam.value is None:
                     break
 
-                scale_factor = _get_scale_factor(param)
+                scale_factor = pxparam.tcb2tdb_scale_factor
 
                 value, dim = (
                     (pxparam.value * day_to_s, 1)
@@ -240,7 +225,7 @@ def params_from_model(model: TimingModel) -> list:
         elif not hasattr(param, "prefix"):
             frozen = param.frozen
 
-            scale_factor = _get_scale_factor(param)
+            scale_factor = param.tcb2tdb_scale_factor
 
             value, dim = (
                 (param.value * day_to_s, 1)
@@ -273,9 +258,7 @@ def components_from_model(model: TimingModel) -> list:
         if component_name in ["AbsPhase", "SolarSystemShapiro"]:
             continue
         elif component_name == "Spindown":
-            components.append(
-                {"name": "Spindown"}
-            )
+            components.append({"name": "Spindown"})
         elif component_name.startswith("Astrometry"):
             ecliptic_coordinates = component_name == "AstrometryEcliptic"
             is_frozen_at_0 = lambda ps: all(
@@ -293,11 +276,7 @@ def components_from_model(model: TimingModel) -> list:
                 {"name": "SolarWindDispersion", "model": int(model.SWM.value)}
             )
         elif component_name == "DispersionDM":
-            components.append(
-                {
-                    "name": "DispersionTaylor"
-                }
-            )
+            components.append({"name": "DispersionTaylor"})
         elif component_name == "TroposphereDelay" and model.CORRECT_TROPOSPHERE.value:
             components.append({"name": "Troposphere"})
         else:
