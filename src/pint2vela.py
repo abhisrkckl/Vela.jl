@@ -5,12 +5,10 @@ import sys
 
 import h5py as h5
 import numpy as np
-from astropy import constants as c
 from astropy import units as u
 from astropy.table import Table
-from pint import DMconst
 from pint.logging import setup as setup_log
-from pint.models import TimingModel, get_model_and_toas, PhaseOffset
+from pint.models import PhaseOffset, TimingModel, get_model_and_toas
 from pint.models.parameter import (
     AngleParameter,
     MJDParameter,
