@@ -81,20 +81,18 @@ _read_single_parameter(spdict::Dict) = Parameter(
     GQ(spdict["default_value"], spdict["dimension"]),
     spdict["frozen"],
     spdict["original_units"],
-    spdict["unit_conversion_factor"]
+    spdict["unit_conversion_factor"],
 )
 
-_read_multi_parameter(mpdict::Dict) = MultiParameter(
-    Symbol(mpdict["name"]),
-    map(_read_single_parameter, mpdict["elements"])
-)
+_read_multi_parameter(mpdict::Dict) =
+    MultiParameter(Symbol(mpdict["name"]), map(_read_single_parameter, mpdict["elements"]))
 
 function read_param_handler(f::HDF5.File)
     single_params_info, multi_params_info = JSON.parse(read(f["Parameters"]))
 
     single_params = map(_read_single_parameter, single_params_info)
     multi_params = map(_read_multi_parameter, multi_params_info)
-    
+
     return ParamHandler(single_params, multi_params)
 end
 
