@@ -110,25 +110,6 @@ def toas_to_table(toas: TOAs):
     return table
 
 
-def _parse_quantity(quantity, scale_factor=1):
-    scaled_quantity = (quantity * scale_factor).si
-
-    value = scaled_quantity.value
-
-    if len(scaled_quantity.unit.bases) == 0 or scaled_quantity.unit.bases == [u.rad]:
-        return value, 0
-    elif scaled_quantity.unit.bases == [u.s]:
-        d = scaled_quantity.unit.powers[0]
-        return value, d
-    elif set(scaled_quantity.unit.bases) == {u.s, u.rad}:
-        d = scaled_quantity.unit.powers[scaled_quantity.unit.bases.index(u.s)]
-        return value, d
-    else:
-        raise ValueError(
-            "The scaled quantity has an unsupported unit. Check the scale_factor.",
-        )
-
-
 def fix_params(model: TimingModel):
     assert model.PEPOCH.value is not None
 
@@ -146,6 +127,39 @@ def fix_params(model: TimingModel):
     model.PHOFF.frozen = False
 
 
+def _get_multiparam_elements(model, multi_param_names):
+    elements = []
+    for pxname in multi_param_names:
+        pxparam = model[pxname]
+
+        if pxparam.value is None:
+            break
+
+        scale_factor = pxparam.tcb2tdb_scale_factor
+        value = (
+            pxparam.value * day_to_s
+            if isinstance(pxparam, MJDParameter)
+            else (pxparam.quantity * scale_factor).si.value
+        )
+        dim = pxparam.effective_dimensionality
+
+        original_units = str(pxparam.units)
+        unit_conversion_factor = pxparam.value / value
+
+        elements.append(
+            {
+                "display_name": pxparam.name,
+                "default_value": float(value),
+                "dimension": dim,
+                "frozen": pxparam.frozen,
+                "original_units": original_units,
+                "unit_conversion_factor": float(unit_conversion_factor),
+            }
+        )
+
+    return elements
+
+
 def params_from_model(model: TimingModel) -> list:
     ignore_params = [
         "START",
@@ -160,92 +174,93 @@ def params_from_model(model: TimingModel) -> list:
         "SWM",
     ]
 
-    processed_multi_params = ["DM"]
+    # Parameters that are defined as single parameters in PINT
+    # but are really multi-parameters
+    pseudo_single_params = ["DM", "CM"]
 
-    params = []
+    assert all(psp not in ignore_params for psp in pseudo_single_params)
+    assert all(not hasattr(model[psp], "prefix") for psp in pseudo_single_params)
+
+    # Process single parameters
+    single_params = []
     for param_name in model.params:
+        param = model[param_name]
+
+        # Skip things that are not single parameters
         if (
             param_name in ignore_params
+            or param_name in pseudo_single_params
             or not isinstance(
-                model[param_name],
+                param,
                 (
                     floatParameter,
                     MJDParameter,
                     AngleParameter,
-                    maskParameter,
-                    prefixParameter,
                 ),
             )
-            or model[param_name].quantity is None
+            or hasattr(param, "prefix")
+            or param.quantity is None
         ):
             continue
 
+        scale_factor = param.tcb2tdb_scale_factor
+        value = (
+            param.value * day_to_s
+            if isinstance(param, MJDParameter)
+            else (param.quantity * scale_factor).si.value
+        )
+        dim = param.effective_dimensionality
+
+        original_units = str(param.units)
+        unit_conversion_factor = param.value / value
+
+        single_params.append(
+            {
+                "display_name": param_name,
+                "default_value": float(value),
+                "dimension": dim,
+                "frozen": param.frozen,
+                "original_units": original_units,
+                "unit_conversion_factor": float(unit_conversion_factor),
+            }
+        )
+
+    # Process pseudo_single_params
+    multi_params = []
+    processed_multi_params = []
+    for param_name in pseudo_single_params:
+        if model[param_name].quantity is not None:
+            prefix_param_names = [param_name] + list(
+                model.get_prefix_mapping(param_name).values()
+            )
+
+            elements = _get_multiparam_elements(model, prefix_param_names)
+
+            multi_params.append({"name": param_name, "elements": elements})
+            processed_multi_params.append(param_name)
+
+    # Process ordinary multi parameters
+    for param_name in model.params:
         param = model[param_name]
 
-        if param.name == "DM" or (
-            hasattr(param, "prefix") and param.prefix not in processed_multi_params
+        # Skip things that are not ordinary multi parameters
+        if (
+            param_name in ignore_params
+            or not hasattr(param, "prefix")
+            or param.prefix in pseudo_single_params
+            or param.prefix in processed_multi_params
+            or param.quantity is None
         ):
-            prefix_param_names = (
-                ["DM"] + list(model.get_prefix_mapping("DM").values())
-                if param.name == "DM"
-                else list(model.get_prefix_mapping(param.prefix).values())
-            )
+            continue
 
-            elements = []
-            for pxname in prefix_param_names:
-                pxparam = model[pxname]
+        prefix_param_names = list(model.get_prefix_mapping(param.prefix).values())
 
-                if pxparam.value is None:
-                    break
+        elements = _get_multiparam_elements(model, prefix_param_names)
 
-                scale_factor = pxparam.tcb2tdb_scale_factor
+        multi_params.append({"name": param.prefix, "elements": elements})
+        processed_multi_params.append(param.prefix)
 
-                value, dim = (
-                    (pxparam.value * day_to_s, 1)
-                    if isinstance(pxparam, MJDParameter)
-                    else _parse_quantity(pxparam.quantity, scale_factor)
-                )
-
-                elements.append(
-                    {
-                        "display_name": pxparam.name,
-                        "default_value": float(value),
-                        "dimension": dim,
-                        "frozen": pxparam.frozen,
-                    }
-                )
-
-            params.append(((param.prefix if param.name != "DM" else "DM"), elements))
-
-            if param.name != "DM":
-                processed_multi_params.append(param.prefix)
-
-        elif not hasattr(param, "prefix"):
-            frozen = param.frozen
-
-            scale_factor = param.tcb2tdb_scale_factor
-
-            value, dim = (
-                (param.value * day_to_s, 1)
-                if isinstance(param, MJDParameter)
-                else _parse_quantity(param.quantity, scale_factor)
-            )
-
-            params.append(
-                (
-                    param_name,
-                    [
-                        {
-                            "display_name": param_name,
-                            "default_value": float(value),
-                            "dimension": dim,
-                            "frozen": frozen,
-                        }
-                    ],
-                )
-            )
-
-    return params
+    return single_params, multi_params
 
 
 def components_from_model(model: TimingModel) -> list:
