@@ -260,14 +260,10 @@ def components_from_model(model: TimingModel) -> list:
         elif component_name == "Spindown":
             components.append({"name": "Spindown"})
         elif component_name.startswith("Astrometry"):
-            ecliptic_coordinates = component_name == "AstrometryEcliptic"
-            is_frozen_at_0 = lambda ps: all(
-                model[p].frozen and model[p].value == 0 for p in ps
-            )
             components.append(
                 {
                     "name": "SolarSystem",
-                    "ecliptic_coordinates": ecliptic_coordinates,
+                    "ecliptic_coordinates": (component_name == "AstrometryEcliptic"),
                     "planet_shapiro": model.PLANET_SHAPIRO.value,
                 }
             )
