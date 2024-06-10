@@ -179,7 +179,10 @@ def params_from_model(model: TimingModel) -> list:
     pseudo_single_params = ["DM", "CM"]
 
     assert all(psp not in ignore_params for psp in pseudo_single_params)
-    assert all(not hasattr(model[psp], "prefix") for psp in pseudo_single_params)
+    assert all(
+        psp not in model or not hasattr(model[psp], "prefix")
+        for psp in pseudo_single_params
+    )
 
     # Process single parameters
     single_params = []
@@ -212,7 +215,9 @@ def params_from_model(model: TimingModel) -> list:
         dim = param.effective_dimensionality
 
         original_units = str(param.units)
-        unit_conversion_factor = param.value / value
+        unit_conversion_factor = (param.units * scale_factor / u.s**dim).to_value(
+            u.dimensionless_unscaled, equivalencies=u.dimensionless_angles()
+        )
 
         single_params.append(
             {
@@ -229,7 +234,7 @@ def params_from_model(model: TimingModel) -> list:
     multi_params = []
     processed_multi_params = []
     for param_name in pseudo_single_params:
-        if model[param_name].quantity is not None:
+        if param_name in model and model[param_name].quantity is not None:
             prefix_param_names = [param_name] + list(
                 model.get_prefix_mapping(param_name).values()
             )
