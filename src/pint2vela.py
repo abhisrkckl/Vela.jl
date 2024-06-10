@@ -2,6 +2,7 @@
 
 import json
 import sys
+from typing import Any, Dict, List, Tuple
 
 import h5py as h5
 import numpy as np
@@ -13,15 +14,13 @@ from pint.models.parameter import (
     AngleParameter,
     MJDParameter,
     floatParameter,
-    maskParameter,
-    prefixParameter,
 )
 from pint.toa import TOAs
 
 day_to_s = 86400
 
 
-def toas_to_table(toas: TOAs):
+def toas_to_table(toas: TOAs) -> Table:
     assert toas.planets
     assert toas.get_pulse_numbers() is not None
 
@@ -110,7 +109,7 @@ def toas_to_table(toas: TOAs):
     return table
 
 
-def fix_params(model: TimingModel):
+def fix_params(model: TimingModel) -> None:
     assert model.PEPOCH.value is not None
 
     for param in model.params:
@@ -127,7 +126,9 @@ def fix_params(model: TimingModel):
     model.PHOFF.frozen = False
 
 
-def _get_multiparam_elements(model, multi_param_names):
+def _get_multiparam_elements(
+    model: TimingModel, multi_param_names: List[str]
+) -> List[Dict[str, Any]]:
     elements = []
     for pxname in multi_param_names:
         pxparam = model[pxname]
@@ -148,7 +149,7 @@ def _get_multiparam_elements(model, multi_param_names):
 
         elements.append(
             {
-                "display_name": pxparam.name,
+                "name": pxparam.name,
                 "default_value": float(value),
                 "dimension": dim,
                 "frozen": pxparam.frozen,
@@ -160,7 +161,9 @@ def _get_multiparam_elements(model, multi_param_names):
     return elements
 
 
-def params_from_model(model: TimingModel) -> list:
+def params_from_model(
+    model: TimingModel,
+) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
     ignore_params = [
         "START",
         "FINISH",
@@ -221,7 +224,7 @@ def params_from_model(model: TimingModel) -> list:
 
         single_params.append(
             {
-                "display_name": param_name,
+                "name": param_name,
                 "default_value": float(value),
                 "dimension": dim,
                 "frozen": param.frozen,
