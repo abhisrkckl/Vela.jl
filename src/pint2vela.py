@@ -145,7 +145,9 @@ def _get_multiparam_elements(
         dim = pxparam.effective_dimensionality
 
         original_units = str(pxparam.units)
-        unit_conversion_factor = pxparam.value / value
+        unit_conversion_factor = (pxparam.units * scale_factor / u.s**dim).to_value(
+            u.dimensionless_unscaled, equivalencies=u.dimensionless_angles()
+        )
 
         elements.append(
             {
