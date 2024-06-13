@@ -464,6 +464,7 @@ const day_to_s = 86400
             end
 
             params = model.param_handler._default_param_quantities
+            parv = read_param_values_to_vector(model.param_handler, params)
 
             @testset "correct_toa" begin
                 ctoa = correct_toa(model, toas[1], params)
@@ -481,6 +482,7 @@ const day_to_s = 86400
                 nfree = length(get_free_param_names(model.param_handler))
                 @test isa(chi2, Float64)
                 @test chi2 / (length(toas) - nfree) < dimensionless(1.5)
+
                 @test chi2 ≈ calc_chi2(model, toas, parv)
                 @test chi2 ≈ Vela.calc_chi2_serial(model, toas, params)
                 @test chi2 ≈ Vela.calc_chi2_serial(model, toas, parv)
