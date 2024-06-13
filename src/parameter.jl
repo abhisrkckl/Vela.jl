@@ -99,12 +99,17 @@ end
 
 function get_free_param_names(param_handler::ParamHandler)
     pnames = Vector{String}()
-    ii = 1
-    for mpar in param_handler.multi_params
+
+    @inbounds for spar in param_handler.single_params
+        if !spar.frozen
+            push!(pnames, string(spar.name))
+        end
+    end
+
+    @inbounds for mpar in param_handler.multi_params
         for param in mpar.parameters
             if !param.frozen
-                @inbounds push!(pnames, string(param.name))
-                ii += 1
+                push!(pnames, string(param.name))
             end
         end
     end
@@ -114,19 +119,19 @@ end
 
 function read_param_values_to_vector(param_handler::ParamHandler, params::NamedTuple)
     param_vec = Float64[]
+
+    @inbounds for spar in param_handler.single_params
+        if !spar.frozen
+            push!(param_vec, Float64(params[spar.name].x))
+        end
+    end
+
     @inbounds for mpar in param_handler.multi_params
-        if length(mpar.parameters) == 1
-            if !mpar.parameters[1].frozen
-                push!(param_vec, Float64(params[mpar.name].x))
-            end
-        else
-            for (jj, param) in enumerate(mpar.parameters)
-                if !param.frozen
-                    push!(param_vec, Float64(params[mpar.name][jj].x))
-                end
+        for (jj, param) in enumerate(mpar.parameters)
+            if !param.frozen
+                push!(param_vec, Float64(params[mpar.name][jj].x))
             end
         end
-
     end
 
     return param_vec
