@@ -5,15 +5,35 @@ export TimingModel,
     correct_toa, form_residual, calc_chi2, calc_lnlike, calc_tzr_phase, get_lnlike_func
 
 struct TimingModel{ComponentsTuple<:Tuple}
+    pulsar_name::String
+    ephem::String
+    clock::String
+    units::String
     components::ComponentsTuple
     param_handler::ParamHandler
     tzr_toa::TOA
 
-    function TimingModel(components::Tuple, param_handler::ParamHandler, tzr_toa::TOA)
+    function TimingModel(
+        pulsar_name::String,
+        ephem::String,
+        clock::String,
+        units::String,
+        components::Tuple,
+        param_handler::ParamHandler,
+        tzr_toa::TOA,
+    )
         @assert tzr_toa.tzr "Invalid TZR TOA."
         @assert all(map(c -> isa(c, Component), components)) "components must be a tuple containing Component objects."
 
-        return new{typeof(components)}(components, param_handler, tzr_toa)
+        return new{typeof(components)}(
+            pulsar_name,
+            ephem,
+            clock,
+            units,
+            components,
+            param_handler,
+            tzr_toa,
+        )
     end
 end
 
@@ -47,10 +67,12 @@ function calc_chi2(model::TimingModel, toas::Vector{TOA}, params::NamedTuple)
 
     chisq = Atomic{Float64}(0.0)
     @threads for toa in toas
-        res = form_residual(model, toa, params, tzrphase)
-        err = toa.error
+        ctoa = correct_toa(model, toa, params)
+        dphase = GQ{Float64}(phase_residual(ctoa) - tzrphase)
+        tres = dphase / doppler_shifted_spin_frequency(ctoa)
+        err2 = scaled_toa_error_sqr(ctoa)
 
-        atomic_add!(chisq, Float64(((res / err)^2).x))
+        atomic_add!(chisq, Float64((tres * tres / err2).x))
     end
 
     return chisq[]
@@ -61,10 +83,12 @@ function calc_chi2_serial(model::TimingModel, toas::Vector{TOA}, params::NamedTu
 
     chisq = 0.0
     for toa in toas
-        res = form_residual(model, toa, params, tzrphase)
-        err = toa.error
+        ctoa = correct_toa(model, toa, params)
+        dphase = GQ{Float64}(phase_residual(ctoa) - tzrphase)
+        tres = dphase / doppler_shifted_spin_frequency(ctoa)
+        err2 = scaled_toa_error_sqr(ctoa)
 
-        chisq += ((res / err)^2).x
+        chisq += (tres * tres / err2).x
     end
 
     return chisq
@@ -81,11 +105,13 @@ function calc_lnlike(model::TimingModel, toas::Vector{TOA}, params::NamedTuple)
 
     result = Atomic{Float64}(0.0)
     @threads for toa in toas
-        res = form_residual(model, toa, params, tzrphase)
-        err = toa.error
-        norm = log(toa.error.x)
+        ctoa = correct_toa(model, toa, params)
+        dphase = GQ{Float64}(phase_residual(ctoa) - tzrphase)
+        tres = dphase / doppler_shifted_spin_frequency(ctoa)
+        err2 = scaled_toa_error_sqr(ctoa)
+        norm = log(err2.x) / 2
 
-        atomic_add!(result, ((res / err)^2).x + norm)
+        atomic_add!(result, (tres * tres / err2).x + norm)
     end
 
     return -result[] / 2
@@ -96,11 +122,13 @@ function calc_lnlike_serial(model::TimingModel, toas::Vector{TOA}, params::Named
 
     result = 0.0
     for toa in toas
-        res = form_residual(model, toa, params, tzrphase)
-        err = toa.error
-        norm = log(toa.error.x)
+        ctoa = correct_toa(model, toa, params)
+        dphase = GQ{Float64}(phase_residual(ctoa) - tzrphase)
+        tres = dphase / doppler_shifted_spin_frequency(ctoa)
+        err2 = scaled_toa_error_sqr(ctoa)
+        norm = log(err2.x) / 2
 
-        result += ((res / err)^2).x + norm
+        result += (tres * tres / err2).x + norm
     end
 
     return -result / 2

@@ -124,6 +124,8 @@ function read_components(f::HDF5.File)
     return Tuple(components)
 end
 
+read_info(f::HDF5.File) = JSON.parse(read(f["Info"]))
+
 function read_model_and_toas(filename::String)
     h5open(filename) do f
         toas = read_toas(f)
@@ -131,7 +133,17 @@ function read_model_and_toas(filename::String)
         param_handler = read_param_handler(f)
         components = read_components(f)
         tzr_toa = read_tzr_toa(f)
-        model = TimingModel(components, param_handler, tzr_toa)
+        info = read_info(f)
+
+        model = TimingModel(
+            info["pulsar_name"],
+            info["ephem"],
+            info["clock"],
+            info["units"],
+            components,
+            param_handler,
+            tzr_toa,
+        )
 
         return model, toas
     end

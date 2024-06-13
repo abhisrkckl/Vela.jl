@@ -304,6 +304,15 @@ def components_from_model(model: TimingModel) -> list:
     return components
 
 
+def infodict_from_model(model: TimingModel) -> dict:
+    return {
+        "pulsar_name": model.PSR.value if model.PSR.value is not None else "",
+        "ephem": model.EPHEM.value,
+        "clock": model.CLOCK.value,
+        "units": model.UNITS.value,
+    }
+
+
 if __name__ == "__main__":
     par, tim, prefix = sys.argv[1:]
 
@@ -322,6 +331,7 @@ if __name__ == "__main__":
 
     components_dict = components_from_model(model)
     params_dict = params_from_model(model)
+    info_dict = infodict_from_model(model)
 
     tzr_toa: TOAs = model.get_TZR_toa(toas)
     tzr_toa.compute_pulse_numbers(model)
@@ -332,5 +342,6 @@ if __name__ == "__main__":
     with h5.File(filename, "a") as f:
         f.create_dataset("Components", data=json.dumps(components_dict))
         f.create_dataset("Parameters", data=json.dumps(params_dict))
+        f.create_dataset("Info", data=json.dumps(info_dict))
 
     tzr_table.write(filename, path="TZRTOA", format="hdf5", append=True)
