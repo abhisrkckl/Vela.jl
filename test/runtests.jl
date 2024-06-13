@@ -239,7 +239,7 @@ const day_to_s = 86400
 
         ph = ParamHandler([pepoch], [mparF])
         @test get_free_param_names(ph) == ["F0", "F1"]
-        @test Set(keys(ph._default_param_quantities)) == Set([:PEPOCH, :F])
+        @test Set(keys(ph._default_params_tuple)) == Set([:PEPOCH, :F])
 
         params = read_params(ph, [100.01, -1.01e-14])
         @test Set(keys(params)) == Set([:PEPOCH, :F])
@@ -432,13 +432,13 @@ const day_to_s = 86400
                 @test Set(get_free_param_names(param_handler)) == Set(["F0", "F1", "PHOFF"])
                 @test length(param_handler.multi_params) +
                       length(param_handler.single_params) ==
-                      length(param_handler._default_param_quantities)
+                      length(param_handler._default_params_tuple)
                 @test length(get_free_param_names(param_handler)) ==
                       length(param_handler._free_indices)
-                @test sizeof(param_handler._default_param_quantities) ==
+                @test sizeof(param_handler._default_params_tuple) ==
                       sizeof(GQ{Float64}) * length(param_handler._default_quantities)
 
-                params = model.param_handler._default_param_quantities
+                params = model.param_handler._default_params_tuple
                 parv = [params.PHOFF.x, params.F[1].x, params.F[2].x]
                 @test read_param_values_to_vector(model.param_handler, params) == parv
             end
@@ -460,7 +460,7 @@ const day_to_s = 86400
                 display(model)
             end
 
-            params = model.param_handler._default_param_quantities
+            params = model.param_handler._default_params_tuple
             parv = read_param_values_to_vector(model.param_handler, params)
 
             @testset "correct_toa" begin

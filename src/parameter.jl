@@ -45,7 +45,7 @@ _get_params_tuple(single_params, multi_params) =
 struct ParamHandler{ParamsType<:NamedTuple}
     single_params::Vector{Parameter}
     multi_params::Vector{MultiParameter}
-    _default_param_quantities::ParamsType
+    _default_params_tuple::ParamsType
     _default_quantities::Vector{GQ{Float64}}
     _free_indices::Vector{Int}
 end
