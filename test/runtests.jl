@@ -273,28 +273,27 @@ const day_to_s = 86400
             make_tzr_toa(time(Float128(53475.0 * day_to_s)), frequency(2.5e9), false, ephem)
         ctzrtoa = CorrectedTOA(tzrtoa)
 
-        params = Dict(
-            :PHOFF => [dimensionless(1e-6)],
-            :PEPOCH => [time(53470.0 * day_to_s)],
-            :F => [frequency(100.0), GQ(-1e-14, -2)],
-            :DMEPOCH => [time(53470.0 * day_to_s)],
-            :DM => [GQ(10.0, -1), GQ(1e-4, -2)],
+        params = (
+            PHOFF = dimensionless(1e-6),
+            PEPOCH = time(53470.0 * day_to_s),
+            F = (frequency(100.0), GQ(-1e-14, -2)),
+            DMEPOCH = time(53470.0 * day_to_s),
+            DM = (GQ(10.0, -1), GQ(1e-4, -2)),
         )
 
         @testset "PhaseOffset" begin
             poff = PhaseOffset()
-            poff_params = read_params_from_dict(poff, params)
-            @test phase(poff, ctoa, poff_params) == dimensionless(-1e-6)
-            @test phase(poff, ctzrtoa, poff_params) == dimensionless(0.0)
+            @test phase(poff, ctoa, params) == dimensionless(-1e-6)
+            @test phase(poff, ctzrtoa, params) == dimensionless(0.0)
 
-            ctoa1 = correct_toa(poff, ctoa, poff_params)
+            ctoa1 = correct_toa(poff, ctoa, params)
             @test ctoa1.delay == ctoa.delay
-            @test ctoa1.phase ≈ ctoa.phase + phase(poff, ctoa, poff_params)
+            @test ctoa1.phase ≈ ctoa.phase + phase(poff, ctoa, params)
             @test ctoa1.efac == ctoa.efac
             @test ctoa1.equad2 == ctoa.equad2
             @test ctoa1.spin_frequency == ctoa.spin_frequency == frequency(-1.0)
 
-            ctzrtoa1 = correct_toa(poff, ctzrtoa, poff_params)
+            ctzrtoa1 = correct_toa(poff, ctzrtoa, params)
             @test ctzrtoa1.delay == ctzrtoa.delay
             @test ctzrtoa1.phase == ctzrtoa.phase
             @test ctzrtoa1.efac == ctzrtoa.efac
@@ -303,13 +302,12 @@ const day_to_s = 86400
 
         @testset "Spindown" begin
             spn = Spindown()
-            spn_params = read_params_from_dict(spn, params)
-            @test phase(spn, ctoa, spn_params) == dimensionless(0.0)
-            @test spin_frequency(spn, ctoa, spn_params) == frequency(100.0)
+            @test phase(spn, ctoa, params) == dimensionless(0.0)
+            @test spin_frequency(spn, ctoa, params) == frequency(100.0)
 
-            ctoa1 = correct_toa(spn, ctoa, spn_params)
+            ctoa1 = correct_toa(spn, ctoa, params)
             @test ctoa1.delay == ctoa.delay
-            @test ctoa1.phase == ctoa.phase + phase(spn, ctoa, spn_params)
+            @test ctoa1.phase == ctoa.phase + phase(spn, ctoa, params)
             @test ctoa1.doppler == ctoa.doppler
             @test ctoa.spin_frequency == frequency(-1.0) &&
                   ctoa1.spin_frequency > frequency(0.0)
@@ -329,10 +327,9 @@ const day_to_s = 86400
 
         @testset "DispersionTaylor" begin
             dmt = DispersionTaylor()
-            dmt_params = read_params_from_dict(dmt, params)
-            @test dispersion_slope(dmt, ctoa, dmt_params) == GQ(10.0, -1)
-            @test delay(dmt, ctoa, dmt_params) ==
-                  dispersion_slope(dmt, ctoa, dmt_params) / ctoa.toa.observing_frequency^2
+            @test dispersion_slope(dmt, ctoa, params) == GQ(10.0, -1)
+            @test delay(dmt, ctoa, params) ==
+                  dispersion_slope(dmt, ctoa, params) / ctoa.toa.observing_frequency^2
         end
 
         @testset "SolarWindDispersion" begin

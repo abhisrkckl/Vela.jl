@@ -82,21 +82,6 @@ function read_params(
     return reinterpret(ParamsType, quantities)[1]
 end
 
-# function read_params(param_handler::ParamHandler, values::Vector{Float64})
-#     param_dict = deepcopy(param_handler._default_params_dict)
-#     ii = 1
-#     for mpar in param_handler.multi_params
-#         for (jj, param) in enumerate(mpar.parameters)
-#             if !param.frozen
-#                 @inbounds param_dict[mpar.name][jj] = read_param(param, values[ii])
-#                 ii += 1
-#             end
-#         end
-#     end
-
-#     return param_dict
-# end
-
 function get_free_param_names(param_handler::ParamHandler)
     pnames = Vector{String}()
 
