@@ -463,6 +463,8 @@ const day_to_s = 86400
                 display(model)
             end
 
+            params = model.param_handler._default_param_quantities
+
             @testset "correct_toa" begin
                 ctoa = correct_toa(model, toas[1], params)
                 @test corrected_toa_value(ctoa) ≈ toas[1].value
