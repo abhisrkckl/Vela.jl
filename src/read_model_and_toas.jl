@@ -76,29 +76,24 @@ read_toas(f::HDF5.File)::Vector{TOA} = [read_toa(toa_data) for toa_data in read(
 
 read_tzr_toa(f::HDF5.File) = read_toa(read(f["TZRTOA"])[1], true)
 
+_read_single_parameter(spdict::Dict) = Parameter(
+    Symbol(spdict["name"]),
+    GQ(spdict["default_value"], spdict["dimension"]),
+    spdict["frozen"],
+    spdict["original_units"],
+    spdict["unit_conversion_factor"],
+)
+
+_read_multi_parameter(mpdict::Dict) =
+    MultiParameter(Symbol(mpdict["name"]), map(_read_single_parameter, mpdict["elements"]))
+
 function read_param_handler(f::HDF5.File)
-    params_info = JSON.parse(read(f["Parameters"]))
+    single_params_info, multi_params_info = JSON.parse(read(f["Parameters"]))
 
-    multi_params = Vector{MultiParameter}()
-    for (mpname, param_dicts) in params_info
-        params = [
-            Parameter(
-                Symbol(pdict["display_name"]),
-                GQ(pdict["default_value"], pdict["dimension"]),
-                pdict["frozen"],
-            ) for pdict in param_dicts
-        ]
-        push!(multi_params, MultiParameter(Symbol(mpname), params))
-    end
+    single_params = map(_read_single_parameter, single_params_info)
+    multi_params = map(_read_multi_parameter, multi_params_info)
 
-    # params = [
-    #     Parameter(
-    #         pd["name"],
-    #         GQ(pd["default_value"], pd["dimension"]),
-    #         pd["frozen"],
-    #     ) for pd in param_dicts
-    # ]
-    return ParamHandler(multi_params)
+    return ParamHandler(single_params, multi_params)
 end
 
 function read_components(f::HDF5.File)

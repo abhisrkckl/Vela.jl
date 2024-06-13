@@ -9,19 +9,11 @@ export Parameter,
     read_param_values_to_vector
 
 struct Parameter
-    display_name::Symbol
+    name::Symbol
     default_quantity::GQ{Float64}
     frozen::Bool
-
-    function Parameter(name, default_quantity, frozen)
-        return new(name, default_quantity, frozen)
-    end
-end
-
-function read_param(param::Parameter, value::Float64)
-    @assert !param.frozen "Refusing to read a frozen parameter $(param.display_name)."
-
-    return quantity_like(param.default_quantity, value)
+    original_units::String
+    unit_conversion_factor::Float64
 end
 
 struct MultiParameter
@@ -29,45 +21,80 @@ struct MultiParameter
     parameters::Vector{Parameter}
 end
 
-struct ParamHandler
-    multi_params::Vector{MultiParameter}
-    _default_params_dict::Dict{Symbol,Vector{GQ{Float64}}}
+function read_param(param::Parameter, value::Float64)
+    @assert !param.frozen "Refusing to read a frozen parameter $(param.name)."
 
-    function ParamHandler(multi_params)
-        _default_params_dict = Dict{Symbol,Vector{GQ{Float64}}}()
-
-        for mpar in multi_params
-            _default_params_dict[Symbol(mpar.name)] =
-                [param.default_quantity for param in mpar.parameters]
-        end
-
-        return new(multi_params, _default_params_dict)
-    end
+    return quantity_like(param.default_quantity, value)
 end
 
-function read_params(param_handler::ParamHandler, values::Vector{Float64})
-    param_dict = deepcopy(param_handler._default_params_dict)
-    ii = 1
-    for mpar in param_handler.multi_params
-        for (jj, param) in enumerate(mpar.parameters)
-            if !param.frozen
-                @inbounds param_dict[mpar.name][jj] = read_param(param, values[ii])
-                ii += 1
-            end
-        end
+function _get_single_params_tuple(single_params)
+    pkeys = Tuple((sp.name for sp in single_params))
+    pquants = Tuple((sp.default_quantity for sp in single_params))
+    return (; zip(pkeys, pquants)...)
+end
+
+function _get_multi_params_tuple(multi_params)
+    pkeys = Tuple((mp.name for mp in multi_params))
+    ptups = Tuple((Tuple(_get_single_params_tuple(mp.parameters)) for mp in multi_params))
+    return (; zip(pkeys, ptups)...)
+end
+
+_get_params_tuple(single_params, multi_params) =
+    merge(_get_single_params_tuple(single_params), _get_multi_params_tuple(multi_params))
+
+struct ParamHandler{ParamsType<:NamedTuple}
+    single_params::Vector{Parameter}
+    multi_params::Vector{MultiParameter}
+    _default_params_tuple::ParamsType
+    _default_quantities::Vector{GQ{Float64}}
+    _free_indices::Vector{Int}
+end
+
+function ParamHandler(single_params, multi_params)
+    default_params = _get_params_tuple(single_params, multi_params)
+    default_quantities = collect(Iterators.flatten(default_params))
+
+    all_params = [
+        single_params
+        collect(Iterators.flatten([mpar.parameters for mpar in multi_params]))
+    ]
+    free_indices = collect(1:length(all_params))[[!par.frozen for par in all_params]]
+
+    ParamHandler(
+        single_params,
+        multi_params,
+        default_params,
+        default_quantities,
+        free_indices,
+    )
+end
+
+function read_params(
+    ph::ParamHandler{ParamsType},
+    free_values::Vector{Float64},
+)::ParamsType where {ParamsType<:NamedTuple}
+    quantities = copy(ph._default_quantities)
+    for (idx, value) in zip(ph._free_indices, free_values)
+        d = quantities[idx].d
+        quantities[idx] = GQ(value, d)
     end
 
-    return param_dict
+    return reinterpret(ParamsType, quantities)[1]
 end
 
 function get_free_param_names(param_handler::ParamHandler)
     pnames = Vector{String}()
-    ii = 1
-    for mpar in param_handler.multi_params
+
+    @inbounds for spar in param_handler.single_params
+        if !spar.frozen
+            push!(pnames, string(spar.name))
+        end
+    end
+
+    @inbounds for mpar in param_handler.multi_params
         for param in mpar.parameters
             if !param.frozen
-                @inbounds push!(pnames, string(param.display_name))
-                ii += 1
+                push!(pnames, string(param.name))
             end
         end
     end
@@ -77,19 +104,19 @@ end
 
 function read_param_values_to_vector(param_handler::ParamHandler, params::NamedTuple)
     param_vec = Float64[]
+
+    @inbounds for spar in param_handler.single_params
+        if !spar.frozen
+            push!(param_vec, Float64(params[spar.name].x))
+        end
+    end
+
     @inbounds for mpar in param_handler.multi_params
-        if length(mpar.parameters) == 1
-            if !mpar.parameters[1].frozen
-                push!(param_vec, Float64(params[mpar.name].x))
-            end
-        else
-            for (jj, param) in enumerate(mpar.parameters)
-                if !param.frozen
-                    push!(param_vec, Float64(params[mpar.name][jj].x))
-                end
+        for (jj, param) in enumerate(mpar.parameters)
+            if !param.frozen
+                push!(param_vec, Float64(params[mpar.name][jj].x))
             end
         end
-
     end
 
     return param_vec

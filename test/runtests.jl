@@ -224,29 +224,26 @@ const day_to_s = 86400
     end
 
     @testset "parameter & param handler" begin
-        pepoch = Parameter(:PEPOCH, time(56000.0 * day_to_s), true)
-        @test pepoch.display_name == :PEPOCH
+        pepoch = Parameter(:PEPOCH, time(56000.0 * day_to_s), true, "day", day_to_s)
+        @test pepoch.name == :PEPOCH
         @test_throws AssertionError read_param(pepoch, 56000.0 * day_to_s)
 
-        f0 = Parameter(:F0, frequency(100.0), false)
+        f0 = Parameter(:F0, frequency(100.0), false, "Hz", 1.0)
         @test read_param(f0, 101.0) == frequency(101.0)
 
-        f1 = Parameter(:F1, GQ(-1e-14, -2), false)
+        f1 = Parameter(:F1, GQ(-1e-14, -2), false, "Hz^2", 1.0)
         @test read_param(f1, -1.1e-14) == GQ(-1.1e-14, -2)
-
-        mparT = MultiParameter(:PEPOCH, [pepoch])
-        @test length(mparT.parameters) == 1
 
         mparF = MultiParameter(:F, [f0, f1])
         @test length(mparF.parameters) == 2
 
-        ph = ParamHandler([mparT, mparF])
+        ph = ParamHandler([pepoch], [mparF])
         @test get_free_param_names(ph) == ["F0", "F1"]
-        @test keys(ph._default_params_dict) == Set([:PEPOCH, :F])
+        @test Set(keys(ph._default_params_tuple)) == Set([:PEPOCH, :F])
 
-        params_dict = read_params(ph, [100.01, -1.01e-14])
-        @test keys(params_dict) == Set([:PEPOCH, :F])
-        @test params_dict[:F] == [frequency(100.01), GQ(-1.01e-14, -2)]
+        params = read_params(ph, [100.01, -1.01e-14])
+        @test Set(keys(params)) == Set([:PEPOCH, :F])
+        @test params.F == (frequency(100.01), GQ(-1.01e-14, -2))
     end
 
     @testset "components" begin
@@ -276,28 +273,27 @@ const day_to_s = 86400
             make_tzr_toa(time(Float128(53475.0 * day_to_s)), frequency(2.5e9), false, ephem)
         ctzrtoa = CorrectedTOA(tzrtoa)
 
-        params = Dict(
-            :PHOFF => [dimensionless(1e-6)],
-            :PEPOCH => [time(53470.0 * day_to_s)],
-            :F => [frequency(100.0), GQ(-1e-14, -2)],
-            :DMEPOCH => [time(53470.0 * day_to_s)],
-            :DM => [GQ(10.0, -1), GQ(1e-4, -2)],
+        params = (
+            PHOFF = dimensionless(1e-6),
+            PEPOCH = time(53470.0 * day_to_s),
+            F = (frequency(100.0), GQ(-1e-14, -2)),
+            DMEPOCH = time(53470.0 * day_to_s),
+            DM = (GQ(10.0, -1), GQ(1e-4, -2)),
         )
 
         @testset "PhaseOffset" begin
             poff = PhaseOffset()
-            poff_params = read_params_from_dict(poff, params)
-            @test phase(poff, ctoa, poff_params) == dimensionless(-1e-6)
-            @test phase(poff, ctzrtoa, poff_params) == dimensionless(0.0)
+            @test phase(poff, ctoa, params) == dimensionless(-1e-6)
+            @test phase(poff, ctzrtoa, params) == dimensionless(0.0)
 
-            ctoa1 = correct_toa(poff, ctoa, poff_params)
+            ctoa1 = correct_toa(poff, ctoa, params)
             @test ctoa1.delay == ctoa.delay
-            @test ctoa1.phase ≈ ctoa.phase + phase(poff, ctoa, poff_params)
+            @test ctoa1.phase ≈ ctoa.phase + phase(poff, ctoa, params)
             @test ctoa1.efac == ctoa.efac
             @test ctoa1.equad2 == ctoa.equad2
             @test ctoa1.spin_frequency == ctoa.spin_frequency == frequency(-1.0)
 
-            ctzrtoa1 = correct_toa(poff, ctzrtoa, poff_params)
+            ctzrtoa1 = correct_toa(poff, ctzrtoa, params)
             @test ctzrtoa1.delay == ctzrtoa.delay
             @test ctzrtoa1.phase == ctzrtoa.phase
             @test ctzrtoa1.efac == ctzrtoa.efac
@@ -306,13 +302,12 @@ const day_to_s = 86400
 
         @testset "Spindown" begin
             spn = Spindown()
-            spn_params = read_params_from_dict(spn, params)
-            @test phase(spn, ctoa, spn_params) == dimensionless(0.0)
-            @test spin_frequency(spn, ctoa, spn_params) == frequency(100.0)
+            @test phase(spn, ctoa, params) == dimensionless(0.0)
+            @test spin_frequency(spn, ctoa, params) == frequency(100.0)
 
-            ctoa1 = correct_toa(spn, ctoa, spn_params)
+            ctoa1 = correct_toa(spn, ctoa, params)
             @test ctoa1.delay == ctoa.delay
-            @test ctoa1.phase == ctoa.phase + phase(spn, ctoa, spn_params)
+            @test ctoa1.phase == ctoa.phase + phase(spn, ctoa, params)
             @test ctoa1.doppler == ctoa.doppler
             @test ctoa.spin_frequency == frequency(-1.0) &&
                   ctoa1.spin_frequency > frequency(0.0)
@@ -332,10 +327,9 @@ const day_to_s = 86400
 
         @testset "DispersionTaylor" begin
             dmt = DispersionTaylor()
-            dmt_params = read_params_from_dict(dmt, params)
-            @test dispersion_slope(dmt, ctoa, dmt_params) == GQ(10.0, -1)
-            @test delay(dmt, ctoa, dmt_params) ==
-                  dispersion_slope(dmt, ctoa, dmt_params) / ctoa.toa.observing_frequency^2
+            @test dispersion_slope(dmt, ctoa, params) == GQ(10.0, -1)
+            @test delay(dmt, ctoa, params) ==
+                  dispersion_slope(dmt, ctoa, params) / ctoa.toa.observing_frequency^2
         end
 
         @testset "SolarWindDispersion" begin
@@ -411,11 +405,6 @@ const day_to_s = 86400
         @testset "pure_rotator" begin
             model, toas = read_model_and_toas("pure_rotator.hdf5")
 
-            params = read_params_from_dict(model, model.param_handler._default_params_dict)
-            parv = [params.F[1].x, params.F[2].x, params.PHOFF.x]
-
-            @test read_param_values_to_vector(model.param_handler, params) == parv
-
             @testset "read_toas" begin
                 @test !any([toa.tzr for toa in toas])
                 @test length(toas) == 100
@@ -440,9 +429,18 @@ const day_to_s = 86400
 
             @testset "read_param_handler" begin
                 param_handler = model.param_handler
-                @test length(param_handler.multi_params) ==
-                      length(param_handler._default_params_dict)
                 @test Set(get_free_param_names(param_handler)) == Set(["F0", "F1", "PHOFF"])
+                @test length(param_handler.multi_params) +
+                      length(param_handler.single_params) ==
+                      length(param_handler._default_params_tuple)
+                @test length(get_free_param_names(param_handler)) ==
+                      length(param_handler._free_indices)
+                @test sizeof(param_handler._default_params_tuple) ==
+                      sizeof(GQ{Float64}) * length(param_handler._default_quantities)
+
+                params = model.param_handler._default_params_tuple
+                parv = [params.PHOFF.x, params.F[1].x, params.F[2].x]
+                @test read_param_values_to_vector(model.param_handler, params) == parv
             end
 
             @testset "read_components" begin
@@ -462,6 +460,9 @@ const day_to_s = 86400
                 display(model)
             end
 
+            params = model.param_handler._default_params_tuple
+            parv = read_param_values_to_vector(model.param_handler, params)
+
             @testset "correct_toa" begin
                 ctoa = correct_toa(model, toas[1], params)
                 @test corrected_toa_value(ctoa) ≈ toas[1].value
@@ -478,6 +479,7 @@ const day_to_s = 86400
                 nfree = length(get_free_param_names(model.param_handler))
                 @test isa(chi2, Float64)
                 @test chi2 / (length(toas) - nfree) < dimensionless(1.5)
+
                 @test chi2 ≈ calc_chi2(model, toas, parv)
                 @test chi2 ≈ Vela.calc_chi2_serial(model, toas, params)
                 @test chi2 ≈ Vela.calc_chi2_serial(model, toas, parv)
