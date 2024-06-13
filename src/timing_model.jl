@@ -5,15 +5,35 @@ export TimingModel,
     correct_toa, form_residual, calc_chi2, calc_lnlike, calc_tzr_phase, get_lnlike_func
 
 struct TimingModel{ComponentsTuple<:Tuple}
+    pulsar_name::String
+    ephem::String
+    clock::String
+    units::String
     components::ComponentsTuple
     param_handler::ParamHandler
     tzr_toa::TOA
 
-    function TimingModel(components::Tuple, param_handler::ParamHandler, tzr_toa::TOA)
+    function TimingModel(
+        pulsar_name::String,
+        ephem::String,
+        clock::String,
+        units::String,
+        components::Tuple,
+        param_handler::ParamHandler,
+        tzr_toa::TOA,
+    )
         @assert tzr_toa.tzr "Invalid TZR TOA."
         @assert all(map(c -> isa(c, Component), components)) "components must be a tuple containing Component objects."
 
-        return new{typeof(components)}(components, param_handler, tzr_toa)
+        return new{typeof(components)}(
+            pulsar_name,
+            ephem,
+            clock,
+            units,
+            components,
+            param_handler,
+            tzr_toa,
+        )
     end
 end
 

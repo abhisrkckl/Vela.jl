@@ -405,6 +405,13 @@ const day_to_s = 86400
         @testset "pure_rotator" begin
             model, toas = read_model_and_toas("pure_rotator.hdf5")
 
+            @testset "model info" begin
+                @test model.pulsar_name == "SIM0"
+                @test model.ephem == "DE421"
+                @test model.clock == "TT(BIPM2021)"
+                @test model.units == "TDB"
+            end
+
             @testset "read_toas" begin
                 @test !any([toa.tzr for toa in toas])
                 @test length(toas) == 100
