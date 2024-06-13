@@ -22,7 +22,7 @@ struct MultiParameter
 end
 
 function read_param(param::Parameter, value::Float64)
-    @assert !param.frozen "Refusing to read a frozen parameter $(param.display_name)."
+    @assert !param.frozen "Refusing to read a frozen parameter $(param.name)."
 
     return quantity_like(param.default_quantity, value)
 end
@@ -103,7 +103,7 @@ function get_free_param_names(param_handler::ParamHandler)
     for mpar in param_handler.multi_params
         for param in mpar.parameters
             if !param.frozen
-                @inbounds push!(pnames, string(param.display_name))
+                @inbounds push!(pnames, string(param.name))
                 ii += 1
             end
         end

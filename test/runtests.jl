@@ -224,29 +224,26 @@ const day_to_s = 86400
     end
 
     @testset "parameter & param handler" begin
-        pepoch = Parameter(:PEPOCH, time(56000.0 * day_to_s), true)
-        @test pepoch.display_name == :PEPOCH
+        pepoch = Parameter(:PEPOCH, time(56000.0 * day_to_s), true, "day", day_to_s)
+        @test pepoch.name == :PEPOCH
         @test_throws AssertionError read_param(pepoch, 56000.0 * day_to_s)
 
-        f0 = Parameter(:F0, frequency(100.0), false)
+        f0 = Parameter(:F0, frequency(100.0), false, "Hz", 1.0)
         @test read_param(f0, 101.0) == frequency(101.0)
 
-        f1 = Parameter(:F1, GQ(-1e-14, -2), false)
+        f1 = Parameter(:F1, GQ(-1e-14, -2), false, "Hz^2", 1.0)
         @test read_param(f1, -1.1e-14) == GQ(-1.1e-14, -2)
-
-        mparT = MultiParameter(:PEPOCH, [pepoch])
-        @test length(mparT.parameters) == 1
 
         mparF = MultiParameter(:F, [f0, f1])
         @test length(mparF.parameters) == 2
 
-        ph = ParamHandler([mparT, mparF])
+        ph = ParamHandler([pepoch], [mparF])
         @test get_free_param_names(ph) == ["F0", "F1"]
-        @test keys(ph._default_params_dict) == Set([:PEPOCH, :F])
+        @test Set(keys(ph._default_param_quantities)) == Set([:PEPOCH, :F])
 
-        params_dict = read_params(ph, [100.01, -1.01e-14])
-        @test keys(params_dict) == Set([:PEPOCH, :F])
-        @test params_dict[:F] == [frequency(100.01), GQ(-1.01e-14, -2)]
+        params = read_params(ph, [100.01, -1.01e-14])
+        @test Set(keys(params)) == Set([:PEPOCH, :F])
+        @test params.F == (frequency(100.01), GQ(-1.01e-14, -2))
     end
 
     @testset "components" begin
