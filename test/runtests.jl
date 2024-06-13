@@ -408,11 +408,6 @@ const day_to_s = 86400
         @testset "pure_rotator" begin
             model, toas = read_model_and_toas("pure_rotator.hdf5")
 
-            params = read_params_from_dict(model, model.param_handler._default_params_dict)
-            parv = [params.F[1].x, params.F[2].x, params.PHOFF.x]
-
-            @test read_param_values_to_vector(model.param_handler, params) == parv
-
             @testset "read_toas" begin
                 @test !any([toa.tzr for toa in toas])
                 @test length(toas) == 100
@@ -437,9 +432,18 @@ const day_to_s = 86400
 
             @testset "read_param_handler" begin
                 param_handler = model.param_handler
-                @test length(param_handler.multi_params) ==
-                      length(param_handler._default_params_dict)
                 @test Set(get_free_param_names(param_handler)) == Set(["F0", "F1", "PHOFF"])
+                @test length(param_handler.multi_params) +
+                      length(param_handler.single_params) ==
+                      length(param_handler._default_param_quantities)
+                @test length(get_free_param_names(param_handler)) ==
+                      length(param_handler._free_indices)
+                @test sizeof(param_handler._default_param_quantities) ==
+                      sizeof(GQ{Float64}) * length(param_handler._default_quantities)
+
+                params = model.param_handler._default_param_quantities
+                parv = [params.PHOFF.x, params.F[1].x, params.F[2].x]
+                @test read_param_values_to_vector(model.param_handler, params) == parv
             end
 
             @testset "read_components" begin
