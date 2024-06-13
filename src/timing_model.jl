@@ -52,7 +52,7 @@ function calc_chi2(model::TimingModel, toas::Vector{TOA}, params::NamedTuple)
         tres = dphase / doppler_shifted_spin_frequency(ctoa)
         err2 = scaled_toa_error_sqr(ctoa)
 
-        atomic_add!(chisq, Float64((tres*tres / err2).x))
+        atomic_add!(chisq, Float64((tres * tres / err2).x))
     end
 
     return chisq[]
@@ -68,7 +68,7 @@ function calc_chi2_serial(model::TimingModel, toas::Vector{TOA}, params::NamedTu
         tres = dphase / doppler_shifted_spin_frequency(ctoa)
         err2 = scaled_toa_error_sqr(ctoa)
 
-        chisq += (tres*tres / err2).x
+        chisq += (tres * tres / err2).x
     end
 
     return chisq
@@ -91,7 +91,7 @@ function calc_lnlike(model::TimingModel, toas::Vector{TOA}, params::NamedTuple)
         err2 = scaled_toa_error_sqr(ctoa)
         norm = log(err2.x) / 2
 
-        atomic_add!(result, (tres*tres / err2).x + norm)
+        atomic_add!(result, (tres * tres / err2).x + norm)
     end
 
     return -result[] / 2
@@ -108,7 +108,7 @@ function calc_lnlike_serial(model::TimingModel, toas::Vector{TOA}, params::Named
         err2 = scaled_toa_error_sqr(ctoa)
         norm = log(err2.x) / 2
 
-        result += (tres*tres / err2).x + norm
+        result += (tres * tres / err2).x + norm
     end
 
     return -result / 2
