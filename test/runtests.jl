@@ -297,6 +297,10 @@ const day_to_s = 86400
             @test ctoa1.delay != ctoa.delay
             @test ctoa.doppler == 0 && ctoa1.doppler != 0
             @test !ctoa.barycentered && ctoa1.barycentered
+            @test ctoa1.level == ctoa.level + 1
+
+            ctoa2 = correct_toa(ss, ctoa1, params)
+            @test (ctoa2.delay == ctoa1.delay) && (ctoa2.doppler == ctoa1.doppler)
         end
 
         @testset "PhaseOffset" begin
