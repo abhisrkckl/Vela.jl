@@ -8,3 +8,5 @@ Manifest.toml
 *.pyc
 
 env.sh
+
+velaplot.pdf
