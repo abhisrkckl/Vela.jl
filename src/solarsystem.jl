@@ -33,16 +33,21 @@ function correct_toa(ss::SolarSystem, ctoa::CorrectedTOA, params::NamedTuple)
         return correct_toa(ctoa)
     end
 
-    long0 = params.LONG
-    lat0 = params.LAT
+    long0, lat0 =
+        ss.ecliptic_coordinates ? (params.ELONG, params.ELAT) : (params.RAJ, params.DECJ)
+    pmlong, pmlat =
+        ss.ecliptic_coordinates ? (params.PMELONG, params.PMELAT) :
+        (params.PMRA, params.PMDEC)
+    px = params.PX
+    posepoch = params.POSEPOCH
 
     # TODO: Do this properly.
-    if value(params.PMLONG) == 0.0 && value(params.PMLAT) == 0.0
+    if value(pmlong) == 0.0 && value(pmlat) == 0.0
         long, lat = long0, lat0
     else
-        dt = corrected_toa_value(ctoa) - params.POSEPOCH
-        long = long0 + params.PMLONG * dt / cos(params.LAT)
-        lat = lat0 + params.PMLAT * dt
+        dt = corrected_toa_value(ctoa) - posepoch
+        long = long0 + pmlong * dt / cos(lat0)
+        lat = lat0 + pmlat * dt
     end
 
     Lhat = (cos(long) * cos(lat), sin(long) * cos(lat), sin(lat))
@@ -61,12 +66,12 @@ function correct_toa(ss::SolarSystem, ctoa::CorrectedTOA, params::NamedTuple)
     # Rømer delay
     delay = -Lhat_dot_Rvec
 
-    if value(params.PX) != 0.0
+    if value(px) != 0.0
         Rvec_sqr = dot(Rvec, Rvec)
         Rperp_sqr = Rvec_sqr - Lhat_dot_Rvec^2
 
         # Parallax delay
-        delay += 0.5 * params.PX * Rperp_sqr
+        delay += 0.5 * px * Rperp_sqr
     end
 
     # Sun Shapiro delay
