@@ -356,211 +356,207 @@ const day_to_s = 86400
         end
     end
 
-    @testset "Test datasets" begin
-        @testset "pure_rotator" begin
-            model, toas = read_model_and_toas("pure_rotator.hdf5")
+    @testset "pure_rotator" begin
+        model, toas = read_model_and_toas("pure_rotator.hdf5")
 
-            @testset "model info" begin
-                @test model.pulsar_name == "SIM0"
-                @test model.ephem == "DE421"
-                @test model.clock == "TT(BIPM2021)"
-                @test model.units == "TDB"
-            end
-
-            @testset "read_toas" begin
-                @test !any([toa.tzr for toa in toas])
-                @test length(toas) == 100
-
-                @test all([toa.observing_frequency == frequency(1.4e9) for toa in toas])
-                @test all([
-                    time(53400.0 * day_to_s) < toa.value < time(56002.0 * day_to_s) for
-                    toa in toas
-                ])
-                @test all([modf(toa.pulse_number.x)[1] == 0 for toa in toas])
-                @test all([toa.error > time(0.0) for toa in toas])
-            end
-
-            @testset "read_tzr_toa" begin
-                tzrtoa = model.tzr_toa
-                @test tzrtoa.tzr
-                @test tzrtoa.error > time(0.0)
-                @test modf(tzrtoa.pulse_number.x)[1] == 0
-                @test frequency(1e9) < tzrtoa.observing_frequency < frequency(2.5e9)
-                @test time(53400.0 * day_to_s) < tzrtoa.value < time(56002.0 * day_to_s)
-            end
-
-            @testset "read_param_handler" begin
-                param_handler = model.param_handler
-                @test Set(get_free_param_names(param_handler)) == Set(["F0", "F1", "PHOFF"])
-                @test length(param_handler.multi_params) +
-                      length(param_handler.single_params) ==
-                      length(param_handler._default_params_tuple)
-                @test length(get_free_param_names(param_handler)) ==
-                      length(param_handler._free_indices)
-                @test sizeof(param_handler._default_params_tuple) ==
-                      sizeof(GQ{Float64}) * length(param_handler._default_quantities)
-
-                params = model.param_handler._default_params_tuple
-                parv = [params.PHOFF.x, params.F[1].x, params.F[2].x]
-                @test read_param_values_to_vector(model.param_handler, params) == parv
-            end
-
-            @testset "read_components" begin
-                components = model.components
-                @test length(components) == 2
-                @test isa(components[1], Spindown)
-                @test isa(components[2], PhaseOffset)
-            end
-
-            @testset "repr" begin
-                @test startswith(string(toas[1]), "TOA")
-                display(toas)
-                display(toas[1])
-                @test startswith(string(model.tzr_toa), "TZRTOA")
-                display(model.tzr_toa)
-                @test startswith(string(model), "TimingModel")
-                display(model)
-            end
-
-            params = model.param_handler._default_params_tuple
-            parv = read_param_values_to_vector(model.param_handler, params)
-
-            @testset "correct_toa" begin
-                ctoa = correct_toa(model, toas[1], params)
-                @test corrected_toa_value(ctoa) ≈ toas[1].value
-                @test doppler_shifted_spin_frequency(ctoa) ≈ ctoa.spin_frequency
-            end
-
-            @testset "form_residual" begin
-                resid = form_residual(model, toas[1], params, dimensionless(0.0))
-                @test abs(resid) < time(1e-2)
-            end
-
-            @testset "calc_chi2" begin
-                chi2 = calc_chi2(model, toas, params)
-                nfree = length(get_free_param_names(model.param_handler))
-                @test isa(chi2, Float64)
-                @test chi2 / (length(toas) - nfree) < dimensionless(1.5)
-
-                @test chi2 ≈ calc_chi2(model, toas, parv)
-                @test chi2 ≈ Vela.calc_chi2_serial(model, toas, params)
-                @test chi2 ≈ Vela.calc_chi2_serial(model, toas, parv)
-
-                @test @ballocated(Vela.calc_chi2_serial($model, $toas, $params)) == 0
-            end
-
-            @testset "calc_lnlike" begin
-                lnlike_func = get_lnlike_func(model, toas)
-                lnlike_serial_func = Vela.get_lnlike_serial_func(model, toas)
-
-                # lnlike = calc_lnlike(model, toas, params)
-                lnlike = lnlike_func(params)
-                @test isa(lnlike, Float64)
-                @test isfinite(lnlike)
-
-                @test lnlike ≈ lnlike_func(parv)
-                @test lnlike ≈ lnlike_serial_func(params)
-                @test lnlike ≈ lnlike_serial_func(parv)
-
-                @test @ballocated(Vela.calc_lnlike_serial($model, $toas, $params)) == 0
-            end
+        @testset "model info" begin
+            @test model.pulsar_name == "SIM0"
+            @test model.ephem == "DE421"
+            @test model.clock == "TT(BIPM2021)"
+            @test model.units == "TDB"
         end
 
-        @testset "NGC6440E" begin
-            model, toas = read_model_and_toas("NGC6440E.hdf5")
+        @testset "read_toas" begin
+            @test !any([toa.tzr for toa in toas])
+            @test length(toas) == 100
 
-            @testset "read_toas" begin
-                @test !any([toa.tzr for toa in toas])
-                @test length(toas) == 62
-                @test all([
-                    frequency(1e9) < toa.observing_frequency < frequency(2.5e9) for
-                    toa in toas
-                ])
-                @test all([
-                    time(53470.0 * day_to_s) < toa.value < time(54200.0 * day_to_s) for
-                    toa in toas
-                ])
-                @test all([modf(toa.pulse_number.x)[1] == 0 for toa in toas])
-                @test all([toa.error > time(0.0) for toa in toas])
+            @test all([toa.observing_frequency == frequency(1.4e9) for toa in toas])
+            @test all([
+                time(53400.0 * day_to_s) < toa.value < time(56002.0 * day_to_s) for
+                toa in toas
+            ])
+            @test all([modf(toa.pulse_number.x)[1] == 0 for toa in toas])
+            @test all([toa.error > time(0.0) for toa in toas])
+        end
 
-            end
+        @testset "read_tzr_toa" begin
+            tzrtoa = model.tzr_toa
+            @test tzrtoa.tzr
+            @test tzrtoa.error > time(0.0)
+            @test modf(tzrtoa.pulse_number.x)[1] == 0
+            @test frequency(1e9) < tzrtoa.observing_frequency < frequency(2.5e9)
+            @test time(53400.0 * day_to_s) < tzrtoa.value < time(56002.0 * day_to_s)
+        end
 
-            @testset "read_tzr_toa" begin
-                tzrtoa = model.tzr_toa
-                @test tzrtoa.tzr
-                @test tzrtoa.error > time(0.0)
-                @test tzrtoa.pulse_number == dimensionless(0.0)
-                @test frequency(1e9) < tzrtoa.observing_frequency < frequency(2.5e9)
-                @test time(53470.0 * day_to_s) < tzrtoa.value < time(54200.0 * day_to_s)
-            end
+        @testset "read_param_handler" begin
+            param_handler = model.param_handler
+            @test Set(get_free_param_names(param_handler)) == Set(["F0", "F1", "PHOFF"])
+            @test length(param_handler.multi_params) +
+                  length(param_handler.single_params) ==
+                  length(param_handler._default_params_tuple)
+            @test length(get_free_param_names(param_handler)) ==
+                  length(param_handler._free_indices)
+            @test sizeof(param_handler._default_params_tuple) ==
+                  sizeof(GQ{Float64}) * length(param_handler._default_quantities)
 
-            @testset "read_param_handler" begin
-                param_handler = model.param_handler
-                @test Set(get_free_param_names(param_handler)) ==
-                      Set(["F0", "F1", "PHOFF", "RAJ", "DECJ", "DM"])
-                @test length(param_handler.multi_params) +
-                      length(param_handler.single_params) ==
-                      length(param_handler._default_params_tuple)
-                @test length(get_free_param_names(param_handler)) ==
-                      length(param_handler._free_indices)
-                @test sizeof(param_handler._default_params_tuple) ==
-                      sizeof(GQ{Float64}) * length(param_handler._default_quantities)
+            params = model.param_handler._default_params_tuple
+            parv = [params.PHOFF.x, params.F[1].x, params.F[2].x]
+            @test read_param_values_to_vector(model.param_handler, params) == parv
+        end
 
-                @test length(
-                    read_param_values_to_vector(
-                        model.param_handler,
-                        model.param_handler._default_params_tuple,
-                    ),
-                ) == length(param_handler._free_indices)
-            end
+        @testset "read_components" begin
+            components = model.components
+            @test length(components) == 2
+            @test isa(components[1], Spindown)
+            @test isa(components[2], PhaseOffset)
+        end
 
-            @testset "read_components" begin
-                components = model.components
-                @test length(components) == 4
+        @testset "repr" begin
+            @test startswith(string(toas[1]), "TOA")
+            display(toas)
+            display(toas[1])
+            @test startswith(string(model.tzr_toa), "TZRTOA")
+            display(model.tzr_toa)
+            @test startswith(string(model), "TimingModel")
+            display(model)
+        end
 
-                @test isa(components[1], SolarSystem)
-                @test !components[1].ecliptic_coordinates
-                @test !components[1].planet_shapiro
+        params = model.param_handler._default_params_tuple
+        parv = read_param_values_to_vector(model.param_handler, params)
 
-                # @test isa(components[2], Troposphere)
+        @testset "correct_toa" begin
+            ctoa = correct_toa(model, toas[1], params)
+            @test corrected_toa_value(ctoa) ≈ toas[1].value
+            @test doppler_shifted_spin_frequency(ctoa) ≈ ctoa.spin_frequency
+        end
 
-                #,@test isa(components[3], SolarWindDispersion)
-                # @test components[3].model == 0
+        @testset "form_residual" begin
+            resid = form_residual(model, toas[1], params, dimensionless(0.0))
+            @test abs(resid) < time(1e-2)
+        end
 
-                @test isa(components[2], DispersionTaylor)
+        @testset "calc_chi2" begin
+            chi2 = calc_chi2(model, toas, params)
+            nfree = length(get_free_param_names(model.param_handler))
+            @test isa(chi2, Float64)
+            @test chi2 / (length(toas) - nfree) < dimensionless(1.5)
 
-                @test isa(components[3], Spindown)
+            @test chi2 ≈ calc_chi2(model, toas, parv)
+            @test chi2 ≈ Vela.calc_chi2_serial(model, toas, params)
+            @test chi2 ≈ Vela.calc_chi2_serial(model, toas, parv)
 
-                @test isa(components[4], PhaseOffset)
+            @test @ballocated(Vela.calc_chi2_serial($model, $toas, $params)) == 0
+        end
 
-                # @test all([!isa(c, Troposphere) for c in components])
-            end
+        @testset "calc_lnlike" begin
+            lnlike_func = get_lnlike_func(model, toas)
+            lnlike_serial_func = Vela.get_lnlike_serial_func(model, toas)
 
-            @testset "form_residual" begin
-                params = model.param_handler._default_params_tuple
-                tzrphase = calc_tzr_phase(model, params)
-                res = form_residual(model, toas[1], params, tzrphase)
-                @test abs(res) < 3 * toas[1].error
-            end
+            # lnlike = calc_lnlike(model, toas, params)
+            lnlike = lnlike_func(params)
+            @test isa(lnlike, Float64)
+            @test isfinite(lnlike)
 
-            @testset "calc_chi2" begin
-                params = model.param_handler._default_params_tuple
-                chi2 = calc_chi2(model, toas, params)
-                @test chi2 / length(toas) < 1.1
-                @test chi2 == Vela.calc_chi2_serial(model, toas, params)
-            end
+            @test lnlike ≈ lnlike_func(parv)
+            @test lnlike ≈ lnlike_serial_func(params)
+            @test lnlike ≈ lnlike_serial_func(parv)
 
-            @testset "calc_lnlike" begin
-                params = model.param_handler._default_params_tuple
-                @test calc_lnlike(model, toas, params) ==
-                      Vela.calc_lnlike_serial(model, toas, params)
-                @test_broken @ballocated(Vela.calc_lnlike_serial($model, $toas, $params)) ==
-                             0
+            @test @ballocated(Vela.calc_lnlike_serial($model, $toas, $params)) == 0
+        end
+    end
 
-                parv1 = read_param_values_to_vector(model.param_handler, params)
-                parv1[end] *= 2
-                @test calc_lnlike(model, toas, parv1) < calc_lnlike(model, toas, params)
-            end
+    @testset "NGC6440E" begin
+        model, toas = read_model_and_toas("NGC6440E.hdf5")
+
+        @testset "read_toas" begin
+            @test !any([toa.tzr for toa in toas])
+            @test length(toas) == 62
+            @test all([
+                frequency(1e9) < toa.observing_frequency < frequency(2.5e9) for toa in toas
+            ])
+            @test all([
+                time(53470.0 * day_to_s) < toa.value < time(54200.0 * day_to_s) for
+                toa in toas
+            ])
+            @test all([modf(toa.pulse_number.x)[1] == 0 for toa in toas])
+            @test all([toa.error > time(0.0) for toa in toas])
+
+        end
+
+        @testset "read_tzr_toa" begin
+            tzrtoa = model.tzr_toa
+            @test tzrtoa.tzr
+            @test tzrtoa.error > time(0.0)
+            @test tzrtoa.pulse_number == dimensionless(0.0)
+            @test frequency(1e9) < tzrtoa.observing_frequency < frequency(2.5e9)
+            @test time(53470.0 * day_to_s) < tzrtoa.value < time(54200.0 * day_to_s)
+        end
+
+        @testset "read_param_handler" begin
+            param_handler = model.param_handler
+            @test Set(get_free_param_names(param_handler)) ==
+                  Set(["F0", "F1", "PHOFF", "RAJ", "DECJ", "DM"])
+            @test length(param_handler.multi_params) +
+                  length(param_handler.single_params) ==
+                  length(param_handler._default_params_tuple)
+            @test length(get_free_param_names(param_handler)) ==
+                  length(param_handler._free_indices)
+            @test sizeof(param_handler._default_params_tuple) ==
+                  sizeof(GQ{Float64}) * length(param_handler._default_quantities)
+
+            @test length(
+                read_param_values_to_vector(
+                    model.param_handler,
+                    model.param_handler._default_params_tuple,
+                ),
+            ) == length(param_handler._free_indices)
+        end
+
+        @testset "read_components" begin
+            components = model.components
+            @test length(components) == 4
+
+            @test isa(components[1], SolarSystem)
+            @test !components[1].ecliptic_coordinates
+            @test !components[1].planet_shapiro
+
+            # @test isa(components[2], Troposphere)
+
+            #,@test isa(components[3], SolarWindDispersion)
+            # @test components[3].model == 0
+
+            @test isa(components[2], DispersionTaylor)
+
+            @test isa(components[3], Spindown)
+
+            @test isa(components[4], PhaseOffset)
+
+            # @test all([!isa(c, Troposphere) for c in components])
+        end
+
+        @testset "form_residual" begin
+            params = model.param_handler._default_params_tuple
+            tzrphase = calc_tzr_phase(model, params)
+            res = form_residual(model, toas[1], params, tzrphase)
+            @test abs(res) < 3 * toas[1].error
+        end
+
+        @testset "calc_chi2" begin
+            params = model.param_handler._default_params_tuple
+            chi2 = calc_chi2(model, toas, params)
+            @test chi2 / length(toas) < 1.1
+            @test chi2 == Vela.calc_chi2_serial(model, toas, params)
+        end
+
+        @testset "calc_lnlike" begin
+            params = model.param_handler._default_params_tuple
+            @test calc_lnlike(model, toas, params) ==
+                  Vela.calc_lnlike_serial(model, toas, params)
+            @test @ballocated(Vela.calc_lnlike_serial($model, $toas, $params)) == 0
+
+            parv1 = read_param_values_to_vector(model.param_handler, params)
+            parv1[end] *= 2
+            @test calc_lnlike(model, toas, parv1) < calc_lnlike(model, toas, params)
         end
     end
 
