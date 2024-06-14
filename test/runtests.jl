@@ -407,7 +407,7 @@ const day_to_s = 86400
 
             @testset "read_components" begin
                 components = model.components
-                @test length(components) == 3
+                @test length(components) == 4
 
                 @test isa(components[1], SolarSystem)
                 @test !components[1].ecliptic_coordinates
@@ -418,11 +418,11 @@ const day_to_s = 86400
                 #,@test isa(components[3], SolarWindDispersion)
                 # @test components[3].model == 0
 
-                # @test isa(components[4], DispersionTaylor)
+                @test isa(components[2], DispersionTaylor)
 
-                @test isa(components[2], Spindown)
+                @test isa(components[3], Spindown)
 
-                @test isa(components[3], PhaseOffset)
+                @test isa(components[4], PhaseOffset)
 
                 # # @test all([!isa(c, Troposphere) for c in components])
             end

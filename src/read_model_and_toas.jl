@@ -112,8 +112,8 @@ function read_components(f::HDF5.File)
             )
             # elseif cdict["name"] == "Troposphere"
             # #     push!(components, Troposphere())
-            # elseif cdict["name"] == "DispersionTaylor"
-            #     push!(components, DispersionTaylor())
+        elseif cdict["name"] == "DispersionTaylor"
+            push!(components, DispersionTaylor())
             # elseif cdict["name"] == "SolarWindDispersion"
             #     swm = cdict["model"]
             #     @assert swm in [0, 1]
