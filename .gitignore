@@ -6,3 +6,5 @@ Manifest.toml
 *.cov
 
 *.pyc
+
+env.sh
