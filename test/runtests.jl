@@ -424,8 +424,22 @@ const day_to_s = 86400
 
                 @test isa(components[4], PhaseOffset)
 
-                # # @test all([!isa(c, Troposphere) for c in components])
+                # @test all([!isa(c, Troposphere) for c in components])
             end
+
+            @testset "form_residual" begin
+                params = model.param_handler._default_params_tuple
+                tzrphase = calc_tzr_phase(model, params)
+                res = form_residual(model, toas[1], params, tzrphase)
+                @test abs(res) < 3 * toas[1].error
+            end
+
+            @testset "calc_chi2" begin
+                params = model.param_handler._default_params_tuple
+                chi2 = calc_chi2(model, toas, params)
+                @test chi2 / length(toas) < 1.1
+            end
+
         end
 
         @testset "pure_rotator" begin
