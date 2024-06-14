@@ -357,66 +357,76 @@ const day_to_s = 86400
     end
 
     @testset "Test datasets" begin
-        # @testset "NGC6440E" begin
-        #     model, toas = read_model_and_toas("NGC6440E.hdf5")
+        @testset "NGC6440E" begin
+            model, toas = read_model_and_toas("NGC6440E.hdf5")
 
-        #     @testset "read_toas" begin
-        #         @test !any([toa.tzr for toa in toas])
-        #         @test length(toas) == 62
-        #         @test all([toa.level == 0 for toa in toas])
-        #         @test all([
-        #             frequency(1e9) < toa.observing_frequency < frequency(2.5e9) for
-        #             toa in toas
-        #         ])
-        #         @test all([
-        #             time(53470.0 * day_to_s) < toa.value < time(54200.0 * day_to_s) for
-        #             toa in toas
-        #         ])
-        #         @test all([modf(toa.phase.x)[1] == 0 for toa in toas])
-        #         @test all([toa.error > time(0.0) for toa in toas])
+            @testset "read_toas" begin
+                @test !any([toa.tzr for toa in toas])
+                @test length(toas) == 62
+                @test all([
+                    frequency(1e9) < toa.observing_frequency < frequency(2.5e9) for
+                    toa in toas
+                ])
+                @test all([
+                    time(53470.0 * day_to_s) < toa.value < time(54200.0 * day_to_s) for
+                    toa in toas
+                ])
+                @test all([modf(toa.pulse_number.x)[1] == 0 for toa in toas])
+                @test all([toa.error > time(0.0) for toa in toas])
 
-        #     end
+            end
 
-        #     @testset "read_tzr_toa" begin
-        #         tzrtoa = model.tzr_toa
-        #         @test tzrtoa.tzr
-        #         @test tzrtoa.level == 0
-        #         @test tzrtoa.error > time(0.0)
-        #         @test modf(tzrtoa.phase.x)[1] == 0
-        #         @test frequency(1e9) < tzrtoa.observing_frequency < frequency(2.5e9)
-        #         @test time(53470.0 * day_to_s) < tzrtoa.value < time(54200.0 * day_to_s)
-        #     end
+            @testset "read_tzr_toa" begin
+                tzrtoa = model.tzr_toa
+                @test tzrtoa.tzr
+                @test tzrtoa.error > time(0.0)
+                @test tzrtoa.pulse_number == dimensionless(0.0)
+                @test frequency(1e9) < tzrtoa.observing_frequency < frequency(2.5e9)
+                @test time(53470.0 * day_to_s) < tzrtoa.value < time(54200.0 * day_to_s)
+            end
 
-        #     @testset "read_param_handler" begin
-        #         param_handler = model.param_handler
-        #         @test length(param_handler.multi_params) ==
-        #               length(param_handler._default_params_dict)
-        #         @test Set(get_free_param_names(param_handler)) ==
-        #               Set(["F0", "F1", "DECJ", "RAJ", "DM", "PHOFF"])
-        #     end
+            @testset "read_param_handler" begin
+                param_handler = model.param_handler
+                @test Set(get_free_param_names(param_handler)) ==
+                      Set(["F0", "F1", "PHOFF", "RAJ", "DECJ", "DM"])
+                @test length(param_handler.multi_params) +
+                      length(param_handler.single_params) ==
+                      length(param_handler._default_params_tuple)
+                @test length(get_free_param_names(param_handler)) ==
+                      length(param_handler._free_indices)
+                @test sizeof(param_handler._default_params_tuple) ==
+                      sizeof(GQ{Float64}) * length(param_handler._default_quantities)
 
-        #     @testset "read_components" begin
-        #         components = model.components
-        #         @test length(components) == 6
+                @test length(
+                    read_param_values_to_vector(
+                        model.param_handler,
+                        model.param_handler._default_params_tuple,
+                    ),
+                ) == length(param_handler._free_indices)
+            end
 
-        #         @test isa(components[1], SolarSystem)
-        #         @test !components[1].ecliptic_coordinates
-        #         @test !components[1].planet_shapiro
+            @testset "read_components" begin
+                components = model.components
+                @test length(components) == 3
 
-        #         @test isa(components[2], Troposphere)
+                @test isa(components[1], SolarSystem)
+                @test !components[1].ecliptic_coordinates
+                @test !components[1].planet_shapiro
 
-        #         @test isa(components[3], SolarWindDispersion)
-        #         @test components[3].model == 0
+                # @test isa(components[2], Troposphere)
 
-        #         @test isa(components[4], DispersionTaylor)
+                #,@test isa(components[3], SolarWindDispersion)
+                # @test components[3].model == 0
 
-        #         @test isa(components[5], Spindown)
+                # @test isa(components[4], DispersionTaylor)
 
-        #         @test isa(components[6], PhaseOffset)
+                @test isa(components[2], Spindown)
 
-        #         # @test all([!isa(c, Troposphere) for c in components])
-        #     end
-        # end
+                @test isa(components[3], PhaseOffset)
+
+                # # @test all([!isa(c, Troposphere) for c in components])
+            end
+        end
 
         @testset "pure_rotator" begin
             model, toas = read_model_and_toas("pure_rotator.hdf5")
