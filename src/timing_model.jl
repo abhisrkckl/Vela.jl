@@ -53,14 +53,6 @@ read_params(model::TimingModel, values::Vector{Float64}) =
     return ctoa1
 end
 
-# function correct_toa(model::TimingModel, ctoa::CorrectedTOA, params::NamedTuple)::CorrectedTOA
-#     ctoa1 = ctoa
-#     for component in model.components
-#         ctoa1 = correct_toa(component, ctoa1, params)
-#     end
-#     return ctoa1
-# end
-
 correct_toa(model::TimingModel, ctoa::CorrectedTOA, params::NamedTuple) =
     correct_toa(model.components, ctoa, params)
 
@@ -71,6 +63,14 @@ function form_residual(model::TimingModel, toa::TOA, params::NamedTuple, tzrphas
     ctoa = correct_toa(model, toa, params)
     dphase = GQ{Float64}(phase_residual(ctoa) - tzrphase)
     return dphase / doppler_shifted_spin_frequency(ctoa)
+end
+
+function form_residuals(model::TimingModel, toas::Vector{TOA}, params::NamedTuple)::Vector{GQ}
+    tzrphase = calc_tzr_phase(model, params)
+    return [
+        form_residual(model, toa, params, tzrphase)
+        for toa in toas
+    ]
 end
 
 function calc_tzr_phase(model::TimingModel, params::NamedTuple)
