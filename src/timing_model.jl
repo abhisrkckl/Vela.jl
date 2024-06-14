@@ -1,4 +1,5 @@
 using GeometricUnits
+using Unrolled
 using .Threads
 
 export TimingModel,
@@ -40,13 +41,28 @@ end
 read_params(model::TimingModel, values::Vector{Float64}) =
     return read_params(model.param_handler, values)
 
-function correct_toa(model::TimingModel, ctoa::CorrectedTOA, params::NamedTuple)
+@unroll function correct_toa(
+    components::Tuple,
+    ctoa::CorrectedTOA,
+    params::NamedTuple,
+)::CorrectedTOA
     ctoa1 = ctoa
-    for component in model.components
+    @unroll for component in components
         ctoa1 = correct_toa(component, ctoa1, params)
     end
     return ctoa1
 end
+
+# function correct_toa(model::TimingModel, ctoa::CorrectedTOA, params::NamedTuple)::CorrectedTOA
+#     ctoa1 = ctoa
+#     for component in model.components
+#         ctoa1 = correct_toa(component, ctoa1, params)
+#     end
+#     return ctoa1
+# end
+
+correct_toa(model::TimingModel, ctoa::CorrectedTOA, params::NamedTuple) =
+    correct_toa(model.components, ctoa, params)
 
 correct_toa(model::TimingModel, toa::TOA, params::NamedTuple) =
     correct_toa(model, CorrectedTOA(toa), params)
