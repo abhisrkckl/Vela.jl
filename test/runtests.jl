@@ -558,6 +558,11 @@ const day_to_s = 86400
             parv1[end] *= 2
             @test calc_lnlike(model, toas, parv1) < calc_lnlike(model, toas, params)
         end
+
+        @testset "plot_summary" begin
+            plotfile = plot_pulsar_summary("NGC6440E.hdf5")
+            @test isfile(plotfile)
+        end
     end
 
     @testset "formatting" begin

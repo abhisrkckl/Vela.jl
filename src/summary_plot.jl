@@ -1,3 +1,5 @@
+export plot_pulsar_summary
+
 using Vela
 using GeometricUnits
 using Plots
@@ -39,5 +41,8 @@ function plot_pulsar_summary(filename)
     histogram!(p, wres, subplot = 3)
     xlabel!(p, "Whitened residuals", subplot = 3)
 
-    savefig("$(model.pulsar_name)_summary.pdf")
+    filename = "$(model.pulsar_name)_summary.pdf"
+    savefig(filename)
+
+    return filename
 end
