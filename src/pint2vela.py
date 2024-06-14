@@ -300,7 +300,6 @@ def components_from_model(model: TimingModel) -> list:
             components.append({"name": "Troposphere"})
         else:
             components.append({"name": component_name})
-
     return components
 
 
@@ -329,9 +328,9 @@ if __name__ == "__main__":
 
     toas_table = toas_to_table(toas)
 
-    components_dict = components_from_model(model)
-    params_dict = params_from_model(model)
-    info_dict = infodict_from_model(model)
+    components_str = json.dumps(components_from_model(model))
+    params_str = json.dumps(params_from_model(model))
+    info_str = json.dumps(infodict_from_model(model))
 
     tzr_toa: TOAs = model.get_TZR_toa(toas)
     tzr_toa.compute_pulse_numbers(model)
@@ -340,8 +339,8 @@ if __name__ == "__main__":
     toas_table.write(filename, path="TOAs", format="hdf5", overwrite=True)
 
     with h5.File(filename, "a") as f:
-        f.create_dataset("Components", data=json.dumps(components_dict))
-        f.create_dataset("Parameters", data=json.dumps(params_dict))
-        f.create_dataset("Info", data=json.dumps(info_dict))
+        f.create_dataset("Components", data=components_str)
+        f.create_dataset("Parameters", data=params_str)
+        f.create_dataset("Info", data=info_str)
 
     tzr_table.write(filename, path="TZRTOA", format="hdf5", append=True)
