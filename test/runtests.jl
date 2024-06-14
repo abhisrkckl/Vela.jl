@@ -279,7 +279,25 @@ const day_to_s = 86400
             F = (frequency(100.0), GQ(-1e-14, -2)),
             DMEPOCH = time(53470.0 * day_to_s),
             DM = (GQ(10.0, -1), GQ(1e-4, -2)),
+            POSEPOCH = time(53470.0 * day_to_s),
+            LAT = dimensionless(1.2),
+            LONG = dimensionless(1.25),
+            PX = GQ(0.0, -1),
+            PMLAT = GQ(0.0, -1),
+            PMLONG = GQ(0.0, -1),
         )
+
+        @testset "SolarSystem" begin
+            ss = SolarSystem(true, true)
+            @test ss.ecliptic_coordinates && ss.planet_shapiro
+
+            ctoa1 = correct_toa(ss, ctoa, params)
+
+            @test ctoa1.phase == ctoa.phase
+            @test ctoa1.delay != ctoa.delay
+            @test ctoa.doppler == 0 && ctoa1.doppler != 0
+            @test !ctoa.barycentered && ctoa1.barycentered
+        end
 
         @testset "PhaseOffset" begin
             poff = PhaseOffset()
@@ -313,12 +331,6 @@ const day_to_s = 86400
                   ctoa1.spin_frequency > frequency(0.0)
 
         end
-
-        # @testset "SolarSystem" begin
-        #     ss = SolarSystem(true, true)
-        #     @test ss.ecliptic_coordinates && ss.planet_shapiro
-        #     @test delay(ss, toa, params) == time(0.0)
-        # end
 
         # @testset "Troposphere" begin
         #     tropo = Troposphere()

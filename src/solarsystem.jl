@@ -19,15 +19,6 @@ struct SolarSystem <: DelayComponent
     planet_shapiro::Bool
 end
 
-read_params_from_dict(::SolarSystem, params::Dict) = (
-    POSEPOCH = params[:POSEPOCH][1],
-    LONG = params[:LONG][1],
-    LAT = params[:LAT][1],
-    PMLONG = params[:PMLONG][1],
-    PMLAT = params[:PMLAT][1],
-    PX = params[:PX][1],
-)
-
 """Compute the Shapiro delay due to a solar system object."""
 function solar_system_shapiro_delay(M::GQ, obs_obj_pos::Tuple, obj_psr_pos::Tuple)
     Lhat = obj_psr_pos
@@ -46,7 +37,7 @@ function correct_toa(ss::SolarSystem, ctoa::CorrectedTOA, params::NamedTuple)
     lat0 = params.LAT
 
     # TODO: Do this properly.
-    if params.PMLONG == dimensionless(0.0) && params.PMLAT == dimensionless(0.0)
+    if value(params.PMLONG) == 0.0 && value(params.PMLAT) == 0.0
         long, lat = long0, lat0
     else
         dt = corrected_toa_value(ctoa) - params.POSEPOCH
@@ -70,7 +61,7 @@ function correct_toa(ss::SolarSystem, ctoa::CorrectedTOA, params::NamedTuple)
     # Rømer delay
     delay = -Lhat_dot_Rvec
 
-    if params.PX != 0
+    if value(params.PX) != 0.0
         Rvec_sqr = dot(Rvec, Rvec)
         Rperp_sqr = Rvec_sqr - Lhat_dot_Rvec^2
 
@@ -79,7 +70,7 @@ function correct_toa(ss::SolarSystem, ctoa::CorrectedTOA, params::NamedTuple)
     end
 
     # Sun Shapiro delay
-    delay += solar_system_shapiro_delay(M_SUN, toa.ephem.obs_sun_pos, Lhat)
+    delay += solar_system_shapiro_delay(M_SUN, ctoa.toa.ephem.obs_sun_pos, Lhat)
 
     if ss.planet_shapiro
         masses = (M_JUPITER, M_SATURN, M_VENUS, M_URANUS, M_NEPTUNE)
