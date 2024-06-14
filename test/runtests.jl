@@ -282,9 +282,9 @@ const day_to_s = 86400
             POSEPOCH = time(53470.0 * day_to_s),
             LAT = dimensionless(1.2),
             LONG = dimensionless(1.25),
-            PX = GQ(0.0, -1),
-            PMLAT = GQ(0.0, -1),
-            PMLONG = GQ(0.0, -1),
+            PX = GQ(3e-12, -1),
+            PMLAT = GQ(-7e-16, -1),
+            PMLONG = GQ(-5e-16, -1),
         )
 
         @testset "SolarSystem" begin
