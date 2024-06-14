@@ -13,5 +13,6 @@ include("solarwind.jl")
 # include("selection.jl")
 include("timing_model.jl")
 include("read_model_and_toas.jl")
+include("summary_plot.jl")
 
 end
