@@ -17,15 +17,22 @@ freqs = [value(toa.observing_frequency) for toa in toas]
 
 wres = res ./ errs
 
-p = scatter(mjds, res*1e6, yerror=errs*1e6, markershape=:cross, layout=(3, 1), plot_title=model.pulsar_name)
-xlabel!(p, "MJD", subplot=1)
-ylabel!(p, "Residuals (us)", subplot=1)
+p = scatter(
+    mjds,
+    res * 1e6,
+    yerror = errs * 1e6,
+    markershape = :cross,
+    layout = (3, 1),
+    plot_title = model.pulsar_name,
+)
+xlabel!(p, "MJD", subplot = 1)
+ylabel!(p, "Residuals (us)", subplot = 1)
 
-scatter!(p, freqs/1e6, res*1e6, yerror=errs*1e6, markershape=:cross, subplot=2)
-xlabel!(p, "Frequency (MHz)", subplot=2)
-ylabel!(p, "Residuals (us)", subplot=2)
+scatter!(p, freqs / 1e6, res * 1e6, yerror = errs * 1e6, markershape = :cross, subplot = 2)
+xlabel!(p, "Frequency (MHz)", subplot = 2)
+ylabel!(p, "Residuals (us)", subplot = 2)
 
-histogram!(p, wres, subplot=3)
-xlabel!(p, "Whitened residuals", subplot=3)
+histogram!(p, wres, subplot = 3)
+xlabel!(p, "Whitened residuals", subplot = 3)
 
 savefig("velaplot.pdf")
