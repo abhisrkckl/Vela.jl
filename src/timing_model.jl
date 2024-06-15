@@ -162,5 +162,14 @@ get_lnlike_func(model::TimingModel, toas::Vector{TOA}) =
 get_lnlike_serial_func(model::TimingModel, toas::Vector{TOA}) =
     params -> calc_lnlike_serial(model, toas, params)
 
+function calc_lnprior(model::TimingModel, params::Vector{Float64})
+    result = 0
+    for component in model.components
+        priors = prior_distributions(component)
+        result += logpdf(priors, params)
+    end
+    return result
+end
+
 show(io::IO, model::TimingModel) = print(io, "TimingModel[$(string(model.components))]")
 show(io::IO, ::MIME"text/plain", model::TimingModel) = show(io, model)

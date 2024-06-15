@@ -25,3 +25,20 @@ correct_toa(spindown::Spindown, ctoa::CorrectedTOA, params::NamedTuple) = correc
     phase = phase(spindown, ctoa, params),
     delta_spin_frequency = spin_frequency(spindown, ctoa, params),
 )
+
+"""
+Prior distributions for F0 ... F3.
+
+Based on psrcat values, but broadened to 
+includes one extra order of magnitude in
+either direction (except F0, which has a 
+theoretical upper limit).
+"""
+prior_distributions(::Spindown) = (
+    F = (
+        LogUniform(1e-4, 1e+3),
+        Uniform(-1e-9, 1e-9),
+        Uniform(-1e-18, 1e-18),
+        Uniform(-1e-27, 1e-27),
+    )
+)

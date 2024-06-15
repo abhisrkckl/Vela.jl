@@ -4,6 +4,7 @@ authors = ["Abhimanyu Susobhanan <abhisrkckl@gmail.com>"]
 version = "0.0.0-DEV"
 
 [deps]
+Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
 GeometricUnits = "43c95830-f66f-43f3-8298-be5f3865d5b9"
 HDF5 = "f67ccb44-e63f-5c2f-98bd-6dc0ccc4ba2f"
 JSON = "682c06a0-de6a-54ab-a142-c8b1cf79cde6"
