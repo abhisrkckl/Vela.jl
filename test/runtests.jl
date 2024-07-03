@@ -338,6 +338,11 @@ const day_to_s = 86400
             @test ctoa.spin_frequency == frequency(-1.0) &&
                   ctoa1.spin_frequency > frequency(0.0)
 
+            @test isfinite(lnprior(spn, (; F = (frequency(101.1), frequency(-1e-14)))))
+            @test lnprior(spn, (; F = (frequency(2001.1), frequency(-1e-14)))) == -Inf
+            @test @ballocated(
+                lnprior($spn, (; F = (frequency(101.1), frequency(-1e-14))))
+            ) == 0
         end
 
         # @testset "Troposphere" begin
