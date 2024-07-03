@@ -1,5 +1,7 @@
 using Distributions
 
+import Distributions: logpdf
+
 abstract type Prior end
 
 struct SimplePrior{Distr<:Distribution} <: Prior

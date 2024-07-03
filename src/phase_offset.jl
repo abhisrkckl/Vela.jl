@@ -1,7 +1,7 @@
 using GeometricUnits
 using Distributions
 
-export PhaseOffset, phase
+export PhaseOffset, phase, prior_distributions
 
 """Phase offset between measured TOAs and the TZR TOA."""
 struct PhaseOffset <: PhaseComponent end
