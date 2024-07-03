@@ -567,7 +567,7 @@ const day_to_s = 86400
 
         @testset "form_residual" begin
             params = model.param_handler._default_params_tuple
-            tzrphase = calc_tzr_phase(model, params)
+            tzrphase = Vela.calc_tzr_phase(model, params)
             res = form_residual(model, toas[1], params, tzrphase)
             @test abs(res) < 3 * toas[1].error
         end
@@ -591,11 +591,11 @@ const day_to_s = 86400
         end
 
         @testset "lnprior" begin
-            @test isfinite(lnprior(model, model.param_handler._default_params_tuple))
+            @test isfinite(calc_lnprior(model, model.param_handler._default_params_tuple))
 
             # This doesn't allocate when model is a const.
             @test_broken @ballocated(
-                lnprior($model, $model.param_handler._default_params_tuple)
+                calc_lnprior($model, $model.param_handler._default_params_tuple)
             ) == 0
         end
 

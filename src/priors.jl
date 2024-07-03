@@ -1,4 +1,4 @@
-export lnprior
+export calc_lnprior
 
 function _lnprior(priors_PAR::Tuple, params::NamedTuple, _PAR::Symbol)
     vals = map(value, params[_PAR])
@@ -14,4 +14,4 @@ end
     return result
 end
 
-lnprior(model::TimingModel, params::NamedTuple) = lnprior(model.components, params)
+calc_lnprior(model::TimingModel, params::NamedTuple) = lnprior(model.components, params)
