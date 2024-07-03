@@ -39,9 +39,9 @@ function lnprior(::Spindown, params::NamedTuple)
         Uniform(-1e-27, 1e-27),
         Uniform(-1e-35, 1e-35),
     )
-    
+
     vals = map(value, params.F)
     dists = priors_F[1:length(params.F)]
-    
+
     return sum(map(logpdf, dists, vals))
 end

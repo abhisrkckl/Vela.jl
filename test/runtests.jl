@@ -320,6 +320,10 @@ const day_to_s = 86400
             @test ctzrtoa1.phase == ctzrtoa.phase
             @test ctzrtoa1.efac == ctzrtoa.efac
             @test ctzrtoa1.equad2 == ctzrtoa.equad2
+
+            @test lnprior(poff, (; PHOFF = dimensionless(0.1))) == 0.0
+            @test lnprior(poff, (; PHOFF = dimensionless(0.6))) == -Inf
+            @test @ballocated(lnprior($poff, (; PHOFF = dimensionless(0.1)))) == 0
         end
 
         @testset "Spindown" begin
