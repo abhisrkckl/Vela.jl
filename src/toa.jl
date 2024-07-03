@@ -1,6 +1,3 @@
-using GeometricUnits
-using Quadmath
-using LinearAlgebra
 import Base.copy, Base.show
 
 export TOA,

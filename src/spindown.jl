@@ -26,22 +26,23 @@ correct_toa(spindown::Spindown, ctoa::CorrectedTOA, params::NamedTuple) = correc
     delta_spin_frequency = spin_frequency(spindown, ctoa, params),
 )
 
+const priors_F = (
+    LogUniform(1e-4, 1e+3),
+    Uniform(-1e-9, 1e-9),
+    Uniform(-1e-18, 1e-18),
+    Uniform(-1e-27, 1e-27),
+    Uniform(-1e-35, 1e-35),
+)
+
+function _lnprior(priors_PAR, params, _PAR)
+    vals = map(value, params[_PAR])
+    dists = priors_PAR[1:length(vals)]
+    return sum(map(logpdf, dists, vals))
+end
+
 """
 Prior distributions for F0 ... F4 based on psrcat values, but broadened to 
 include one extra order of magnitude in either direction (except F0, which has a 
 theoretical upper limit).
 """
-function lnprior(::Spindown, params::NamedTuple)
-    priors_F = (
-        LogUniform(1e-4, 1e+3),
-        Uniform(-1e-9, 1e-9),
-        Uniform(-1e-18, 1e-18),
-        Uniform(-1e-27, 1e-27),
-        Uniform(-1e-35, 1e-35),
-    )
-
-    vals = map(value, params.F)
-    dists = priors_F[1:length(params.F)]
-
-    return sum(map(logpdf, dists, vals))
-end
+lnprior(::Spindown, params::NamedTuple) = _lnprior(priors_F, params, :F)

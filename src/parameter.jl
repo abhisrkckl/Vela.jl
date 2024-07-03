@@ -1,5 +1,3 @@
-using GeometricUnits
-
 export Parameter,
     MultiParameter,
     read_param,

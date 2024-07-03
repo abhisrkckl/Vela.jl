@@ -1,5 +1,14 @@
 module Vela
 
+using GeometricUnits
+using Quadmath
+using LinearAlgebra
+using Distributions
+using .Threads
+using Unrolled
+using HDF5
+using JSON
+
 include("ephemeris.jl")
 include("toa.jl")
 include("parameter.jl")
