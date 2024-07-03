@@ -1,13 +1,13 @@
 module Vela
 
 using GeometricUnits
-using Quadmath
-using LinearAlgebra
+using Quadmath: Float128
+using LinearAlgebra: dot
 using Distributions
-using .Threads
-using Unrolled
-using HDF5
-using JSON
+using .Threads: @threads, Atomic, atomic_add!
+using Unrolled: @unroll
+import HDF5
+import JSON
 
 include("ephemeris.jl")
 include("toa.jl")
