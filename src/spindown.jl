@@ -34,11 +34,13 @@ includes one extra order of magnitude in
 either direction (except F0, which has a 
 theoretical upper limit).
 """
-prior_distributions(::Spindown) = (
-    F = (
+prior_distributions(::Spindown) = MultiPrior(
+    :F,
+    (
         LogUniform(1e-4, 1e+3),
         Uniform(-1e-9, 1e-9),
         Uniform(-1e-18, 1e-18),
         Uniform(-1e-27, 1e-27),
+        Uniform(-1e-35, 1e-35),
     )
 )
