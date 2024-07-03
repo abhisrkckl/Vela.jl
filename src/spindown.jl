@@ -27,11 +27,11 @@ correct_toa(spindown::Spindown, ctoa::CorrectedTOA, params::NamedTuple) = correc
 )
 
 const priors_F = (
-    LogUniform(1e-4, 1e+3),
-    Uniform(-1e-9, 1e-9),
-    Uniform(-1e-18, 1e-18),
-    Uniform(-1e-27, 1e-27),
-    Uniform(-1e-35, 1e-35),
+    LogUniform(1e-4, 1e+3), # Hz
+    Uniform(-1e-9, 1e-9),   # Hz^2
+    Uniform(-1e-18, 1e-18), # Hz^3
+    Uniform(-1e-27, 1e-27), # Hz^4
+    Uniform(-1e-35, 1e-35), # Hz^5
 )
 
 """

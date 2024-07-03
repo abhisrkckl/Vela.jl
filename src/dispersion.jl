@@ -13,11 +13,11 @@ function dispersion_slope(::DispersionTaylor, ctoa::CorrectedTOA, params)
 end
 
 const priors_DM = (
-    LogUniform(1e+14, 1e+20),
-    Uniform(-1e+16, 1e+16),
-    Uniform(-1e+14, 1e+14),
-    Uniform(-1e+14, 1e+14),
-    Uniform(-1e+14, 1e+14),
+    LogUniform(1e+14, 1e+20), # Hz
+    Uniform(-1e+16, 1e+16),   # Hz^2
+    Uniform(-1e+14, 1e+14),   # Hz^3
+    Uniform(-1e+14, 1e+14),   # Hz^4
+    Uniform(-1e+14, 1e+14),   # Hz^5
 )
 
 """
