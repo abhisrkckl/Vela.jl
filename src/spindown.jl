@@ -27,20 +27,21 @@ correct_toa(spindown::Spindown, ctoa::CorrectedTOA, params::NamedTuple) = correc
 )
 
 """
-Prior distributions for F0 ... F3.
-
-Based on psrcat values, but broadened to 
-includes one extra order of magnitude in
-either direction (except F0, which has a 
+Prior distributions for F0 ... F4 based on psrcat values, but broadened to 
+include one extra order of magnitude in either direction (except F0, which has a 
 theoretical upper limit).
 """
-prior_distributions(::Spindown) = MultiPrior(
-    :F,
-    (
+function lnprior(::Spindown, params::NamedTuple)
+    priors_F = (
         LogUniform(1e-4, 1e+3),
         Uniform(-1e-9, 1e-9),
         Uniform(-1e-18, 1e-18),
         Uniform(-1e-27, 1e-27),
         Uniform(-1e-35, 1e-35),
     )
-)
+    
+    vals = map(value, params.F)
+    dists = priors_F[1:length(params.F)]
+    
+    return sum(map(logpdf, dists, vals))
+end

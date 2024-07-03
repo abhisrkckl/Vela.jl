@@ -9,4 +9,5 @@ struct PhaseOffset <: PhaseComponent end
 phase(::PhaseOffset, ctoa::CorrectedTOA, params::NamedTuple)::GQ =
     -Int(!ctoa.toa.tzr) * params.PHOFF
 
+"""Physically motivated prior: PHOFF ∈ (-0.5, 0.5]"""
 lnprior(::PhaseOffset, params::NamedTuple) = logpdf(Uniform(-0.5, 0.5), value(params.PHOFF))
