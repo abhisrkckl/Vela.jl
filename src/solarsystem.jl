@@ -102,3 +102,20 @@ function correct_toa(ss::SolarSystem, ctoa::CorrectedTOA, params::NamedTuple)
 
     return correct_toa(ctoa; delay = delay, doppler = doppler, barycentered = true)
 end
+
+const prior_LONG = Uniform(0, 2 * π)        # rad
+const prior_LAT = Uniform(-π / 2, π / 2)    # rad
+const prior_PX = Uniform(0.0, 1e-9)         # 1/s
+const prior_PMLONG = Uniform(-1e-13, 1e-13) # rad/s
+const prior_PMLAT = Uniform(-1e-13, 1e-13)  # rad/s
+
+function lnprior(ss::SolarSystem, params::NamedTuple)
+    dists = (prior_LONG, prior_LAT, prior_PX, prior_PMLONG, prior_PMLAT)
+    pars = (
+        ss.ecliptic_coordinates ?
+        (params.ELONG, params.ELAT, params.PX, params.PMELONG, params.PMELAT) :
+        (params.RAJ, params.DECJ, params.PX, params.PMRA, params.PMDEC)
+    )
+    vals = map(value, pars)
+    return sum(map(logpdf, dists, vals))
+end

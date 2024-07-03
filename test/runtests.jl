@@ -301,6 +301,19 @@ const day_to_s = 86400
 
             ctoa2 = correct_toa(ss, ctoa1, params)
             @test (ctoa2.delay == ctoa1.delay) && (ctoa2.doppler == ctoa1.doppler)
+
+            @test isfinite(lnprior(ss, params))
+            @test lnprior(
+                ss,
+                (;
+                    ELAT = dimensionless(1.2),
+                    ELONG = dimensionless(1.25),
+                    PX = GQ(-3e-12, -1),
+                    PMELAT = GQ(-7e-16, -1),
+                    PMELONG = GQ(-5e-16, -1),
+                ),
+            ) == -Inf
+            @test @ballocated(lnprior($ss, $params)) == 0
         end
 
         @testset "PhaseOffset" begin
