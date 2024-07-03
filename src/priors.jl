@@ -15,9 +15,17 @@ end
 logpdf(sp::SimplePrior, params::NamedTuple) = logpdf(sp.distribution, value(params[sp.param]))
 
 function logpdf(mp::MultiPrior, params::NamedTuple)
-    vals = value.(params[mp.param])
-    @assert length(vals) <= length(mp.distributions) 
+    pars = params[mp.param]
+    @assert length(pars) <= length(mp.distributions) 
 
+    result = 0.0
+    for (par, dist) in zip(pars, mp.distributions[:length(pars)])
+        result += logpdf(dist, value(par))
+    end
+
+    return sum(
+        (logpdf(dist, value(par)) for (par, dist) in zip(pars, mp.distributions[:length(pars)]))
+    )
 end
 
 logpdf(priors::Tuple, params::NamedTuple) = sum((logpdf(prior, params) for prior in priors))
