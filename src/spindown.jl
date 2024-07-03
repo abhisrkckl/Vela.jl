@@ -34,12 +34,6 @@ const priors_F = (
     Uniform(-1e-35, 1e-35),
 )
 
-function _lnprior(priors_PAR, params, _PAR)
-    vals = map(value, params[_PAR])
-    dists = priors_PAR[1:length(vals)]
-    return sum(map(logpdf, dists, vals))
-end
-
 """
 Prior distributions for F0 ... F4 based on psrcat values, but broadened to 
 include one extra order of magnitude in either direction (except F0, which has a 
