@@ -338,11 +338,11 @@ const day_to_s = 86400
             @test ctoa.spin_frequency == frequency(-1.0) &&
                   ctoa1.spin_frequency > frequency(0.0)
 
-            @test isfinite(lnprior(spn, (; F = (frequency(101.1), frequency(-1e-14)))))
-            @test lnprior(spn, (; F = (frequency(2001.1), frequency(-1e-14)))) == -Inf
-            @test @ballocated(
-                lnprior($spn, (; F = (frequency(101.1), frequency(-1e-14))))
-            ) == 0
+            @test isfinite(lnprior(spn, (; F = (frequency(101.1), GQ(-1e-14, -2)))))
+            @test lnprior(spn, (; F = (frequency(2001.1), GQ(-1e-14, -2)))) == -Inf
+            @test lnprior(spn, (; F = (frequency(200.1), GQ(-1e-1, -2)))) == -Inf
+            @test @ballocated(lnprior($spn, (; F = (frequency(101.1), GQ(-1e-14, -2))))) ==
+                  0
         end
 
         # @testset "Troposphere" begin
@@ -355,6 +355,11 @@ const day_to_s = 86400
             @test dispersion_slope(dmt, ctoa, params) == GQ(10.0, -1)
             @test delay(dmt, ctoa, params) ==
                   dispersion_slope(dmt, ctoa, params) / ctoa.toa.observing_frequency^2
+
+            @test isfinite(lnprior(dmt, (; DM = (GQ(6e+16, -1), GQ(-4e+11, -2)))))
+            @test lnprior(dmt, (; DM = (GQ(-6e+16, -1), GQ(-4e+11, -2)))) == -Inf
+            @test lnprior(dmt, (; DM = (GQ(6e+16, -1), GQ(-4e+20, -2)))) == -Inf
+            @test @ballocated(lnprior($dmt, (; DM = (GQ(6e+16, -2), GQ(-4e+11, -2))))) == 0
         end
 
         @testset "SolarWindDispersion" begin
