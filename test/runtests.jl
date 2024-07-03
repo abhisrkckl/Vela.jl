@@ -590,12 +590,22 @@ const day_to_s = 86400
             @test calc_lnlike(model, toas, parv1) < calc_lnlike(model, toas, params)
         end
 
-        @testset "lnprior" begin
+        @testset "calc_lnprior" begin
             @test isfinite(calc_lnprior(model, model.param_handler._default_params_tuple))
 
             # This doesn't allocate when model is a const.
             @test_broken @ballocated(
                 calc_lnprior($model, $model.param_handler._default_params_tuple)
+            ) == 0
+        end
+
+        @testset "calc_lnpost" begin
+            @test isfinite(
+                calc_lnpost(model, toas, model.param_handler._default_params_tuple),
+            )
+
+            @test_broken @ballocated(
+                calc_lnpost($model, $toas, $model.param_handler._default_params_tuple)
             ) == 0
         end
 
