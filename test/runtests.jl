@@ -490,6 +490,10 @@ const day_to_s = 86400
 
             @test @ballocated(Vela.calc_lnlike_serial($model, $toas, $params)) == 0
         end
+
+        @testset "lnprior" begin
+            @test_broken isfinite(lnprior(model, model.param_handler._default_params_tuple))
+        end
     end
 
     @testset "NGC6440E" begin
@@ -584,6 +588,13 @@ const day_to_s = 86400
             parv1 = read_param_values_to_vector(model.param_handler, params)
             parv1[end] *= 2
             @test calc_lnlike(model, toas, parv1) < calc_lnlike(model, toas, params)
+        end
+
+        @testset "lnprior" begin
+            @test isfinite(lnprior(model, model.param_handler._default_params_tuple))
+            @test_broken @ballocated(
+                lnprior($model, $model.param_handler._default_params_tuple)
+            ) == 0
         end
 
         @testset "plot_summary" begin

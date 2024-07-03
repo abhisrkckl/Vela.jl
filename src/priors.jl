@@ -6,7 +6,12 @@ function _lnprior(priors_PAR::Tuple, params::NamedTuple, _PAR::Symbol)
     return sum(map(logpdf, dists, vals))
 end
 
-function lnprior(model::TimingModel, params::NamedTuple)
-    _lnpr = component -> lnprior(component, params)
-    return sum(map(_lnpr, model.components))
+@unroll function lnprior(components::Tuple, params::NamedTuple)
+    result = 0.0
+    @unroll for component in components
+        result += lnprior(component, params)
+    end
+    return result
 end
+
+lnprior(model::TimingModel, params::NamedTuple) = lnprior(model.components, params)
