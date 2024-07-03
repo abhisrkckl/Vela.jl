@@ -592,6 +592,8 @@ const day_to_s = 86400
 
         @testset "lnprior" begin
             @test isfinite(lnprior(model, model.param_handler._default_params_tuple))
+
+            # This doesn't allocate when model is a const.
             @test_broken @ballocated(
                 lnprior($model, $model.param_handler._default_params_tuple)
             ) == 0
