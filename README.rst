@@ -15,7 +15,7 @@ Vela
 
 Installation
 ------------
-a::
+::
 
    (base) $ conda create -n vela python=3.11
    (base) $ conda activate vela
