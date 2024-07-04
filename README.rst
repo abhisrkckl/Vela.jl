@@ -13,3 +13,14 @@ Vela
    :target: LICENCE
    :alt: License: MIT
 
+Installation
+------------
+::
+
+   (base) $ conda create -n vela python=3.11
+   (base) $ conda activate vela
+   (vela) $ conda install -c conda-forge julia pint-pulsar  
+   (vela) $ julia
+   julia> ] add LocalRegistry
+   julia> ] registry add https://github.com/abhisrkckl/julia_registry
+   julia> ] add https://github.com/abhisrkckl/Vela.jl
