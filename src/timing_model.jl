@@ -126,7 +126,7 @@ function calc_lnlike(model::TimingModel, toas::Vector{TOA}, params::NamedTuple)
         dphase = GQ{Float64}(phase_residual(ctoa) - tzrphase)
         tres = dphase / doppler_shifted_spin_frequency(ctoa)
         err2 = scaled_toa_error_sqr(ctoa)
-        norm = log(err2.x) / 2
+        norm = log(err2.x)
 
         atomic_add!(result, (tres * tres / err2).x + norm)
     end
@@ -143,7 +143,7 @@ function calc_lnlike_serial(model::TimingModel, toas::Vector{TOA}, params::Named
         dphase = GQ{Float64}(phase_residual(ctoa) - tzrphase)
         tres = dphase / doppler_shifted_spin_frequency(ctoa)
         err2 = scaled_toa_error_sqr(ctoa)
-        norm = log(err2.x) / 2
+        norm = log(err2.x)
 
         result += (tres * tres / err2).x + norm
     end
