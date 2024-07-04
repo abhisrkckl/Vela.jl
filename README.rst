@@ -16,6 +16,7 @@ Vela
 Installation
 ------------
 a::
+
    (base) $ conda create -n vela python=3.11
    (base) $ conda activate vela
    (vela) $ conda install -c conda-forge julia pint-pulsar  
