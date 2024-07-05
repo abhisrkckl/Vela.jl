@@ -555,9 +555,14 @@ const day_to_s = 86400
         end
 
         @testset "calc_lnlike" begin
+            calc_lnlike_s = get_lnlike_serial_func(model, toas)
+            calc_lnlike_p = get_lnlike_parallel_func(model, toas)
             params = model.param_handler._default_params_tuple
-            @test calc_lnlike(model, toas, params) ==
-                  Vela.calc_lnlike_serial(model, toas, params)
+            parv = read_param_values_to_vector(model.param_handler, params)
+            parnp = PyArray(parv)
+            @test calc_lnlike_s(model, toas, parnp) ≈
+                  Vela.calc_lnlike_p(model, toas, parnp)
+            
             @test @ballocated(Vela.calc_lnlike_serial($model, $toas, $params)) == 0
 
             parv1 = read_param_values_to_vector(model.param_handler, params)
