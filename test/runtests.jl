@@ -560,9 +560,8 @@ const day_to_s = 86400
             params = model.param_handler._default_params_tuple
             parv = read_param_values_to_vector(model.param_handler, params)
             parnp = PyArray(parv)
-            @test calc_lnlike_s(model, toas, parnp) ≈
-                  Vela.calc_lnlike_p(model, toas, parnp)
-            
+            @test calc_lnlike_s(parnp) ≈ Vela.calc_lnlike_p(parnp)
+
             @test @ballocated(Vela.calc_lnlike_serial($model, $toas, $params)) == 0
 
             parv1 = read_param_values_to_vector(model.param_handler, params)
