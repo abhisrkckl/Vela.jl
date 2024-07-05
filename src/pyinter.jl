@@ -40,11 +40,11 @@ function get_lnlike_parallel_func(model, toas)
         result = -Inf
 
         # Release the GIL for parallel computation
-        pythread = PythonCall.C.PyEval_SaveThread()
+        pythread = PyEval_SaveThread()
         try
             result = calc_lnlike(model, toas, params)
         finally
-            PythonCall.C.PyEval_RestoreThread(pythread)
+            PyEval_RestoreThread(pythread)
         end
 
         return result
