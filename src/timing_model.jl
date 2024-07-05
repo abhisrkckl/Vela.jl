@@ -2,8 +2,7 @@ using GeometricUnits
 using Unrolled
 using .Threads
 
-export TimingModel,
-    correct_toa, form_residual, calc_chi2, calc_lnlike, calc_tzr_phase, get_lnlike_func
+export TimingModel, correct_toa, form_residual, calc_chi2, calc_lnlike, calc_tzr_phase
 
 struct TimingModel{ComponentsTuple<:Tuple}
     pulsar_name::String
@@ -156,11 +155,6 @@ calc_lnlike(model::TimingModel, toas::Vector{TOA}, params::Vector{Float64}) =
 
 calc_lnlike_serial(model::TimingModel, toas::Vector{TOA}, params::Vector{Float64}) =
     calc_lnlike_serial(model, toas, read_params(model, params))
-
-get_lnlike_func(model::TimingModel, toas::Vector{TOA}) =
-    params -> calc_lnlike(model, toas, params)
-get_lnlike_serial_func(model::TimingModel, toas::Vector{TOA}) =
-    params -> calc_lnlike_serial(model, toas, params)
 
 show(io::IO, model::TimingModel) = print(io, "TimingModel[$(string(model.components))]")
 show(io::IO, ::MIME"text/plain", model::TimingModel) = show(io, model)
