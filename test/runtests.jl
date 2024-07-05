@@ -6,6 +6,7 @@ using Quadmath
 using JuliaFormatter
 using HDF5
 using BenchmarkTools
+using PythonCall
 
 const day_to_s = 86400
 
@@ -542,10 +543,15 @@ const day_to_s = 86400
         end
 
         @testset "calc_chi2" begin
+            calc_chi2_s = get_chi2_serial_func(model, toas)
+            calc_chi2_p = get_chi2_parallel_func(model, toas)
             params = model.param_handler._default_params_tuple
-            chi2 = calc_chi2(model, toas, params)
-            @test chi2 / length(toas) < 1.1
-            @test chi2 == Vela.calc_chi2_serial(model, toas, params)
+            parv = read_param_values_to_vector(model.param_handler, params)
+            parnp = PyArray(parv)
+            chi2_s = calc_chi2_s(parnp)
+            chi2_p = calc_chi2_p(parnp)
+            @test chi2_s / length(toas) < 1.1
+            @test chi2_s ≈ chi2_p
         end
 
         @testset "calc_lnlike" begin
