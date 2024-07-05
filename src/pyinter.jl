@@ -15,11 +15,11 @@ function get_chi2_parallel_func(model::TimingModel, toas::Vector{TOA})
         result = -Inf
 
         # Release the GIL for parallel computation
-        pythread = PythonCall.C.PyEval_SaveThread()
+        pythread = PyEval_SaveThread()
         try
             result = calc_chi2(model, toas, params)
         finally
-            PythonCall.C.PyEval_RestoreThread(pythread)
+            PyEval_RestoreThread(pythread)
         end
 
         return result

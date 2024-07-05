@@ -3,9 +3,10 @@ module Vela
 using GeometricUnits
 using Quadmath: Float128
 using LinearAlgebra: dot
-using .Threads
+using .Threads: @threads, atomic_add!, Atomic
 using Unrolled: @unroll
-using PythonCall
+using PythonCall: PyArray
+using PythonCall.C: PyEval_SaveThread, PyEval_RestoreThread
 import HDF5
 import JSON
 
