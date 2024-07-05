@@ -2,8 +2,7 @@ using GeometricUnits
 using Unrolled
 using .Threads
 
-export TimingModel,
-    correct_toa, form_residual, calc_chi2, calc_lnlike, calc_tzr_phase, get_lnlike_func
+export TimingModel, correct_toa, form_residual, calc_chi2, calc_lnlike, calc_tzr_phase
 
 struct TimingModel{ComponentsTuple<:Tuple}
     pulsar_name::String

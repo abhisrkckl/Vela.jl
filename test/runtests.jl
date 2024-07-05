@@ -449,7 +449,7 @@ const day_to_s = 86400
         end
 
         @testset "calc_lnlike" begin
-            lnlike_func = get_lnlike_func(model, toas)
+            lnlike_func = get_lnlike_parallel_func(model, toas)
             lnlike_serial_func = Vela.get_lnlike_serial_func(model, toas)
 
             # lnlike = calc_lnlike(model, toas, params)
