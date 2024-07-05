@@ -1,5 +1,14 @@
 module Vela
 
+using GeometricUnits
+using Quadmath: Float128
+using LinearAlgebra: dot
+using .Threads
+using Unrolled: @unroll
+using PythonCall
+import HDF5
+import JSON
+
 include("ephemeris.jl")
 include("toa.jl")
 include("parameter.jl")

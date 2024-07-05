@@ -1,5 +1,3 @@
-using PythonCall
-
 export get_chi2_serial_func,
     get_chi2_parallel_func, get_lnlike_serial_func, get_lnlike_parallel_func
 

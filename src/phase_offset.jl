@@ -1,5 +1,3 @@
-using GeometricUnits
-
 export PhaseOffset, phase
 
 """Phase offset between measured TOAs and the TZR TOA."""

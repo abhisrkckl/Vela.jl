@@ -1,5 +1,3 @@
-using .Threads
-
 export Component,
     UncorrelatedComponent,
     CorrelatedComponent,

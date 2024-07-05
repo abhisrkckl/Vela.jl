@@ -1,6 +1,3 @@
-using GeometricUnits
-using Quadmath
-
 export Spindown, phase, spin_frequency, read_params_from_dict
 
 struct Spindown <: PhaseComponent end

@@ -1,5 +1,3 @@
-using GeometricUnits
-
 export SolarSystemEphemeris
 
 """Struct containing solar system ephemeris vectors corresponding to a TOA.
