@@ -1,5 +1,15 @@
 module Vela
 
+using GeometricUnits
+using Quadmath: Float128
+using LinearAlgebra: dot
+using .Threads: @threads, atomic_add!, Atomic
+using Unrolled: @unroll
+using PythonCall: PyArray
+using PythonCall.C: PyEval_SaveThread, PyEval_RestoreThread
+import HDF5
+import JSON
+
 include("ephemeris.jl")
 include("toa.jl")
 include("parameter.jl")
@@ -12,6 +22,8 @@ include("dispersion.jl")
 include("solarwind.jl")
 # include("selection.jl")
 include("timing_model.jl")
+include("residuals.jl")
+include("likelihood.jl")
 include("read_model_and_toas.jl")
 include("summary_plot.jl")
 include("pyinter.jl")

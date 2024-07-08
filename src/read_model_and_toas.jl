@@ -1,8 +1,3 @@
-using GeometricUnits
-using Quadmath
-using HDF5
-using JSON
-
 export read_toas, read_tzr_toa, read_param_handler, read_components, read_model_and_toas
 
 function read_ephemeris(toa_data::NamedTuple)::SolarSystemEphemeris
@@ -127,7 +122,7 @@ end
 read_info(f::HDF5.File) = JSON.parse(read(f["Info"]))
 
 function read_model_and_toas(filename::String)
-    h5open(filename) do f
+    HDF5.h5open(filename) do f
         toas = read_toas(f)
 
         param_handler = read_param_handler(f)

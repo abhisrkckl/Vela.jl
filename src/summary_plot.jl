@@ -1,7 +1,5 @@
 export plot_pulsar_summary
 
-using Vela
-using GeometricUnits
 using Plots
 
 function plot_pulsar_summary(filename)
