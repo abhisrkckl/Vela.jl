@@ -97,7 +97,7 @@ function read_components(f::HDF5.File)
     components = Vector{Component}()
     for cdict in component_dicts
         if cdict["name"] == "Spindown"
-            push!(components, Spindown())
+            push!(components, Spindown(frequency(cdict["F_"]), time(cdict["PEPOCH"])))
         elseif cdict["name"] == "PhaseOffset"
             push!(components, PhaseOffset())
         elseif cdict["name"] == "SolarSystem"

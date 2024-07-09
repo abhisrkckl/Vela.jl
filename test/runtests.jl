@@ -276,8 +276,7 @@ const day_to_s = 86400
 
         params = (
             PHOFF = dimensionless(1e-6),
-            PEPOCH = time(53470.0 * day_to_s),
-            F = (frequency(100.0), GQ(-1e-14, -2)),
+            F = (frequency(0.0), GQ(-1e-14, -2)),
             DMEPOCH = time(53470.0 * day_to_s),
             DM = (GQ(10.0, -1), GQ(1e-4, -2)),
             POSEPOCH = time(53470.0 * day_to_s),
@@ -324,7 +323,7 @@ const day_to_s = 86400
         end
 
         @testset "Spindown" begin
-            spn = Spindown()
+            spn = Spindown(frequency(100.0), time(53470.0 * day_to_s))
             @test phase(spn, ctoa, params) == dimensionless(0.0)
             @test spin_frequency(spn, ctoa, params) == frequency(100.0)
 

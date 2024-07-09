@@ -137,11 +137,22 @@ def _get_multiparam_elements(
             break
 
         scale_factor = pxparam.tcb2tdb_scale_factor
-        value = (
-            pxparam.value * day_to_s
-            if isinstance(pxparam, MJDParameter)
-            else (pxparam.quantity * scale_factor).si.value
-        )
+        
+        if pxname == "F0":
+            # It turns out that F0 needs more precision than float64 to do
+            # computations precisely. So I am splitting F0 into two float64
+            # values. The big part goes into the Spindown component as an attribute
+            # and the small part is treated as a free parameter.
+            value_ = (pxparam.quantity * scale_factor).si.value
+            value = value_ - float(value_)
+        else:
+            value = (
+                pxparam.value * day_to_s
+                if isinstance(pxparam, MJDParameter)
+                else (pxparam.quantity * scale_factor).si.value
+            )
+        
+        
         dim = pxparam.effective_dimensionality
 
         original_units = str(pxparam.units)
@@ -197,6 +208,7 @@ def params_from_model(
         # Skip things that are not single parameters
         if (
             param_name in ignore_params
+            or param_name not in model.fittable_params
             or param_name in pseudo_single_params
             or not isinstance(
                 param,
@@ -281,7 +293,13 @@ def components_from_model(model: TimingModel) -> list:
         if component_name in ["AbsPhase", "SolarSystemShapiro"]:
             continue
         elif component_name == "Spindown":
-            components.append({"name": "Spindown"})
+            components.append(
+                {
+                    "name": "Spindown",
+                    "PEPOCH": float((model.PEPOCH.value * model.PEPOCH.units).to_value("s")),
+                    "F_": float(model.F0.quantity.to_value("Hz")),
+                }
+            )
         elif component_name.startswith("Astrometry"):
             components.append(
                 {
