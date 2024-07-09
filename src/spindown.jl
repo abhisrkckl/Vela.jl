@@ -5,13 +5,17 @@ struct Spindown <: PhaseComponent
     PEPOCH::GQ{Float64}
 end
 
+_to_f128(q::GQ) = GQ(Float128(value(q)), udim(q))
+
 function phase(sd::Spindown, ctoa::CorrectedTOA, params::NamedTuple)::GQ{Float128}
-    t0 = sd.PEPOCH
     t = corrected_toa_value_F128(ctoa)
-    fs = params.F
+    t0 = _to_f128(sd.PEPOCH)
+    f_ = _to_f128(sd.F_)
+    fs = _to_f128.(params.F)
+    fs = (f_ + fs[1], fs[2:end]...)
     phase0 = dimensionless(0.0)
     t_t0 = t - t0
-    return sd.F_ * t_t0 + taylor_horner_integral(t_t0, fs, phase0)
+    return taylor_horner_integral(t_t0, fs, phase0)
 end
 
 function spin_frequency(sd::Spindown, ctoa::CorrectedTOA, params::NamedTuple)::GQ{Float64}
