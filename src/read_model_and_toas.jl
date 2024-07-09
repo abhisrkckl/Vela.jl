@@ -103,12 +103,16 @@ function read_components(f::HDF5.File)
         elseif cdict["name"] == "SolarSystem"
             push!(
                 components,
-                SolarSystem(cdict["ecliptic_coordinates"], cdict["planet_shapiro"]),
+                SolarSystem(
+                    time(cdict["POSEPOCH"]),
+                    cdict["ecliptic_coordinates"],
+                    cdict["planet_shapiro"],
+                ),
             )
             # elseif cdict["name"] == "Troposphere"
             # #     push!(components, Troposphere())
         elseif cdict["name"] == "DispersionTaylor"
-            push!(components, DispersionTaylor())
+            push!(components, DispersionTaylor(time(cdict["DMEPOCH"])))
             # elseif cdict["name"] == "SolarWindDispersion"
             #     swm = cdict["model"]
             #     @assert swm in [0, 1]

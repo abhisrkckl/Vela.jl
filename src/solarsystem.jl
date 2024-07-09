@@ -15,6 +15,7 @@ const M_URANUS = mass(2.1505895513637613e-10)
 const M_NEPTUNE = mass(2.5373119991867603e-10)
 
 struct SolarSystem <: DelayComponent
+    POSEPOCH::GQ{Float64}
     ecliptic_coordinates::Bool
     planet_shapiro::Bool
 end
@@ -39,7 +40,7 @@ function correct_toa(ss::SolarSystem, ctoa::CorrectedTOA, params::NamedTuple)
         ss.ecliptic_coordinates ? (params.PMELONG, params.PMELAT) :
         (params.PMRA, params.PMDEC)
     px = params.PX
-    posepoch = params.POSEPOCH
+    posepoch = ss.POSEPOCH
 
     # TODO: Do this properly.
     if value(pmlong) == 0.0 && value(pmlat) == 0.0

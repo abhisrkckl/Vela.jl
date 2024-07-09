@@ -304,6 +304,7 @@ def components_from_model(model: TimingModel) -> list:
             components.append(
                 {
                     "name": "SolarSystem",
+                    "POSEPOCH": float((model.POSEPOCH.value * model.POSEPOCH.units).to_value("s")),
                     "ecliptic_coordinates": (component_name == "AstrometryEcliptic"),
                     "planet_shapiro": model.PLANET_SHAPIRO.value,
                 }
@@ -313,7 +314,12 @@ def components_from_model(model: TimingModel) -> list:
                 {"name": "SolarWindDispersion", "model": int(model.SWM.value)}
             )
         elif component_name == "DispersionDM":
-            components.append({"name": "DispersionTaylor"})
+            components.append(
+                {
+                    "name": "DispersionTaylor",
+                    "DMEPOCH": float((model.DMEPOCH.value * model.DMEPOCH.units).to_value("s")),
+                }
+            )
         elif component_name == "TroposphereDelay" and model.CORRECT_TROPOSPHERE.value:
             components.append({"name": "Troposphere"})
         else:
@@ -346,9 +352,9 @@ if __name__ == "__main__":
 
     toas_table = toas_to_table(toas)
 
-    components_str = json.dumps(components_from_model(model))
-    params_str = json.dumps(params_from_model(model))
-    info_str = json.dumps(infodict_from_model(model))
+    components_str = json.dumps(components_from_model(model), indent=True)
+    params_str = json.dumps(params_from_model(model), indent=True)
+    info_str = json.dumps(infodict_from_model(model), indent=True)
 
     tzr_toa: TOAs = model.get_TZR_toa(toas)
     tzr_toa.compute_pulse_numbers(model)

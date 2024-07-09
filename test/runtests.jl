@@ -277,9 +277,7 @@ const day_to_s = 86400
         params = (
             PHOFF = dimensionless(1e-6),
             F = (frequency(0.0), GQ(-1e-14, -2)),
-            DMEPOCH = time(53470.0 * day_to_s),
             DM = (GQ(10.0, -1), GQ(1e-4, -2)),
-            POSEPOCH = time(53470.0 * day_to_s),
             ELAT = dimensionless(1.2),
             ELONG = dimensionless(1.25),
             PX = GQ(3e-12, -1),
@@ -288,7 +286,7 @@ const day_to_s = 86400
         )
 
         @testset "SolarSystem" begin
-            ss = SolarSystem(true, true)
+            ss = SolarSystem(time(53470.0 * day_to_s), true, true)
             @test ss.ecliptic_coordinates && ss.planet_shapiro
 
             ctoa1 = correct_toa(ss, ctoa, params)
@@ -342,7 +340,7 @@ const day_to_s = 86400
         # end
 
         @testset "DispersionTaylor" begin
-            dmt = DispersionTaylor()
+            dmt = DispersionTaylor(time(53470.0 * day_to_s))
             @test dispersion_slope(dmt, ctoa, params) == GQ(10.0, -1)
             @test delay(dmt, ctoa, params) ==
                   dispersion_slope(dmt, ctoa, params) / ctoa.toa.observing_frequency^2
