@@ -352,9 +352,9 @@ if __name__ == "__main__":
 
     toas_table = toas_to_table(toas)
 
-    components_str = json.dumps(components_from_model(model), indent=True)
-    params_str = json.dumps(params_from_model(model), indent=True)
-    info_str = json.dumps(infodict_from_model(model), indent=True)
+    components_str = json.dumps(components_from_model(model), indent=4)
+    params_str = json.dumps(params_from_model(model), indent=4)
+    info_str = json.dumps(infodict_from_model(model), indent=4)
 
     tzr_toa: TOAs = model.get_TZR_toa(toas)
     tzr_toa.compute_pulse_numbers(model)
