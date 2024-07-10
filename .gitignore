@@ -10,3 +10,5 @@ Manifest.toml
 env.sh
 
 *_summary.pdf
+
+test/*.1
