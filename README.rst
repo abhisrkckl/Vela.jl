@@ -19,7 +19,9 @@ Installation
 
    (base) $ conda create -n vela python=3.11
    (base) $ conda activate vela
-   (vela) $ conda install -c conda-forge julia juliacall pint-pulsar  
+   (vela) $ conda install -c conda-forge julia juliacall pint-pulsar
+   (vela) $ conda env config vars set PYTHON_JULIACALL_HANDLE_SIGNALS=yes
+   (vela) $ conda env config vars set PYTHON_JULIACALL_THREADS=4
    (vela) $ julia
    julia> ] add LocalRegistry
    julia> ] registry add https://github.com/abhisrkckl/julia_registry
@@ -27,11 +29,6 @@ Installation
 
 Using from Python
 -----------------
-We need to set the following environment variables first::
-
-   export PYTHON_JULIACALL_HANDLE_SIGNALS=yes
-   export PYTHON_JULIACALL_THREADS=4
-
 Here is what an example session looks like::
 
    > from juliacall import Main as jl
