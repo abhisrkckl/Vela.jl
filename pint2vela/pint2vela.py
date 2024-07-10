@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 from typing import List
 
 from astropy import units as u
