@@ -24,13 +24,13 @@ def pint_toa_to_vela(toas: TOAs, idx: int, tzr: bool = False):
     assert toas.get_pulse_numbers() is not None
 
     tdb = toas.table["tdbld"].value[idx] * day_to_s
-    tdb = vl.time(jl.parse(vl.Float128, str(tdb)))
+    tdb = vl.time(jl.parse(vl.Double64, str(tdb)))
 
     phase = (
         toas.table["pulse_number"].value[idx]
         - toas.table["delta_pulse_number"].value[idx]
     )
-    phase = vl.dimensionless(jl.parse(vl.Float128, str(phase)))
+    phase = vl.dimensionless(jl.parse(vl.Double64, str(phase)))
 
     err = vl.time(toas.get_errors()[idx].si.value)
     freq = vl.frequency(toas.get_freqs()[idx].si.value)
