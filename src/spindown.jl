@@ -2,7 +2,7 @@ export Spindown, phase, spin_frequency, read_params_from_dict
 
 struct Spindown <: PhaseComponent end
 
-function phase(::Spindown, ctoa::CorrectedTOA, params::NamedTuple)::GQ{Float128}
+function phase(::Spindown, ctoa::CorrectedTOA, params::NamedTuple)::GQ{Double64}
     t0 = params.PEPOCH
     t = corrected_toa_value_F128(ctoa)
     fs = params.F

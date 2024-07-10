@@ -2,7 +2,7 @@ using Vela
 using Test
 using GeometricUnits
 using LinearAlgebra
-using Quadmath
+using DoubleFloats
 using JuliaFormatter
 using HDF5
 using BenchmarkTools
@@ -105,10 +105,10 @@ const day_to_s = 86400
     end
 
     @testset "toa" begin
-        toaval = time(parse(Float128, "4610197611.8464445127"))
+        toaval = time(parse(Double64, "4610197611.8464445127"))
         toaerr = time(1e-6)
         freq = frequency(1.4e9)
-        pulse_number = dimensionless(Float128(1000.0))
+        pulse_number = dimensionless(Double64(1000.0))
         barycentered = false
 
         ephem = SolarSystemEphemeris(
@@ -123,7 +123,7 @@ const day_to_s = 86400
             obs_earth_pos,
         )
 
-        # TOA value should be of type GQ{Float128}.
+        # TOA value should be of type GQ{Double64}.
         @test_throws MethodError TOA(
             time(4610197611.8),
             toaerr,
@@ -261,17 +261,17 @@ const day_to_s = 86400
         )
 
         toa = TOA(
-            time(Float128(53470.0 * day_to_s)),
+            time(Double64(53470.0 * day_to_s)),
             time(1e-6),
             frequency(2.5e9),
-            dimensionless(Float128(0.0)),
+            dimensionless(Double64(0.0)),
             false,
             ephem,
         )
         ctoa = CorrectedTOA(toa)
 
         tzrtoa =
-            make_tzr_toa(time(Float128(53475.0 * day_to_s)), frequency(2.5e9), false, ephem)
+            make_tzr_toa(time(Double64(53475.0 * day_to_s)), frequency(2.5e9), false, ephem)
         ctzrtoa = CorrectedTOA(tzrtoa)
 
         params = (

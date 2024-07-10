@@ -1,7 +1,7 @@
 module Vela
 
 using GeometricUnits
-using Quadmath: Float128
+using DoubleFloats: Double64
 using LinearAlgebra: dot
 using .Threads: @threads, atomic_add!, Atomic
 using Unrolled: @unroll
