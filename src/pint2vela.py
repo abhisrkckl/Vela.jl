@@ -286,9 +286,17 @@ def pint_model_to_vela(model: TimingModel, toas: TOAs):
         tzr_toa,
     )
 
+
 def read_model_and_toas(parfile: str, timfile: str):
     setup_log(level="WARNING")
-    mp, tp = get_model_and_toas(parfile, timfile, planets=True, allow_tcb=True, allow_T2=True, add_tzr_to_model=True)
+    mp, tp = get_model_and_toas(
+        parfile,
+        timfile,
+        planets=True,
+        allow_tcb=True,
+        allow_T2=True,
+        add_tzr_to_model=True,
+    )
 
     model = pint_model_to_vela(mp, tp)
     toas = pint_toas_to_vela(tp)
