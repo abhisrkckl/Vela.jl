@@ -25,9 +25,9 @@ def toas_to_table(toas: TOAs) -> Table:
     assert toas.get_pulse_numbers() is not None
 
     tdbs = toas.table["tdbld"].value * day_to_s
-    tdbs_frac, tdbs_int = np.modf(tdbs)
-    tdbs_frac = tdbs_frac.astype(float)
-    tdbs_int = tdbs_int.astype(float)
+    # tdbs_frac, tdbs_int = np.modf(tdbs)
+    # tdbs_frac = tdbs_frac.astype(float)
+    tdbs_str = tdbs.astype(str)
 
     phases = -toas.table["pulse_number"].value + toas.table["delta_pulse_number"].value
     phases_frac, phases_int = np.modf(phases)
@@ -50,8 +50,8 @@ def toas_to_table(toas: TOAs) -> Table:
 
     data = np.vstack(
         (
-            tdbs_int,
-            tdbs_frac,
+            tdbs_str,
+            # tdbs_frac,
             phases_int,
             phases_frac,
             errs,
@@ -69,8 +69,8 @@ def toas_to_table(toas: TOAs) -> Table:
     ).T
 
     colnames = [
-        "tdb_int",
-        "tdb_frac",
+        "tdb_str",
+        # "tdb_frac",
         "phase_int",
         "phase_frac",
         "error",
