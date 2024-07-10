@@ -1,27 +1,24 @@
 #!/usr/bin/env python
 
-import json
-import sys
-from typing import Any, Dict, List, Tuple
+from typing import List
 
-import h5py as h5
-import numpy as np
 from astropy import units as u
-from astropy.table import Table
-from pint.logging import setup as setup_log
-from pint.models import PhaseOffset, TimingModel, get_model_and_toas
+from pint.models import PhaseOffset, TimingModel
 from pint.models.parameter import (
     AngleParameter,
     MJDParameter,
     floatParameter,
+    Parameter,
 )
 from pint.toa import TOAs
 
 from juliacall import Main as jl
+
 jl.seval("import Vela")
 vl = jl.Vela
 
 day_to_s = 86400
+
 
 def pint_toa_to_vela(toas: TOAs, idx: int, tzr: bool = False):
     assert toas.planets
@@ -30,22 +27,52 @@ def pint_toa_to_vela(toas: TOAs, idx: int, tzr: bool = False):
     tdb = toas.table["tdbld"].value[idx] * day_to_s
     tdb = vl.time(jl.parse(vl.Float128, str(tdb)))
 
-    phase = toas.table["pulse_number"].value[idx] - toas.table["delta_pulse_number"].value[idx]
+    phase = (
+        toas.table["pulse_number"].value[idx]
+        - toas.table["delta_pulse_number"].value[idx]
+    )
     phase = vl.dimensionless(jl.parse(vl.Float128, str(phase)))
 
     err = vl.time(toas.get_errors()[idx].si.value)
     freq = vl.frequency(toas.get_freqs()[idx].si.value)
 
-    ssb_obs_pos = jl.map(vl.distance, jl.Tuple(toas.table["ssb_obs_pos"].quantity[idx].to_value("lightsecond")))
-    ssb_obs_vel = jl.map(vl.speed, jl.Tuple(toas.table["ssb_obs_vel"].quantity[idx].to_value("lightsecond/s")))
-    obs_sun_pos = jl.map(vl.distance, jl.Tuple(toas.table["obs_sun_pos"].quantity[idx].to_value("lightsecond")))
+    ssb_obs_pos = jl.map(
+        vl.distance,
+        jl.Tuple(toas.table["ssb_obs_pos"].quantity[idx].to_value("lightsecond")),
+    )
+    ssb_obs_vel = jl.map(
+        vl.speed,
+        jl.Tuple(toas.table["ssb_obs_vel"].quantity[idx].to_value("lightsecond/s")),
+    )
+    obs_sun_pos = jl.map(
+        vl.distance,
+        jl.Tuple(toas.table["obs_sun_pos"].quantity[idx].to_value("lightsecond")),
+    )
 
-    obs_jupiter_pos = jl.map(vl.distance, jl.Tuple(toas.table["obs_jupiter_pos"].quantity[idx].to_value("lightsecond")))
-    obs_saturn_pos = jl.map(vl.distance, jl.Tuple(toas.table["obs_saturn_pos"].quantity[idx].to_value("lightsecond")))
-    obs_venus_pos = jl.map(vl.distance, jl.Tuple(toas.table["obs_venus_pos"].quantity[idx].to_value("lightsecond")))
-    obs_uranus_pos = jl.map(vl.distance, jl.Tuple(toas.table["obs_uranus_pos"].quantity[idx].to_value("lightsecond")))
-    obs_neptune_pos = jl.map(vl.distance, jl.Tuple(toas.table["obs_neptune_pos"].quantity[idx].to_value("lightsecond")))
-    obs_earth_pos = jl.map(vl.distance, jl.Tuple(toas.table["obs_earth_pos"].quantity[idx].to_value("lightsecond")))
+    obs_jupiter_pos = jl.map(
+        vl.distance,
+        jl.Tuple(toas.table["obs_jupiter_pos"].quantity[idx].to_value("lightsecond")),
+    )
+    obs_saturn_pos = jl.map(
+        vl.distance,
+        jl.Tuple(toas.table["obs_saturn_pos"].quantity[idx].to_value("lightsecond")),
+    )
+    obs_venus_pos = jl.map(
+        vl.distance,
+        jl.Tuple(toas.table["obs_venus_pos"].quantity[idx].to_value("lightsecond")),
+    )
+    obs_uranus_pos = jl.map(
+        vl.distance,
+        jl.Tuple(toas.table["obs_uranus_pos"].quantity[idx].to_value("lightsecond")),
+    )
+    obs_neptune_pos = jl.map(
+        vl.distance,
+        jl.Tuple(toas.table["obs_neptune_pos"].quantity[idx].to_value("lightsecond")),
+    )
+    obs_earth_pos = jl.map(
+        vl.distance,
+        jl.Tuple(toas.table["obs_earth_pos"].quantity[idx].to_value("lightsecond")),
+    )
 
     ephem = vl.SolarSystemEphemeris(
         ssb_obs_pos,
@@ -63,31 +90,32 @@ def pint_toa_to_vela(toas: TOAs, idx: int, tzr: bool = False):
 
 
 def pint_toas_to_vela(toas: TOAs):
-    return jl.Vector[vl.TOA](
-        [pint_toa_to_vela(toas, idx) for idx in range(len(toas))]
+    return jl.Vector[vl.TOA]([pint_toa_to_vela(toas, idx) for idx in range(len(toas))])
+
+
+def pint_parameter_to_vela(param: Parameter):
+    scale_factor = param.tcb2tdb_scale_factor
+    default_value = (
+        param.value * day_to_s
+        if isinstance(param, MJDParameter)
+        else (param.quantity * scale_factor).si.value
+    )
+    dim = param.effective_dimensionality
+    original_units = str(param.units)
+    unit_conversion_factor = (param.units * scale_factor / u.s**dim).to_value(
+        u.dimensionless_unscaled, equivalencies=u.dimensionless_angles()
+    )
+
+    return vl.Parameter(
+        jl.Symbol(param.name),
+        vl.GQ(default_value, dim),
+        param.frozen,
+        original_units,
+        unit_conversion_factor,
     )
 
 
-def fix_params(model: TimingModel) -> None:
-    assert model.PEPOCH.value is not None
-
-    for param in model.params:
-        if (
-            param.endswith("EPOCH")
-            and isinstance(model[param], MJDParameter)
-            and model[param].value is None
-        ):
-            model[param].quantity = model.PEPOCH.quantity
-
-    if "PhaseOffset" not in model.components:
-        model.add_component(PhaseOffset())
-
-    model.PHOFF.frozen = False
-
-
-def _get_multiparam_elements(
-    model: TimingModel, multi_param_names: List[str]
-) -> List[Dict[str, Any]]:
+def _get_multiparam_elements(model: TimingModel, multi_param_names: List[str]):
     elements = []
     for pxname in multi_param_names:
         pxparam = model[pxname]
@@ -95,36 +123,12 @@ def _get_multiparam_elements(
         if pxparam.value is None:
             break
 
-        scale_factor = pxparam.tcb2tdb_scale_factor
-        value = (
-            pxparam.value * day_to_s
-            if isinstance(pxparam, MJDParameter)
-            else (pxparam.quantity * scale_factor).si.value
-        )
-        dim = pxparam.effective_dimensionality
+        elements.append(pint_parameter_to_vela(pxparam))
 
-        original_units = str(pxparam.units)
-        unit_conversion_factor = (pxparam.units * scale_factor / u.s**dim).to_value(
-            u.dimensionless_unscaled, equivalencies=u.dimensionless_angles()
-        )
-
-        elements.append(
-            {
-                "name": pxparam.name,
-                "default_value": float(value),
-                "dimension": dim,
-                "frozen": pxparam.frozen,
-                "original_units": original_units,
-                "unit_conversion_factor": float(unit_conversion_factor),
-            }
-        )
-
-    return elements
+    return jl.Vector[vl.Parameter](elements)
 
 
-def params_from_model(
-    model: TimingModel,
-) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
+def pint_parameters_to_vela(model: TimingModel):
     ignore_params = [
         "START",
         "FINISH",
@@ -138,8 +142,6 @@ def params_from_model(
         "SWM",
     ]
 
-    # Parameters that are defined as single parameters in PINT
-    # but are really multi-parameters
     pseudo_single_params = ["DM", "CM"]
 
     assert all(psp not in ignore_params for psp in pseudo_single_params)
@@ -170,29 +172,8 @@ def params_from_model(
         ):
             continue
 
-        scale_factor = param.tcb2tdb_scale_factor
-        value = (
-            param.value * day_to_s
-            if isinstance(param, MJDParameter)
-            else (param.quantity * scale_factor).si.value
-        )
-        dim = param.effective_dimensionality
-
-        original_units = str(param.units)
-        unit_conversion_factor = (param.units * scale_factor / u.s**dim).to_value(
-            u.dimensionless_unscaled, equivalencies=u.dimensionless_angles()
-        )
-
-        single_params.append(
-            {
-                "name": param_name,
-                "default_value": float(value),
-                "dimension": dim,
-                "frozen": param.frozen,
-                "original_units": original_units,
-                "unit_conversion_factor": float(unit_conversion_factor),
-            }
-        )
+        single_params.append(pint_parameter_to_vela(param))
+    single_params = jl.Vector[vl.Parameter](single_params)
 
     # Process pseudo_single_params
     multi_params = []
@@ -205,7 +186,7 @@ def params_from_model(
 
             elements = _get_multiparam_elements(model, prefix_param_names)
 
-            multi_params.append({"name": param_name, "elements": elements})
+            multi_params.append(vl.MultiParameter(jl.Symbol(param_name), elements))
             processed_multi_params.append(param_name)
 
     # Process ordinary multi parameters
@@ -226,13 +207,31 @@ def params_from_model(
 
         elements = _get_multiparam_elements(model, prefix_param_names)
 
-        multi_params.append({"name": param.prefix, "elements": elements})
+        multi_params.append(vl.MultiParameter(jl.Symbol(param.prefix), elements))
         processed_multi_params.append(param.prefix)
+    multi_params = jl.Vector[vl.MultiParameter](multi_params)
 
     return single_params, multi_params
 
 
-def components_from_model(model: TimingModel) -> list:
+def fix_params(model: TimingModel) -> None:
+    assert model.PEPOCH.value is not None
+
+    for param in model.params:
+        if (
+            param.endswith("EPOCH")
+            and isinstance(model[param], MJDParameter)
+            and model[param].value is None
+        ):
+            model[param].quantity = model.PEPOCH.quantity
+
+    if "PhaseOffset" not in model.components:
+        model.add_component(PhaseOffset())
+
+    model.PHOFF.frozen = False
+
+
+def pint_components_to_vela(model: TimingModel):
     component_names = list(model.components.keys())
 
     components = []
@@ -240,66 +239,48 @@ def components_from_model(model: TimingModel) -> list:
         if component_name in ["AbsPhase", "SolarSystemShapiro"]:
             continue
         elif component_name == "Spindown":
-            components.append({"name": "Spindown"})
+            components.append(vl.Spindown())
+        elif component_name == "PhaseOffset":
+            components.append(vl.PhaseOffset())
         elif component_name.startswith("Astrometry"):
+            ecliptic_coordinates = component_name == "AstrometryEcliptic"
             components.append(
-                {
-                    "name": "SolarSystem",
-                    "ecliptic_coordinates": (component_name == "AstrometryEcliptic"),
-                    "planet_shapiro": model.PLANET_SHAPIRO.value,
-                }
+                vl.SolarSystem(ecliptic_coordinates, model.PLANET_SHAPIRO.value)
             )
         elif component_name == "SolarWindDispersion":
-            components.append(
-                {"name": "SolarWindDispersion", "model": int(model.SWM.value)}
-            )
+            components.append(vl.SolarWindDispersion(int(model.SWM.value)))
         elif component_name == "DispersionDM":
-            components.append({"name": "DispersionTaylor"})
+            components.append(vl.DispersionTaylor())
         elif component_name == "TroposphereDelay" and model.CORRECT_TROPOSPHERE.value:
-            components.append({"name": "Troposphere"})
-        else:
-            components.append({"name": component_name})
+            components.append(vl.Troposphere())
+        # else:
+        #     components.append({"name": component_name})
+    components = jl.Tuple(components)
+
     return components
 
 
-def infodict_from_model(model: TimingModel) -> dict:
-    return {
-        "pulsar_name": model.PSR.value if model.PSR.value is not None else "",
-        "ephem": model.EPHEM.value,
-        "clock": model.CLOCK.value,
-        "units": model.UNITS.value,
-    }
-
-
-if __name__ == "__main__":
-    par, tim, prefix = sys.argv[1:]
-
-    setup_log(level="WARNING")
-
-    model: TimingModel
-    toas: TOAs
-
-    model, toas = get_model_and_toas(par, tim, planets=True, add_tzr_to_model=True)
+def pint_model_to_vela(model: TimingModel, toas: TOAs):
     toas.compute_pulse_numbers(model)
     fix_params(model)
 
-    filename = f"{prefix}.hdf5"
+    pulsar_name = model.PSR.value if model.PSR.value is not None else ""
 
-    toas_table = toas_to_table(toas)
+    components = pint_components_to_vela(model)
 
-    components_str = json.dumps(components_from_model(model))
-    params_str = json.dumps(params_from_model(model))
-    info_str = json.dumps(infodict_from_model(model))
+    single_params, multi_params = pint_parameters_to_vela(model)
+    param_handler = vl.ParamHandler(single_params, multi_params)
 
-    tzr_toa: TOAs = model.get_TZR_toa(toas)
+    tzr_toa = model.get_TZR_toa(toas)
     tzr_toa.compute_pulse_numbers(model)
-    tzr_table = toas_to_table(tzr_toa)
+    tzr_toa = pint_toa_to_vela(tzr_toa, 0, tzr=True)
 
-    toas_table.write(filename, path="TOAs", format="hdf5", overwrite=True)
-
-    with h5.File(filename, "a") as f:
-        f.create_dataset("Components", data=components_str)
-        f.create_dataset("Parameters", data=params_str)
-        f.create_dataset("Info", data=info_str)
-
-    tzr_table.write(filename, path="TZRTOA", format="hdf5", append=True)
+    return vl.TimingModel(
+        pulsar_name,
+        model.EPHEM.value,
+        model.CLOCK.value,
+        model.UNITS.value,
+        components,
+        param_handler,
+        tzr_toa,
+    )
