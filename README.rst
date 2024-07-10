@@ -32,7 +32,7 @@ Using from Python
 Here is what an example session looks like::
 
    > from juliacall import Main as jl
-   > jl.seval("Using Vela")
+   > jl.seval("using Vela")
    > vl = jl.Vela
    > mv, tv = vl.read_model_and_toas("J1234+5678.hdf5")
    > lnlike_s = vl.get_lnlike_serial_func(mv, tv)
