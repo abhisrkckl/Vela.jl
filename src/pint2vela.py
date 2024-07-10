@@ -17,96 +17,55 @@ from pint.models.parameter import (
 )
 from pint.toa import TOAs
 
+from juliacall import Main as jl
+jl.seval("import Vela")
+vl = jl.Vela
+
 day_to_s = 86400
 
-
-def toas_to_table(toas: TOAs) -> Table:
+def pint_toa_to_vela(toas: TOAs, idx: int, tzr: bool = False):
     assert toas.planets
     assert toas.get_pulse_numbers() is not None
 
-    tdbs = toas.table["tdbld"].value * day_to_s
-    tdbs_frac, tdbs_int = np.modf(tdbs)
-    tdbs_frac = tdbs_frac.astype(float)
-    tdbs_int = tdbs_int.astype(float)
+    tdb = toas.table["tdbld"].value[idx] * day_to_s
+    tdb = vl.time(jl.parse(vl.Float128, str(tdb)))
 
-    phases = -toas.table["pulse_number"].value + toas.table["delta_pulse_number"].value
-    phases_frac, phases_int = np.modf(phases)
-    phases_frac = phases_frac.astype(float)
-    phases_int = phases_int.astype(float)
+    phase = toas.table["pulse_number"].value[idx] - toas.table["delta_pulse_number"].value[idx]
+    phase = vl.dimensionless(jl.parse(vl.Float128, str(phase)))
 
-    errs = toas.get_errors().si.value
-    freqs = toas.get_freqs().si.value
+    err = vl.time(toas.get_errors()[idx].si.value)
+    freq = vl.frequency(toas.get_freqs()[idx].si.value)
 
-    ssb_obs_poss = toas.table["ssb_obs_pos"].quantity.to_value("lightsecond")
-    ssb_obs_vels = toas.table["ssb_obs_vel"].quantity.to_value("lightsecond/s")
-    obs_sun_poss = toas.table["obs_sun_pos"].quantity.to_value("lightsecond")
+    ssb_obs_pos = jl.map(vl.distance, jl.Tuple(toas.table["ssb_obs_pos"].quantity[idx].to_value("lightsecond")))
+    ssb_obs_vel = jl.map(vl.speed, jl.Tuple(toas.table["ssb_obs_vel"].quantity[idx].to_value("lightsecond/s")))
+    obs_sun_pos = jl.map(vl.distance, jl.Tuple(toas.table["obs_sun_pos"].quantity[idx].to_value("lightsecond")))
 
-    obs_jupiter_poss = toas.table["obs_jupiter_pos"].quantity.to_value("lightsecond")
-    obs_saturn_poss = toas.table["obs_saturn_pos"].quantity.to_value("lightsecond")
-    obs_venus_poss = toas.table["obs_venus_pos"].quantity.to_value("lightsecond")
-    obs_uranus_poss = toas.table["obs_uranus_pos"].quantity.to_value("lightsecond")
-    obs_neptune_poss = toas.table["obs_neptune_pos"].quantity.to_value("lightsecond")
-    obs_earth_poss = toas.table["obs_earth_pos"].quantity.to_value("lightsecond")
+    obs_jupiter_pos = jl.map(vl.distance, jl.Tuple(toas.table["obs_jupiter_pos"].quantity[idx].to_value("lightsecond")))
+    obs_saturn_pos = jl.map(vl.distance, jl.Tuple(toas.table["obs_saturn_pos"].quantity[idx].to_value("lightsecond")))
+    obs_venus_pos = jl.map(vl.distance, jl.Tuple(toas.table["obs_venus_pos"].quantity[idx].to_value("lightsecond")))
+    obs_uranus_pos = jl.map(vl.distance, jl.Tuple(toas.table["obs_uranus_pos"].quantity[idx].to_value("lightsecond")))
+    obs_neptune_pos = jl.map(vl.distance, jl.Tuple(toas.table["obs_neptune_pos"].quantity[idx].to_value("lightsecond")))
+    obs_earth_pos = jl.map(vl.distance, jl.Tuple(toas.table["obs_earth_pos"].quantity[idx].to_value("lightsecond")))
 
-    data = np.vstack(
-        (
-            tdbs_int,
-            tdbs_frac,
-            phases_int,
-            phases_frac,
-            errs,
-            freqs,
-            ssb_obs_poss.T,
-            ssb_obs_vels.T,
-            obs_sun_poss.T,
-            obs_jupiter_poss.T,
-            obs_saturn_poss.T,
-            obs_venus_poss.T,
-            obs_uranus_poss.T,
-            obs_neptune_poss.T,
-            obs_earth_poss.T,
-        )
-    ).T
+    ephem = vl.SolarSystemEphemeris(
+        ssb_obs_pos,
+        ssb_obs_vel,
+        obs_sun_pos,
+        obs_jupiter_pos,
+        obs_saturn_pos,
+        obs_venus_pos,
+        obs_uranus_pos,
+        obs_neptune_pos,
+        obs_earth_pos,
+    )
 
-    colnames = [
-        "tdb_int",
-        "tdb_frac",
-        "phase_int",
-        "phase_frac",
-        "error",
-        "frequency",
-        "ssb_obs_pos_x",
-        "ssb_obs_pos_y",
-        "ssb_obs_pos_z",
-        "ssb_obs_vel_x",
-        "ssb_obs_vel_y",
-        "ssb_obs_vel_z",
-        "obs_sun_pos_x",
-        "obs_sun_pos_y",
-        "obs_sun_pos_z",
-        "obs_jupiter_pos_x",
-        "obs_jupiter_pos_y",
-        "obs_jupiter_pos_z",
-        "obs_saturn_pos_x",
-        "obs_saturn_pos_y",
-        "obs_saturn_pos_z",
-        "obs_venus_pos_x",
-        "obs_venus_pos_y",
-        "obs_venus_pos_z",
-        "obs_uranus_pos_x",
-        "obs_uranus_pos_y",
-        "obs_uranus_pos_z",
-        "obs_neptune_pos_x",
-        "obs_neptune_pos_y",
-        "obs_neptune_pos_z",
-        "obs_earth_pos_x",
-        "obs_earth_pos_y",
-        "obs_earth_pos_z",
-    ]
+    return vl.TOA(tdb, err, freq, phase, False, tzr, ephem)
 
-    table = Table(data=data, names=colnames)
 
-    return table
+def pint_toas_to_vela(toas: TOAs):
+    return jl.Vector[vl.TOA](
+        [pint_toa_to_vela(toas, idx) for idx in range(len(toas))]
+    )
 
 
 def fix_params(model: TimingModel) -> None:
