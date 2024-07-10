@@ -12,10 +12,10 @@ export TOA,
 
 """A single narrowband TOA observation."""
 struct TOA
-    value::GQ{Float128}
+    value::GQ{Double64}
     error::GQ{Float64}
     observing_frequency::GQ{Float64}
-    pulse_number::GQ{Float128}
+    pulse_number::GQ{Double64}
     barycentered::Bool
     tzr::Bool
     ephem::SolarSystemEphemeris
@@ -43,13 +43,13 @@ TOA(value, error, observing_frequency, pulse_number, barycentered, ephem) =
 
 """Create a TZR TOA object."""
 make_tzr_toa(tzrtdb, tzrfreq, tzrbary, tzrephem) =
-    TOA(tzrtdb, time(0.0), tzrfreq, dimensionless(Float128(0.0)), tzrbary, true, tzrephem)
+    TOA(tzrtdb, time(0.0), tzrfreq, dimensionless(Double64(0.0)), tzrbary, true, tzrephem)
 
 """The accumulated timing & noise model corrections applied to a narrowband TOA."""
 struct CorrectedTOA
     toa::TOA
     delay::GQ{Float64}
-    phase::GQ{Float128}
+    phase::GQ{Double64}
     efac::GQ{Float64}
     equad2::GQ{Float64}
     spin_frequency::GQ{Float64}
@@ -95,7 +95,7 @@ end
 CorrectedTOA(toa) = CorrectedTOA(
     toa,
     time(0.0),
-    dimensionless(Float128(0.0)),
+    dimensionless(Double64(0.0)),
     dimensionless(1.0),
     GQ(0.0, 2),
     frequency(-1.0),

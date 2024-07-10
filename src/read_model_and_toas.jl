@@ -57,11 +57,10 @@ function read_ephemeris(toa_data::NamedTuple)::SolarSystemEphemeris
 end
 
 function read_toa(toa_data::NamedTuple, tzr = false)::TOA
-    value = time(Float128(toa_data.tdb_int) + Float128(toa_data.tdb_frac))
+    value = time(Double64(toa_data.tdb_int, toa_data.tdb_frac))
     error = time(toa_data.error)
     freq = frequency(toa_data.frequency)
-    pulse_number =
-        -dimensionless(Float128(toa_data.phase_int) + Float128(toa_data.phase_frac))
+    pulse_number = -dimensionless(Double64(toa_data.phase_int, toa_data.phase_frac))
     ephem = read_ephemeris(toa_data)
 
     return TOA(value, error, freq, pulse_number, false, tzr, ephem)
