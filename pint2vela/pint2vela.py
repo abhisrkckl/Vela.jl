@@ -1,6 +1,7 @@
 from typing import List
 
 from astropy import units as u
+import numpy as np
 from pint.logging import setup as setup_log
 from pint.models import PhaseOffset, TimingModel, get_model_and_toas
 from pint.models.parameter import (
@@ -23,8 +24,9 @@ def pint_toa_to_vela(toas: TOAs, idx: int, tzr: bool = False):
     assert toas.planets
     assert toas.get_pulse_numbers() is not None
 
-    tdb = toas.table["tdbld"].value[idx] * day_to_s
-    tdb = vl.time(jl.parse(vl.Double64, str(tdb)))
+    tdb_ld = toas.table["tdbld"].value[idx]
+    tdb_str = np.format_float_positional(tdb_ld, unique=True)
+    tdb = vl.time(jl.parse(vl.Double64, tdb_str) * day_to_s)
 
     phase = (
         toas.table["pulse_number"].value[idx]
