@@ -187,7 +187,7 @@ def pint_parameters_to_vela(model: TimingModel):
     single_params.append(
         vl.Parameter(
             jl.Symbol("F_"),
-            vl.GQ(model.F0.si.value, -1),
+            vl.GQ(model.F0.quantity.si.value, -1),
             True,
             str(model.F0.units),
             1.0,
