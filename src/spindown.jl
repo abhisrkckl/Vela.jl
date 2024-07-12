@@ -6,6 +6,9 @@ function phase(::Spindown, ctoa::CorrectedTOA, params::NamedTuple)::GQ{Double64}
     t0 = params.PEPOCH
     t = corrected_toa_value_F128(ctoa)
     fs = params.F
+    f_ = params.F_
+    f0 = frequency(Double64(f_.x, fs[1].x))
+    fs = (f0, fs[2:end]...)
     phase0 = dimensionless(0.0)
     return taylor_horner_integral(t - t0, fs, phase0)
 end
@@ -14,7 +17,7 @@ function spin_frequency(::Spindown, ctoa::CorrectedTOA, params::NamedTuple)::GQ{
     t0 = params.PEPOCH
     t = corrected_toa_value(ctoa)
     fs = params.F
-    return taylor_horner(t - t0, fs)
+    return params.F_ + taylor_horner(t - t0, fs)
 end
 
 correct_toa(spindown::Spindown, ctoa::CorrectedTOA, params::NamedTuple) = correct_toa(
