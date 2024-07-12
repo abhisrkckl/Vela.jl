@@ -107,12 +107,22 @@ def pint_parameter_to_vela(param: Parameter):
         u.dimensionless_unscaled, equivalencies=u.dimensionless_angles()
     )
 
-    return vl.Parameter(
-        jl.Symbol(param.name),
-        vl.GQ(default_value, dim),
-        param.frozen,
-        original_units,
-        unit_conversion_factor,
+    return (
+        vl.Parameter(
+            jl.Symbol(param.name),
+            vl.GQ(default_value, dim),
+            param.frozen,
+            original_units,
+            unit_conversion_factor,
+        )
+        if param.name != "F0"
+        else vl.Parameter(
+            jl.Symbol(param.name),
+            vl.GQ(0.0, dim),
+            param.frozen,
+            original_units,
+            unit_conversion_factor,
+        )
     )
 
 
@@ -174,6 +184,15 @@ def pint_parameters_to_vela(model: TimingModel):
             continue
 
         single_params.append(pint_parameter_to_vela(param))
+    single_params.append(
+        vl.Parameter(
+            jl.Symbol("F_"),
+            vl.GQ(model.F0.si.value, -1),
+            True,
+            str(model.F0.units),
+            1.0,
+        )
+    )
     single_params = jl.Vector[vl.Parameter](single_params)
 
     # Process pseudo_single_params
