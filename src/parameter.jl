@@ -6,6 +6,10 @@ export Parameter,
     get_free_param_names,
     read_param_values_to_vector
 
+"""A single model parameter.
+
+Corresponds to `floatParameter`, `AngleParameter`, or `MJDParameter` in `PINT`.
+"""
 struct Parameter
     name::Symbol
     default_quantity::GQ{Float64}
@@ -14,12 +18,17 @@ struct Parameter
     unit_conversion_factor::Float64
 end
 
+"""A set of model parameters that are characterized by a common name and a varying index.
+
+Corresponds to `maskParameter` or `prefixParameter` in `PINT`.
+"""
 struct MultiParameter
     name::Symbol
     parameters::Vector{Parameter}
 end
 
-function read_param(param::Parameter, value::Float64)
+"""Read a parameter value into a `GQ` object."""
+function read_param(param::Parameter, value::Float64)::GQ{Float64}
     @assert !param.frozen "Refusing to read a frozen parameter $(param.name)."
 
     return quantity_like(param.default_quantity, value)
@@ -40,6 +49,7 @@ end
 _get_params_tuple(single_params, multi_params) =
     merge(_get_single_params_tuple(single_params), _get_multi_params_tuple(multi_params))
 
+"""Handles the creation of a parameter tuple from a collection of free parameter values."""
 struct ParamHandler{ParamsType<:NamedTuple}
     single_params::Vector{Parameter}
     multi_params::Vector{MultiParameter}
@@ -67,6 +77,10 @@ function ParamHandler(single_params, multi_params)
     )
 end
 
+"""Create a parameter tuple from a collection of free parameter values.
+
+Reverse of `read_param_values_to_vector`.
+"""
 function read_params(
     ph::ParamHandler{ParamsType},
     free_values,
@@ -80,7 +94,8 @@ function read_params(
     return reinterpret(ParamsType, quantities)[1]
 end
 
-function get_free_param_names(param_handler::ParamHandler)
+"""Generate an ordered collection of free parameter names."""
+function get_free_param_names(param_handler::ParamHandler)::Vector{String}
     pnames = Vector{String}()
 
     @inbounds for spar in param_handler.single_params
@@ -100,7 +115,11 @@ function get_free_param_names(param_handler::ParamHandler)
     return pnames
 end
 
-function read_param_values_to_vector(param_handler::ParamHandler, params::NamedTuple)
+"""Generate a collection of free parameter values from a parameter tuple.
+
+Reverse of `read_params`
+"""
+function read_param_values_to_vector(param_handler::ParamHandler, params::NamedTuple)::Vector{Float64}
     param_vec = Float64[]
 
     @inbounds for spar in param_handler.single_params
