@@ -33,7 +33,7 @@ struct TimingModel{ComponentsTuple<:Tuple}
     end
 end
 
-read_params(model::TimingModel, values) = return read_params(model.param_handler, values)
+read_params(model::TimingModel, values) = read_params(model.param_handler, values)
 
 @unroll function correct_toa(
     components::Tuple,
