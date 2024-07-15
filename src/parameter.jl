@@ -119,7 +119,10 @@ end
 
 Reverse of `read_params`
 """
-function read_param_values_to_vector(param_handler::ParamHandler, params::NamedTuple)::Vector{Float64}
+function read_param_values_to_vector(
+    param_handler::ParamHandler,
+    params::NamedTuple,
+)::Vector{Float64}
     param_vec = Float64[]
 
     @inbounds for spar in param_handler.single_params
