@@ -30,10 +30,13 @@ abstract type DelayComponent <: UncorrelatedComponent end
 correct_toa(component::DelayComponent, ctoa::CorrectedTOA, params::NamedTuple) =
     correct_toa(ctoa; delay = delay(component, ctoa, params))
 
-"""Abstrct base type of all timing model components which provide a dispersion measure correction. """
+"""Abstrct base type of all timing model components which provide a dispersion measure correction."""
 abstract type DispersionComponent <: DelayComponent end
 
 """Compute a dispersion delay."""
 delay(component::DispersionComponent, ctoa::CorrectedTOA, params) =
     dispersion_slope(component, ctoa, params) /
     doppler_corrected_observing_frequency(ctoa)^2
+
+"""Abstract base type of all uncorrelated (white) noise components."""
+abstract type WhiteNoiseComponent <: UncorrelatedComponent end

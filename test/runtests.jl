@@ -131,6 +131,7 @@ const day_to_s = 86400
             pulse_number,
             barycentered,
             ephem,
+            1,
         )
 
         # Wrong dimensions for TOA value.
@@ -141,6 +142,7 @@ const day_to_s = 86400
             pulse_number,
             barycentered,
             ephem,
+            1,
         )
 
         # Wrong dimensions for TOA error.
@@ -151,6 +153,7 @@ const day_to_s = 86400
             pulse_number,
             barycentered,
             ephem,
+            1,
         )
 
         # Wrong dimensions for TOA observing_frequency.
@@ -161,6 +164,7 @@ const day_to_s = 86400
             phase,
             barycentered,
             ephem,
+            1,
         )
 
         # Wrong dimensions for TOA pulse_number.
@@ -171,9 +175,10 @@ const day_to_s = 86400
             time(1000.0),
             barycentered,
             ephem,
+            1,
         )
 
-        toa1 = TOA(toaval, toaerr, freq, pulse_number, barycentered, ephem)
+        toa1 = TOA(toaval, toaerr, freq, pulse_number, barycentered, ephem, 1)
         @test !toa1.tzr
 
         ctoa1 = CorrectedTOA(toa1)
@@ -218,6 +223,7 @@ const day_to_s = 86400
             @test tzrtoa.tzr
             @test tzrtoa.barycentered
             @test tzrtoa.error == time(0.0)
+            @test tzrtoa.index == 0
 
             ctzrtoa = CorrectedTOA(tzrtoa)
             @test ctzrtoa.level == 0
@@ -267,6 +273,7 @@ const day_to_s = 86400
             dimensionless(Double64(0.0)),
             false,
             ephem,
+            1,
         )
         ctoa = CorrectedTOA(toa)
 
