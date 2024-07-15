@@ -3,6 +3,8 @@
 Example usage:
 
 ```
+import numpy as np
+
 import pint2vela as p2v
 vl = p2v.vl
 
