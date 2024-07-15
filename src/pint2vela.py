@@ -152,7 +152,7 @@ def _get_multiparam_elements(
         elements.append(
             {
                 "name": pxparam.name,
-                "default_value": float(value),
+                "default_value": float(value) if pxparam.name != "F0" else 0.0,
                 "dimension": dim,
                 "frozen": pxparam.frozen,
                 "original_units": original_units,
@@ -234,6 +234,17 @@ def params_from_model(
                 "unit_conversion_factor": float(unit_conversion_factor),
             }
         )
+    
+    single_params.append(
+        {
+            "name": "F_",
+            "default_value": float(model.F0.quantity.si.value),
+            "dimension": -1,
+            "frozen": True,
+            "original_units": "Hz",
+            "unit_conversion_factor": 1.0,
+        }
+    )
 
     # Process pseudo_single_params
     multi_params = []
@@ -328,9 +339,9 @@ if __name__ == "__main__":
 
     toas_table = toas_to_table(toas)
 
-    components_str = json.dumps(components_from_model(model))
-    params_str = json.dumps(params_from_model(model))
-    info_str = json.dumps(infodict_from_model(model))
+    components_str = json.dumps(components_from_model(model), indent=4)
+    params_str = json.dumps(params_from_model(model), indent=4)
+    info_str = json.dumps(infodict_from_model(model), indent=4)
 
     tzr_toa: TOAs = model.get_TZR_toa(toas)
     tzr_toa.compute_pulse_numbers(model)

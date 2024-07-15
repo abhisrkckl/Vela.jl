@@ -447,7 +447,7 @@ const day_to_s = 86400
             @test chi2 ≈ Vela.calc_chi2_serial(model, toas, params)
             @test chi2 ≈ Vela.calc_chi2_serial(model, toas, parv)
 
-            @test_broken @ballocated(Vela.calc_chi2_serial($model, $toas, $params)) == 0
+            @test @ballocated(Vela.calc_chi2_serial($model, $toas, $params)) == 0
         end
 
         @testset "calc_lnlike" begin
@@ -463,7 +463,7 @@ const day_to_s = 86400
             @test lnlike ≈ lnlike_serial_func(params)
             @test lnlike ≈ lnlike_serial_func(parv)
 
-            @test_broken @ballocated(Vela.calc_lnlike_serial($model, $toas, $params)) == 0
+            @test @ballocated(Vela.calc_lnlike_serial($model, $toas, $params)) == 0
         end
     end
 
@@ -563,7 +563,7 @@ const day_to_s = 86400
             parnp = PyArray(parv)
             @test calc_lnlike_s(parnp) ≈ calc_lnlike_p(parnp)
 
-            @test_broken @ballocated(Vela.calc_lnlike_serial($model, $toas, $params)) == 0
+            @test @ballocated(Vela.calc_lnlike_serial($model, $toas, $params)) == 0
 
             parv1 = read_param_values_to_vector(model.param_handler, params)
             parv1[end] *= 2
