@@ -446,6 +446,7 @@ const day_to_s = 86400
             @test chi2 ≈ calc_chi2(model, toas, parv)
             @test chi2 ≈ Vela.calc_chi2_serial(model, toas, params)
             @test chi2 ≈ Vela.calc_chi2_serial(model, toas, parv)
+            @test chi2 ≈ get_chi2_func(model, toas)(parv)
 
             @test @ballocated(Vela.calc_chi2_serial($model, $toas, $params)) == 0
         end
@@ -462,6 +463,7 @@ const day_to_s = 86400
             @test lnlike ≈ lnlike_func(parv)
             @test lnlike ≈ lnlike_serial_func(params)
             @test lnlike ≈ lnlike_serial_func(parv)
+            @test lnlike ≈ get_lnlike_func(model, toas)(parv)
 
             @test @ballocated(Vela.calc_lnlike_serial($model, $toas, $params)) == 0
         end
