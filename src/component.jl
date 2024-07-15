@@ -33,7 +33,7 @@ correct_toa(component::DelayComponent, ctoa::CorrectedTOA, params::NamedTuple) =
 """Abstrct base type of all timing model components which provide a dispersion measure correction. """
 abstract type DispersionComponent <: DelayComponent end
 
-"""Compute a dispersopn delay."""
+"""Compute a dispersion delay."""
 delay(component::DispersionComponent, ctoa::CorrectedTOA, params) =
     dispersion_slope(component, ctoa, params) /
     doppler_corrected_observing_frequency(ctoa)^2

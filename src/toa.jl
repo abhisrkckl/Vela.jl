@@ -10,7 +10,9 @@ export TOA,
     phase_residual,
     correct_toa
 
-"""A single narrowband TOA observation."""
+"""A single narrowband TOA observation.
+
+The TOA value incorporates the clock corrections computed using `PINT`."""
 struct TOA
     value::GQ{Double64}
     error::GQ{Float64}
