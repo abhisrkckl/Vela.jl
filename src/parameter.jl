@@ -69,7 +69,7 @@ end
 
 function read_params(
     ph::ParamHandler{ParamsType},
-    free_values::Vector{Float64},
+    free_values,
 )::ParamsType where {ParamsType<:NamedTuple}
     quantities = copy(ph._default_quantities)
     for (idx, value) in zip(ph._free_indices, free_values)

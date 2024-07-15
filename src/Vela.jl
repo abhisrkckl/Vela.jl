@@ -5,8 +5,6 @@ using DoubleFloats: Double64
 using LinearAlgebra: dot
 using .Threads: @threads, atomic_add!, Atomic
 using Unrolled: @unroll
-using PythonCall: PyArray
-using PythonCall.C: PyEval_SaveThread, PyEval_RestoreThread
 import HDF5
 import JSON
 

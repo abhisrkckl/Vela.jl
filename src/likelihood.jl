@@ -14,6 +14,9 @@ function calc_chi2(model::TimingModel, toas::Vector{TOA}, params::NamedTuple)
     return chisq[]
 end
 
+calc_chi2(model::TimingModel, toas::Vector{TOA}, params) =
+    calc_chi2(model, toas, read_params(model, params))
+
 function calc_chi2_serial(model::TimingModel, toas::Vector{TOA}, params::NamedTuple)
     tzrphase = calc_tzr_phase(model, params)
 
@@ -30,10 +33,7 @@ function calc_chi2_serial(model::TimingModel, toas::Vector{TOA}, params::NamedTu
     return chisq
 end
 
-calc_chi2(model::TimingModel, toas::Vector{TOA}, params::Vector{Float64}) =
-    calc_chi2(model, toas, read_params(model, params))
-
-calc_chi2_serial(model::TimingModel, toas::Vector{TOA}, params::Vector{Float64}) =
+calc_chi2_serial(model::TimingModel, toas::Vector{TOA}, params) =
     calc_chi2_serial(model, toas, read_params(model, params))
 
 function calc_lnlike(model::TimingModel, toas::Vector{TOA}, params::NamedTuple)
@@ -53,6 +53,9 @@ function calc_lnlike(model::TimingModel, toas::Vector{TOA}, params::NamedTuple)
     return -result[] / 2
 end
 
+calc_lnlike(model::TimingModel, toas::Vector{TOA}, params) =
+    calc_lnlike(model, toas, read_params(model, params))
+
 function calc_lnlike_serial(model::TimingModel, toas::Vector{TOA}, params::NamedTuple)
     tzrphase = calc_tzr_phase(model, params)
 
@@ -70,8 +73,5 @@ function calc_lnlike_serial(model::TimingModel, toas::Vector{TOA}, params::Named
     return -result / 2
 end
 
-calc_lnlike(model::TimingModel, toas::Vector{TOA}, params::Vector{Float64}) =
-    calc_lnlike(model, toas, read_params(model, params))
-
-calc_lnlike_serial(model::TimingModel, toas::Vector{TOA}, params::Vector{Float64}) =
+calc_lnlike_serial(model::TimingModel, toas::Vector{TOA}, params) =
     calc_lnlike_serial(model, toas, read_params(model, params))
