@@ -1,6 +1,8 @@
 export Spindown, phase, spin_frequency, read_params_from_dict
 
-"""Rotation or the pulsar represented as a Taylor series in spin frequency."""
+"""Rotation or the pulsar represented as a Taylor series in spin frequency.
+
+Corresponds to `Spindown` in `PINT`."""
 struct Spindown <: PhaseComponent end
 
 """Rotational phase of the pulsar."""

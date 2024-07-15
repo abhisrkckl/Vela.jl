@@ -1,9 +1,11 @@
 export DispersionTaylor, dispersion_slope
 
-"""Taylor series representation of the dispersion measure."""
+"""Taylor series representation of the dispersion measure.
+
+Corresponds to `DispersionDM` in `PINT`."""
 struct DispersionTaylor <: DispersionComponent end
 
-"""Compute the dispersion slope corresponding to a TOA."""
+"""Compute the dispersion slope corresponding to a TOA using a Taylor series representation."""
 function dispersion_slope(::DispersionTaylor, ctoa::CorrectedTOA, params)
     t0 = params.DMEPOCH
     t = corrected_toa_value(ctoa)

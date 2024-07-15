@@ -1,3 +1,4 @@
+"""Compute the χ^2 value for a given timing model and collection of TOAs (parallel execution)."""
 function calc_chi2(model::TimingModel, toas::Vector{TOA}, params::NamedTuple)
     tzrphase = calc_tzr_phase(model, params)
 
@@ -17,6 +18,7 @@ end
 calc_chi2(model::TimingModel, toas::Vector{TOA}, params) =
     calc_chi2(model, toas, read_params(model, params))
 
+"""Compute the χ^2 value for a given timing model and collection of TOAs (serial execution)."""
 function calc_chi2_serial(model::TimingModel, toas::Vector{TOA}, params::NamedTuple)
     tzrphase = calc_tzr_phase(model, params)
 
@@ -36,6 +38,7 @@ end
 calc_chi2_serial(model::TimingModel, toas::Vector{TOA}, params) =
     calc_chi2_serial(model, toas, read_params(model, params))
 
+"""Compute the log-likelihood value for a given timing model and collection of TOAs (parallel execution)."""
 function calc_lnlike(model::TimingModel, toas::Vector{TOA}, params::NamedTuple)
     tzrphase = calc_tzr_phase(model, params)
 
@@ -56,6 +59,7 @@ end
 calc_lnlike(model::TimingModel, toas::Vector{TOA}, params) =
     calc_lnlike(model, toas, read_params(model, params))
 
+"""Compute the log-likelihood value for a given timing model and collection of TOAs (serial execution)."""
 function calc_lnlike_serial(model::TimingModel, toas::Vector{TOA}, params::NamedTuple)
     tzrphase = calc_tzr_phase(model, params)
 

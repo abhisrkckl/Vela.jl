@@ -14,6 +14,9 @@ const M_SATURN = mass(1.408128810019423e-09)
 const M_URANUS = mass(2.1505895513637613e-10)
 const M_NEPTUNE = mass(2.5373119991867603e-10)
 
+"""Solar system Rømer delay, Parallax delay, and Shapiro delay.
+
+Corresponds to `AstrometryEquatorial`, `AstrometryEcliptic`, and `SolarSystemShapiro` in `PINT`."""
 struct SolarSystem <: DelayComponent
     ecliptic_coordinates::Bool
     planet_shapiro::Bool
@@ -28,6 +31,7 @@ function solar_system_shapiro_delay(M::GQ, obs_obj_pos::Tuple, obj_psr_pos::Tupl
     return -2 * M * log((r - Lhat_dot_rvec) / AU)
 end
 
+"""Update the `CorrectedTOA` object with solar system delays and Doppler factor."""
 function correct_toa(ss::SolarSystem, ctoa::CorrectedTOA, params::NamedTuple)
     if ctoa.barycentered
         return correct_toa(ctoa)

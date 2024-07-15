@@ -1,5 +1,8 @@
 export TimingModel, correct_toa, form_residual, calc_chi2, calc_lnlike, calc_tzr_phase
 
+"""The pulsar timing & noise model.
+
+Corresponds to `TimingModel` in `PINT`."""
 struct TimingModel{ComponentsTuple<:Tuple}
     pulsar_name::String
     ephem::String
@@ -33,6 +36,7 @@ struct TimingModel{ComponentsTuple<:Tuple}
     end
 end
 
+"""Create a parameter tuple from a collection of free parameter values."""
 read_params(model::TimingModel, values) = read_params(model.param_handler, values)
 
 @unroll function correct_toa(
@@ -47,9 +51,12 @@ read_params(model::TimingModel, values) = read_params(model.param_handler, value
     return ctoa1
 end
 
+"""Update a `CorrectedTOA` object using a timing model.
+This involves applying the correction from each component in succession."""
 correct_toa(model::TimingModel, ctoa::CorrectedTOA, params::NamedTuple) =
     correct_toa(model.components, ctoa, params)
 
+"""Update a `TOA` object using a timing model."""
 correct_toa(model::TimingModel, toa::TOA, params::NamedTuple) =
     correct_toa(model, CorrectedTOA(toa), params)
 
