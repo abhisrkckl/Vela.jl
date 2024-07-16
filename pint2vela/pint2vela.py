@@ -9,6 +9,7 @@ from pint.models.parameter import (
     MJDParameter,
     floatParameter,
     Parameter,
+    compute_effective_dimensionality,
 )
 from pint.toa import TOAs
 
@@ -87,7 +88,7 @@ def pint_toa_to_vela(toas: TOAs, idx: int, tzr: bool = False):
         obs_earth_pos,
     )
 
-    return vl.TOA(tdb, err, freq, phase, False, tzr, ephem)
+    return vl.TOA(tdb, err, freq, phase, False, tzr, ephem, idx + 1)
 
 
 def pint_toas_to_vela(toas: TOAs):
@@ -95,13 +96,21 @@ def pint_toas_to_vela(toas: TOAs):
 
 
 def pint_parameter_to_vela(param: Parameter):
-    scale_factor = param.tcb2tdb_scale_factor
+    scale_factor = (
+        param.tcb2tdb_scale_factor if param.tcb2tdb_scale_factor is not None else 1
+    )
     default_value = (
         param.value * day_to_s
         if isinstance(param, MJDParameter)
         else (param.quantity * scale_factor).si.value
     )
-    dim = param.effective_dimensionality
+
+    dim = (
+        param.effective_dimensionality
+        if param.tcb2tdb_scale_factor is not None
+        else compute_effective_dimensionality(param.quantity, 1)
+    )
+
     original_units = str(param.units)
     unit_conversion_factor = (param.units * scale_factor / u.s**dim).to_value(
         u.dimensionless_unscaled, equivalencies=u.dimensionless_angles()
@@ -251,7 +260,7 @@ def fix_params(model: TimingModel) -> None:
     model.PHOFF.frozen = False
 
 
-def pint_components_to_vela(model: TimingModel):
+def pint_components_to_vela(model: TimingModel, toas: TOAs):
     component_names = list(model.components.keys())
 
     components = []
@@ -273,6 +282,34 @@ def pint_components_to_vela(model: TimingModel):
             components.append(vl.DispersionTaylor())
         elif component_name == "TroposphereDelay" and model.CORRECT_TROPOSPHERE.value:
             components.append(vl.Troposphere())
+        elif component_name == "ScaleToaError":
+            efac_masks = [model[efac].select_toa_mask(toas) for efac in model.EFACs]
+            equad_masks = [model[equad].select_toa_mask(toas) for equad in model.EQUADs]
+
+            efac_index_mask = []
+            equad_index_mask = []
+            for ii in range(len(toas)):
+                efac_idxs = np.argwhere([(ii in mask) for mask in efac_masks]).flatten()
+                equad_idxs = np.argwhere(
+                    [(ii in mask) for mask in equad_masks]
+                ).flatten()
+
+                assert len(efac_idxs) in [0, 1] and len(equad_idxs) in [
+                    0,
+                    1,
+                ], "EFAC and EQUAD groups must not overlap."
+
+                efac_index_mask.append(
+                    efac_idxs.item() + 1 if len(efac_idxs) == 1 else 0
+                )
+                equad_index_mask.append(
+                    equad_idxs.item() + 1 if len(equad_idxs) == 1 else 0
+                )
+
+            efac_index_mask = jl.Vector[jl.UInt](efac_index_mask)
+            equad_index_mask = jl.Vector[jl.UInt](equad_index_mask)
+
+            components.append(vl.MeasurementNoise(efac_index_mask, equad_index_mask))
         # else:
         #     components.append({"name": component_name})
     components = jl.Tuple(components)
@@ -286,7 +323,7 @@ def pint_model_to_vela(model: TimingModel, toas: TOAs):
 
     pulsar_name = model.PSR.value if model.PSR.value is not None else ""
 
-    components = pint_components_to_vela(model)
+    components = pint_components_to_vela(model, toas)
 
     single_params, multi_params = pint_parameters_to_vela(model)
     param_handler = vl.ParamHandler(single_params, multi_params)
