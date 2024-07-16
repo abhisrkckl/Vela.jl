@@ -11,13 +11,13 @@ end
 """The EFAC corresponding to a TOA (assumes exclusivity)."""
 function efac(wn::MeasurementNoise, ctoa::CorrectedTOA, params::NamedTuple)
     idx = wn.efac_index_mask[ctoa.toa.index]
-    return (idx == 0) ? 1.0 : params.EFAC[idx]
+    return (idx == 0) ? dimensionless(1.0) : params.EFAC[idx]
 end
 
 """The EQUAD corresponding to a TOA (assumes exclusivity)."""
 function equad2(wn::MeasurementNoise, ctoa::CorrectedTOA, params::NamedTuple)
     idx = wn.equad_index_mask[ctoa.toa.index]
-    return (idx == 0) ? 1.0 : params.EQUAD[idx]^2
+    return (idx == 0) ? GQ(0.0, 2) : params.EQUAD[idx]^2
 end
 
 correct_toa(wn::MeasurementNoise, ctoa::CorrectedTOA, params::NamedTuple) =
