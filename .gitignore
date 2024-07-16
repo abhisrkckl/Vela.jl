@@ -12,3 +12,5 @@ env.sh
 *_summary.pdf
 
 test/*.1
+
+docs/build
