@@ -10,99 +10,19 @@ using PythonCall
 
 const day_to_s = 86400
 
+const ssb_obs_pos = distance.((18.0354099, 450.01472245, 195.05827732))
+const ssb_obs_vel = speed.((-9.96231954e-05, 3.31555854e-06, 1.12968547e-06))
+const obs_sun_pos = distance.((-15.89483533, -450.17185232, -195.18212616))
+const obs_jupiter_pos = distance.((-1610.1796849, -1706.87348483, -681.22381513))
+const obs_saturn_pos = distance.((-2392.85651431, 3109.13626083, 1405.71912274))
+const obs_venus_pos = distance.((140.85922773, -217.65571843, -74.64804201))
+const obs_uranus_pos = distance.((9936.62957939, -3089.07377113, -1486.17339104))
+const obs_neptune_pos = distance.((11518.60924426, -9405.0693235, -4126.91030657))
+const obs_earth_pos = distance.((0.01199435, 0.01159591, -0.01316261))
+
 @testset "Vela" verbose = true begin
 
-    ssb_obs_pos = distance.((18.0354099, 450.01472245, 195.05827732))
-    ssb_obs_vel = speed.((-9.96231954e-05, 3.31555854e-06, 1.12968547e-06))
-    obs_sun_pos = distance.((-15.89483533, -450.17185232, -195.18212616))
-    obs_jupiter_pos = distance.((-1610.1796849, -1706.87348483, -681.22381513))
-    obs_saturn_pos = distance.((-2392.85651431, 3109.13626083, 1405.71912274))
-    obs_venus_pos = distance.((140.85922773, -217.65571843, -74.64804201))
-    obs_uranus_pos = distance.((9936.62957939, -3089.07377113, -1486.17339104))
-    obs_neptune_pos = distance.((11518.60924426, -9405.0693235, -4126.91030657))
-    obs_earth_pos = distance.((0.01199435, 0.01159591, -0.01316261))
-
-    @testset "ephemeris" begin
-        # Wrong dimensions
-        @test_throws AssertionError SolarSystemEphemeris(
-            ssb_obs_vel,
-            ssb_obs_vel,
-            obs_sun_pos,
-            obs_jupiter_pos,
-            obs_saturn_pos,
-            obs_venus_pos,
-            obs_uranus_pos,
-            obs_neptune_pos,
-            obs_earth_pos,
-        )
-
-        # Wrong dimensions
-        @test_throws AssertionError SolarSystemEphemeris(
-            ssb_obs_pos,
-            ssb_obs_pos,
-            obs_sun_pos,
-            obs_jupiter_pos,
-            obs_saturn_pos,
-            obs_venus_pos,
-            obs_uranus_pos,
-            obs_neptune_pos,
-            obs_earth_pos,
-        )
-
-        # Wrong dimensions
-        @test_throws AssertionError SolarSystemEphemeris(
-            ssb_obs_pos,
-            ssb_obs_vel,
-            ssb_obs_vel,
-            obs_jupiter_pos,
-            obs_saturn_pos,
-            obs_venus_pos,
-            obs_uranus_pos,
-            obs_neptune_pos,
-            obs_earth_pos,
-        )
-
-        # ssb_obs_vel is too large.
-        @test_throws AssertionError SolarSystemEphemeris(
-            ssb_obs_pos,
-            1e6 .* ssb_obs_vel,
-            obs_sun_pos,
-            obs_jupiter_pos,
-            obs_saturn_pos,
-            obs_venus_pos,
-            obs_uranus_pos,
-            obs_neptune_pos,
-            obs_earth_pos,
-        )
-
-        ephem_vecs = SolarSystemEphemeris(
-            ssb_obs_pos,
-            ssb_obs_vel,
-            obs_sun_pos,
-            obs_jupiter_pos,
-            obs_saturn_pos,
-            obs_venus_pos,
-            obs_uranus_pos,
-            obs_neptune_pos,
-            obs_earth_pos,
-        )
-
-        # ssb_obs_pos and obs_sun_pos should be less than the Aphelion distance
-        @test sqrt(dot(ephem_vecs.ssb_obs_pos, ephem_vecs.ssb_obs_pos)) < distance(509.0)
-        @test sqrt(dot(ephem_vecs.obs_sun_pos, ephem_vecs.obs_sun_pos)) < distance(509.0)
-
-        # ssb_obs_pos and obs_sun_pos should have a small angle.
-        @test acos(
-            -dot(ephem_vecs.ssb_obs_pos, ephem_vecs.obs_sun_pos) / sqrt(
-                dot(ephem_vecs.ssb_obs_pos, ephem_vecs.ssb_obs_pos) *
-                dot(ephem_vecs.obs_sun_pos, ephem_vecs.obs_sun_pos),
-            ),
-        ) < 0.01
-
-        # |ssb_obs_vel| should be less than the speed of light
-        @test dot(ephem_vecs.ssb_obs_vel, ephem_vecs.ssb_obs_vel) < 1
-
-    end
+    include("test_ephemeris.jl")
 
     @testset "toa" begin
         toaval = time(parse(Double64, "4610197611.8464445127"))
