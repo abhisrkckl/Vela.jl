@@ -1,5 +1,5 @@
 @testset "NGC6440E" begin
-    model, toas = read_model_and_toas("NGC6440E.hdf5")
+    model, toas = read_model_and_toas("datafiles/NGC6440E.hdf5")
 
     @testset "read_toas" begin
         @test !any([toa.tzr for toa in toas])
