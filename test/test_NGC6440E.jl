@@ -8,8 +8,7 @@
             frequency(1e9) < toa.observing_frequency < frequency(2.5e9) for toa in toas
         ])
         @test all([
-            time(53470.0 * day_to_s) < toa.value < time(54200.0 * day_to_s) for
-            toa in toas
+            time(53470.0 * day_to_s) < toa.value < time(54200.0 * day_to_s) for toa in toas
         ])
         @test all([modf(toa.pulse_number.x)[1] == 0 for toa in toas])
         @test all([toa.error > time(0.0) for toa in toas])
@@ -29,8 +28,7 @@
         param_handler = model.param_handler
         @test Set(get_free_param_names(param_handler)) ==
               Set(["F0", "F1", "PHOFF", "RAJ", "DECJ", "DM"])
-        @test length(param_handler.multi_params) +
-              length(param_handler.single_params) ==
+        @test length(param_handler.multi_params) + length(param_handler.single_params) ==
               length(param_handler._default_params_tuple)
         @test length(get_free_param_names(param_handler)) ==
               length(param_handler._free_indices)
