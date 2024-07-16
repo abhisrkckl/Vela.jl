@@ -4,9 +4,10 @@
 - CHANGELOG file
 - Environment variables for safe Python interoperability in the README file
 ## Changed
-- Split `F0` into two `Float64` variables (`F_` & `F0`) to preserve precision.
+- Split `F0` into two `Float64` variables (`F_` & `F0`) to preserve precision
 - Use `DoubleFloats` instead of `Quadmath` to represent TOA values (it's faster)
 - Rearrange code and tests into multiple files
+- Rearrange test data files
 ## Fixed
 ## Removed
 

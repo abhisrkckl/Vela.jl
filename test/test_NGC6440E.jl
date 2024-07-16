@@ -100,7 +100,7 @@
     end
 
     @testset "plot_summary" begin
-        plotfile = plot_pulsar_summary("NGC6440E.hdf5")
+        plotfile = plot_pulsar_summary("datafiles/NGC6440E.hdf5")
         @test isfile(plotfile)
     end
 end
