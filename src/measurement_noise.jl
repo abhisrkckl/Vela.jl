@@ -20,5 +20,6 @@ function equad2(wn::MeasurementNoise, ctoa::CorrectedTOA, params::NamedTuple)
     return (idx == 0) ? GQ(0.0, 2) : params.EQUAD[idx]^2
 end
 
+"""Apply EFAC and EQUAD to a TOA."""
 correct_toa(wn::MeasurementNoise, ctoa::CorrectedTOA, params::NamedTuple) =
     correct_toa(ctoa; efac = efac(wn, ctoa, params), equad2 = equad2(wn, ctoa, params))
