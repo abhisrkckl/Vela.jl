@@ -1,6 +1,6 @@
 using Documenter, Vela
 
 makedocs(
-    sitename="Vela.jl", 
+    sitename = "Vela.jl",
     # format = Documenter.LaTeX(platform = "none")
 )
