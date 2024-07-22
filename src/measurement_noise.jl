@@ -27,9 +27,6 @@ correct_toa(wn::MeasurementNoise, ctoa::CorrectedTOA, params::NamedTuple) =
 function show(io::IO, wn::MeasurementNoise)
     num_efacs = length(unique(wn.efac_index_mask))
     num_equads = length(unique(wn.equad_index_mask))
-    print(
-        io,
-        "MeasurementNoise($num_efacs EFACs, $num_equads EQUADs)",
-    )
-end 
+    print(io, "MeasurementNoise($num_efacs EFACs, $num_equads EQUADs)")
+end
 show(io::IO, ::MIME"text/plain", ss::SolarSystem) = show(io, ss)

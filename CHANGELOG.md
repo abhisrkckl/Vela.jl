@@ -4,6 +4,7 @@
 - Environment variables for safe Python interoperability in the README file
 - `index` field in `TOA`
 - `MeasurementNoise` component (EFACs and EQUADs)
+- `get_scale_factors()` function.
 ## Changed
 - Split `F0` into two `Float64` variables (`F_` & `F0`) to preserve precision
 - Use `DoubleFloats` instead of `Quadmath` to represent TOA values (it's faster)
