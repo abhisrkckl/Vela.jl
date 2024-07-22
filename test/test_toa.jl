@@ -25,6 +25,7 @@
         pulse_number,
         barycentered,
         ephem,
+        1,
     )
 
     # Wrong dimensions for TOA value.
@@ -35,6 +36,7 @@
         pulse_number,
         barycentered,
         ephem,
+        1,
     )
 
     # Wrong dimensions for TOA error.
@@ -45,15 +47,32 @@
         pulse_number,
         barycentered,
         ephem,
+        1,
     )
 
     # Wrong dimensions for TOA observing_frequency.
-    @test_throws AssertionError TOA(toaval, toaerr, time(1.4e9), phase, barycentered, ephem)
+    @test_throws AssertionError TOA(
+        toaval,
+        toaerr,
+        time(1.4e9),
+        phase,
+        barycentered,
+        ephem,
+        1,
+    )
 
     # Wrong dimensions for TOA pulse_number.
-    @test_throws AssertionError TOA(toaval, toaerr, freq, time(1000.0), barycentered, ephem)
+    @test_throws AssertionError TOA(
+        toaval,
+        toaerr,
+        freq,
+        time(1000.0),
+        barycentered,
+        ephem,
+        1,
+    )
 
-    toa1 = TOA(toaval, toaerr, freq, pulse_number, barycentered, ephem)
+    toa1 = TOA(toaval, toaerr, freq, pulse_number, barycentered, ephem, 1)
     @test !toa1.tzr
 
     ctoa1 = CorrectedTOA(toa1)
@@ -98,6 +117,7 @@
         @test tzrtoa.tzr
         @test tzrtoa.barycentered
         @test tzrtoa.error == time(0.0)
+        @test tzrtoa.index == 0
 
         ctzrtoa = CorrectedTOA(tzrtoa)
         @test ctzrtoa.level == 0
