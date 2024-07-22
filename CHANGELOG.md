@@ -3,6 +3,7 @@
 - CHANGELOG file
 - Environment variables for safe Python interoperability in the README file
 - `index` field in `TOA`
+- `MeasurementNoise` component (EFACs and EQUADs)
 ## Changed
 - Split `F0` into two `Float64` variables (`F_` & `F0`) to preserve precision
 - Use `DoubleFloats` instead of `Quadmath` to represent TOA values (it's faster)
@@ -10,7 +11,6 @@
 - Move chi2 functions into a separate files
 - Rearrange code and tests into multiple files
 - Rearrange test data files
-- `MeasurementNoise` component (EFACs and EQUADs)
 ## Fixed
 ## Removed
 
