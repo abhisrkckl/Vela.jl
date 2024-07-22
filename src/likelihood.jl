@@ -1,6 +1,4 @@
-export get_lnlike_serial_func,
-    get_lnlike_parallel_func,
-    get_lnlike_func
+export get_lnlike_serial_func, get_lnlike_parallel_func, get_lnlike_func
 
 function _lnlike_term(model::TimingModel, toa::TOA, params::NamedTuple, tzrphase)
     ctoa = correct_toa(model, toa, params)
