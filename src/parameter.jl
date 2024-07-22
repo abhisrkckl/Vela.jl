@@ -141,3 +141,23 @@ function read_param_values_to_vector(
 
     return param_vec
 end
+
+function get_scale_factors(param_handler::ParamHandler)
+    scale_factors = Float64[]
+
+    @inbounds for spar in param_handler.single_params
+        if !spar.frozen
+            push!(scale_factors, spar.unit_conversion_factor)
+        end
+    end
+
+    @inbounds for mpar in param_handler.multi_params
+        for param in mpar.parameters
+            if !param.frozen
+                push!(scale_factors, param.unit_conversion_factor)
+            end
+        end
+    end
+
+    return scale_factors
+end
