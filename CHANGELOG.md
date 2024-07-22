@@ -2,10 +2,10 @@
 ## Added
 - CHANGELOG file
 - Environment variables for safe Python interoperability in the README file
+- `index` field in `TOA`
 ## Changed
 - Split `F0` into two `Float64` variables (`F_` & `F0`) to preserve precision
 - Use `DoubleFloats` instead of `Quadmath` to represent TOA values (it's faster)
-- `index` field in `TOA`
 - Use `@spawn` and `fetch` instead of atomic operations for parallel chi2 and likelihood.
 - Move chi2 functions into a separate files
 ## Fixed
