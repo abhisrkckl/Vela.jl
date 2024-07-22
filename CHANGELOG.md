@@ -7,10 +7,10 @@
 ## Changed
 - Split `F0` into two `Float64` variables (`F_` & `F0`) to preserve precision
 - Use `DoubleFloats` instead of `Quadmath` to represent TOA values (it's faster)
-- Use `@spawn` and `fetch` instead of atomic operations for parallel chi2 and likelihood.
-- Move chi2 functions into a separate files
 - Rearrange code and tests into multiple files
 - Rearrange test data files
+- Use `@spawn` and `fetch` instead of atomic operations for parallel chi2 and likelihood.
+- Move chi2 functions into a separate files
 ## Fixed
 ## Removed
 

@@ -2,7 +2,7 @@ export MeasurementNoise, efac, equad2
 
 """Modifications to the measured TOA uncertainties: 
 EFACs (error factors) and EQUADs (errors added in quadrature).
-Assumes that the EFACs & EQUADs are are exclusive."""
+Assumes that the EFACs & EQUADs are exclusive."""
 struct MeasurementNoise <: WhiteNoiseComponent
     efac_index_mask::Vector{UInt}
     equad_index_mask::Vector{UInt}
