@@ -1,3 +1,11 @@
+# [Unreleased]
+## Added
+## Changed
+- Use `@spawn` and `fetch` instead of atomic operations for parallel chi2 and likelihood.
+- Move chi2 functions into a separate files
+## Fixed
+## Removed
+
 # [0.0.1] - 2024-07-10
 - First tagged version
 ## Added
