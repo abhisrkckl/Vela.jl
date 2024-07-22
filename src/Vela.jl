@@ -25,5 +25,4 @@ include("chi2.jl")
 include("likelihood.jl")
 include("read_model_and_toas.jl")
 include("summary_plot.jl")
-include("pyinter.jl")
 end
