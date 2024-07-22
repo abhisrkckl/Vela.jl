@@ -23,3 +23,13 @@ end
 """Apply EFAC and EQUAD to a TOA."""
 correct_toa(wn::MeasurementNoise, ctoa::CorrectedTOA, params::NamedTuple) =
     correct_toa(ctoa; efac = efac(wn, ctoa, params), equad2 = equad2(wn, ctoa, params))
+
+function show(io::IO, wn::MeasurementNoise)
+    num_efacs = length(unique(wn.efac_index_mask))
+    num_equads = length(unique(wn.equad_index_mask))
+    print(
+        io,
+        "MeasurementNoise($num_efacs EFACs, $num_equads EQUADs)",
+    )
+end 
+show(io::IO, ::MIME"text/plain", ss::SolarSystem) = show(io, ss)

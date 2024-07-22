@@ -106,3 +106,12 @@ function correct_toa(ss::SolarSystem, ctoa::CorrectedTOA, params::NamedTuple)
 
     return correct_toa(ctoa; delay = delay, doppler = doppler, barycentered = true)
 end
+
+function show(io::IO, ss::SolarSystem)
+    coordstr = ss.ecliptic_coordinates ? "Ecliptic" : "Equatorial"
+    print(
+        io,
+        "SolarSystem($coordstr, planet_shapiro=$(ss.planet_shapiro))",
+    )
+end 
+show(io::IO, ::MIME"text/plain", ss::SolarSystem) = show(io, ss)
