@@ -1,3 +1,4 @@
+"""A package for evaluating the single-pulsar timing & noise model."""
 module Vela
 
 using GeometricUnits
