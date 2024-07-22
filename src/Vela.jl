@@ -5,7 +5,7 @@ module Vela
 using GeometricUnits
 using DoubleFloats: Double64
 using LinearAlgebra: dot
-using .Threads: @threads, atomic_add!, Atomic, nthreads
+using .Threads: @spawn, fetch, nthreads
 using Unrolled: @unroll
 import HDF5
 import JSON
@@ -23,6 +23,7 @@ include("solarwind.jl")
 # include("selection.jl")
 include("timing_model.jl")
 include("residuals.jl")
+include("chi2.jl")
 include("likelihood.jl")
 include("read_model_and_toas.jl")
 include("summary_plot.jl")
