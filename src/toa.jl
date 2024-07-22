@@ -21,12 +21,23 @@ struct TOA
     barycentered::Bool
     tzr::Bool
     ephem::SolarSystemEphemeris
+    index::UInt
 
-    function TOA(value, error, observing_frequency, pulse_number, barycentered, tzr, ephem)
+    function TOA(
+        value,
+        error,
+        observing_frequency,
+        pulse_number,
+        barycentered,
+        tzr,
+        ephem,
+        index,
+    )
         @assert value.d == 1 "Dimension mismatch in value (given $(value.d), expected 1)."
         @assert error.d == 1 "Dimension mismatch in error (given $(error.d), expected 1)."
         @assert observing_frequency.d == -1 "Dimension mismatch in observing_frequency (given $(observing_frequency.d), expected -1)."
         @assert pulse_number.d == 0 "Dimension mismatch in pulse_number (given $(pulse_number.d), expected 0)."
+        @assert tzr || index > 0 "The index can be 0 only for the TZR TOA."
 
         return new(
             value,
@@ -36,16 +47,25 @@ struct TOA
             barycentered,
             tzr,
             ephem,
+            index,
         )
     end
 end
 
-TOA(value, error, observing_frequency, pulse_number, barycentered, ephem) =
-    TOA(value, error, observing_frequency, pulse_number, barycentered, false, ephem)
+TOA(value, error, observing_frequency, pulse_number, barycentered, ephem, index) =
+    TOA(value, error, observing_frequency, pulse_number, barycentered, false, ephem, index)
 
 """Create a TZR TOA object."""
-make_tzr_toa(tzrtdb, tzrfreq, tzrbary, tzrephem) =
-    TOA(tzrtdb, time(0.0), tzrfreq, dimensionless(Double64(0.0)), tzrbary, true, tzrephem)
+make_tzr_toa(tzrtdb, tzrfreq, tzrbary, tzrephem) = TOA(
+    tzrtdb,
+    time(0.0),
+    tzrfreq,
+    dimensionless(Double64(0.0)),
+    tzrbary,
+    true,
+    tzrephem,
+    0,
+)
 
 """The accumulated timing & noise model corrections applied to a narrowband TOA."""
 struct CorrectedTOA

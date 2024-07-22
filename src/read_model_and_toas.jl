@@ -56,19 +56,20 @@ function read_ephemeris(toa_data::NamedTuple)::SolarSystemEphemeris
     )
 end
 
-function read_toa(toa_data::NamedTuple, tzr = false)::TOA
+function read_toa(toa_data::NamedTuple, index, tzr = false)::TOA
     value = time(Double64(toa_data.tdb_int, toa_data.tdb_frac))
     error = time(toa_data.error)
     freq = frequency(toa_data.frequency)
     pulse_number = -dimensionless(Double64(toa_data.phase_int, toa_data.phase_frac))
     ephem = read_ephemeris(toa_data)
 
-    return TOA(value, error, freq, pulse_number, false, tzr, ephem)
+    return TOA(value, error, freq, pulse_number, false, tzr, ephem, index)
 end
 
-read_toas(f::HDF5.File)::Vector{TOA} = [read_toa(toa_data) for toa_data in read(f["TOAs"])]
+read_toas(f::HDF5.File)::Vector{TOA} =
+    [read_toa(toa_data, index) for (index, toa_data) in enumerate(read(f["TOAs"]))]
 
-read_tzr_toa(f::HDF5.File) = read_toa(read(f["TZRTOA"])[1], true)
+read_tzr_toa(f::HDF5.File) = read_toa(read(f["TZRTOA"])[1], 0, true)
 
 _read_single_parameter(spdict::Dict) = Parameter(
     Symbol(spdict["name"]),
