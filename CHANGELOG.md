@@ -1,18 +1,27 @@
-# Unreleased
+# [Unreleased]
 ## Added
-- `MeasurementNoise` component (EFACs and EQUADs)
 - CHANGELOG file
 - Environment variables for safe Python interoperability in the README file
+- `index` field in `TOA`
 ## Changed
 - Split `F0` into two `Float64` variables (`F_` & `F0`) to preserve precision
 - Use `DoubleFloats` instead of `Quadmath` to represent TOA values (it's faster)
+- Use `@spawn` and `fetch` instead of atomic operations for parallel chi2 and likelihood.
+- Move chi2 functions into a separate files
 - Rearrange code and tests into multiple files
 - Rearrange test data files
+- `MeasurementNoise` component (EFACs and EQUADs)
 ## Fixed
 ## Removed
 
 # [0.0.1] - 2024-07-10
 ## Added
+- `TimingModel` to represent the timing & noise model
+- Hierarchy of `Component` types
+- `SolarSystem` component (solar system delays)
+- `DispersionTaylor` component (interstellar dispersion as a Taylor series)
+- `Spindown` component (pulsar spindown as a Taylor series)
+- `PhaseOffset` component (overall phase offset between physical TOAs and the TZR TOA)
 - `TimingModel` to represent the timing & noise model
 - Hierarchy of `Component` types
 - `SolarSystem` component (solar system delays)
