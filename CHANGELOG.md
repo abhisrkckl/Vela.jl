@@ -1,6 +1,10 @@
 # [Unreleased]
 ## Added
+- CHANGELOG file
+- Environment variables for safe Python interoperability in the README file
 ## Changed
+- Split `F0` into two `Float64` variables (`F_` & `F0`) to preserve precision
+- Use `DoubleFloats` instead of `Quadmath` to represent TOA values (it's faster)
 - Use `@spawn` and `fetch` instead of atomic operations for parallel chi2 and likelihood.
 - Move chi2 functions into a separate files
 ## Fixed
@@ -9,8 +13,14 @@
 # [0.0.1] - 2024-07-10
 - First tagged version
 ## Added
-- `TimingModel` with components `SolarSystem`, `Dispersion`, `Spindown`, and `PhaseOffset`
+- `TimingModel` to represent the timing & noise model
+- Hierarchy of `Component` types
+- `SolarSystem` component (solar system delays)
+- `DispersionTaylor` component (interstellar dispersion as a Taylor series)
+- `Spindown` component (pulsar spindown as a Taylor series)
+- `PhaseOffset` component (overall phase offset between physical TOAs and the TZR TOA)
 - `TOA` type to represent narrowband TOAs
+- `CorrectedTOA` type to represent accumulated corrections to a `TOA`
 - `SolarSystemEphemeris` type to store solar system ephemerides
 - `ParamHandler` class and its friends to convert parameter vectors to named tuples
 - Parallel and serial versions of the `chi2` and `lnlike` functions
