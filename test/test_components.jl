@@ -61,6 +61,20 @@
         display(ss)
     end
 
+    @testset "SolarWindDispersion" begin
+        @test_throws AssertionError SolarWindDispersion(2)
+
+        swd = SolarWindDispersion(0)
+        @test dispersion_slope(swd, toa, params) == GQ(0.0, -1)
+    end
+
+    @testset "DispersionTaylor" begin
+        dmt = DispersionTaylor()
+        @test dispersion_slope(dmt, ctoa, params) == GQ(10.0, -1)
+        @test delay(dmt, ctoa, params) ==
+              dispersion_slope(dmt, ctoa, params) / ctoa.toa.observing_frequency^2
+    end
+
     @testset "PhaseOffset" begin
         poff = PhaseOffset()
         @test phase(poff, ctoa, params) == dimensionless(-1e-6)
@@ -108,20 +122,6 @@
     #     tropo = Troposphere()
     #     @test delay(tropo, toa, params) == time(0.0)
     # end
-
-    @testset "DispersionTaylor" begin
-        dmt = DispersionTaylor()
-        @test dispersion_slope(dmt, ctoa, params) == GQ(10.0, -1)
-        @test delay(dmt, ctoa, params) ==
-              dispersion_slope(dmt, ctoa, params) / ctoa.toa.observing_frequency^2
-    end
-
-    @testset "SolarWindDispersion" begin
-        @test_throws AssertionError SolarWindDispersion(2)
-
-        swd = SolarWindDispersion(0)
-        @test dispersion_slope(swd, toa, params) == GQ(0.0, -1)
-    end
 
     @testset "MeasurementNoise" begin
         wn = MeasurementNoise(UInt[1], UInt[0])
