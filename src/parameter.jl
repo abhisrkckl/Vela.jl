@@ -57,6 +57,7 @@ struct ParamHandler{ParamsType<:NamedTuple}
     _default_params_tuple::ParamsType
     _default_quantities::Vector{GQ{Float64}}
     _free_indices::Vector{Int}
+    _nfree::Int
 end
 
 function ParamHandler(single_params, multi_params)
@@ -75,6 +76,7 @@ function ParamHandler(single_params, multi_params)
         default_params,
         default_quantities,
         free_indices,
+        length(free_indices),
     )
 end
 
@@ -86,6 +88,7 @@ function read_params(
     ph::ParamHandler{ParamsType},
     free_values,
 )::ParamsType where {ParamsType<:NamedTuple}
+    @assert length(free_values) == ph._nfree
     quantities = copy(ph._default_quantities)
     for (idx, value) in zip(ph._free_indices, free_values)
         d = quantities[idx].d

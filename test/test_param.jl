@@ -12,12 +12,14 @@
     mparF = MultiParameter(:F, [f0, f1])
     @test length(mparF.parameters) == 2
 
-    ph = ParamHandler([pepoch], [mparF])
-    @test get_free_param_names(ph) == ["F0", "F1"]
-    @test Set(keys(ph._default_params_tuple)) == Set([:PEPOCH, :F])
+    phoff = Parameter(:PHOFF, dimensionless(0.0), false, "", 1.0)
 
-    params = read_params(ph, [100.01, -1.01e-14])
-    @test Set(keys(params)) == Set([:PEPOCH, :F])
+    ph = ParamHandler([pepoch, phoff], [mparF])
+    @test get_free_param_names(ph) == ["PHOFF", "F0", "F1"]
+    @test Set(keys(ph._default_params_tuple)) == Set([:PEPOCH, :PHOFF, :F])
+
+    params = read_params(ph, [0.01, 100.01, -1.01e-14])
+    @test Set(keys(params)) == Set([:PEPOCH, :PHOFF, :F])
     @test params.F == (frequency(100.01), GQ(-1.01e-14, -2))
 
     @test all(get_scale_factors(ph) .> 0)
