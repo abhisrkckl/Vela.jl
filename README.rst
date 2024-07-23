@@ -26,6 +26,8 @@ Installation
    julia> ] add LocalRegistry
    julia> ] registry add https://github.com/abhisrkckl/julia_registry
    julia> ] add https://github.com/abhisrkckl/Vela.jl
+   julia> exit()
+   (vela) $ pip install git+https://github.com/abhisrkckl/pint2vela
 
 Using from Python
 -----------------
