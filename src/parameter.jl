@@ -4,7 +4,8 @@ export Parameter,
     ParamHandler,
     read_params,
     get_free_param_names,
-    read_param_values_to_vector
+    read_param_values_to_vector,
+    get_scale_factors
 
 """A single model parameter.
 
@@ -56,6 +57,7 @@ struct ParamHandler{ParamsType<:NamedTuple}
     _default_params_tuple::ParamsType
     _default_quantities::Vector{GQ{Float64}}
     _free_indices::Vector{Int}
+    _nfree::Int
 end
 
 function ParamHandler(single_params, multi_params)
@@ -74,6 +76,7 @@ function ParamHandler(single_params, multi_params)
         default_params,
         default_quantities,
         free_indices,
+        length(free_indices),
     )
 end
 
@@ -85,6 +88,7 @@ function read_params(
     ph::ParamHandler{ParamsType},
     free_values,
 )::ParamsType where {ParamsType<:NamedTuple}
+    @assert length(free_values) == ph._nfree
     quantities = copy(ph._default_quantities)
     for (idx, value) in zip(ph._free_indices, free_values)
         d = quantities[idx].d
@@ -140,4 +144,24 @@ function read_param_values_to_vector(
     end
 
     return param_vec
+end
+
+function get_scale_factors(param_handler::ParamHandler)
+    scale_factors = Float64[]
+
+    @inbounds for spar in param_handler.single_params
+        if !spar.frozen
+            push!(scale_factors, spar.unit_conversion_factor)
+        end
+    end
+
+    @inbounds for mpar in param_handler.multi_params
+        for param in mpar.parameters
+            if !param.frozen
+                push!(scale_factors, param.unit_conversion_factor)
+            end
+        end
+    end
+
+    return scale_factors
 end

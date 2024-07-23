@@ -1,3 +1,5 @@
+export get_chi2_serial_func, get_chi2_parallel_func, get_chi2_func
+
 function _chi2_term(model::TimingModel, toa::TOA, params::NamedTuple, tzrphase)
     ctoa = correct_toa(model, toa, params)
     dphase = GQ{Float64}(phase_residual(ctoa) - tzrphase)
@@ -30,3 +32,15 @@ end
 
 calc_chi2_serial(model::TimingModel, toas::Vector{TOA}, params) =
     calc_chi2_serial(model, toas, read_params(model, params))
+
+get_chi2_serial_func(model::TimingModel, toas::Vector{TOA}) =
+    params -> calc_chi2_serial(model, toas, params)
+
+get_chi2_parallel_func(model::TimingModel, toas::Vector{TOA}) =
+    params -> calc_chi2(model, toas, params)
+
+"""Get the χ^2(params) function for a given timing model and collection of TOAs.
+Serial or parallel execution is decided based on the number of available threads."""
+get_chi2_func(model, toas) =
+    (nthreads() == 1) ? get_chi2_serial_func(model, toas) :
+    get_chi2_parallel_func(model, toas)

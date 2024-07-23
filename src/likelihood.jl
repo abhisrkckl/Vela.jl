@@ -1,3 +1,5 @@
+export get_lnlike_serial_func, get_lnlike_parallel_func, get_lnlike_func
+
 function _lnlike_term(model::TimingModel, toa::TOA, params::NamedTuple, tzrphase)
     ctoa = correct_toa(model, toa, params)
     dphase = GQ{Float64}(phase_residual(ctoa) - tzrphase)
@@ -31,3 +33,14 @@ end
 
 calc_lnlike_serial(model::TimingModel, toas::Vector{TOA}, params) =
     calc_lnlike_serial(model, toas, read_params(model, params))
+
+get_lnlike_serial_func(model::TimingModel, toas::Vector{TOA}) =
+    params -> calc_lnlike_serial(model, toas, params)
+
+get_lnlike_parallel_func(model, toas) = params -> calc_lnlike(model, toas, params)
+
+"""Get the log_likelihood(params) function for a given timing model and collection of TOAs.
+Serial or parallel execution is decided based on the number of available threads."""
+get_lnlike_func(model, toas) =
+    (nthreads() == 1) ? get_lnlike_serial_func(model, toas) :
+    get_lnlike_parallel_func(model, toas)

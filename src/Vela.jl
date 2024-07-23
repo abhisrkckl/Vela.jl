@@ -1,3 +1,4 @@
+"""A package for evaluating the single-pulsar timing & noise model."""
 module Vela
 
 using GeometricUnits
@@ -18,12 +19,11 @@ include("solarsystem.jl")
 include("troposphere.jl")
 include("dispersion.jl")
 include("solarwind.jl")
-# include("selection.jl")
+include("measurement_noise.jl")
 include("timing_model.jl")
 include("residuals.jl")
 include("chi2.jl")
 include("likelihood.jl")
 include("read_model_and_toas.jl")
 include("summary_plot.jl")
-include("pyinter.jl")
 end

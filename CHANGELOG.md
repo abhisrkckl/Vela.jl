@@ -3,11 +3,17 @@
 - CHANGELOG file
 - Environment variables for safe Python interoperability in the README file
 - `index` field in `TOA`
+- `MeasurementNoise` component (EFACs and EQUADs)
+- `get_scale_factors()` function.
+- Assertion in `read_params` to make sure that the input has the correct number of values.
 ## Changed
 - Split `F0` into two `Float64` variables (`F_` & `F0`) to preserve precision
 - Use `DoubleFloats` instead of `Quadmath` to represent TOA values (it's faster)
+- Rearrange code and tests into multiple files
+- Rearrange test data files
 - Use `@spawn` and `fetch` instead of atomic operations for parallel chi2 and likelihood.
-- Move chi2 functions into a separate files
+- Move chi2 functions into a separate file `chi2.jl`
+- Move the higher order functions in `pyinter.jl` to `chi2.jl` and `likelihood.jl`
 ## Fixed
 ## Removed
 
@@ -19,10 +25,12 @@
 - `DispersionTaylor` component (interstellar dispersion as a Taylor series)
 - `Spindown` component (pulsar spindown as a Taylor series)
 - `PhaseOffset` component (overall phase offset between physical TOAs and the TZR TOA)
+- `TimingModel` to represent the timing & noise model
 - `TOA` type to represent narrowband TOAs
-- `CorrectedTOA` type to represent accumulated corrections to a `TOA`
+- `CorrectedTOA` type to represent accumulated corrections to a `TOA`.
 - `SolarSystemEphemeris` type to store solar system ephemerides
 - `ParamHandler` class and its friends to convert parameter vectors to named tuples
+- `correct_toa` function
 - Parallel and serial versions of the `chi2` and `lnlike` functions
 - `read_model_and_toas` to read data from `HDF5` files (created using `pint2vela.py`)
 - `pure_rotator` and `NGC6440E` examples
