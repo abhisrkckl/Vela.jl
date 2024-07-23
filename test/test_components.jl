@@ -57,7 +57,7 @@
         ctoa2 = correct_toa(ss, ctoa1, params)
         @test (ctoa2.delay == ctoa1.delay) && (ctoa2.doppler == ctoa1.doppler)
 
-        show(ss)
+        display(ss)
     end
 
     @testset "PhaseOffset" begin
@@ -122,6 +122,6 @@
         @test ctoa1.doppler == ctoa.doppler
         @test ctoa1.spin_frequency == ctoa.spin_frequency
         @test scaled_toa_error_sqr(ctoa1) > ctoa1.toa.error^2
-        show(wn)
+        display(wn)
     end
 end
