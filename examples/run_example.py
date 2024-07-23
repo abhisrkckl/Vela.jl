@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 # %%
 from pint.models import get_model_and_toas
 from pint.models.priors import Prior
@@ -9,6 +11,7 @@ import nestle
 import corner
 from scipy.stats import uniform
 from matplotlib import pyplot as plt
+import sys
 
 from pint2vela import read_model_and_toas, vl
 
@@ -16,7 +19,7 @@ from pint2vela import read_model_and_toas, vl
 setup_log(level="WARNING")
 
 # %%
-parfile, timfile = "pure_rotator.par", "pure_rotator.tim"
+parfile, timfile = sys.argv[1], sys.argv[2]
 
 m, t = get_model_and_toas(parfile, timfile)
 t.compute_pulse_numbers(m)
@@ -82,6 +85,7 @@ result_nestle_v = nestle.sample(
     dlogz=0.01,
     callback=nestle.print_progress,
 )
+print()
 
 # %%
 result_nestle_p = nestle.sample(
@@ -93,6 +97,7 @@ result_nestle_p = nestle.sample(
     dlogz=0.01,
     callback=nestle.print_progress,
 )
+print()
 
 # %%
 fig = corner.corner(
@@ -111,4 +116,5 @@ corner.corner(
     fig=fig,
     color="red",
 )
+plt.tight_layout()
 plt.show()
