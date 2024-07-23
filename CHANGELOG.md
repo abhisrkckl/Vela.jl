@@ -6,6 +6,7 @@
 - `MeasurementNoise` component (EFACs and EQUADs)
 - `get_scale_factors()` function.
 - Assertion in `read_params` to make sure that the input has the correct number of values.
+- Auto-generation of HTML documentation using `Documenter`
 ## Changed
 - Split `F0` into two `Float64` variables (`F_` & `F0`) to preserve precision
 - Use `DoubleFloats` instead of `Quadmath` to represent TOA values (it's faster)
