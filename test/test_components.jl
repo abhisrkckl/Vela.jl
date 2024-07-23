@@ -39,6 +39,7 @@
         PX = GQ(3e-12, -1),
         PMELAT = GQ(-7e-16, -1),
         PMELONG = GQ(-5e-16, -1),
+        EFAC = (dimensionless(1.1),),
     )
 
     @testset "SolarSystem" begin
@@ -55,6 +56,8 @@
 
         ctoa2 = correct_toa(ss, ctoa1, params)
         @test (ctoa2.delay == ctoa1.delay) && (ctoa2.doppler == ctoa1.doppler)
+
+        display(ss)
     end
 
     @testset "PhaseOffset" begin
@@ -107,5 +110,18 @@
 
         swd = SolarWindDispersion(0)
         @test dispersion_slope(swd, toa, params) == GQ(0.0, -1)
+    end
+
+    @testset "MeasurementNoise" begin
+        wn = MeasurementNoise(UInt[1], UInt[0])
+        @test efac(wn, ctoa, params) == params.EFAC[1]
+        @test equad2(wn, ctoa, params) == time(0.0)^2
+        ctoa1 = correct_toa(wn, ctoa, params)
+        @test ctoa1.delay == ctoa.delay
+        @test ctoa1.phase == ctoa.phase
+        @test ctoa1.doppler == ctoa.doppler
+        @test ctoa1.spin_frequency == ctoa.spin_frequency
+        @test scaled_toa_error_sqr(ctoa1) > ctoa1.toa.error^2
+        display(wn)
     end
 end
