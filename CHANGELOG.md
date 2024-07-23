@@ -1,11 +1,12 @@
 # [Unreleased]
 ## Added
-- CHANGELOG file
-- Environment variables for safe Python interoperability in the README file
+- `CHANGELOG` file
+- Environment variables for safe Python interoperability in the `README` file
 - `index` field in `TOA`
-- `MeasurementNoise` component (EFACs and EQUADs)
+- `MeasurementNoise` component (`EFAC`s and `EQUAD`s)
 - `get_scale_factors()` function.
 - Assertion in `read_params` to make sure that the input has the correct number of values.
+- `PhaseJump` component (`JUMP`s)
 - Auto-generation of HTML documentation using `Documenter`
 ## Changed
 - Split `F0` into two `Float64` variables (`F_` & `F0`) to preserve precision
@@ -36,7 +37,7 @@
 - `read_model_and_toas` to read data from `HDF5` files (created using `pint2vela.py`)
 - `pure_rotator` and `NGC6440E` examples
 - GitHub Actions for CI Tests and CodeCov upload
-- Basic README file
+- Basic `README` file
 - MIT Licence
 ## Changed
 ## Fixed
