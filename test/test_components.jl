@@ -40,6 +40,7 @@
         PMELAT = GQ(-7e-16, -1),
         PMELONG = GQ(-5e-16, -1),
         EFAC = (dimensionless(1.1),),
+        JUMP = (time(1e-6), time(1.2e-6)),
     )
 
     @testset "SolarSystem" begin
@@ -58,6 +59,20 @@
         @test (ctoa2.delay == ctoa1.delay) && (ctoa2.doppler == ctoa1.doppler)
 
         display(ss)
+    end
+
+    @testset "SolarWindDispersion" begin
+        @test_throws AssertionError SolarWindDispersion(2)
+
+        swd = SolarWindDispersion(0)
+        @test dispersion_slope(swd, toa, params) == GQ(0.0, -1)
+    end
+
+    @testset "DispersionTaylor" begin
+        dmt = DispersionTaylor()
+        @test dispersion_slope(dmt, ctoa, params) == GQ(10.0, -1)
+        @test delay(dmt, ctoa, params) ==
+              dispersion_slope(dmt, ctoa, params) / ctoa.toa.observing_frequency^2
     end
 
     @testset "PhaseOffset" begin
@@ -93,24 +108,20 @@
 
     end
 
+    @testset "PhaseJump" begin
+        jump_mask = BitMatrix([1 0 0; 0 1 0])
+        pjmp = PhaseJump(jump_mask)
+
+        @test phase(pjmp, ctzrtoa, params) == 0
+        @test phase(pjmp, ctoa, params) ≈ params.JUMP[1] * params.F_
+
+        display(pjmp)
+    end
+
     # @testset "Troposphere" begin
     #     tropo = Troposphere()
     #     @test delay(tropo, toa, params) == time(0.0)
     # end
-
-    @testset "DispersionTaylor" begin
-        dmt = DispersionTaylor()
-        @test dispersion_slope(dmt, ctoa, params) == GQ(10.0, -1)
-        @test delay(dmt, ctoa, params) ==
-              dispersion_slope(dmt, ctoa, params) / ctoa.toa.observing_frequency^2
-    end
-
-    @testset "SolarWindDispersion" begin
-        @test_throws AssertionError SolarWindDispersion(2)
-
-        swd = SolarWindDispersion(0)
-        @test dispersion_slope(swd, toa, params) == GQ(0.0, -1)
-    end
 
     @testset "MeasurementNoise" begin
         wn = MeasurementNoise(UInt[1], UInt[0])
