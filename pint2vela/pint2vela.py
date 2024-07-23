@@ -264,54 +264,56 @@ def pint_components_to_vela(model: TimingModel, toas: TOAs):
     component_names = list(model.components.keys())
 
     components = []
-    for component_name in component_names:
-        if component_name in ["AbsPhase", "SolarSystemShapiro"]:
-            continue
-        elif component_name == "Spindown":
-            components.append(vl.Spindown())
-        elif component_name == "PhaseOffset":
-            components.append(vl.PhaseOffset())
-        elif component_name.startswith("Astrometry"):
-            ecliptic_coordinates = component_name == "AstrometryEcliptic"
-            components.append(
-                vl.SolarSystem(ecliptic_coordinates, model.PLANET_SHAPIRO.value)
+
+    # The order below is important.
+    # It goes from the observatory to the pulsar.
+    # The general order is DelayComponents -- PhaseComponents -- NoiseComponents.
+
+    if "TroposphereDelay" in component_names and model.CORRECT_TROPOSPHERE.value:
+        components.append(vl.Troposphere())
+
+    if "AstrometryEcliptic" in component_names:
+        components.append(vl.SolarSystem(True, model.PLANET_SHAPIRO.value))
+    elif "AstrometryEquatorial" in component_names:
+        components.append(vl.SolarSystem(False, model.PLANET_SHAPIRO.value))
+
+    if "SolarWindDispersion" in component_names:
+        components.append(vl.SolarWindDispersion(int(model.SWM.value)))
+
+    if "DispersionDM" in component_names:
+        components.append(vl.DispersionTaylor())
+
+    if "Spindown" in component_names:
+        components.append(vl.Spindown())
+
+    if "PhaseOffset" in component_names:
+        components.append(vl.PhaseOffset())
+
+    if "ScaleToaError" in component_names:
+        efac_masks = [model[efac].select_toa_mask(toas) for efac in model.EFACs]
+        equad_masks = [model[equad].select_toa_mask(toas) for equad in model.EQUADs]
+
+        efac_index_mask = []
+        equad_index_mask = []
+        for ii in range(len(toas)):
+            efac_idxs = np.argwhere([(ii in mask) for mask in efac_masks]).flatten()
+            equad_idxs = np.argwhere([(ii in mask) for mask in equad_masks]).flatten()
+
+            assert len(efac_idxs) in [0, 1] and len(equad_idxs) in [
+                0,
+                1,
+            ], "EFAC and EQUAD groups must not overlap."
+
+            efac_index_mask.append(efac_idxs.item() + 1 if len(efac_idxs) == 1 else 0)
+            equad_index_mask.append(
+                equad_idxs.item() + 1 if len(equad_idxs) == 1 else 0
             )
-        elif component_name == "SolarWindDispersion":
-            components.append(vl.SolarWindDispersion(int(model.SWM.value)))
-        elif component_name == "DispersionDM":
-            components.append(vl.DispersionTaylor())
-        elif component_name == "TroposphereDelay" and model.CORRECT_TROPOSPHERE.value:
-            components.append(vl.Troposphere())
-        elif component_name == "ScaleToaError":
-            efac_masks = [model[efac].select_toa_mask(toas) for efac in model.EFACs]
-            equad_masks = [model[equad].select_toa_mask(toas) for equad in model.EQUADs]
 
-            efac_index_mask = []
-            equad_index_mask = []
-            for ii in range(len(toas)):
-                efac_idxs = np.argwhere([(ii in mask) for mask in efac_masks]).flatten()
-                equad_idxs = np.argwhere(
-                    [(ii in mask) for mask in equad_masks]
-                ).flatten()
+        efac_index_mask = jl.Vector[jl.UInt](efac_index_mask)
+        equad_index_mask = jl.Vector[jl.UInt](equad_index_mask)
 
-                assert len(efac_idxs) in [0, 1] and len(equad_idxs) in [
-                    0,
-                    1,
-                ], "EFAC and EQUAD groups must not overlap."
+        components.append(vl.MeasurementNoise(efac_index_mask, equad_index_mask))
 
-                efac_index_mask.append(
-                    efac_idxs.item() + 1 if len(efac_idxs) == 1 else 0
-                )
-                equad_index_mask.append(
-                    equad_idxs.item() + 1 if len(equad_idxs) == 1 else 0
-                )
-
-            efac_index_mask = jl.Vector[jl.UInt](efac_index_mask)
-            equad_index_mask = jl.Vector[jl.UInt](equad_index_mask)
-
-            components.append(vl.MeasurementNoise(efac_index_mask, equad_index_mask))
-        # else:
-        #     components.append({"name": component_name})
     components = jl.Tuple(components)
 
     return components
