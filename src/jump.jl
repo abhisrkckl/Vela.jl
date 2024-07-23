@@ -2,7 +2,7 @@ export PhaseJump
 
 """System-dependent phase jumps."""
 struct PhaseJump <: PhaseComponent
-    jump_mask::Matrix{Float64}
+    jump_mask::BitMatrix
 end
 
 function phase(pjmp::PhaseJump, ctoa::CorrectedTOA, params::NamedTuple)::GQ

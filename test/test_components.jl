@@ -109,7 +109,7 @@
     end
 
     @testset "PhaseJump" begin
-        jump_mask = Matrix([1 0 0; 0 1 0])
+        jump_mask = BitMatrix([1 0 0; 0 1 0])
         pjmp = PhaseJump(jump_mask)
 
         @test phase(pjmp, ctzrtoa, params) == 0
