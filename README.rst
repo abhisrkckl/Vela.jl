@@ -26,14 +26,15 @@ Installation
    julia> ] add LocalRegistry
    julia> ] registry add https://github.com/abhisrkckl/julia_registry
    julia> ] add https://github.com/abhisrkckl/Vela.jl
+   julia> exit()
+   (vela) $ pip install git+https://github.com/abhisrkckl/pint2vela
 
 Using from Python
 -----------------
 Here is what an example session looks like::
 
-   > from juliacall import Main as jl
-   > jl.seval("using Vela")
+   > from pint2vela import read_model_and_toas, vl
+   > 
    > vl = jl.Vela
-   > mv, tv = vl.read_model_and_toas("J1234+5678.hdf5")
-   > lnlike_s = vl.get_lnlike_serial_func(mv, tv)
-   > lnlike_p = vl.get_lnlike_parallel_func(mv, tv)
+   > mv, tv = read_model_and_toas("J1234+5678.par", "J1234+5678.tim")
+   > lnlike = vl.get_lnlike_func(mv, tv)
