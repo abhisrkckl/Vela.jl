@@ -40,7 +40,7 @@
         PMELAT = GQ(-7e-16, -1),
         PMELONG = GQ(-5e-16, -1),
         EFAC = (dimensionless(1.1),),
-        JUMP = (dimensionless(0.1), dimensionless(0.12)),
+        JUMP = (time(1e-6), time(1.2e-6)),
     )
 
     @testset "SolarSystem" begin
@@ -113,7 +113,7 @@
         pjmp = PhaseJump(jump_mask)
 
         @test phase(pjmp, ctzrtoa, params) == 0
-        @test phase(pjmp, ctoa, params) == params.JUMP[1]
+        @test phase(pjmp, ctoa, params) ≈ params.JUMP[1] * params.F_
 
         display(pjmp)
     end

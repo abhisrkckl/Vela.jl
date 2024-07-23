@@ -14,7 +14,7 @@ function phase(pjmp::PhaseJump, ctoa::CorrectedTOA, params::NamedTuple)::GQ
         return sum(
             jj -> pjmp.jump_mask[jj, ctoa.toa.index] * params.JUMP[jj],
             1:length(params.JUMP),
-        )
+        ) * (params.F_ + params.F[1])
     end
 end
 
