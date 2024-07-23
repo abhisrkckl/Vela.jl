@@ -363,6 +363,8 @@ def pint_model_to_vela(model: TimingModel, toas: TOAs):
 
 
 def read_model_and_toas(parfile: str, timfile: str):
+    """Read a pair of par & tim files and create a `Vela.TimingModel` object and a
+    Julia `Vector` of `TOA`s."""
     setup_log(level="WARNING")
     mp, tp = get_model_and_toas(
         parfile,
