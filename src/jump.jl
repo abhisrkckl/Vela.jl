@@ -1,3 +1,5 @@
+export PhaseJump
+
 """System-dependent phase jumps."""
 struct PhaseJump <: PhaseComponent
     jump_mask::BitMatrix
@@ -15,3 +17,9 @@ function phase(pjmp::PhaseJump, ctoa::CorrectedTOA, params::NamedTuple)::GQ
         )
     end
 end
+
+function show(io::IO, jmp::PhaseJump)
+    num_jumps = jmp.jump_mask.dims[1]
+    print(io, "PhaseJump($num_jumps JUMPs)")
+end
+show(io::IO, ::MIME"text/plain", jmp::PhaseJump) = show(io, jmp)

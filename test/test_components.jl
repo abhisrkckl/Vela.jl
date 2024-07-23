@@ -40,6 +40,7 @@
         PMELAT = GQ(-7e-16, -1),
         PMELONG = GQ(-5e-16, -1),
         EFAC = (dimensionless(1.1),),
+        JUMP = (dimensionless(0.1), dimensionless(0.12)),
     )
 
     @testset "SolarSystem" begin
@@ -91,6 +92,16 @@
         @test ctoa.spin_frequency == frequency(-1.0) &&
               ctoa1.spin_frequency > frequency(0.0)
 
+    end
+
+    @testset "PhaseJump" begin
+        jump_mask = BitMatrix([1 0 0; 0 1 0])
+        pjmp = PhaseJump(jump_mask)
+
+        @test phase(pjmp, ctzrtoa, params) == 0
+        @test phase(pjmp, ctoa, params) == params.JUMP[1]
+
+        display(pjmp)
     end
 
     # @testset "Troposphere" begin
