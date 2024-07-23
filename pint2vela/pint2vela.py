@@ -277,7 +277,7 @@ def pint_components_to_vela(model: TimingModel, toas: TOAs):
     elif "AstrometryEquatorial" in component_names:
         components.append(vl.SolarSystem(False, model.PLANET_SHAPIRO.value))
 
-    if "SolarWindDispersion" in component_names:
+    if "SolarWindDispersion" in component_names and model.NE_SW.value != 0:
         components.append(vl.SolarWindDispersion(int(model.SWM.value)))
 
     if "DispersionDM" in component_names:
