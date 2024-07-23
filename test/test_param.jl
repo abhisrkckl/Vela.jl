@@ -19,4 +19,6 @@
     params = read_params(ph, [100.01, -1.01e-14])
     @test Set(keys(params)) == Set([:PEPOCH, :F])
     @test params.F == (frequency(100.01), GQ(-1.01e-14, -2))
+
+    @test all(get_scale_factors(ph) .> 0)
 end

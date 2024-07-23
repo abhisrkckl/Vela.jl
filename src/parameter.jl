@@ -4,7 +4,8 @@ export Parameter,
     ParamHandler,
     read_params,
     get_free_param_names,
-    read_param_values_to_vector
+    read_param_values_to_vector,
+    get_scale_factors
 
 """A single model parameter.
 
