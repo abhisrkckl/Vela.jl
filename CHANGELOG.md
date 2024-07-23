@@ -15,6 +15,7 @@
 - Use `@spawn` and `fetch` instead of atomic operations for parallel chi2 and likelihood.
 - Move chi2 functions into a separate file `chi2.jl`
 - Move the higher order functions in `pyinter.jl` to `chi2.jl` and `likelihood.jl`
+- Updated `README` to use `pint2vela`
 ## Fixed
 ## Removed
 
