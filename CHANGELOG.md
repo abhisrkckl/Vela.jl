@@ -1,5 +1,6 @@
 # [Unreleased]
 ## Added
+- `basis_dot` function
 ## Changed
 ## Fixed
 ## Removed
@@ -22,7 +23,6 @@
 - Move chi2 functions into a separate file `chi2.jl`
 - Move the higher order functions in `pyinter.jl` to `chi2.jl` and `likelihood.jl`
 - Updated `README` to use `pint2vela`
-- `basis_dot` function
 ## Fixed
 ## Removed
 
