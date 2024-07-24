@@ -1,9 +1,15 @@
 # [Unreleased]
 ## Added
+- `load_pulsar_data()` and `save_pulsar_data()` functions
 - Auto-generation of HTML documentation using `Documenter`
 ## Changed
+- Reorganized source files into subdirectories
 ## Fixed
 ## Removed
+- `read_model_and_toas()` function. Data is now read from `JLSO` files created using `pint2vela`
+- `plot_summary()` function. (This is better done in Python.)
+- Tests using `PyArray` (This speeds up the test suite)
+- Support for Julia 1.9
 
 # [0.0.2] - 2024-07-24
 ## Added
@@ -39,9 +45,9 @@
 - `CorrectedTOA` type to represent accumulated corrections to a `TOA`.
 - `SolarSystemEphemeris` type to store solar system ephemerides
 - `ParamHandler` class and its friends to convert parameter vectors to named tuples
-- `correct_toa` function
+- `correct_toa()` function
 - Parallel and serial versions of the `chi2` and `lnlike` functions
-- `read_model_and_toas` to read data from `HDF5` files (created using `pint2vela.py`)
+- `read_model_and_toas()` to read data from `HDF5` files (created using `pint2vela.py`)
 - `pure_rotator` and `NGC6440E` examples
 - GitHub Actions for CI Tests and CodeCov upload
 - Basic `README` file

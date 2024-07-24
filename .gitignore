@@ -13,4 +13,6 @@ env.sh
 
 test/*.1
 
+__test.jlso
+
 docs/build
