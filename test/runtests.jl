@@ -4,9 +4,8 @@ using GeometricUnits
 using LinearAlgebra
 using DoubleFloats
 using JuliaFormatter
-using HDF5
 using BenchmarkTools
-using PythonCall
+using JLSO
 
 const day_to_s = 86400
 
@@ -19,6 +18,11 @@ const obs_venus_pos = distance.((140.85922773, -217.65571843, -74.64804201))
 const obs_uranus_pos = distance.((9936.62957939, -3089.07377113, -1486.17339104))
 const obs_neptune_pos = distance.((11518.60924426, -9405.0693235, -4126.91030657))
 const obs_earth_pos = distance.((0.01199435, 0.01159591, -0.01316261))
+
+function read_pulsar(filename::String)
+    data = JLSO.load(filename)
+    return data[:model], data[:toas]
+end
 
 @testset "Vela" verbose = true begin
 

@@ -1,5 +1,5 @@
 @testset "pure_rotator" begin
-    model, toas = read_model_and_toas("datafiles/pure_rotator.hdf5")
+    model, toas = read_pulsar("datafiles/pure_rotator.jlso")
 
     @testset "model info" begin
         @test model.pulsar_name == "SIM0"

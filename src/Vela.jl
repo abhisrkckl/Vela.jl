@@ -6,8 +6,6 @@ using DoubleFloats: Double64
 using LinearAlgebra: dot
 using .Threads: @spawn, fetch, nthreads
 using Unrolled: @unroll
-import HDF5
-import JSON
 
 include("toa/ephemeris.jl")
 include("toa/toa.jl")
@@ -25,6 +23,4 @@ include("model/timing_model.jl")
 include("residuals/residuals.jl")
 include("likelihood/chi2.jl")
 include("likelihood/likelihood.jl")
-include("read_model_and_toas.jl")
-include("summary_plot.jl")
 end

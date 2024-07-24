@@ -1,5 +1,5 @@
 @testset "NGC6440E" begin
-    model, toas = read_model_and_toas("datafiles/NGC6440E.hdf5")
+    model, toas = read_pulsar("datafiles/NGC6440E.jlso")
 
     @testset "read_toas" begin
         @test !any([toa.tzr for toa in toas])
@@ -77,9 +77,9 @@
         calc_chi2_p = get_chi2_parallel_func(model, toas)
         params = model.param_handler._default_params_tuple
         parv = read_param_values_to_vector(model.param_handler, params)
-        parnp = PyArray(parv)
-        chi2_s = calc_chi2_s(parnp)
-        chi2_p = calc_chi2_p(parnp)
+        # parnp = PyArray(parv)
+        chi2_s = calc_chi2_s(parv)
+        chi2_p = calc_chi2_p(parv)
         @test chi2_s / length(toas) < 1.1
         @test chi2_s ≈ chi2_p
     end
@@ -89,8 +89,8 @@
         calc_lnlike_p = get_lnlike_parallel_func(model, toas)
         params = model.param_handler._default_params_tuple
         parv = read_param_values_to_vector(model.param_handler, params)
-        parnp = PyArray(parv)
-        @test calc_lnlike_s(parnp) ≈ calc_lnlike_p(parnp)
+        # parnp = PyArray(parv)
+        @test calc_lnlike_s(parv) ≈ calc_lnlike_p(parv)
 
         @test @ballocated(Vela.calc_lnlike_serial($model, $toas, $params)) == 0
 
@@ -99,8 +99,8 @@
         @test calc_lnlike(model, toas, parv1) < calc_lnlike(model, toas, params)
     end
 
-    @testset "plot_summary" begin
-        plotfile = plot_pulsar_summary("datafiles/NGC6440E.hdf5")
-        @test isfile(plotfile)
-    end
+    # @testset "plot_summary" begin
+    #     plotfile = plot_pulsar_summary("datafiles/NGC6440E.hdf5")
+    #     @test isfile(plotfile)
+    # end
 end
