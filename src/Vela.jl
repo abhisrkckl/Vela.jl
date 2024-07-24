@@ -9,8 +9,8 @@ using Unrolled: @unroll
 import HDF5
 import JSON
 
-include("ephemeris.jl")
-include("toa.jl")
+include("toa/ephemeris.jl")
+include("toa/toa.jl")
 include("parameter.jl")
 include("component.jl")
 include("spindown.jl")
