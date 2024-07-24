@@ -1,7 +1,7 @@
 name = "Vela"
 uuid = "e20ed1ff-b155-4b65-a650-1609b657a8ad"
 authors = ["Abhimanyu Susobhanan <abhisrkckl@gmail.com>"]
-version = "0.0.1"
+version = "0.0.2"
 
 [deps]
 DoubleFloats = "497a8b3b-efae-58df-a0af-a86822472b78"
