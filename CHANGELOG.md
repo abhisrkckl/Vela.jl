@@ -2,6 +2,7 @@
 ## Added
 - `load_pulsar_data()` and `save_pulsar_data()` functions
 ## Changed
+- Reorganized source files into subdirectories
 ## Fixed
 ## Removed
 - `read_model_and_toas()` function. Data is now read from `JLSO` files created using `pint2vela`
