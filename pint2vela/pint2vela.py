@@ -379,3 +379,7 @@ def read_model_and_toas(parfile: str, timfile: str):
     toas = pint_toas_to_vela(tp)
 
     return model, toas
+
+def par_tim_to_jlso(parfile:str, timfile:str, jlsofile:str):
+    mv, tv = read_model_and_toas(parfile, timfile)
+    vl.save_pulsar_data(jlsofile, mv, tv)
