@@ -24,6 +24,9 @@
 - Updated `README` to use `pint2vela`
 ## Fixed
 ## Removed
+- `read_model_and_toas` function. Data is now read from `JLSO` files created using `pint2vela`
+- `plot_summary` function. (This is better done in Python.)
+- Tests using `PyArray` (This speeds up the test suite)
 
 # [0.0.1] - 2024-07-10
 ## Added
