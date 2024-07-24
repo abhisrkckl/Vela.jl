@@ -1,5 +1,11 @@
 # [Unreleased]
 ## Added
+## Changed
+## Fixed
+## Removed
+
+# [0.0.2] - 2024-07-24
+## Added
 - `CHANGELOG` file
 - Environment variables for safe Python interoperability in the `README` file
 - `index` field in `TOA`
