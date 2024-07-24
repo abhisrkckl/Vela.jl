@@ -6,7 +6,7 @@
         @test isfile("__test.jlso")
     end
 
-    @testset "read_toas" begin
+    @testset "toas" begin
         @test !any([toa.tzr for toa in toas])
         @test length(toas) == 62
         @test all([
@@ -20,7 +20,7 @@
 
     end
 
-    @testset "read_tzr_toa" begin
+    @testset "tzr_toa" begin
         tzrtoa = model.tzr_toa
         @test tzrtoa.tzr
         @test tzrtoa.error > time(0.0)
@@ -29,7 +29,7 @@
         @test time(53470.0 * day_to_s) < tzrtoa.value < time(54200.0 * day_to_s)
     end
 
-    @testset "read_param_handler" begin
+    @testset "param_handler" begin
         param_handler = model.param_handler
         @test Set(get_free_param_names(param_handler)) ==
               Set(["F0", "F1", "PHOFF", "RAJ", "DECJ", "DM"])
@@ -48,7 +48,7 @@
         ) == length(param_handler._free_indices)
     end
 
-    @testset "read_components" begin
+    @testset "components" begin
         components = model.components
         @test length(components) == 4
 
@@ -70,11 +70,10 @@
         # @test all([!isa(c, Troposphere) for c in components])
     end
 
-    @testset "form_residual" begin
+    @testset "form_residuals" begin
         params = model.param_handler._default_params_tuple
-        tzrphase = calc_tzr_phase(model, params)
-        res = form_residual(model, toas[1], params, tzrphase)
-        @test abs(res) < 3 * toas[1].error
+        res = Vela.form_residuals(model, toas, params)
+        @test all([abs(res / toa.error) < 3 for (res, toa) in zip(res, toas)])
     end
 
     @testset "calc_chi2" begin

@@ -14,7 +14,7 @@ function form_residuals(
     params::NamedTuple,
 )::Vector{GQ}
     tzrphase = calc_tzr_phase(model, params)
-    return [form_residual(model, toa, params, tzrphase) for toa in toas]
+    return map(toa -> form_residual(model, toa, params, tzrphase), toas)
 end
 
 """Compute the phase corresponding to the TZR TOA."""
