@@ -1,5 +1,10 @@
 @testset "NGC6440E" begin
-    model, toas = read_pulsar("datafiles/NGC6440E.jlso")
+    model, toas = Vela.load_pulsar_data("datafiles/NGC6440E.jlso")
+
+    @testset "file save" begin
+        Vela.save_pulsar_data("__test.jlso", model, toas)
+        @test isfile("__test.jlso")
+    end
 
     @testset "read_toas" begin
         @test !any([toa.tzr for toa in toas])

@@ -1,5 +1,5 @@
 @testset "pure_rotator" begin
-    model, toas = read_pulsar("datafiles/pure_rotator.jlso")
+    model, toas = Vela.load_pulsar_data("datafiles/pure_rotator.jlso")
 
     @testset "model info" begin
         @test model.pulsar_name == "SIM0"

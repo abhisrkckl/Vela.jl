@@ -6,6 +6,7 @@ using DoubleFloats: Double64
 using LinearAlgebra: dot
 using .Threads: @spawn, fetch, nthreads
 using Unrolled: @unroll
+import JLSO
 
 include("toa/ephemeris.jl")
 include("toa/toa.jl")
@@ -23,4 +24,5 @@ include("model/timing_model.jl")
 include("residuals/residuals.jl")
 include("likelihood/chi2.jl")
 include("likelihood/likelihood.jl")
+include("readwrite/readwrite.jl")
 end
