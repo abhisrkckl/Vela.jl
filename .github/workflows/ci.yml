@@ -1,0 +1,35 @@
+name: CI
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main  
+    tags: '*'
+  workflow_dispatch:
+jobs:
+  examples:
+    name: Python ${{ matrix.python-version }} - ${{ github.event_name }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.12"]
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: |
+          julia -e 'import Pkg; Pkg.add(url="https://github.com/abhisrkckl/Vela.jl")'
+          pip install .
+      - name: Run examples
+        run: |
+          cd examples
+            par_tim-to-jlso.py NGC6440E.par NGC6440E.tim NGC6440E.jlso
+            ./run_example.py pure_rotator.par pure_rotator.tim
+            ./run_example.py NGC6440E.par NGC6440E.tim
+            ./run_example.py sim1.par sim1.tim
+            ./run_example.py sim_jump.par sim_jump.tim
