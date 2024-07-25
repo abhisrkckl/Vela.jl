@@ -1,0 +1,3 @@
+struct WaveX <: DelayComponent
+
+end
