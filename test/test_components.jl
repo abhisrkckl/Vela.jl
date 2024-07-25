@@ -32,7 +32,7 @@
         F_ = frequency(100.0),
         F = (frequency(0.0), GQ(-1e-14, -2)),
         DMEPOCH = time(53470.0 * day_to_s),
-        DM = (GQ(10.0, -1), GQ(1e-4, -2)),
+        DM = (GQ(6e+16, -1), GQ(2e+4, -2)),
         POSEPOCH = time(53470.0 * day_to_s),
         ELAT = dimensionless(1.2),
         ELONG = dimensionless(1.25),
@@ -41,6 +41,14 @@
         PMELONG = GQ(-5e-16, -1),
         EFAC = (dimensionless(1.1),),
         JUMP = (time(1e-6), time(1.2e-6)),
+        WXEPOCH = time(53470.0 * day_to_s),
+        WXFREQ_ = (frequency(1e-9), frequency(2e-9), frequency(3e-9)),
+        WXSIN_ = (time(1.2e-6), time(5.1e-7), time(2.5e-7)),
+        WXCOS_ = (time(-1.3e-6), time(5.2e-7), time(2.6e-7)),
+        DMWXEPOCH = time(53470.0 * day_to_s),
+        DMWXFREQ_ = (frequency(1e-9), frequency(2e-9), frequency(3e-9)),
+        DMWXSIN_ = (time(1.2e+4), time(5.1e+3), time(2.5e+2)),
+        DMWXCOS_ = (time(-1.3e+4), time(5.2e+3), time(2.6e+3)),
     )
 
     @testset "SolarSystem" begin
@@ -70,9 +78,19 @@
 
     @testset "DispersionTaylor" begin
         dmt = DispersionTaylor()
-        @test dispersion_slope(dmt, ctoa, params) == GQ(10.0, -1)
+        @test dispersion_slope(dmt, ctoa, params) == params.DM[1]
         @test delay(dmt, ctoa, params) ==
               dispersion_slope(dmt, ctoa, params) / ctoa.toa.observing_frequency^2
+    end
+
+    @testset "WaveX" begin
+        wx = WaveX()
+        @test isfinite(delay(wx, ctoa, params))
+    end
+
+    @testset "DMWaveX" begin
+        dmwx = DMWaveX()
+        @test isfinite(delay(dmwx, ctoa, params))
     end
 
     @testset "PhaseOffset" begin
