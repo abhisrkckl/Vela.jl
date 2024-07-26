@@ -3,7 +3,7 @@ export TimingModel, correct_toa, form_residual, calc_chi2, calc_lnlike, calc_tzr
 """The pulsar timing & noise model.
 
 Corresponds to `TimingModel` in `PINT`."""
-struct TimingModel{ComponentsTuple<:Tuple, PriorsTuple<:Tuple}
+struct TimingModel{ComponentsTuple<:Tuple,PriorsTuple<:Tuple}
     pulsar_name::String
     ephem::String
     clock::String
@@ -21,12 +21,12 @@ struct TimingModel{ComponentsTuple<:Tuple, PriorsTuple<:Tuple}
         components::Tuple,
         param_handler::ParamHandler,
         tzr_toa::TOA,
-        priors::Tuple
+        priors::Tuple,
     )
         @assert tzr_toa.tzr "Invalid TZR TOA."
         @assert all(map(c -> isa(c, Component), components)) "components must be a tuple containing Component objects."
 
-        return new{typeof(components), typeof(priors)}(
+        return new{typeof(components),typeof(priors)}(
             pulsar_name,
             ephem,
             clock,

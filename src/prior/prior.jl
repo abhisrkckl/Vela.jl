@@ -1,6 +1,7 @@
 abstract type Prior end
 
-lnprior(prior::Prior, params::NamedTuple) = logpdf(distr(prior, params), value(params[prior.name]))
+lnprior(prior::Prior, params::NamedTuple) =
+    logpdf(distr(prior, params), value(params[prior.name]))
 prior_transform(prior::Prior, q) = GQ(quantile(distr(prior, params), q), prior.dim)
 
 lnprior(priors, params::NamedTuple) = sum(prior -> lnprior(prior, params), priors)
