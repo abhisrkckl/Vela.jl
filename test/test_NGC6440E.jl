@@ -7,7 +7,16 @@
     end
 
     @testset "copy" begin
-        m2 = TimingModel(model.pulsar_name, model.components, model.param_handler, model.tzr_toa, model.priors)
+        m2 = TimingModel(
+            model.pulsar_name,
+            model.ephem,
+            model.clock,
+            model.units,
+            model.components,
+            model.param_handler,
+            model.tzr_toa,
+            model.priors,
+        )
     end
 
     @testset "read_toas" begin
