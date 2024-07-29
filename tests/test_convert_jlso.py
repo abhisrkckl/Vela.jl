@@ -20,3 +20,5 @@ def test_convert_jlso():
         "F0",
         "F1",
     }
+
+    os.unlink("__NGC6440E.jlso")
