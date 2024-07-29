@@ -43,6 +43,7 @@ def get_default_prior(
     if (
         isinstance(param, (floatParameter, MJDParameter, AngleParameter))
         and param_name not in pseudo_single_params
+        and not hasattr(param, "prefix")
     ):
         pname = jl.Symbol(param_name)
         return vl.SimplePrior[pname](pdist)
