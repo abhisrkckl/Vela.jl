@@ -26,6 +26,7 @@ struct TimingModel{ComponentsTuple<:Tuple,PriorsTuple<:Tuple}
         @assert tzr_toa.tzr "Invalid TZR TOA."
         @assert all(map(c -> isa(c, Component), components)) "components must be a tuple containing Component objects."
         @assert all(map(p -> isa(p, Prior), priors)) "priors must be a tuple containing Prior objects."
+        @assert length(priors) == length(get_free_param_names(param_handler)) "The number of prior distributions must match the number of free parameters."
 
         return new{typeof(components),typeof(priors)}(
             pulsar_name,
