@@ -6,6 +6,10 @@
         @test isfile("__test.jlso")
     end
 
+    @testset "copy" begin
+        deepcopy(model)
+    end
+
     @testset "read_toas" begin
         @test !any([toa.tzr for toa in toas])
         @test length(toas) == 62
