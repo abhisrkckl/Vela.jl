@@ -6,6 +6,19 @@
         @test isfile("__test.jlso")
     end
 
+    @testset "copy" begin
+        m2 = TimingModel(
+            model.pulsar_name,
+            model.ephem,
+            model.clock,
+            model.units,
+            model.components,
+            model.param_handler,
+            model.tzr_toa,
+            model.priors,
+        )
+    end
+
     @testset "read_toas" begin
         @test !any([toa.tzr for toa in toas])
         @test length(toas) == 62
@@ -104,8 +117,16 @@
         @test calc_lnlike(model, toas, parv1) < calc_lnlike(model, toas, params)
     end
 
-    # @testset "plot_summary" begin
-    #     plotfile = plot_pulsar_summary("datafiles/NGC6440E.hdf5")
-    #     @test isfile(plotfile)
-    # end
+    @testset "priors" begin
+        calc_lnprior = get_lnprior_func(model)
+        params = model.param_handler._default_params_tuple
+        parv = read_param_values_to_vector(model.param_handler, params)
+        @test isfinite(calc_lnprior(model.param_handler._default_params_tuple))
+        @test calc_lnprior(params) == calc_lnprior(parv)
+
+        prior_transform = get_prior_transform_func(model)
+        halfs = fill(0.5, length(parv))
+        @test all(isfinite.(prior_transform(halfs)))
+        @test all(prior_transform(halfs) .≈ parv)
+    end
 end

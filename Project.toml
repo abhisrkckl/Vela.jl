@@ -4,6 +4,7 @@ authors = ["Abhimanyu Susobhanan <abhisrkckl@gmail.com>"]
 version = "0.0.2"
 
 [deps]
+Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
 DoubleFloats = "497a8b3b-efae-58df-a0af-a86822472b78"
 GeometricUnits = "43c95830-f66f-43f3-8298-be5f3865d5b9"
 JLSO = "9da8a3cd-07a3-59c0-a743-3fdc52c30d11"

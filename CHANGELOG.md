@@ -1,8 +1,13 @@
 # [Unreleased]
 ## Added
 - `load_pulsar_data()` and `save_pulsar_data()` functions
+- `Prior` as the abstract base class for prior distributions
+- `SimplePriorBase`, `SimplePrior` and `SimplePriorMulti` to represent priors that can be factorized parameter-wise.
+- `distr()`, `lnprior()` and `prior_transform()` functions.
+- `get_lnprior_func()` and `get_prior_transform_func()` functions.
 ## Changed
 - Reorganized source files into subdirectories
+- Replaced `par` and `tim` files for testing with `JLSO` files
 ## Fixed
 ## Removed
 - `read_model_and_toas()` function. Data is now read from `JLSO` files created using `pint2vela`
