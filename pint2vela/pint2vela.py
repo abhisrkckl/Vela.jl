@@ -13,87 +13,8 @@ from pint.models.parameter import (
 )
 from pint.toa import TOAs
 
-from juliacall import Main as jl
-
-jl.seval("import Vela")
-vl = jl.Vela
-
-day_to_s = 86400
-
-
-def pint_toa_to_vela(toas: TOAs, idx: int, tzr: bool = False):
-    assert toas.planets
-    assert toas.get_pulse_numbers() is not None
-
-    tdb_ld = toas.table["tdbld"].value[idx]
-    tdb_str = np.format_float_positional(tdb_ld, unique=True)
-    tdb = vl.time(jl.parse(vl.Double64, tdb_str) * day_to_s)
-
-    phase = (
-        toas.table["pulse_number"].value[idx]
-        - toas.table["delta_pulse_number"].value[idx]
-    )
-    phase = vl.dimensionless(jl.parse(vl.Double64, str(phase)))
-
-    err = vl.time(toas.get_errors()[idx].si.value)
-    freq = vl.frequency(toas.get_freqs()[idx].si.value)
-
-    ssb_obs_pos = jl.map(
-        vl.distance,
-        jl.Tuple(toas.table["ssb_obs_pos"].quantity[idx].to_value("lightsecond")),
-    )
-    ssb_obs_vel = jl.map(
-        vl.speed,
-        jl.Tuple(toas.table["ssb_obs_vel"].quantity[idx].to_value("lightsecond/s")),
-    )
-    obs_sun_pos = jl.map(
-        vl.distance,
-        jl.Tuple(toas.table["obs_sun_pos"].quantity[idx].to_value("lightsecond")),
-    )
-
-    obs_jupiter_pos = jl.map(
-        vl.distance,
-        jl.Tuple(toas.table["obs_jupiter_pos"].quantity[idx].to_value("lightsecond")),
-    )
-    obs_saturn_pos = jl.map(
-        vl.distance,
-        jl.Tuple(toas.table["obs_saturn_pos"].quantity[idx].to_value("lightsecond")),
-    )
-    obs_venus_pos = jl.map(
-        vl.distance,
-        jl.Tuple(toas.table["obs_venus_pos"].quantity[idx].to_value("lightsecond")),
-    )
-    obs_uranus_pos = jl.map(
-        vl.distance,
-        jl.Tuple(toas.table["obs_uranus_pos"].quantity[idx].to_value("lightsecond")),
-    )
-    obs_neptune_pos = jl.map(
-        vl.distance,
-        jl.Tuple(toas.table["obs_neptune_pos"].quantity[idx].to_value("lightsecond")),
-    )
-    obs_earth_pos = jl.map(
-        vl.distance,
-        jl.Tuple(toas.table["obs_earth_pos"].quantity[idx].to_value("lightsecond")),
-    )
-
-    ephem = vl.SolarSystemEphemeris(
-        ssb_obs_pos,
-        ssb_obs_vel,
-        obs_sun_pos,
-        obs_jupiter_pos,
-        obs_saturn_pos,
-        obs_venus_pos,
-        obs_uranus_pos,
-        obs_neptune_pos,
-        obs_earth_pos,
-    )
-
-    return vl.TOA(tdb, err, freq, phase, False, tzr, ephem, idx + 1)
-
-
-def pint_toas_to_vela(toas: TOAs):
-    return jl.Vector[vl.TOA]([pint_toa_to_vela(toas, idx) for idx in range(len(toas))])
-
+from .vela import jl, vl
+from .convert_toas import pint_toa_to_vela, pint_toas_to_vela, day_to_s
 
 def pint_parameter_to_vela(param: Parameter):
     scale_factor = (
@@ -148,6 +69,9 @@ def _get_multiparam_elements(model: TimingModel, multi_param_names: List[str]):
     return jl.Vector[vl.Parameter](elements)
 
 
+pseudo_single_params = ["DM", "CM"]
+
+
 def pint_parameters_to_vela(model: TimingModel):
     ignore_params = [
         "START",
@@ -161,8 +85,6 @@ def pint_parameters_to_vela(model: TimingModel):
         "TZRFRQ",
         "SWM",
     ]
-
-    pseudo_single_params = ["DM", "CM"]
 
     assert all(psp not in ignore_params for psp in pseudo_single_params)
     assert all(
@@ -336,7 +258,75 @@ def pint_components_to_vela(model: TimingModel, toas: TOAs):
     return components
 
 
-def pint_model_to_vela(model: TimingModel, toas: TOAs):
+def get_default_prior(
+    model: TimingModel,
+    param_name: str,
+    cheat_prior_scale: float,
+    custom_prior_dists: dict,
+):
+    assert param_name in model.free_params
+
+    param = model[param_name]
+
+    scale_factor = (
+        param.tcb2tdb_scale_factor if param.tcb2tdb_scale_factor is not None else 1
+    )
+
+    assert param.uncertainty is not None and param.uncertainty > 0
+
+    val = (
+        param.value * day_to_s
+        if isinstance(param, MJDParameter)
+        else (param.quantity * scale_factor).si.value
+    )
+    err = (param.uncertainty * scale_factor).si.value
+
+    pmin = val - cheat_prior_scale * err
+    pmax = val + cheat_prior_scale * err
+
+    pdist = custom_prior_dists.get(param_name, jl.Uniform(pmin, pmax))
+
+    if (
+        isinstance(param, (floatParameter, MJDParameter, AngleParameter))
+        and param_name not in pseudo_single_params
+    ):
+        pname = jl.Symbol(param_name)
+        return vl.SimplePrior[pname](pdist)
+    elif hasattr(param, "prefix") and param.prefix not in pseudo_single_params:
+        pname = jl.Symbol(param.prefix)
+        index = (
+            list(model.get_prefix_mapping(param.prefix).values()).index(param_name) + 1
+        )
+        return vl.SimplePriorMulti[pname, index](pdist)
+    elif param_name in pseudo_single_params:
+        pname = jl.Symbol(param_name)
+        return vl.SimplePriorMulti[pname, 1](pdist)
+    elif param.prefix in pseudo_single_params:
+        pname = jl.Symbol(param.prefix)
+        index = (
+            list(model.get_prefix_mapping(param.prefix).values()).index(param_name) + 2
+        )
+        return vl.SimplePriorMulti[pname, index](pdist)
+
+
+def get_default_priors(
+    model: TimingModel,
+    free_params: List[str],
+    cheat_prior_scale: float,
+    custom_prior_dists: dict,
+):
+    return tuple(
+        get_default_prior(model, param_name, cheat_prior_scale, custom_prior_dists)
+        for param_name in free_params
+    )
+
+
+def pint_model_to_vela(
+    model: TimingModel,
+    toas: TOAs,
+    cheat_prior_scale: float = 10.0,
+    custom_prior_dists: dict = {},
+):
     toas.compute_pulse_numbers(model)
     fix_params(model)
 
@@ -346,6 +336,12 @@ def pint_model_to_vela(model: TimingModel, toas: TOAs):
 
     single_params, multi_params = pint_parameters_to_vela(model)
     param_handler = vl.ParamHandler(single_params, multi_params)
+
+    free_params = vl.get_free_param_names(param_handler)
+
+    priors = get_default_priors(
+        model, free_params, cheat_prior_scale, custom_prior_dists
+    )
 
     tzr_toa = model.get_TZR_toa(toas)
     tzr_toa.compute_pulse_numbers(model)
@@ -359,6 +355,7 @@ def pint_model_to_vela(model: TimingModel, toas: TOAs):
         components,
         param_handler,
         tzr_toa,
+        priors,
     )
 
 
