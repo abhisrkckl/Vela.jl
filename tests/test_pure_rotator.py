@@ -34,3 +34,10 @@ def test_likelihood(data_pure_rotator):
     mv, tv, params = data_pure_rotator
     calc_lnlike = vl.get_lnlike_func(mv, tv)
     assert np.isfinite(calc_lnlike(params))
+
+
+def test_prior(data_pure_rotator):
+    mv, _, params = data_pure_rotator
+    calc_lnprior = vl.get_lnprior_func(mv)
+    assert np.isfinite(calc_lnprior(mv.param_handler._default_params_tuple))
+    assert calc_lnprior(params) == calc_lnprior(mv.param_handler._default_params_tuple)

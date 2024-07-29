@@ -6,7 +6,7 @@ from pint2vela.vela import vl
 
 
 @pytest.fixture
-def data_pure_rotator():
+def data_NGC6440E():
     mv, tv = read_model_and_toas("datafiles/NGC6440E.par", "datafiles/NGC6440E.tim")
     params = vl.read_param_values_to_vector(
         mv.param_handler, mv.param_handler._default_params_tuple
@@ -14,8 +14,8 @@ def data_pure_rotator():
     return mv, tv, params
 
 
-def test_data(data_pure_rotator):
-    mv, tv, params = data_pure_rotator
+def test_data(data_NGC6440E):
+    mv, tv, params = data_NGC6440E
 
     assert len(tv) == 62
 
@@ -38,20 +38,20 @@ def test_data(data_pure_rotator):
     assert all([pn.startswith(prn) for pn, prn in zip(pnames, prnames)])
 
 
-def test_chi2(data_pure_rotator):
-    mv, tv, params = data_pure_rotator
+def test_chi2(data_NGC6440E):
+    mv, tv, params = data_NGC6440E
     calc_chi2 = vl.get_chi2_func(mv, tv)
     assert calc_chi2(params) / len(tv) < 1.1
 
 
-def test_likelihood(data_pure_rotator):
-    mv, tv, params = data_pure_rotator
+def test_likelihood(data_NGC6440E):
+    mv, tv, params = data_NGC6440E
     calc_lnlike = vl.get_lnlike_func(mv, tv)
     assert np.isfinite(calc_lnlike(params))
 
 
-def test_prior(data_pure_rotator):
-    mv, _, params = data_pure_rotator
+def test_prior(data_NGC6440E):
+    mv, _, params = data_NGC6440E
     calc_lnprior = vl.get_lnprior_func(mv)
     assert np.isfinite(calc_lnprior(mv.param_handler._default_params_tuple))
     assert calc_lnprior(params) == calc_lnprior(mv.param_handler._default_params_tuple)
