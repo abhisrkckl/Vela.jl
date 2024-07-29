@@ -8,13 +8,13 @@
 ## Changed
 - Reorganized source files into subdirectories
 - Replaced `par` and `tim` files for testing with `JLSO` files
+- Moved `pint2vela.py` to separate repo, added it as a submodule.
 ## Fixed
 ## Removed
 - `read_model_and_toas()` function. Data is now read from `JLSO` files created using `pint2vela`
 - `plot_summary()` function. (This is better done in Python.)
 - Tests using `PyArray` (This speeds up the test suite)
 - Support for Julia 1.9
-- Moved `pint2vela.py` to separate repo
 
 # [0.0.2] - 2024-07-24
 ## Added
