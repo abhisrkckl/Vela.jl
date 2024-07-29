@@ -7,7 +7,7 @@
     end
 
     @testset "copy" begin
-        deepcopy(model)
+        m2 = TimingModel(model.pulsar_name, model.components, model.param_handler, model.tzr_toa, model.priors)
     end
 
     @testset "read_toas" begin
