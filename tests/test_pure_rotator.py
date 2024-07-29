@@ -1,12 +1,20 @@
 import numpy as np
-from pint2vela import read_model_and_toas, vl
 import pytest
+
+from pint2vela import read_model_and_toas
+from pint2vela.vela import vl
+
 
 @pytest.fixture
 def data_pure_rotator():
-    mv, tv = read_model_and_toas("datafiles/pure_rotator.par", "datafiles/pure_rotator.tim")
-    params = vl.read_param_values_to_vector(mv.param_handler, mv.param_handler._default_params_tuple)
+    mv, tv = read_model_and_toas(
+        "datafiles/pure_rotator.par", "datafiles/pure_rotator.tim"
+    )
+    params = vl.read_param_values_to_vector(
+        mv.param_handler, mv.param_handler._default_params_tuple
+    )
     return mv, tv, params
+
 
 def test_data(data_pure_rotator):
     mv, tv, params = data_pure_rotator
@@ -15,10 +23,12 @@ def test_data(data_pure_rotator):
     assert set(vl.get_free_param_names(mv.param_handler)) == {"PHOFF", "F0", "F1"}
     assert len(params) == 3
 
+
 def test_chi2(data_pure_rotator):
     mv, tv, params = data_pure_rotator
     calc_chi2 = vl.get_chi2_func(mv, tv)
     assert calc_chi2(params) / len(tv) < 1.1
+
 
 def test_likelihood(data_pure_rotator):
     mv, tv, params = data_pure_rotator

@@ -1,1 +1,1 @@
-from .pint2vela import get_model_and_toas
+from .pint2vela import read_model_and_toas
