@@ -13,7 +13,7 @@ from scipy.stats import uniform
 from matplotlib import pyplot as plt
 import sys
 
-from pint2vela import read_model_and_toas, vl
+from pint2vela import read_model_and_toas, Vela as vl
 
 # %%
 setup_log(level="WARNING")
@@ -37,6 +37,7 @@ bt = BayesianTiming(m, t, use_pulse_numbers=True)
 # %%
 mv, tv = read_model_and_toas(parfile, timfile)
 lnlike = vl.get_lnlike_func(mv, tv)
+prior_transform = vl.get_prior_transform_func(mv)
 
 # %%
 param_names = vl.get_free_param_names(mv.param_handler)
@@ -58,18 +59,8 @@ assert np.allclose(
     maxlike_params_p[param_idxs] * scale_factors - shifts, maxlike_params_v
 )
 
-
 # %%
-def lnlike_vela(params):
-    # This function takes the parameters in the PINT order,
-    # reorders them, and passes them to the Vela lnlike function.
-    # Not the most optimal way to do this, since this introduces
-    # a Python overhead.
-    return lnlike(params[param_idxs] * scale_factors - shifts)
-
-
-# %%
-print(lnlike_vela(maxlike_params_p), bt.lnlikelihood(maxlike_params_p))
+print(lnlike(maxlike_params_v), bt.lnlikelihood(maxlike_params_p))
 
 # %%
 # %timeit lnlike_vela(maxlike_params_p)
@@ -77,8 +68,8 @@ print(lnlike_vela(maxlike_params_p), bt.lnlikelihood(maxlike_params_p))
 
 # %%
 result_nestle_v = nestle.sample(
-    lnlike_vela,
-    bt.prior_transform,
+    lnlike,
+    prior_transform,
     bt.nparams,
     method="multi",
     npoints=150,
@@ -99,16 +90,18 @@ result_nestle_p = nestle.sample(
 )
 print()
 
+samples_v = (result_nestle_v.samples + shifts) / scale_factors
+
 # %%
 fig = corner.corner(
-    result_nestle_p.samples,
+    result_nestle_p.samples[:, param_idxs],
     weights=result_nestle_p.weights,
-    labels=bt.param_labels,
+    labels=np.array(bt.param_labels)[param_idxs],
     label_kwargs={"fontsize": 15},
     range=[0.999] * bt.nparams,
 )
 corner.corner(
-    result_nestle_v.samples,
+    samples_v,
     weights=result_nestle_v.weights,
     labels=bt.param_labels,
     label_kwargs={"fontsize": 15},
@@ -116,5 +109,6 @@ corner.corner(
     fig=fig,
     color="red",
 )
+plt.suptitle(m.PSR.value)
 plt.tight_layout()
 plt.show()
