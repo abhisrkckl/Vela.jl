@@ -25,9 +25,13 @@ def get_default_prior(
     assert param.uncertainty is not None and param.uncertainty > 0
 
     val = (
-        param.value * day_to_s
-        if isinstance(param, MJDParameter)
-        else (param.quantity * scale_factor).si.value
+        (
+            param.value * day_to_s
+            if isinstance(param, MJDParameter)
+            else (param.quantity * scale_factor).si.value
+        )
+        if param_name != "F0"
+        else 0.0
     )
     err = (param.uncertainty * scale_factor).si.value
 
