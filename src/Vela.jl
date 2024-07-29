@@ -6,6 +6,7 @@ using DoubleFloats: Double64
 using LinearAlgebra: dot
 using .Threads: @spawn, fetch, nthreads
 using Unrolled: @unroll
+using Distributions: Distribution, logpdf, quantile
 import JLSO
 
 include("toa/ephemeris.jl")
@@ -23,6 +24,8 @@ include("model/solarwind.jl")
 include("model/wavex.jl")
 include("model/measurement_noise.jl")
 include("model/timing_model.jl")
+include("prior/prior.jl")
+include("prior/simple_prior.jl")
 include("residuals/residuals.jl")
 include("likelihood/chi2.jl")
 include("likelihood/likelihood.jl")

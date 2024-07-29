@@ -105,4 +105,18 @@
 
         @test @ballocated(Vela.calc_lnlike_serial($model, $toas, $params)) == 0
     end
+
+    @testset "priors" begin
+        calc_lnprior = get_lnprior_func(model)
+        params = model.param_handler._default_params_tuple
+        parv = read_param_values_to_vector(model.param_handler, params)
+        @test isfinite(calc_lnprior(model.param_handler._default_params_tuple))
+        @test calc_lnprior(params) == calc_lnprior(parv)
+
+        prior_transform = get_prior_transform_func(model)
+        prior_transform = get_prior_transform_func(model)
+        halfs = fill(0.5, length(parv))
+        @test all(isfinite.(prior_transform(halfs)))
+        @test all(prior_transform(halfs) .≈ parv)
+    end
 end
