@@ -7,7 +7,9 @@ abstract type Prior end
 lnprior(prior::Prior, params::NamedTuple) =
     logpdf(distr(prior, params), param_value(prior, params))
 lnprior(priors, params::NamedTuple) = sum(prior -> lnprior(prior, params), priors)
+lnprior(priors, params) = mapreduce(lnprior, +, priors, params)
 lnprior(model::TimingModel, params::NamedTuple) = lnprior(model.priors, params)
+lnprior(model::TimingModel, params) = lnprior(model.priors, params)
 get_lnprior_func(model::TimingModel) = params -> lnprior(model, params)
 
 """Evaluate the prior transform function."""

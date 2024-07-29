@@ -5,6 +5,8 @@ abstract type SimplePriorBase <: Prior end
 distr(sp::SimplePriorBase, ::NamedTuple)::Distribution = sp.distribution
 prior_transform(prior::SimplePriorBase, q) = quantile(prior.distribution, q)
 
+lnprior(prior::SimplePriorBase, param::Float64) = logpdf(prior.distribution, param)
+
 struct SimplePrior{name,D<:Distribution} <: SimplePriorBase
     distribution::D
 end
@@ -24,7 +26,7 @@ end
 
 function SimplePriorMulti{name,index}(distr::Distribution) where {name,index}
     @assert name isa Symbol
-    @assert index isa UInt
+    @assert index isa Integer && index >= 0
     return SimplePriorMulti{name,index,typeof(distr)}(distr)
 end
 
