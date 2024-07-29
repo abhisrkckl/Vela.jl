@@ -6,6 +6,7 @@ from .vela import jl, vl
 
 day_to_s = 86400
 
+
 def pint_toa_to_vela(toas: TOAs, idx: int, tzr: bool = False):
     assert toas.planets
     assert toas.get_pulse_numbers() is not None
