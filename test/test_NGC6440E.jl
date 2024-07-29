@@ -104,8 +104,11 @@
         @test calc_lnlike(model, toas, parv1) < calc_lnlike(model, toas, params)
     end
 
-    # @testset "plot_summary" begin
-    #     plotfile = plot_pulsar_summary("datafiles/NGC6440E.hdf5")
-    #     @test isfile(plotfile)
-    # end
+    @testset "priors" begin
+        calc_lnprior = get_lnprior_func(model)
+        params = model.param_handler._default_params_tuple
+        @test isfinite(calc_lnprior(model.param_handler._default_params_tuple))
+        @test calc_lnprior(params) ==
+              calc_lnprior(read_param_values_to_vector(model.param_handler, params))
+    end
 end
