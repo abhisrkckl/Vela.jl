@@ -8,23 +8,23 @@
         @test @ballocated(lnprior($phoff_prior, $params)) == 0
         @test !isfinite(lnprior(phoff_prior, bad_params))
         @test prior_transform(phoff_prior, 0.5) == 0
-        @test param_name(phoff_prior) == :PHOFF
+        @test Vela.param_name(phoff_prior) == :PHOFF
 
         f0_prior = SimplePriorMulti{:F,UInt(1)}(truncated(Normal(100.0, 1e-7); lower = 0.0))
         @test isfinite(lnprior(f0_prior, params))
         @test @ballocated(lnprior($f0_prior, $params)) == 0
         @test !isfinite(lnprior(f0_prior, bad_params))
         @test prior_transform(f0_prior, 0.5) ≈ 100.0
-        @test param_name(phoff_prior) == :F
-        @test param_index(phoff_prior) == 1
+        @test Vela.param_name(f0_prior) == :F
+        @test Vela.param_index(f0_prior) == 1
 
         f1_prior = SimplePriorMulti{:F,UInt(2)}(Uniform(-1.01e-14, -0.9e-14))
         @test isfinite(lnprior(f1_prior, params))
         @test @ballocated(lnprior($f1_prior, $params)) == 0
         @test !isfinite(lnprior(f1_prior, bad_params))
         @test prior_transform(f1_prior, 0.0) == -1.01e-14
-        @test param_name(phoff_prior) == :F
-        @test param_index(phoff_prior) == 2
+        @test Vela.param_name(f1_prior) == :F
+        @test Vela.param_index(f1_prior) == 2
 
         priors = (phoff_prior, f0_prior, f1_prior)
         @test isfinite(lnprior(priors, params))

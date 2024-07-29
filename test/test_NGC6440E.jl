@@ -112,6 +112,6 @@
         @test calc_lnprior(params) == calc_lnprior(parv)
 
         prior_transform = get_prior_transform_func(model)
-        @test all(isfinite(prior_transform(fill(0.5, length(parv)))))
+        @test all(isfinite.(prior_transform(fill(0.5, length(parv)))))
     end
 end
