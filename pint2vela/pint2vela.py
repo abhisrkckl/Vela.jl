@@ -84,6 +84,7 @@ def read_model_and_toas(parfile: str, timfile: str):
 
     return model, toas
 
-def par_tim_to_jlso(parfile:str, timfile:str, jlsofile:str):
+
+def par_tim_to_jlso(parfile: str, timfile: str, jlsofile: str):
     mv, tv = read_model_and_toas(parfile, timfile)
     vl.save_pulsar_data(jlsofile, mv, tv)

@@ -16,9 +16,13 @@ def data_pure_rotator():
 
 def test_data(data_pure_rotator):
     mv, tv, params = data_pure_rotator
+
     assert len(tv) == 62
+
     assert len(mv.components) == 4
-    assert set(vl.get_free_param_names(mv.param_handler)) == {
+
+    pnames = vl.get_free_param_names(mv.param_handler)
+    assert set(pnames) == {
         "RAJ",
         "DECJ",
         "DM",
@@ -26,7 +30,12 @@ def test_data(data_pure_rotator):
         "F0",
         "F1",
     }
+
     assert len(params) == 6
+
+    prnames = [str(vl.param_name(pr)) for pr in mv.priors]
+    assert len(mv.priors) == len(pnames)
+    assert all([pn.startswith(prn) for pn, prn in zip(pnames, prnames)])
 
 
 def test_chi2(data_pure_rotator):
@@ -39,3 +48,10 @@ def test_likelihood(data_pure_rotator):
     mv, tv, params = data_pure_rotator
     calc_lnlike = vl.get_lnlike_func(mv, tv)
     assert np.isfinite(calc_lnlike(params))
+
+
+def test_prior(data_pure_rotator):
+    mv, _, params = data_pure_rotator
+    calc_lnprior = vl.get_lnprior_func(mv)
+    assert np.isfinite(calc_lnprior(mv.param_handler._default_params_tuple))
+    assert calc_lnprior(params) == calc_lnprior(mv.param_handler._default_params_tuple)
