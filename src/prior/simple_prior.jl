@@ -3,7 +3,10 @@ export SimplePrior, SimplePriorMulti
 abstract type SimplePriorBase <: Prior end
 
 distr(sp::SimplePriorBase, ::NamedTuple)::Distribution = sp.distribution
+
 prior_transform(prior::SimplePriorBase, q) = quantile(prior.distribution, q)
+prior_transform(prior::SimplePriorBase, priors, cube, index) =
+    prior_transform(prior, cube[index])
 
 lnprior(prior::SimplePriorBase, param::Float64) = logpdf(prior.distribution, param)
 

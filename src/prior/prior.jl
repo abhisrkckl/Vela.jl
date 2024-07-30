@@ -13,6 +13,8 @@ lnprior(model::TimingModel, params) = lnprior(model.priors, params)
 get_lnprior_func(model::TimingModel) = params -> lnprior(model, params)
 
 """Evaluate the prior transform function."""
-prior_transform(priors, cube) = map(prior_transform, priors, cube)
+# prior_transform(priors, cube) = map(prior_transform, priors, cube)
+prior_transform(priors, cube) =
+    map((prior, idx) -> prior_transform(prior, priors, cube, idx), priors, eachindex(cube))
 prior_transform(model::TimingModel, cube) = prior_transform(model.priors, cube)
 get_prior_transform_func(model::TimingModel) = cube -> prior_transform(model, cube)
