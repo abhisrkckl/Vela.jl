@@ -75,7 +75,7 @@ result_nestle_v = nestle.sample(
     bt.nparams,
     method="multi",
     npoints=150,
-    dlogz=0.01,
+    dlogz=0.001,
     callback=nestle.print_progress,
 )
 end = time.time()
@@ -89,26 +89,34 @@ result_nestle_p = nestle.sample(
     bt.nparams,
     method="multi",
     npoints=150,
-    dlogz=0.01,
+    dlogz=0.001,
     callback=nestle.print_progress,
 )
 end = time.time()
 print(f"\nTime elapsed = {end-begin} s")
 
-samples_v = (result_nestle_v.samples + shifts) / scale_factors
+samples_v = result_nestle_v.samples / scale_factors
+samples_p = result_nestle_p.samples[:, param_idxs] - shifts
+
+# %%
+means, cov = nestle.mean_and_cov(result_nestle_v.samples, result_nestle_v.weights)
+means = (means + shifts) / scale_factors
+stds = np.sqrt(np.diag(cov)) / scale_factors
+for pname, mean, std in zip(param_names, means, stds):
+    print(f"{pname}\t\t{mean}\t\t{std}")
 
 # %%
 fig = corner.corner(
-    result_nestle_p.samples[:, param_idxs],
+    samples_p,
     weights=result_nestle_p.weights,
-    labels=np.array(bt.param_labels)[param_idxs],
+    labels=param_names,
     label_kwargs={"fontsize": 15},
     range=[0.999] * bt.nparams,
 )
 corner.corner(
     samples_v,
     weights=result_nestle_v.weights,
-    labels=bt.param_labels,
+    labels=param_names,
     label_kwargs={"fontsize": 15},
     range=[0.999] * bt.nparams,
     fig=fig,
