@@ -12,6 +12,7 @@ import corner
 from scipy.stats import uniform
 from matplotlib import pyplot as plt
 import sys
+import time
 
 from pint2vela import read_model_and_toas, Vela as vl
 
@@ -67,6 +68,7 @@ print(lnlike(maxlike_params_v), bt.lnlikelihood(maxlike_params_p))
 # %timeit bt.lnlikelihood(maxlike_params_p)
 
 # %%
+begin = time.time()
 result_nestle_v = nestle.sample(
     lnlike,
     prior_transform,
@@ -76,9 +78,11 @@ result_nestle_v = nestle.sample(
     dlogz=0.01,
     callback=nestle.print_progress,
 )
-print()
+end = time.time()
+print(f"\nTime elapsed = {end-begin} s")
 
 # %%
+begin = time.time()
 result_nestle_p = nestle.sample(
     bt.lnlikelihood,
     bt.prior_transform,
@@ -88,7 +92,8 @@ result_nestle_p = nestle.sample(
     dlogz=0.01,
     callback=nestle.print_progress,
 )
-print()
+end = time.time()
+print(f"\nTime elapsed = {end-begin} s")
 
 samples_v = (result_nestle_v.samples + shifts) / scale_factors
 

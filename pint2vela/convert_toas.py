@@ -11,15 +11,16 @@ def pint_toa_to_vela(toas: TOAs, idx: int, tzr: bool = False):
     assert toas.planets
     assert toas.get_pulse_numbers() is not None
 
-    tdb_ld = toas.table["tdbld"].value[idx]
-    tdb_str = np.format_float_positional(tdb_ld, unique=True)
-    tdb = vl.time(jl.parse(vl.Double64, tdb_str) * day_to_s)
+    tdb_ld = toas.table["tdbld"].value[idx] * day_to_s
+    tdb_ld1, tdb_ld2 = np.modf(tdb_ld)
+    tdb = vl.time(vl.Double64(tdb_ld2, tdb_ld1))
 
     phase = (
         toas.table["pulse_number"].value[idx]
         - toas.table["delta_pulse_number"].value[idx]
     )
-    phase = vl.dimensionless(jl.parse(vl.Double64, str(phase)))
+    phase1, phase2 = np.modf(phase)
+    phase = vl.dimensionless(vl.Double64(phase2, phase1))
 
     err = vl.time(toas.get_errors()[idx].si.value)
     freq = vl.frequency(toas.get_freqs()[idx].si.value)
