@@ -59,6 +59,9 @@
                 model.param_handler._default_params_tuple,
             ),
         ) == length(param_handler._free_indices)
+
+        @test all(isfinite.(get_scale_factors(model))) &&
+              !any(iszero.(get_scale_factors(model)))
     end
 
     @testset "read_components" begin
@@ -105,7 +108,7 @@
         calc_lnlike_s = get_lnlike_serial_func(model, toas)
         calc_lnlike_p = get_lnlike_parallel_func(model, toas)
         params = model.param_handler._default_params_tuple
-        parv = read_param_values_to_vector(model.param_handler)
+        parv = read_param_values_to_vector(model)
         # parnp = PyArray(parv)
         @test calc_lnlike_s(parv) ≈ calc_lnlike_p(parv)
 
