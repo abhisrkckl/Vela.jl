@@ -60,6 +60,13 @@
             ),
         ) == length(param_handler._free_indices)
 
+        @test length(
+            read_param_values_to_vector(
+                model,
+                model.param_handler._default_params_tuple,
+            ),
+        ) == length(param_handler._free_indices)
+
         @test all(isfinite.(get_scale_factors(model))) &&
               !any(iszero.(get_scale_factors(model)))
     end
