@@ -145,6 +145,8 @@ function read_param_values_to_vector(
 
     return param_vec
 end
+read_param_values_to_vector(param_handler::ParamHandler) =
+    read_param_values_to_vector(param_handler, param_handler._default_params_tuple)
 
 function get_scale_factors(param_handler::ParamHandler)
     scale_factors = Float64[]
