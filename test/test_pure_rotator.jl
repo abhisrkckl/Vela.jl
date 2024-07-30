@@ -62,7 +62,7 @@
     end
 
     params = model.param_handler._default_params_tuple
-    parv = read_param_values_to_vector(model.param_handler, params)
+    parv = read_param_values_to_vector(model.param_handler)
 
     @testset "correct_toa" begin
         ctoa = correct_toa(model, toas[1], params)
