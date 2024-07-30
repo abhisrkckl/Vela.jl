@@ -6,6 +6,19 @@
         @test isfile("__test.jlso")
     end
 
+    @testset "copy" begin
+        m2 = TimingModel(
+            model.pulsar_name,
+            model.ephem,
+            model.clock,
+            model.units,
+            model.components,
+            model.param_handler,
+            model.tzr_toa,
+            model.priors,
+        )
+    end
+
     @testset "read_toas" begin
         @test !any([toa.tzr for toa in toas])
         @test length(toas) == 62
@@ -46,6 +59,13 @@
                 model.param_handler._default_params_tuple,
             ),
         ) == length(param_handler._free_indices)
+
+        @test length(
+            read_param_values_to_vector(model, model.param_handler._default_params_tuple),
+        ) == length(param_handler._free_indices)
+
+        @test all(isfinite.(get_scale_factors(model))) &&
+              !any(iszero.(get_scale_factors(model)))
     end
 
     @testset "read_components" begin
@@ -80,8 +100,7 @@
     @testset "calc_chi2" begin
         calc_chi2_s = get_chi2_serial_func(model, toas)
         calc_chi2_p = get_chi2_parallel_func(model, toas)
-        params = model.param_handler._default_params_tuple
-        parv = read_param_values_to_vector(model.param_handler, params)
+        parv = read_param_values_to_vector(model.param_handler)
         # parnp = PyArray(parv)
         chi2_s = calc_chi2_s(parv)
         chi2_p = calc_chi2_p(parv)
@@ -93,7 +112,7 @@
         calc_lnlike_s = get_lnlike_serial_func(model, toas)
         calc_lnlike_p = get_lnlike_parallel_func(model, toas)
         params = model.param_handler._default_params_tuple
-        parv = read_param_values_to_vector(model.param_handler, params)
+        parv = read_param_values_to_vector(model)
         # parnp = PyArray(parv)
         @test calc_lnlike_s(parv) ≈ calc_lnlike_p(parv)
 
@@ -104,8 +123,16 @@
         @test calc_lnlike(model, toas, parv1) < calc_lnlike(model, toas, params)
     end
 
-    # @testset "plot_summary" begin
-    #     plotfile = plot_pulsar_summary("datafiles/NGC6440E.hdf5")
-    #     @test isfile(plotfile)
-    # end
+    @testset "priors" begin
+        calc_lnprior = get_lnprior_func(model)
+        params = model.param_handler._default_params_tuple
+        parv = read_param_values_to_vector(model.param_handler, params)
+        @test isfinite(calc_lnprior(model.param_handler._default_params_tuple))
+        @test calc_lnprior(params) == calc_lnprior(parv)
+
+        prior_transform = get_prior_transform_func(model)
+        halfs = fill(0.5, length(parv))
+        @test all(isfinite.(prior_transform(halfs)))
+        @test all(prior_transform(halfs) .≈ parv)
+    end
 end

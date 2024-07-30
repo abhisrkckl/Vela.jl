@@ -31,11 +31,10 @@
 
     @testset "read_param_handler" begin
         param_handler = model.param_handler
-        @test Set(get_free_param_names(param_handler)) == Set(["F0", "F1", "PHOFF"])
+        @test Set(get_free_param_names(model)) == Set(["F0", "F1", "PHOFF"])
         @test length(param_handler.multi_params) + length(param_handler.single_params) ==
               length(param_handler._default_params_tuple)
-        @test length(get_free_param_names(param_handler)) ==
-              length(param_handler._free_indices)
+        @test length(get_free_param_names(model)) == length(param_handler._free_indices)
         @test sizeof(param_handler._default_params_tuple) ==
               sizeof(GQ{Float64}) * length(param_handler._default_quantities)
 
@@ -62,7 +61,7 @@
     end
 
     params = model.param_handler._default_params_tuple
-    parv = read_param_values_to_vector(model.param_handler, params)
+    parv = read_param_values_to_vector(model.param_handler)
 
     @testset "correct_toa" begin
         ctoa = correct_toa(model, toas[1], params)
@@ -104,5 +103,19 @@
         @test lnlike ≈ get_lnlike_func(model, toas)(parv)
 
         @test @ballocated(Vela.calc_lnlike_serial($model, $toas, $params)) == 0
+    end
+
+    @testset "priors" begin
+        calc_lnprior = get_lnprior_func(model)
+        params = model.param_handler._default_params_tuple
+        parv = read_param_values_to_vector(model.param_handler, params)
+        @test isfinite(calc_lnprior(model.param_handler._default_params_tuple))
+        @test calc_lnprior(params) == calc_lnprior(parv)
+
+        prior_transform = get_prior_transform_func(model)
+        prior_transform = get_prior_transform_func(model)
+        halfs = fill(0.5, length(parv))
+        @test all(isfinite.(prior_transform(halfs)))
+        @test all(prior_transform(halfs) .≈ parv)
     end
 end

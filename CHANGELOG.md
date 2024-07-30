@@ -1,16 +1,25 @@
 # [Unreleased]
 ## Added
 - `load_pulsar_data()` and `save_pulsar_data()` functions
+- `par_tim_to_jlso()` function and `par_tim-to-jlso` script in `pint2vela`
+- `Prior` as the abstract base class for prior distributions
+- `SimplePriorBase`, `SimplePrior` and `SimplePriorMulti` to represent priors that can be factorized parameter-wise.
+- `distr()`, `lnprior()` and `prior_transform()` functions.
+- `get_lnprior_func()` and `get_prior_transform_func()` functions.
+- `get_default_priors()` function in `pint2vela`
+- More methods for `get_free_param_names()`, `read_param_values_to_vector()`, and `get_scale_factors()` for convenience
 - Auto-generation of HTML documentation using `Documenter`
 ## Changed
 - Reorganized source files into subdirectories
+- Replaced `par` and `tim` files for testing with `JLSO` files
+- Moved `pint2vela.py` to separate repo, added it as a submodule.
+- Rearranged `pint2vela` code into multiple files.
 ## Fixed
 ## Removed
 - `read_model_and_toas()` function. Data is now read from `JLSO` files created using `pint2vela`
 - `plot_summary()` function. (This is better done in Python.)
 - Tests using `PyArray` (This speeds up the test suite)
 - Support for Julia 1.9
-- Moved `pint2vela.py` to separate repo
 
 # [0.0.2] - 2024-07-24
 ## Added
