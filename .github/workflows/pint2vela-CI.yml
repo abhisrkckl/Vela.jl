@@ -44,8 +44,9 @@ jobs:
           python -m pip install --upgrade pip
           pip install pytest pytest-xdist pint-pulsar
           julia -e 'import Pkg; Pkg.develop(path=".")'
+          julia -e 'import Pkg; Pkg.add("Distributions")'
           pip install .
       - name: Test with pytest
         run: |
           cd tests
-          pytest --verbose -n auto . --
+          pytest --verbose -n auto .
