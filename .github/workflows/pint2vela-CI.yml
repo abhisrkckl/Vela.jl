@@ -46,5 +46,5 @@ jobs:
           pip install pint2vela/
       - name: Test with pytest 
         run: |
-          cd pint2vela/test
+          cd pint2vela/tests
           pytest -n auto .
