@@ -51,4 +51,4 @@ jobs:
       - name: Test with pytest
         run: |
           cd pint2vela/tests
-          pytest --verbose .
+          pytest --verbose -n 2 .
