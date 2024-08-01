@@ -30,6 +30,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: 'true'
+          token: ${{ secrets.OAUTH_TOKEN }}
       - uses: julia-actions/setup-julia@v2
         with:
           version: ${{ matrix.version }}
