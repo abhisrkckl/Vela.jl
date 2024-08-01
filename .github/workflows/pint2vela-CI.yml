@@ -1,0 +1,54 @@
+name: pint2vela-CI
+
+on:
+  push:
+    branches: [ $default-branch ]
+    tags: ['*']
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  # Skip intermediate builds: always.
+  # Cancel intermediate builds: only if it is a pull request build.
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ startsWith(github.ref, 'refs/pull/') }}
+
+jobs:
+  test:
+    name: Test pint2vela
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        version:
+          - '1.10'
+        os:
+          - ubuntu-latest
+        arch:
+          - x64
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: 'true'
+          token: ${{ secrets.OAUTH_TOKEN }}
+      - uses: julia-actions/setup-julia@v2
+        with:
+          version: ${{ matrix.version }}
+          arch: ${{ matrix.arch }}
+      - uses: julia-actions/cache@v2
+      - uses: julia-actions/julia-buildpkg@v1
+        with:
+          localregistry: https://github.com/abhisrkckl/julia_registry.git
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest pytest-xdist pint-pulsar
+          julia -e 'import Pkg; Pkg.develop(path=".")'
+          julia -e 'import Pkg; Pkg.add("Distributions")'
+          cd pint2vela
+          pip install .
+          cd ..
+      - name: Test with pytest
+        run: |
+          cd pint2vela/tests
+          pytest --verbose -n 2 .

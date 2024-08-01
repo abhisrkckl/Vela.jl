@@ -14,6 +14,8 @@
 - Replaced `par` and `tim` files for testing with `JLSO` files
 - Moved `pint2vela.py` to separate repo, added it as a submodule.
 - Rearranged `pint2vela` code into multiple files.
+- Merged `pint2vela` into the main repo.
+- Added CI tests for `pint2vela`
 ## Fixed
 ## Removed
 - `read_model_and_toas()` function. Data is now read from `JLSO` files created using `pint2vela`
