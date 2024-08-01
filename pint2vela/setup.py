@@ -2,7 +2,7 @@ from distutils.core import setup
 
 setup(
     name="pint2vela",
-    version="0.0.1",
+    version="0.0.2",
     description="Interface between PINT and Vela.jl",
     author="Abhimanyu Susobhanan",
     author_email="abhimanyu.susobhanan@nanograv.org",
