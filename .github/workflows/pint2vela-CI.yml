@@ -45,7 +45,9 @@ jobs:
           pip install pytest pytest-xdist pint-pulsar
           julia -e 'import Pkg; Pkg.develop(path=".")'
           julia -e 'import Pkg; Pkg.add("Distributions")'
-          pip install pint2vela
+          cd pint2vela
+          pip install .
+          cd ..
       - name: Test with pytest
         run: |
           cd pint2vela/tests
