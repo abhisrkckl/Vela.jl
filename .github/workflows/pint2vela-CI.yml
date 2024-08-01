@@ -43,8 +43,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install pytest pytest-xdist pint-pulsar
-          br=`git rev-parse --abbrev-ref HEAD`
-          julia -e "import Pkg; Pkg.add(path=\".#$br\")"
+          julia -e 'import Pkg; Pkg.develop(path=".")'
           pip install .
       - name: Test with pytest
         run: |
