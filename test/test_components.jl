@@ -116,6 +116,14 @@
         @test phase(pjmp, ctoa, params) ≈ params.JUMP[1] * params.F_
 
         display(pjmp)
+
+        jump_mask_ex = [1, 2, 0]
+        pjmp_ex = ExclusivePhaseJump(jump_mask_ex)
+
+        @test phase(pjmp_ex, ctzrtoa, params) == 0
+        @test phase(pjmp_ex, ctoa, params) ≈ params.JUMP[1] * params.F_
+
+        display(pjmp_ex)
     end
 
     # @testset "Troposphere" begin
