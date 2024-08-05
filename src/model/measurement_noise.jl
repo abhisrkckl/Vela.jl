@@ -29,4 +29,3 @@ function show(io::IO, wn::MeasurementNoise)
     num_equads = length(unique(wn.equad_index_mask))
     print(io, "MeasurementNoise($num_efacs EFACs, $num_equads EQUADs)")
 end
-show(io::IO, ::MIME"text/plain", ss::MeasurementNoise) = show(io, ss)

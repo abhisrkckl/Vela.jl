@@ -2,7 +2,7 @@ import numpy as np
 
 from pint.toa import TOAs
 
-from .vela import jl, vl
+from .vela import jl, vl, to_jldd
 
 day_to_s = 86400
 
@@ -12,8 +12,9 @@ def pint_toa_to_vela(toas: TOAs, idx: int, tzr: bool = False):
     assert toas.get_pulse_numbers() is not None
 
     tdb_ld = toas.table["tdbld"].value[idx] * day_to_s
-    tdb_ld1, tdb_ld2 = np.modf(tdb_ld)
-    tdb = vl.time(vl.Double64(tdb_ld2, tdb_ld1))
+    # tdb_ld1, tdb_ld2 = np.modf(tdb_ld)
+    # tdb = vl.time(vl.Double64(tdb_ld2, tdb_ld1))
+    tdb = vl.time(to_jldd(tdb_ld))
 
     phase = (
         toas.table["pulse_number"].value[idx]
