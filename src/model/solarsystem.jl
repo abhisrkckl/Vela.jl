@@ -111,4 +111,3 @@ function show(io::IO, ss::SolarSystem)
     coordstr = ss.ecliptic_coordinates ? "Ecliptic" : "Equatorial"
     print(io, "SolarSystem($coordstr, planet_shapiro=$(ss.planet_shapiro))")
 end
-show(io::IO, ::MIME"text/plain", ss::SolarSystem) = show(io, ss)

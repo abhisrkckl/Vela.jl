@@ -13,6 +13,7 @@ from scipy.stats import uniform
 from matplotlib import pyplot as plt
 import sys
 import time
+from timeit import timeit
 
 from pint2vela import read_model_and_toas, Vela as vl
 
@@ -28,12 +29,26 @@ t.compute_pulse_numbers(m)
 # %%
 for par in m.free_params:
     param = getattr(m, par)
-    param_min = float(param.value - 10 * param.uncertainty_value)
+    param_min = float(
+        param.value - 10 * param.uncertainty_value
+        if param.name != "F0"
+        else -10 * param.uncertainty_value
+    )
     param_span = float(20 * param.uncertainty_value)
     param.prior = Prior(uniform(param_min, param_span))
 
 # %%
 bt = BayesianTiming(m, t, use_pulse_numbers=True)
+
+F0_ = float(m.F0.value)
+F0_idx = m.free_params.index("F0")
+
+
+def lnlike_pint(params):
+    params = list(params)
+    params[F0_idx] = np.longdouble(F0_) + params[F0_idx]
+    return bt.lnlikelihood(params)
+
 
 # %%
 mv, tv = read_model_and_toas(parfile, timfile)
@@ -62,10 +77,8 @@ assert np.allclose(
 
 # %%
 print(lnlike(maxlike_params_v), bt.lnlikelihood(maxlike_params_p))
-
-# %%
-# %timeit lnlike_vela(maxlike_params_p)
-# %timeit bt.lnlikelihood(maxlike_params_p)
+print(timeit("lnlike(maxlike_params_v)", globals=globals(), number=1000))
+print(timeit("bt.lnlikelihood(maxlike_params_p)", globals=globals(), number=1000))
 
 # %%
 begin = time.time()
@@ -84,7 +97,7 @@ print(f"\nTime elapsed = {end-begin} s")
 # %%
 begin = time.time()
 result_nestle_p = nestle.sample(
-    bt.lnlikelihood,
+    lnlike_pint,
     bt.prior_transform,
     bt.nparams,
     method="multi",
@@ -96,7 +109,7 @@ end = time.time()
 print(f"\nTime elapsed = {end-begin} s")
 
 samples_v = result_nestle_v.samples / scale_factors
-samples_p = result_nestle_p.samples[:, param_idxs] - shifts
+samples_p = result_nestle_p.samples[:, param_idxs]
 
 # %%
 means, cov = nestle.mean_and_cov(result_nestle_v.samples, result_nestle_v.weights)

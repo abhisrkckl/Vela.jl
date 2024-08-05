@@ -40,3 +40,5 @@ delay(component::DispersionComponent, ctoa::CorrectedTOA, params) =
 
 """Abstract base type of all uncorrelated (white) noise components."""
 abstract type WhiteNoiseComponent <: UncorrelatedComponent end
+
+show(io::IO, ::MIME"text/plain", comp::Component) = show(io, comp)

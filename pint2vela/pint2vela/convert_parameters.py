@@ -11,7 +11,7 @@ from pint.models.parameter import (
 )
 
 from .convert_toas import day_to_s
-from .vela import vl, jl
+from .vela import vl, jl, to_jldd
 
 
 def pint_parameter_to_vela(param: Parameter):
@@ -35,23 +35,22 @@ def pint_parameter_to_vela(param: Parameter):
         u.dimensionless_unscaled, equivalencies=u.dimensionless_angles()
     )
 
-    return (
-        vl.Parameter(
+    if param.name != "F0":
+        return vl.Parameter(
             jl.Symbol(param.name),
             vl.GQ(default_value, dim),
             param.frozen,
             original_units,
             unit_conversion_factor,
         )
-        if param.name != "F0"
-        else vl.Parameter(
+    else:
+        return vl.Parameter(
             jl.Symbol(param.name),
-            vl.GQ(0.0, dim),
+            vl.GQ(to_jldd(default_value).lo, dim),
             param.frozen,
             original_units,
             unit_conversion_factor,
         )
-    )
 
 
 def _get_multiparam_elements(model: TimingModel, multi_param_names: List[str]):
@@ -116,7 +115,7 @@ def pint_parameters_to_vela(model: TimingModel):
     single_params.append(
         vl.Parameter(
             jl.Symbol("F_"),
-            vl.GQ(model.F0.quantity.si.value, -1),
+            vl.GQ(to_jldd(model.F0.quantity.si.value).hi, -1),
             True,
             str(model.F0.units),
             1.0,
