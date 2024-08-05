@@ -116,6 +116,26 @@
         @test phase(pjmp, ctoa, params) ≈ params.JUMP[1] * params.F_
 
         display(pjmp)
+
+        jump_mask_ex = [1, 2, 0]
+        pjmp_ex = ExclusivePhaseJump(jump_mask_ex)
+
+        @test phase(pjmp_ex, ctzrtoa, params) == 0
+        @test phase(pjmp_ex, ctoa, params) ≈ params.JUMP[1] * params.F_
+
+        toa1 = TOA(
+            time(Double64(53470.0 * day_to_s)),
+            time(1e-6),
+            frequency(2.5e9),
+            dimensionless(Double64(0.0)),
+            false,
+            ephem,
+            3,
+        )
+        ctoa1 = CorrectedTOA(toa1)
+        @test phase(pjmp_ex, ctoa1, params) ≈ dimensionless(0.0)
+
+        display(pjmp_ex)
     end
 
     # @testset "Troposphere" begin
