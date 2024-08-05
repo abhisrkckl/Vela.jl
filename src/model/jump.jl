@@ -29,7 +29,8 @@ struct ExclusivePhaseJump <: PhaseJumpBase
 end
 
 function phase(pjmp::ExclusivePhaseJump, ctoa::CorrectedTOA, params::NamedTuple)::GQ
-    return (idx == 0 || ctoa.toa.tzr) ? dimensionless(0.0) : params.JUMP[pjmp.jump_mask[ctoa.toa.index]] * (params.F_ + params.F[1])
+    return (idx == 0 || ctoa.toa.tzr) ? dimensionless(0.0) :
+           params.JUMP[pjmp.jump_mask[ctoa.toa.index]] * (params.F_ + params.F[1])
 end
 
 function show(io::IO, jmp::ExclusivePhaseJump)
