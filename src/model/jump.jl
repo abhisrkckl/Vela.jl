@@ -1,7 +1,9 @@
-export PhaseJump
+export PhaseJump, ExclusivePhaseJump
 
-"""System-dependent phase jumps."""
-struct PhaseJump <: PhaseComponent
+abstract type PhaseJumpBase <: PhaseComponent end
+
+"""System-dependent phase jumps with non-exclusive selection masks."""
+struct PhaseJump <: PhaseJumpBase
     jump_mask::BitMatrix
 end
 
@@ -20,4 +22,18 @@ function show(io::IO, jmp::PhaseJump)
     num_jumps = size(jmp.jump_mask)[1]
     print(io, "PhaseJump($num_jumps JUMPs)")
 end
-show(io::IO, ::MIME"text/plain", jmp::PhaseJump) = show(io, jmp)
+
+"""System-dependent phase jumps with exclusive selection masks."""
+struct ExclusivePhaseJump <: PhaseJumpBase
+    jump_mask::Vector{UInt}
+end
+
+function phase(pjmp::ExclusivePhaseJump, ctoa::CorrectedTOA, params::NamedTuple)::GQ
+    idx = pjmp.jump_mask[ctoa.toa.index]
+    return (idx == 0) ? dimensionless(0.0) : params.JUMP[idx] * (params.F_ + params.F[1])
+end
+
+function show(io::IO, jmp::ExclusivePhaseJump)
+    num_jumps = length(unique(jmp.jump_mask))
+    print(io, "PhaseJump($num_jumps JUMPs, exclusive)")
+end
