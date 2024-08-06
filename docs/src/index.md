@@ -2,6 +2,7 @@
 
 Bla...
 
-```@docs
-TimingModel
+```@autodocs
+Modules = [Vela]
+Order = [:type, :function]
 ```
