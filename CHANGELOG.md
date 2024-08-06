@@ -9,6 +9,7 @@
 - `get_default_priors()` function in `pint2vela`
 - More methods for `get_free_param_names()`, `read_param_values_to_vector()`, and `get_scale_factors()` for convenience
 - An alternative implementation of `PhaseJump` for mutually exclusive JUMPs
+- Simple solar wind model (Edwards+ 2006)
 ## Changed
 - Reorganized source files into subdirectories
 - Replaced `par` and `tim` files for testing with `JLSO` files
