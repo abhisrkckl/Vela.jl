@@ -8,14 +8,16 @@
 - `get_lnprior_func()` and `get_prior_transform_func()` functions.
 - `get_default_priors()` function in `pint2vela`
 - More methods for `get_free_param_names()`, `read_param_values_to_vector()`, and `get_scale_factors()` for convenience
+- Added CI tests for `pint2vela`
 - An alternative implementation of `PhaseJump` for mutually exclusive JUMPs
+- Simple solar wind model (Edwards+ 2006)
 ## Changed
 - Reorganized source files into subdirectories
 - Replaced `par` and `tim` files for testing with `JLSO` files
 - Moved `pint2vela.py` to separate repo, added it as a submodule.
 - Rearranged `pint2vela` code into multiple files.
 - Merged `pint2vela` into the main repo.
-- Added CI tests for `pint2vela`
+- Replaced `pint2vela` test datasets with symlinks.
 ## Fixed
 ## Removed
 - `read_model_and_toas()` function. Data is now read from `JLSO` files created using `pint2vela`
