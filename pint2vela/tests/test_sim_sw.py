@@ -19,8 +19,8 @@ def test_data(data_sim_jump):
     assert len(tv) == 1000
     assert len(mv.components) == 5
     assert set(vl.get_free_param_names(mv.param_handler)) == {
-        "RAJ",
-        "DECJ",
+        "ELAT",
+        "ELONG",
         "DM",
         "PHOFF",
         "F0",
