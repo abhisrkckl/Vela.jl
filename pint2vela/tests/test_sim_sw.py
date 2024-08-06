@@ -25,8 +25,6 @@ def test_data(data_sim_jump):
         "PHOFF",
         "F0",
         "F1",
-        "JUMP1",
-        "JUMP2",
         "NE_SW"
     }
     assert len(params) == 8
