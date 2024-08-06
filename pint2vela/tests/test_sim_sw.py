@@ -27,7 +27,7 @@ def test_data(data_sim_jump):
         "F1",
         "NE_SW"
     }
-    assert len(params) == 8
+    assert len(params) == 7
 
 
 def test_chi2(data_sim_jump):
