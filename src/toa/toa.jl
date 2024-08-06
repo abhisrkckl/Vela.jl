@@ -77,6 +77,7 @@ struct CorrectedTOA
     spin_frequency::GQ{Float64}
     doppler::GQ{Float64}
     barycentered::Bool
+    ssb_psr_pos::NTuple{3,GQ{Float64}}
     level::UInt
 
     function CorrectedTOA(
@@ -88,6 +89,7 @@ struct CorrectedTOA
         spin_frequency,
         doppler,
         barycentered,
+        ssb_psr_pos,
         level,
     )
         @assert delay.d == 1 "Dimension mismatch in value (given $(delay.d), expected 1)."
@@ -100,6 +102,9 @@ struct CorrectedTOA
         @assert abs(doppler) < dimensionless(1.0) "|doppler| must be less than 1."
         @assert spin_frequency == frequency(-1.0) || spin_frequency > frequency(0.0) "spin_frequency must either be a positive value or a default value of -1."
 
+        @assert all(iszero.(ssb_psr_pos)) ||
+                dot(ssb_psr_pos, ssb_psr_pos) ≈ dimensionless(1.0) "ssb_psr_pos must be a zero vector (representing pending computation) or a unit vector."
+
         return new(
             toa,
             delay,
@@ -109,6 +114,7 @@ struct CorrectedTOA
             spin_frequency,
             doppler,
             barycentered,
+            ssb_psr_pos,
             level,
         )
     end
@@ -123,6 +129,7 @@ CorrectedTOA(toa) = CorrectedTOA(
     frequency(-1.0),
     dimensionless(0.0),
     toa.barycentered,
+    dimensionless.((0.0, 0.0, 0.0)),
     0,
 )
 
@@ -161,6 +168,7 @@ correct_toa(
     delta_spin_frequency::GQ = frequency(0.0),
     doppler::GQ = dimensionless(0.0),
     barycentered = false,
+    ssb_psr_pos = dimensionless.((0.0, 0.0, 0.0)),
 ) = CorrectedTOA(
     ctoa.toa,
     ctoa.delay + delay,
@@ -170,6 +178,7 @@ correct_toa(
     ctoa.spin_frequency + delta_spin_frequency,
     ctoa.doppler + doppler,
     ctoa.barycentered || barycentered,
+    ssb_psr_pos,
     ctoa.level + 1,
 )
 

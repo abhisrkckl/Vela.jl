@@ -104,7 +104,13 @@ function correct_toa(ss::SolarSystem, ctoa::CorrectedTOA, params::NamedTuple)
     # This applies to the frequency as freq*(1-doppler)
     doppler = Lhat_dot_vvec
 
-    return correct_toa(ctoa; delay = delay, doppler = doppler, barycentered = true)
+    return correct_toa(
+        ctoa;
+        delay = delay,
+        doppler = doppler,
+        barycentered = true,
+        ssb_psr_pos = Lhat,
+    )
 end
 
 function show(io::IO, ss::SolarSystem)

@@ -49,6 +49,7 @@
         DMWXFREQ_ = (frequency(1e-9), frequency(2e-9), frequency(3e-9)),
         DMWXSIN_ = (time(1.2e+4), time(5.1e+3), time(2.5e+2)),
         DMWXCOS_ = (time(-1.3e+4), time(5.2e+3), time(2.6e+3)),
+        NE_SW = GQ(1.6e8, -2),
     )
 
     @testset "SolarSystem" begin
@@ -70,10 +71,11 @@
     end
 
     @testset "SolarWindDispersion" begin
-        @test_throws AssertionError SolarWindDispersion(2)
-
-        swd = SolarWindDispersion(0)
-        @test dispersion_slope(swd, toa, params) == GQ(0.0, -1)
+        swd = SolarWindDispersion()
+        @test_throws AssertionError dispersion_slope(swd, ctoa, params)
+        ss = SolarSystem(true, true)
+        ctoa1 = correct_toa(ss, ctoa, params)
+        @test dispersion_slope(swd, ctoa1, params) != GQ(0.0, -1)
     end
 
     @testset "DispersionTaylor" begin
