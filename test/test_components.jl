@@ -41,6 +41,7 @@
         PMELONG = GQ(-5e-16, -1),
         EFAC = (dimensionless(1.1),),
         JUMP = (time(1e-6), time(1.2e-6)),
+        NE_SW = GQ(1.6e8, -2),
     )
 
     @testset "SolarSystem" begin
@@ -62,10 +63,11 @@
     end
 
     @testset "SolarWindDispersion" begin
-        @test_throws AssertionError SolarWindDispersion(2)
-
-        swd = SolarWindDispersion(0)
-        @test dispersion_slope(swd, toa, params) == GQ(0.0, -1)
+        swd = SolarWindDispersion()
+        @test_throws AssertionError dispersion_slope(swd, ctoa, params)
+        ss = SolarSystem(true, true)
+        ctoa1 = correct_toa(ss, ctoa, params)
+        @test dispersion_slope(swd, ctoa1, params) != GQ(0.0, -1)
     end
 
     @testset "DispersionTaylor" begin
