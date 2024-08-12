@@ -9,26 +9,34 @@ from pint.models.parameter import (
     Parameter,
     compute_effective_dimensionality,
 )
+from pint import DMconst
 
 from .convert_toas import day_to_s
 from .vela import vl, jl, to_jldd
 
 
+def get_scale_factor(param):
+    if param.tcb2tdb_scale_factor is not None:
+        return param.tcb2tdb_scale_factor
+    elif isinstance(param, MJDParameter):
+        return 1
+    elif param.name == "CM" or (hasattr(param, "prefix") and param.prefix == "CM"):
+        return DMconst
+    elif param.name == "TNCHROMIDX":
+        return 1
+    else:
+        raise ValueError(f"Unable to estimate scale factor for {param.name}.")
+
+
 def pint_parameter_to_vela(param: Parameter):
-    scale_factor = (
-        param.tcb2tdb_scale_factor if param.tcb2tdb_scale_factor is not None else 1
-    )
+    scale_factor = get_scale_factor(param)
     default_value = (
         param.value * day_to_s
         if isinstance(param, MJDParameter)
         else (param.quantity * scale_factor).si.value
     )
 
-    dim = (
-        param.effective_dimensionality
-        if param.tcb2tdb_scale_factor is not None
-        else compute_effective_dimensionality(param.quantity, 1)
-    )
+    dim = compute_effective_dimensionality(param.quantity, scale_factor)
 
     original_units = str(param.units)
     unit_conversion_factor = (param.units * scale_factor / u.s**dim).to_value(
