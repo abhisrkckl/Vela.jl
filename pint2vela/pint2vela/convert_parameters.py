@@ -36,7 +36,11 @@ def pint_parameter_to_vela(param: Parameter):
         else (param.quantity * scale_factor).si.value
     )
 
-    dim = compute_effective_dimensionality(param.quantity, scale_factor)
+    dim = (
+        compute_effective_dimensionality(param.quantity, scale_factor)
+        if not isinstance(param, MJDParameter)
+        else 1
+    )
 
     original_units = str(param.units)
     unit_conversion_factor = (param.units * scale_factor / u.s**dim).to_value(
