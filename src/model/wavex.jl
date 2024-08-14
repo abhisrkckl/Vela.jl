@@ -23,3 +23,13 @@ dispersion_slope(::DMWaveX, ctoa::CorrectedTOA, params::NamedTuple)::GQ = evalua
     params.DMWXCOS_,
     params.DMWXFREQ_,
 )
+
+struct CMWaveX <: ChromaticComponent end
+
+chromatic_slope(::CMWaveX, ctoa::CorrectedTOA, params::NamedTuple)::GQ = evaluate_xwavex(
+    ctoa,
+    params.CMWXEPOCH,
+    params.CMWXSIN_,
+    params.CMWXCOS_,
+    params.CMWXFREQ_,
+)
