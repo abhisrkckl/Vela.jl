@@ -1,4 +1,4 @@
-export WaveX, DMWaveX
+export WaveX, DMWaveX, CMWaveX
 
 struct WaveX <: DelayComponent end
 

@@ -47,8 +47,12 @@
         WXCOS_ = (time(-1.3e-6), time(5.2e-7), time(2.6e-7)),
         DMWXEPOCH = time(53470.0 * day_to_s),
         DMWXFREQ_ = (frequency(1e-9), frequency(2e-9), frequency(3e-9)),
-        DMWXSIN_ = (time(1.2e+4), time(5.1e+3), time(2.5e+2)),
-        DMWXCOS_ = (time(-1.3e+4), time(5.2e+3), time(2.6e+3)),
+        DMWXSIN_ = (GQ(1.2e+4, -1), GQ(5.1e+3, -1), GQ(2.5e+2, -1)),
+        DMWXCOS_ = (GQ(-1.3e+4, -1), GQ(5.2e+3, -1), GQ(2.6e+3, -1)),
+        CMWXEPOCH = time(53470.0 * day_to_s),
+        CMWXFREQ_ = (frequency(1e-9), frequency(2e-9), frequency(3e-9)),
+        CMWXSIN_ = (GQ(1.2e+4, 1), GQ(5.1e+3, 1), GQ(2.5e+2, 1)),
+        CMWXCOS_ = (GQ(-1.3e+4, 1), GQ(5.2e+3, 1), GQ(2.6e+3, 1)),
         NE_SW = GQ(1.6e8, -2),
         TNCHROMIDX = dimensionless(2.0),
         CMEPOCH = time(53470.0 * day_to_s),
@@ -101,12 +105,23 @@
 
     @testset "WaveX" begin
         wx = WaveX()
-        @test isfinite(delay(wx, ctoa, params))
+        δ = delay(wx, ctoa, params)
+        @test isfinite(δ)
+        @test δ.d == 1
     end
 
     @testset "DMWaveX" begin
         dmwx = DMWaveX()
-        @test isfinite(delay(dmwx, ctoa, params))
+        δ = delay(dmwx, ctoa, params)
+        @test isfinite(δ)
+        @test δ.d == 1
+    end
+
+    @testset "CMWaveX" begin
+        cmwx = CMWaveX()
+        δ = delay(cmwx, ctoa, params)
+        @test isfinite(δ)
+        @test δ.d == 1
     end
 
     @testset "PhaseOffset" begin
