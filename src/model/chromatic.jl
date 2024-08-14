@@ -10,7 +10,7 @@ delay(component::ChromaticComponent, ctoa::CorrectedTOA, params) =
 
 """Taylor series representation of the chromatic measure.
 
-Corresponds to `DispersionDM` in `PINT`."""
+Corresponds to `ChromaticCM` in `PINT`."""
 struct ChromaticTaylor <: ChromaticComponent end
 
 """Compute the chromatic slope corresponding to a TOA using a Taylor series representation."""
