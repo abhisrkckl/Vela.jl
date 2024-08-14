@@ -22,6 +22,8 @@ def get_scale_factor(param):
         return 1
     elif param.name == "CM" or (hasattr(param, "prefix") and param.prefix == "CM"):
         return DMconst
+    elif hasattr(param, "prefix") and param.prefix in ["EFAC", "EQUAD", "ECORR"]:
+        return 1
     elif param.name == "TNCHROMIDX":
         return 1
     else:
