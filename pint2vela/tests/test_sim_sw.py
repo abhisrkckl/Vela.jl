@@ -25,7 +25,7 @@ def test_data(data_sim_jump):
         "PHOFF",
         "F0",
         "F1",
-        "NE_SW"
+        "NE_SW",
     }
     assert len(params) == 7
 

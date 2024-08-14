@@ -11,7 +11,8 @@
 - Added CI tests for `pint2vela`
 - An alternative implementation of `PhaseJump` for mutually exclusive JUMPs
 - `basis_dot` function
-- Simple solar wind model (Edwards+ 2006)
+- Simple solar wind model (Edwards+ 2006) (`SolarWind`)
+- Variable-index chromatic delay as a Taylor expansion (`ChromaticTaylor`)
 ## Changed
 - Reorganized source files into subdirectories
 - Replaced `par` and `tim` files for testing with `JLSO` files
