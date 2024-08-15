@@ -57,3 +57,5 @@ jobs:
         with:
           files: coverage.xml
           flags: python
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
