@@ -30,11 +30,11 @@ t.compute_pulse_numbers(m)
 for par in m.free_params:
     param = getattr(m, par)
     param_min = float(
-        param.value - 10 * param.uncertainty_value
+        param.value - 20 * param.uncertainty_value
         if param.name != "F0"
-        else -10 * param.uncertainty_value
+        else -20 * param.uncertainty_value
     )
-    param_span = float(20 * param.uncertainty_value)
+    param_span = float(40 * param.uncertainty_value)
     param.prior = Prior(uniform(param_min, param_span))
 
 # %%
@@ -124,14 +124,14 @@ fig = corner.corner(
     weights=result_nestle_p.weights,
     labels=param_names,
     label_kwargs={"fontsize": 15},
-    range=[0.999] * bt.nparams,
+    range=[0.999999] * bt.nparams,
 )
 corner.corner(
     samples_v,
     weights=result_nestle_v.weights,
     labels=param_names,
     label_kwargs={"fontsize": 15},
-    range=[0.999] * bt.nparams,
+    range=[0.999999] * bt.nparams,
     fig=fig,
     color="red",
 )
