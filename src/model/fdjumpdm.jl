@@ -17,7 +17,7 @@ function dispersion_slope(
     if ctoa.toa.tzr
         return GQ(0.0, -1)
     else
-        return dot(params.FDJUMPDM, @view(dmoff.jump_mask[:, ctoa.toa.index]))
+        return -dot(params.FDJUMPDM, @view(dmoff.jump_mask[:, ctoa.toa.index]))
     end
 end
 
@@ -43,7 +43,7 @@ function dispersion_slope(
         if idx == 0
             GQ(0.0, -1)
         else
-            params.FDJUMPDM[idx]
+            -params.FDJUMPDM[idx]
         end
     end
 end
