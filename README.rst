@@ -1,7 +1,7 @@
 Vela
 ----
 
-.. image:: https://github.com/abhisrkckl/Vela.jl/actions/workflows/CI.yml/badge.svg
+.. image:: https://github.com/abhisrkckl/Vela.jl/actions/workflows/Vela-CI.yml/badge.svg
    :target: https://github.com/abhisrkckl/Vela.jl/actions
    :alt: CI Status
 
