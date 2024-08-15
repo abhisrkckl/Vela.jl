@@ -33,6 +33,7 @@
         F = (frequency(0.0), GQ(-1e-14, -2)),
         DMEPOCH = time(53470.0 * day_to_s),
         DM = (GQ(4e16, -1), GQ(1e11, -2)),
+        FDJUMPDM = (GQ(1e11, -1), GQ(-1e11, -1)),
         POSEPOCH = time(53470.0 * day_to_s),
         ELAT = dimensionless(1.2),
         ELONG = dimensionless(1.25),
@@ -78,6 +79,36 @@
         @test dispersion_slope(dmt, ctoa, params) == params.DM[1]
         @test delay(dmt, ctoa, params) ==
               dispersion_slope(dmt, ctoa, params) / ctoa.toa.observing_frequency^2
+    end
+
+    @testset "DispersionOffset" begin
+        jump_mask = BitMatrix([1 0 0; 0 1 0])
+        dmoff = DispersionOffset(jump_mask)
+
+        @test dispersion_slope(dmoff, ctzrtoa, params) == GQ(0.0, -1)
+        @test dispersion_slope(dmoff, ctoa, params) == -params.FDJUMPDM[1]
+
+        display(dmoff)
+
+        jump_mask_ex = [1, 2, 0]
+        dmoff_ex = ExclusiveDispersionOffset(jump_mask_ex)
+
+        @test dispersion_slope(dmoff_ex, ctzrtoa, params) == GQ(0.0, -1)
+        @test dispersion_slope(dmoff_ex, ctoa, params) == -params.FDJUMPDM[1]
+
+        toa1 = TOA(
+            time(Double64(53470.0 * day_to_s)),
+            time(1e-6),
+            frequency(2.5e9),
+            dimensionless(Double64(0.0)),
+            false,
+            ephem,
+            3,
+        )
+        ctoa1 = CorrectedTOA(toa1)
+        @test dispersion_slope(dmoff_ex, ctoa1, params) ≈ GQ(0.0, -1)
+
+        display(dmoff_ex)
     end
 
     @testset "ChromaticTaylor" begin
