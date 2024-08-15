@@ -2,7 +2,14 @@
 
 Bla...
 
+## Types
 ```@autodocs
 Modules = [Vela]
-Order = [:type, :function]
+Order = [:type]
+```
+
+## Functions
+```@autodocs
+Modules = [Vela]
+Order = [:function]
 ```
