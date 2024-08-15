@@ -13,6 +13,7 @@
 - Simple solar wind model (Edwards+ 2006) (`SolarWind`)
 - Variable-index chromatic delay as a Taylor expansion (`ChromaticTaylor`)
 - Auto-generation of HTML documentation using `Documenter`
+- `docs-CI` tests
 ## Changed
 - Reorganized source files into subdirectories
 - Replaced `par` and `tim` files for testing with `JLSO` files
