@@ -14,6 +14,9 @@
 - Variable-index chromatic delay as a Taylor expansion (`ChromaticTaylor`)
 - Auto-generation of HTML documentation using `Documenter`
 - `docs-CI` tests
+- Examples - `sim1`, `sim_jump`, `sim_jump_ex`, `sim_fdjumpdm`, `sim_sw`
+- System-dependent DM offsets (`DispersionOffset`)
+- `compare_residuals.py` script in `examples`.
 ## Changed
 - Reorganized source files into subdirectories
 - Replaced `par` and `tim` files for testing with `JLSO` files
