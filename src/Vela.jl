@@ -1,4 +1,4 @@
-"""A package for evaluating the single-pulsar timing & noise model."""
+"""`Vela.jl` is a package for doing Bayesian single-pulsar timing and noise analysis."""
 module Vela
 
 using GeometricUnits
