@@ -16,7 +16,7 @@ datasets = [
 ]
 
 
-@pytest.fixture(params=datasets)
+@pytest.fixture(params=datasets, scope="module")
 def model_and_toas(request):
     dataset = request.param
     mv, tv = read_model_and_toas(f"datafiles/{dataset}.par", f"datafiles/{dataset}.tim")
