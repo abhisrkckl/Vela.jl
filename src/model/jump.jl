@@ -35,6 +35,6 @@ function phase(pjmp::ExclusivePhaseJump, ctoa::CorrectedTOA, params::NamedTuple)
 end
 
 function show(io::IO, jmp::ExclusivePhaseJump)
-    num_jumps = length(unique(jmp.jump_mask))
+    num_jumps = length(filter(x -> x > 0, unique(jmp.jump_mask)))
     print(io, "PhaseJump($num_jumps JUMPs, exclusive)")
 end
