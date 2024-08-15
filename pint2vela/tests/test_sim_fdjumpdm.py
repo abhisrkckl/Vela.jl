@@ -8,7 +8,7 @@ from pint2vela.vela import vl
 @pytest.fixture
 def data_sim_jump():
     mv, tv = read_model_and_toas(
-        "datafiles/sim_jump_ex.par", "datafiles/sim_jump_ex.tim"
+        "datafiles/sim_fdjumpdm.par", "datafiles/sim_fdjumpdm.tim"
     )
     params = vl.read_param_values_to_vector(
         mv.param_handler, mv.param_handler._default_params_tuple
@@ -18,7 +18,7 @@ def data_sim_jump():
 
 def test_data(data_sim_jump):
     mv, tv, params = data_sim_jump
-    assert len(tv) == 1000
+    assert len(tv) == 2000
     assert len(mv.components) == 5
     assert set(vl.get_free_param_names(mv.param_handler)) == {
         "RAJ",
@@ -27,8 +27,8 @@ def test_data(data_sim_jump):
         "PHOFF",
         "F0",
         "F1",
-        "JUMP1",
-        "JUMP2",
+        "FDJUMPDM1",
+        "FDJUMPDM2",
     }
     assert len(params) == 8
 
