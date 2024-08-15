@@ -70,8 +70,8 @@
     end
 
     @testset "form_residual" begin
-        resid = form_residual(model, toas[1], params, dimensionless(0.0))
-        @test abs(resid) < time(1e-2)
+        resids = form_residuals(model, toas, params)
+        @test all(abs(resid) < time(1e-2) for resid in resids)
     end
 
     @testset "calc_chi2" begin
