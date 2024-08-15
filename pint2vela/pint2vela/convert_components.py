@@ -45,8 +45,8 @@ def pint_components_to_vela(model: TimingModel, toas: TOAs):
     # It goes from the observatory to the pulsar.
     # The general order is DelayComponents -- PhaseComponents -- NoiseComponents.
 
-    if "TroposphereDelay" in component_names and model.CORRECT_TROPOSPHERE.value:
-        components.append(vl.Troposphere())
+    # if "TroposphereDelay" in component_names and model.CORRECT_TROPOSPHERE.value:
+    #     components.append(vl.Troposphere())
 
     if "AstrometryEcliptic" in component_names:
         components.append(vl.SolarSystem(True, model.PLANET_SHAPIRO.value))
