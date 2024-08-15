@@ -26,12 +26,16 @@ function show(io::IO, dmoff::DispersionOffset)
     print(io, "DispersionOffset($num_jumps FDJUMPDMs)")
 end
 
-"""System-dependent phase jumps with exclusive selection masks."""
+"""System-dependent DM offsets (`FDJUMPDM`) with exclusive selection masks."""
 struct ExclusiveDispersionOffset <: DispersionOffsetBase
     jump_mask::Vector{UInt}
 end
 
-function phase(dmoff::ExclusiveDispersionOffset, ctoa::CorrectedTOA, params::NamedTuple)::GQ
+function dispersion_slope(
+    dmoff::ExclusiveDispersionOffset,
+    ctoa::CorrectedTOA,
+    params::NamedTuple,
+)::GQ
     return if (ctoa.toa.index == 0 || ctoa.toa.tzr)
         GQ(0.0, -1)
     else
@@ -45,6 +49,6 @@ function phase(dmoff::ExclusiveDispersionOffset, ctoa::CorrectedTOA, params::Nam
 end
 
 function show(io::IO, dmoff::ExclusiveDispersionOffset)
-    num_jumps = length(unique(dmoff.jump_mask))
+    num_jumps = length(filter(x -> x > 0, unique(dmoff.jump_mask)))
     print(io, "DispersionOffset($num_jumps FDJUMPDMs, exclusive)")
 end
