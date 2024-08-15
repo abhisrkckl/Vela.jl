@@ -13,6 +13,8 @@
 - `basis_dot` function
 - Simple solar wind model (Edwards+ 2006) (`SolarWind`)
 - Variable-index chromatic delay as a Taylor expansion (`ChromaticTaylor`)
+- Auto-generation of HTML documentation using `Documenter`
+- `docs-CI` tests
 - Fourier series representation of achromatic red noise (`WaveX`), DM noise (`DMWaveX`), and chromatic noise (`ChromaticCM`)
 ## Changed
 - Reorganized source files into subdirectories
