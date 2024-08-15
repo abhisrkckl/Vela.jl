@@ -32,7 +32,7 @@
         F_ = frequency(100.0),
         F = (frequency(0.0), GQ(-1e-14, -2)),
         DMEPOCH = time(53470.0 * day_to_s),
-        DM = (GQ(10.0, -1), GQ(1e-4, -2)),
+        DM = (GQ(4e16, -1), GQ(1e11, -2)),
         POSEPOCH = time(53470.0 * day_to_s),
         ELAT = dimensionless(1.2),
         ELONG = dimensionless(1.25),
@@ -42,6 +42,9 @@
         EFAC = (dimensionless(1.1),),
         JUMP = (time(1e-6), time(1.2e-6)),
         NE_SW = GQ(1.6e8, -2),
+        TNCHROMIDX = dimensionless(2.0),
+        CMEPOCH = time(53470.0 * day_to_s),
+        CM = (GQ(4e4, 1), GQ(1e-1, 0)),
     )
 
     @testset "SolarSystem" begin
@@ -72,9 +75,20 @@
 
     @testset "DispersionTaylor" begin
         dmt = DispersionTaylor()
-        @test dispersion_slope(dmt, ctoa, params) == GQ(10.0, -1)
+        @test dispersion_slope(dmt, ctoa, params) == params.DM[1]
         @test delay(dmt, ctoa, params) ==
               dispersion_slope(dmt, ctoa, params) / ctoa.toa.observing_frequency^2
+    end
+
+    @testset "ChromaticTaylor" begin
+        cmt = ChromaticTaylor()
+        dmt = DispersionTaylor()
+        @test chromatic_slope(cmt, ctoa, params) == params.CM[1]
+
+        # When TNCHROMIDX == 2, DM and CM that have equal numerical values
+        # in the par file must give equal delays. In our units, this corresponds
+        # to `value(DM) / value(CM) == 1e12`. See the `params` tuple above.
+        @test delay(dmt, ctoa, params) == delay(cmt, ctoa, params)
     end
 
     @testset "PhaseOffset" begin
