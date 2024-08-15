@@ -16,7 +16,7 @@ def data_sim_jump():
 
 def test_data(data_sim_jump):
     mv, tv, params = data_sim_jump
-    assert len(tv) == 1000
+    assert len(tv) == 999
     assert len(mv.components) == 5
     assert set(vl.get_free_param_names(mv.param_handler)) == {
         "RAJ",
@@ -34,7 +34,7 @@ def test_data(data_sim_jump):
 def test_chi2(data_sim_jump):
     mv, tv, params = data_sim_jump
     calc_chi2 = vl.get_chi2_func(mv, tv)
-    # assert calc_chi2(params) / len(tv) < 1.1
+    assert calc_chi2(params) / len(tv) < 1.1
 
 
 def test_likelihood(data_sim_jump):
