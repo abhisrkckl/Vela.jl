@@ -86,7 +86,7 @@
         dmoff = DispersionOffset(jump_mask)
 
         @test dispersion_slope(dmoff, ctzrtoa, params) == GQ(0.0, -1)
-        @test dispersion_slope(dmoff, ctoa, params) == params.FDJUMPDM[1]
+        @test dispersion_slope(dmoff, ctoa, params) == -params.FDJUMPDM[1]
 
         display(dmoff)
 
@@ -94,7 +94,7 @@
         dmoff_ex = ExclusiveDispersionOffset(jump_mask_ex)
 
         @test dispersion_slope(dmoff_ex, ctzrtoa, params) == GQ(0.0, -1)
-        @test dispersion_slope(dmoff_ex, ctoa, params) == params.FDJUMPDM[1]
+        @test dispersion_slope(dmoff_ex, ctoa, params) == -params.FDJUMPDM[1]
 
         toa1 = TOA(
             time(Double64(53470.0 * day_to_s)),
