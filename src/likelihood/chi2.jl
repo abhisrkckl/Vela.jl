@@ -1,4 +1,4 @@
-export get_chi2_serial_func, get_chi2_parallel_func, get_chi2_func
+export calc_chi2, calc_lnlike, get_chi2_serial_func, get_chi2_parallel_func, get_chi2_func
 
 function _chi2_term(model::TimingModel, toa::TOA, params::NamedTuple, tzrphase)
     ctoa = correct_toa(model, toa, params)

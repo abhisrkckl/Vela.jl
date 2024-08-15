@@ -1,4 +1,4 @@
-export TimingModel, correct_toa, form_residual, calc_chi2, calc_lnlike, calc_tzr_phase
+export TimingModel, correct_toa
 
 """The pulsar timing & noise model.
 

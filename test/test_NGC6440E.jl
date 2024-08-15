@@ -92,9 +92,8 @@
 
     @testset "form_residual" begin
         params = model.param_handler._default_params_tuple
-        tzrphase = calc_tzr_phase(model, params)
-        res = form_residual(model, toas[1], params, tzrphase)
-        @test abs(res) < 3 * toas[1].error
+        res = form_residuals(model, toas, params)
+        @test all(abs(r) < 3 * toa.error for (r, toa) in zip(res, toas))
     end
 
     @testset "calc_chi2" begin
