@@ -21,6 +21,7 @@
 - `compare_residuals.py` script in `examples`.
 - Codecov upload for `pint2vela`
 - Fourier series representation of achromatic red noise (`WaveX`), DM noise (`DMWaveX`), and chromatic noise (`ChromaticCM`)
+- `get_lnpost_func` function
 ## Changed
 - Reorganized source files into subdirectories
 - Replaced `par` and `tim` files for testing with `JLSO` files
