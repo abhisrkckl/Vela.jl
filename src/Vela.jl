@@ -31,5 +31,6 @@ include("prior/simple_prior.jl")
 include("residuals/residuals.jl")
 include("likelihood/chi2.jl")
 include("likelihood/likelihood.jl")
+include("likelihood/posterior.jl")
 include("readwrite/readwrite.jl")
 end

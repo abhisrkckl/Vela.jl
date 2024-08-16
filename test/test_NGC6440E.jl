@@ -129,6 +129,9 @@
         @test isfinite(calc_lnprior(model.param_handler._default_params_tuple))
         @test calc_lnprior(params) == calc_lnprior(parv)
 
+        calc_lnpost = get_lnpost_func(model, toas)
+        @test isfinite(calc_lnpost(params))
+
         prior_transform = get_prior_transform_func(model)
         halfs = fill(0.5, length(parv))
         @test all(isfinite.(prior_transform(halfs)))
