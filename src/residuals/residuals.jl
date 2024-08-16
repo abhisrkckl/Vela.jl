@@ -1,3 +1,5 @@
+export calc_tzr_phase, form_residual, form_residuals
+
 """Compute the timing residual corresponding to a single TOA."""
 function form_residual(model::TimingModel, toa::TOA, params::NamedTuple, tzrphase::GQ)::GQ
     ctoa = correct_toa(model, toa, params)

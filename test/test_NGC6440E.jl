@@ -92,8 +92,8 @@
 
     @testset "form_residuals" begin
         params = model.param_handler._default_params_tuple
-        res = Vela.form_residuals(model, toas, params)
-        @test all([abs(res / toa.error) < 3 for (res, toa) in zip(res, toas)])
+        res = form_residuals(model, toas, params)
+        @test all(abs(r) < 3 * toa.error for (r, toa) in zip(res, toas))
     end
 
     @testset "calc_chi2" begin
