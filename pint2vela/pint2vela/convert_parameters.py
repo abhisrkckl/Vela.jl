@@ -20,7 +20,9 @@ def get_scale_factor(param):
         return param.tcb2tdb_scale_factor
     elif isinstance(param, MJDParameter):
         return 1
-    elif param.name == "CM" or (hasattr(param, "prefix") and param.prefix == "CM"):
+    elif param.name == "CM" or (
+        hasattr(param, "prefix") and param.prefix in ["CM", "CMWXSIN_", "CMWXCOS_"]
+    ):
         return DMconst
     elif hasattr(param, "prefix") and param.prefix in ["EFAC", "EQUAD", "ECORR"]:
         return 1

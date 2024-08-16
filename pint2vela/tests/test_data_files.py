@@ -16,7 +16,7 @@ datasets = [
     "sim_cm",
     "sim3",
     "sim4",
-    "sim6",
+    # "sim6",
 ]
 
 
