@@ -14,7 +14,8 @@ datasets = [
     "sim_sw",
     "sim_fdjumpdm",
     "sim_cm",
-    "sim3"
+    "sim3",
+    "sim4",
 ]
 
 
