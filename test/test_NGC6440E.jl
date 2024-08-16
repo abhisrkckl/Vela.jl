@@ -33,7 +33,7 @@
 
     end
 
-    @testset "read_tzr_toa" begin
+    @testset "tzr_toa" begin
         tzrtoa = model.tzr_toa
         @test tzrtoa.tzr
         @test tzrtoa.error > time(0.0)
@@ -42,7 +42,7 @@
         @test time(53470.0 * day_to_s) < tzrtoa.value < time(54200.0 * day_to_s)
     end
 
-    @testset "read_param_handler" begin
+    @testset "param_handler" begin
         param_handler = model.param_handler
         @test Set(get_free_param_names(param_handler)) ==
               Set(["F0", "F1", "PHOFF", "RAJ", "DECJ", "DM"])
@@ -68,7 +68,7 @@
               !any(iszero.(get_scale_factors(model)))
     end
 
-    @testset "read_components" begin
+    @testset "components" begin
         components = model.components
         @test length(components) == 4
 
@@ -90,7 +90,7 @@
         # @test all([!isa(c, Troposphere) for c in components])
     end
 
-    @testset "form_residual" begin
+    @testset "form_residuals" begin
         params = model.param_handler._default_params_tuple
         res = form_residuals(model, toas, params)
         @test all(abs(r) < 3 * toa.error for (r, toa) in zip(res, toas))
@@ -128,6 +128,9 @@
         parv = read_param_values_to_vector(model.param_handler, params)
         @test isfinite(calc_lnprior(model.param_handler._default_params_tuple))
         @test calc_lnprior(params) == calc_lnprior(parv)
+
+        calc_lnpost = get_lnpost_func(model, toas)
+        @test isfinite(calc_lnpost(params))
 
         prior_transform = get_prior_transform_func(model)
         halfs = fill(0.5, length(parv))

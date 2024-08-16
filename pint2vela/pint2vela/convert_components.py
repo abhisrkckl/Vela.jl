@@ -61,6 +61,9 @@ def pint_components_to_vela(model: TimingModel, toas: TOAs):
     if "DispersionDM" in component_names:
         components.append(vl.DispersionTaylor())
 
+    if "DMWaveX" in component_names:
+        components.append(vl.DMWaveX())
+
     if "FDJumpDM" in component_names:
         fdjumpdms = list(
             map(lambda pname: model[pname], model.components["FDJumpDM"].fdjump_dms)
@@ -75,6 +78,12 @@ def pint_components_to_vela(model: TimingModel, toas: TOAs):
 
     if "ChromaticCM" in component_names:
         components.append(vl.ChromaticTaylor())
+
+    if "CMWaveX" in component_names:
+        components.append(vl.CMWaveX())
+
+    if "WaveX" in component_names:
+        components.append(vl.WaveX())
 
     if "Spindown" in component_names:
         components.append(vl.Spindown())

@@ -10,6 +10,7 @@
 - More methods for `get_free_param_names()`, `read_param_values_to_vector()`, and `get_scale_factors()` for convenience
 - Added CI tests for `pint2vela`
 - An alternative implementation of `PhaseJump` for mutually exclusive JUMPs
+- `basis_dot` function
 - Simple solar wind model (Edwards+ 2006) (`SolarWind`)
 - Variable-index chromatic delay as a Taylor expansion (`ChromaticTaylor`)
 - Auto-generation of HTML documentation using `Documenter`
@@ -19,6 +20,8 @@
 - System-dependent DM offsets (`DispersionOffset`)
 - `compare_residuals.py` script in `examples`.
 - Codecov upload for `pint2vela`
+- Fourier series representation of achromatic red noise (`WaveX`), DM noise (`DMWaveX`), and chromatic noise (`ChromaticCM`)
+- `get_lnpost_func` function
 ## Changed
 - Reorganized source files into subdirectories
 - Replaced `par` and `tim` files for testing with `JLSO` files

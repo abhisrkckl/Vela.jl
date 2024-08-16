@@ -42,6 +42,18 @@
         PMELONG = GQ(-5e-16, -1),
         EFAC = (dimensionless(1.1),),
         JUMP = (time(1e-6), time(1.2e-6)),
+        WXEPOCH = time(53470.0 * day_to_s),
+        WXFREQ_ = (frequency(1e-9), frequency(2e-9), frequency(3e-9)),
+        WXSIN_ = (time(1.2e-6), time(5.1e-7), time(2.5e-7)),
+        WXCOS_ = (time(-1.3e-6), time(5.2e-7), time(2.6e-7)),
+        DMWXEPOCH = time(53470.0 * day_to_s),
+        DMWXFREQ_ = (frequency(1e-9), frequency(2e-9), frequency(3e-9)),
+        DMWXSIN_ = (GQ(1.2e+4, -1), GQ(5.1e+3, -1), GQ(2.5e+2, -1)),
+        DMWXCOS_ = (GQ(-1.3e+4, -1), GQ(5.2e+3, -1), GQ(2.6e+3, -1)),
+        CMWXEPOCH = time(53470.0 * day_to_s),
+        CMWXFREQ_ = (frequency(1e-9), frequency(2e-9), frequency(3e-9)),
+        CMWXSIN_ = (GQ(1.2e+4, 1), GQ(5.1e+3, 1), GQ(2.5e+2, 1)),
+        CMWXCOS_ = (GQ(-1.3e+4, 1), GQ(5.2e+3, 1), GQ(2.6e+3, 1)),
         NE_SW = GQ(1.6e8, -2),
         TNCHROMIDX = dimensionless(2.0),
         CMEPOCH = time(53470.0 * day_to_s),
@@ -120,6 +132,27 @@
         # in the par file must give equal delays. In our units, this corresponds
         # to `value(DM) / value(CM) == 1e12`. See the `params` tuple above.
         @test delay(dmt, ctoa, params) == delay(cmt, ctoa, params)
+    end
+
+    @testset "WaveX" begin
+        wx = WaveX()
+        δ = delay(wx, ctoa, params)
+        @test isfinite(δ)
+        @test δ.d == 1
+    end
+
+    @testset "DMWaveX" begin
+        dmwx = DMWaveX()
+        δ = delay(dmwx, ctoa, params)
+        @test isfinite(δ)
+        @test δ.d == 1
+    end
+
+    @testset "CMWaveX" begin
+        cmwx = CMWaveX()
+        δ = delay(cmwx, ctoa, params)
+        @test isfinite(δ)
+        @test δ.d == 1
     end
 
     @testset "PhaseOffset" begin
