@@ -5,7 +5,7 @@
 # OS: Linux-6.8.0-40-generic-x86_64-with-glibc2.39
 # Python: 3.10.13 | packaged by conda-forge | (main, Dec 23 2023, 15:36:39) [GCC 12.3.0]
 # Format: pint
-PSR                                  SIM2
+PSR                                  SIM4
 EPHEM                               DE440
 CLOCK                        TT(BIPM2019)
 UNITS                                 TDB

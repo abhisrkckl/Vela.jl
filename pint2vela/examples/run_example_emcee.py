@@ -47,10 +47,10 @@ nwalkers = 100
 p0 = np.array([prior_transform(cube) for cube in np.random.rand(nwalkers, ndim)])
 
 sampler = emcee.EnsembleSampler(nwalkers, ndim, lnpost)
-sampler.run_mcmc(p0, 5000, progress=True)
+sampler.run_mcmc(p0, 1100, progress=True)
 
 # %%
-samples_v_0 = sampler.get_chain(flat=True, discard=800)
+samples_v_0 = sampler.get_chain(flat=True, discard=100, thin=10)
 samples_v = samples_v_0 / scale_factors
 
 # %%
