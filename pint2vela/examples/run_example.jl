@@ -39,8 +39,10 @@ const chain, lnpost_vals =
 const flat_chain, flat_lnpost_vals =
     AffineInvariantMCMC.flattenmcmcarray(chain, lnpost_vals)
 
+scale_factors = get_scale_factors(m.param_handler)
+
 print("Plotting...")
-const chain_df = DataFrame(flat_chain', param_names)
+const chain_df = DataFrame((flat_chain ./ scale_factors)', param_names)
 fig = pairplot(chain_df)
 save("$(m.pulsar_name)_chain_emcee_jl.png", fig)
 
