@@ -38,6 +38,8 @@ delay(component::DispersionComponent, ctoa::CorrectedTOA, params) =
     dispersion_slope(component, ctoa, params) /
     doppler_corrected_observing_frequency(ctoa)^2
 
+abstract type BinaryComponent <: DelayComponent end
+
 """Abstract base type of all uncorrelated (white) noise components."""
 abstract type WhiteNoiseComponent <: UncorrelatedComponent end
 
