@@ -10,7 +10,7 @@ orbital_phase(Δt::GQ, params::NamedTuple, use_fbx::Bool) =
 
 orbital_frequency(Δt::GQ, params::NamedTuple, use_fbx::Bool) =
     use_fbx ? taylor_horner(Δt, params.FB) :
-    1 / (Δt / params.PB + (params.PBDOT + params.XPBDOT) * Δt)
+    1 / (params.PB + (params.PBDOT + params.XPBDOT) * Δt)
 
 function rømer_delay(Φ_trigs, a1, ϵ1, ϵ2)
     (sinΦ, cosΦ), (sin2Φ, cos2Φ), (sin3Φ, cos3Φ), (sin4Φ, cos4Φ) = Φ_trigs
@@ -56,7 +56,7 @@ function d2_rømer_delay_d_Φ2(Φ_trigs, a1, ϵ1, ϵ2)
     return a1 * (
         -sinΦ + 2 * ϵ1 * cos2Φ - 2 * ϵ2 * sin2Φ -
         (1.0 / 8) * (
-            +(-5 * ϵ2^2 - 3 * ϵ1^2) * sinΦ +
+            (-5 * ϵ2^2 - 3 * ϵ1^2) * sinΦ +
             2 * ϵ1 * ϵ2 * cosΦ +
             (27 * ϵ2^2 - 27 * ϵ1^2) * sin3Φ - 54 * ϵ1 * ϵ2 * cos3Φ
         ) -
