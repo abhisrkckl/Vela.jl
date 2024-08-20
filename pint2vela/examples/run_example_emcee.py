@@ -10,6 +10,7 @@ import corner
 from matplotlib import pyplot as plt
 import sys
 from timeit import timeit
+import os
 
 from pint2vela import read_model_and_toas, Vela as vl
 
@@ -60,14 +61,26 @@ for pname, mean, std in zip(param_names, means, stds):
     print(f"{pname}\t\t{mean}\t\t{std}")
 
 # %%
-corner.corner(
+param_labels = [f"\n{pname}\n({m[pname].units})" for pname in param_names]
+fig = corner.corner(
     samples_v,
-    labels=param_names,
+    labels=param_labels,
     label_kwargs={"fontsize": 15},
     range=[0.999999] * ndim,
     truths=maxlike_params_v / scale_factors,
     plot_datapoints=False,
 )
+
+if os.path.isfile(f"{m.PSR.value}_chain_emcee_jl.txt"):
+    samples_v1 = np.genfromtxt(f"{m.PSR.value}_chain_emcee_jl.txt", skip_header=1)
+    corner.corner(
+        samples_v1,
+        range=[0.999999] * ndim,
+        plot_datapoints=False,
+        fig=fig,
+        color="blue",
+    )
+
 plt.suptitle(m.PSR.value)
 plt.tight_layout()
 plt.show()
