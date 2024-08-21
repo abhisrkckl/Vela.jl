@@ -13,7 +13,7 @@ function ELL1State(ell1::BinaryELL1, ctoa::CorrectedTOA, params::NamedTuple)
     Φ = orbital_phase(Δt, params, ell1.use_fbx)
     Φ_trigs = sincos(Φ), sincos(2Φ), sincos(3Φ), sincos(4Φ)
 
-    n = 2 * π * orbital_frequency(Δt, params, ell1.use_fbx)
+    n = mean_motion(Δt, params, ell1.use_fbx)
 
     return ELL1State(Φ_trigs, n, a1, ϵ1, ϵ2)
 end
