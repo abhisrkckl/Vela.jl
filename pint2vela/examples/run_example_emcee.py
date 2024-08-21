@@ -61,9 +61,7 @@ for pname, mean, std in zip(param_names, means, stds):
     print(f"{pname}\t\t{mean}\t\t{std}")
 
 # %%
-param_labels = [f"\n\n{pname}\n({m[pname].units})\n for pname in param_names]
-fig = corner.corner(
-    samples_v," for pname in param_names]
+param_labels = [f"\n\n{pname}\n({m[pname].units})\n" for pname in param_names]
 fig = corner.corner(
     samples_v,
     labels=param_labels,
