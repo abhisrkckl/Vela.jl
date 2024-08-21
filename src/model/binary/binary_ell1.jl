@@ -1,5 +1,6 @@
 export BinaryELL1
 
+"""A binary model representing a nearly circular orbit."""
 struct BinaryELL1 <: BinaryELL1Base
     use_fbx::Bool
 end
@@ -10,7 +11,7 @@ function ELL1State(ell1::BinaryELL1, ctoa::CorrectedTOA, params::NamedTuple)
     ϵ1 = params.EPS1 + Δt * params.EPS1DOT
     ϵ2 = params.EPS2 + Δt * params.EPS2DOT
 
-    Φ = orbital_phase(Δt, params, ell1.use_fbx)
+    Φ = mean_anomaly(Δt, params, ell1.use_fbx)
     Φ_trigs = sincos(Φ), sincos(2Φ), sincos(3Φ), sincos(4Φ)
 
     n = mean_motion(Δt, params, ell1.use_fbx)
@@ -18,6 +19,7 @@ function ELL1State(ell1::BinaryELL1, ctoa::CorrectedTOA, params::NamedTuple)
     return ELL1State(Φ_trigs, n, a1, ϵ1, ϵ2)
 end
 
+"""Shapiro delay due to a nearly circular binary."""
 function shapiro_delay(::BinaryELL1, state::ELL1State, params::NamedTuple)::GQ
     if !issubset((:M2, :SINI), keys(params))
         return time(0.0)

@@ -1,7 +1,16 @@
+"""The abstract base type for all binary models representing nearly
+circular orbits."""
 abstract type BinaryELL1Base <: BinaryComponent end
 
 ELL1ΦTrigs = NTuple{4,NTuple{2,GQ{Float64}}}
 
+"""The instantaneous state of a nearly circular binary.
+
+`Φ_trigs` contains the various trigonometric functions of the mean anomaly 
+required for evaluating the Rømer delay and the Shapiro delay for such
+binaries. `n` is the mean motion. `a1` is the projected semi-major axis of
+the pulsar orbit. `ϵ1` and `ϵ2` are the Laplace-Lagrange parameters.
+"""
 struct ELL1State
     Φ_trigs::ELL1ΦTrigs
     n::GQ{Float64}
@@ -10,6 +19,8 @@ struct ELL1State
     ϵ2::GQ{Float64}
 end
 
+"""Rømer delay due to a nearly circular binary. Includes terms up to the
+cubic order in eccentricity."""
 function rømer_delay(::BinaryELL1Base, state::ELL1State)::GQ
     (sinΦ, cosΦ), (sin2Φ, cos2Φ), (sin3Φ, cos3Φ), (sin4Φ, cos4Φ) = state.Φ_trigs
     a1 = state.a1
@@ -32,6 +43,7 @@ function rømer_delay(::BinaryELL1Base, state::ELL1State)::GQ
     )
 end
 
+"""Derivative of the Rømer delay w.r.t. the mean anomaly."""
 function d_rømer_delay_d_Φ(::BinaryELL1Base, state::ELL1State)::GQ
     (sinΦ, cosΦ), (sin2Φ, cos2Φ), (sin3Φ, cos3Φ), (sin4Φ, cos4Φ) = state.Φ_trigs
     a1 = state.a1
@@ -54,6 +66,7 @@ function d_rømer_delay_d_Φ(::BinaryELL1Base, state::ELL1State)::GQ
     )
 end
 
+"""Second derivative of the Rømer delay w.r.t. the mean anomaly."""
 function d2_rømer_delay_d_Φ2(::BinaryELL1Base, state::ELL1State)::GQ
     (sinΦ, cosΦ), (sin2Φ, cos2Φ), (sin3Φ, cos3Φ), (sin4Φ, cos4Φ) = state.Φ_trigs
     a1 = state.a1
@@ -76,6 +89,7 @@ function d2_rømer_delay_d_Φ2(::BinaryELL1Base, state::ELL1State)::GQ
     )
 end
 
+"""Total delay due to a nearly circular binary."""
 function delay(ell1::BinaryELL1Base, ctoa::CorrectedTOA, params::NamedTuple)
     state = ELL1State(ell1, ctoa, params)
 
