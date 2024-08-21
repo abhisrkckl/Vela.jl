@@ -82,6 +82,11 @@ def pint_components_to_vela(model: TimingModel, toas: TOAs):
     if "CMWaveX" in component_names:
         components.append(vl.CMWaveX())
 
+    if "BinaryELL1" in component_names:
+        assert (model["PB"].quantity is not None) != (model["FB0"].quantity is not None)
+        use_fbx = model["FB0"].quantity is not None
+        components.append(vl.BinaryELL1(use_fbx))
+
     if "WaveX" in component_names:
         components.append(vl.WaveX())
 

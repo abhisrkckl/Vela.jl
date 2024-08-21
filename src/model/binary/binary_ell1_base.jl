@@ -8,8 +8,6 @@ struct ELL1State
     a1::GQ{Float64}
     ϵ1::GQ{Float64}
     ϵ2::GQ{Float64}
-    sini::GQ{Float64}
-    m2::GQ{Float64}
 end
 
 function rømer_delay(::BinaryELL1Base, state::ELL1State)::GQ
@@ -79,7 +77,7 @@ function d2_rømer_delay_d_Φ2(::BinaryELL1Base, state::ELL1State)::GQ
 end
 
 function delay(ell1::BinaryELL1Base, ctoa::CorrectedTOA, params::NamedTuple)
-    state = ELL1State(ell1, ctoa, params, ell1.use_fbx)
+    state = ELL1State(ell1, ctoa, params)
 
     ΔR = rømer_delay(ell1, state)
     ΔRp = d_rømer_delay_d_Φ(ell1, state)
@@ -87,7 +85,7 @@ function delay(ell1::BinaryELL1Base, ctoa::CorrectedTOA, params::NamedTuple)
     nhat = state.n
     ΔR_inv = ΔR * (1 - nhat * ΔRp + (nhat * ΔRp)^2 + 0.5 * nhat^2 * ΔR * ΔRp2)
 
-    ΔS = shapiro_delay(ell1, state)
+    ΔS = shapiro_delay(ell1, state, params)
 
     return ΔR_inv + ΔS
 end

@@ -4,7 +4,7 @@ struct BinaryELL1 <: BinaryELL1Base
     use_fbx::Bool
 end
 
-function ELL1State(ell1::BinaryELL1, ctoa::CorrectedTOA, params::NamedTuple, use_fbx::Bool)
+function ELL1State(ell1::BinaryELL1, ctoa::CorrectedTOA, params::NamedTuple)
     Δt = corrected_toa_value(ctoa) - params.TASC
     a1 = params.A1 + Δt * params.A1DOT
     ϵ1 = params.EPS1 + Δt * params.EPS1DOT
@@ -15,16 +15,17 @@ function ELL1State(ell1::BinaryELL1, ctoa::CorrectedTOA, params::NamedTuple, use
 
     n = 2 * π * orbital_frequency(Δt, params, ell1.use_fbx)
 
-    m2 = params.M2
-    sini = params.SINI
-
-    return ELL1State(Φ_trigs, n, a1, ϵ1, ϵ2, sini, m2)
+    return ELL1State(Φ_trigs, n, a1, ϵ1, ϵ2)
 end
 
-function shapiro_delay(::BinaryELL1, state::ELL1State)::GQ
+function shapiro_delay(::BinaryELL1, state::ELL1State, params::NamedTuple)::GQ
+    if !issubset((:M2, :SINI), keys(params))
+        return time(0.0)
+    end
+
     sinΦ = state.Φ_trigs[1][1]
-    m2 = state.m2
-    sini = state.sini
+    m2 = params.M2
+    sini = params.SINI
     return -2 * m2 * log(1 - sini * sinΦ)
 end
 
