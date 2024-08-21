@@ -27,6 +27,11 @@ def fix_params(model: TimingModel) -> None:
 
     model.PHOFF.frozen = False
 
+    zeroable_params = ["M2", "SINI", "PBDOT", "XPBDOT", "A1DOT", "EPS1DOT", "EPS2DOT"]
+    for p in zeroable_params:
+        if p in model and model[p].quantity is None:
+            model[p].value = 0
+
 
 def pint_model_to_vela(
     model: TimingModel,
