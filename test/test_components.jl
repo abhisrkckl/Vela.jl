@@ -171,9 +171,11 @@
     @testset "BinaryELL1" begin
         ell1 = BinaryELL1(true)
         @test isfinite(delay(ell1, ctoa, params))
+        display(ell1)
 
         ell1 = BinaryELL1(false)
         @test isfinite(delay(ell1, ctoa, params))
+        display(ell1)
     end
 
     @testset "PhaseOffset" begin
