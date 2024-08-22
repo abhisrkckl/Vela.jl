@@ -6,8 +6,8 @@ setup(
     description="Interface between PINT and Vela.jl",
     author="Abhimanyu Susobhanan",
     author_email="abhimanyu.susobhanan@nanograv.org",
-    url="https://github.com/abhisrkckl/pint2vela/",
+    url="https://github.com/abhisrkckl/Vela.jl/",
     install_requires=["numpy", "astropy", "pint-pulsar", "juliacall"],
-    packages=["pint2vela"],
-    scripts=["scripts/par_tim-to-jlso.py"],
+    packages=["pint2vela/pint2vela"],
+    scripts=["pint2vela/scripts/par_tim-to-jlso.py"],
 )
