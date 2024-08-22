@@ -24,7 +24,7 @@ def get_scale_factor(param):
         hasattr(param, "prefix") and param.prefix in ["CM", "CMWXSIN_", "CMWXCOS_"]
     ):
         return DMconst
-    elif hasattr(param, "prefix") and param.prefix in ["EFAC", "EQUAD", "ECORR"]:
+    elif hasattr(param, "prefix") and param.prefix in ["EFAC", "EQUAD", "ECORR", "FD"]:
         return 1
     elif param.name == "TNCHROMIDX":
         return 1
