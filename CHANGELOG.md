@@ -1,5 +1,11 @@
 # [Unreleased]
 ## Added
+## Changed
+## Fixed
+## Removed
+
+# [0.0.3] - 2024-08-22
+## Added
 - `load_pulsar_data()` and `save_pulsar_data()` functions
 - `par_tim_to_jlso()` function and `par_tim-to-jlso` script in `pint2vela`
 - `Prior` as the abstract base class for prior distributions
