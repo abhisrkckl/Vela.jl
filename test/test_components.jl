@@ -191,6 +191,8 @@
         @test isfinite(delay(ell1, ctoa, params))
         display(ell1)
 
+        @test @ballocated(delay($ell1, $ctoa, $params)) == 0
+
         params1 = (
             TASC = time(53470.0 * day_to_s),
             PB = time(8e4),
