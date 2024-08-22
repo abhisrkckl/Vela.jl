@@ -8,6 +8,7 @@ setup(
     author_email="abhimanyu.susobhanan@nanograv.org",
     url="https://github.com/abhisrkckl/Vela.jl/",
     install_requires=["numpy", "astropy", "pint-pulsar", "juliacall"],
-    packages=["pint2vela/pint2vela"],
+    package_dir={"": "pint2vela"},
+    packages=["pint2vela"],
     scripts=["pint2vela/scripts/par_tim-to-jlso.py"],
 )
