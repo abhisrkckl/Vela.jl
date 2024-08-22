@@ -36,7 +36,7 @@
 - Replaced `pint2vela` test datasets with symlinks.
 ## Fixed
 - `show` method for `MeasurementNoise`
-- Copy the `toas` inside `get_lnlike_parallel_func` and `get_lnlike_serial_func` to avoid repeated allocations. 
+- Copy the `toas` inside `get_lnlike_parallel_func`, `get_lnlike_serial_func`, `get_chi2_serial_func`, and `get_chi2_parallel_func` to avoid repeated allocations. 
 ## Removed
 - `read_model_and_toas()` function. Data is now read from `JLSO` files created using `pint2vela`
 - `plot_summary()` function. (This is better done in Python.)

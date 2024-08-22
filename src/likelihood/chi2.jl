@@ -33,11 +33,15 @@ end
 calc_chi2_serial(model::TimingModel, toas::Vector{TOA}, params) =
     calc_chi2_serial(model, toas, read_params(model, params))
 
-get_chi2_serial_func(model::TimingModel, toas::Vector{TOA}) =
-    params -> calc_chi2_serial(model, toas, params)
+function get_chi2_serial_func(model::TimingModel, toas::Vector{TOA})
+    toas_ = copy(toas)
+    params -> calc_chi2_serial(model, toas_, params)
+end
 
-get_chi2_parallel_func(model::TimingModel, toas::Vector{TOA}) =
-    params -> calc_chi2(model, toas, params)
+function get_chi2_parallel_func(model::TimingModel, toas::Vector{TOA})
+    toas_ = copy(toas)
+    params -> calc_chi2(model, toas_, params)
+end
 
 """Get the χ^2(params) function for a given timing model and collection of TOAs.
 Serial or parallel execution is decided based on the number of available threads."""
