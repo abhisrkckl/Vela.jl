@@ -1,5 +1,11 @@
 # [Unreleased]
 ## Added
+## Changed
+## Fixed
+## Removed
+
+# [0.0.3] - 2024-08-22
+## Added
 - `load_pulsar_data()` and `save_pulsar_data()` functions
 - `par_tim_to_jlso()` function and `par_tim-to-jlso` script in `pint2vela`
 - `Prior` as the abstract base class for prior distributions
@@ -34,6 +40,8 @@
 - Rearranged `pint2vela` code into multiple files.
 - Merged `pint2vela` into the main repo.
 - Replaced `pint2vela` test datasets with symlinks.
+- Updated `README.md`
+- Moved `setup.py` from `Vela.jl/pint2vela` to `Vela.jl`
 ## Fixed
 - `show` method for `MeasurementNoise`
 - Copy the `toas` inside `get_lnlike_parallel_func`, `get_lnlike_serial_func`, `get_chi2_serial_func`, and `get_chi2_parallel_func` to avoid repeated allocations. 
