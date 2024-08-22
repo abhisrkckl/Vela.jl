@@ -20,7 +20,7 @@ abstract type SolarWind <: DispersionComponent end
 falls off as an inverse-square function of the distance from the Sun."""
 struct SolarWindDispersion <: SolarWind end
 
-function dispersion_slope(::SolarWindDispersion, ctoa::CorrectedTOA, params)
+function dispersion_slope(::SolarWindDispersion, ctoa::CorrectedTOA, params::NamedTuple)::GQ
     ρ, r = sun_angle_and_distance(ctoa)
     return params.NE_SW * AU * AU * ρ / (r * sin(ρ))
 end
