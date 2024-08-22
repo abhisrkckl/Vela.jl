@@ -46,9 +46,7 @@ jobs:
           pip install pytest pytest-xdist pytest-cov coverage pint-pulsar
           julia -e 'import Pkg; Pkg.develop(path=".")'
           julia -e 'import Pkg; Pkg.add(["Distributions", "DoubleFloats", "BenchmarkTools"])'
-          cd pint2vela
           pip install .
-          cd ..
       - name: Test with pytest
         run: |
           cd pint2vela/tests
