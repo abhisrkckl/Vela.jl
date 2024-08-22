@@ -78,7 +78,7 @@ assert np.allclose(
 # %%
 print(lnlike(maxlike_params_v), bt.lnlikelihood(maxlike_params_p))
 print(timeit("lnlike(maxlike_params_v)", globals=globals(), number=1000))
-print(timeit("bt.lnlikelihood(maxlike_params_p)", globals=globals(), number=1000))
+print(timeit("bt.lnlikelihood(maxlike_params_p)", globals=globals(), number=50))
 
 # %%
 begin = time.time()

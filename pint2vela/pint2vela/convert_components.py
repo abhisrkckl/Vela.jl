@@ -82,6 +82,11 @@ def pint_components_to_vela(model: TimingModel, toas: TOAs):
     if "CMWaveX" in component_names:
         components.append(vl.CMWaveX())
 
+    if "BinaryELL1" in component_names:
+        assert (model["PB"].quantity is not None) != (model["FB0"].quantity is not None)
+        use_fbx = model["FB0"].quantity is not None
+        components.append(vl.BinaryELL1(use_fbx))
+
     if "FD" in component_names:
         components.append(vl.FrequencyDependent())
 
@@ -104,14 +109,26 @@ def pint_components_to_vela(model: TimingModel, toas: TOAs):
         components.append(phase_jump)
 
     if "ScaleToaError" in component_names:
-        efac_mask0 = read_mask(toas, [model[ef] for ef in model.EFACs])
-        equad_mask0 = read_mask(toas, [model[eq] for eq in model.EQUADs])
+        efac_mask0 = read_mask(
+            toas, [model[ef] for ef in model.EFACs if model.EFACs[ef][0] is not None]
+        )
+        equad_mask0 = read_mask(
+            toas, [model[eq] for eq in model.EQUADs if model.EQUADs[eq][0] is not None]
+        )
 
-        assert is_exclusive_mask(efac_mask0)
-        assert is_exclusive_mask(equad_mask0)
+        assert len(efac_mask0) == 0 or is_exclusive_mask(efac_mask0)
+        assert len(equad_mask0) == 0 or is_exclusive_mask(equad_mask0)
 
-        efac_mask = jl.Vector[jl.UInt](get_exclusive_mask(efac_mask0))
-        equad_mask = jl.Vector[jl.UInt](get_exclusive_mask(equad_mask0))
+        efac_mask = (
+            jl.Vector[jl.UInt](get_exclusive_mask(efac_mask0))
+            if len(efac_mask0) > 0
+            else jl.Vector[jl.UInt](np.zeros(len(toas)))
+        )
+        equad_mask = (
+            jl.Vector[jl.UInt](get_exclusive_mask(equad_mask0))
+            if len(equad_mask0) > 0
+            else jl.Vector[jl.UInt](np.zeros(len(toas)))
+        )
 
         components.append(vl.MeasurementNoise(efac_mask, equad_mask))
 

@@ -6,6 +6,7 @@ from pint.models.parameter import (
     AngleParameter,
     MJDParameter,
     floatParameter,
+    funcParameter,
     Parameter,
     compute_effective_dimensionality,
 )
@@ -113,6 +114,7 @@ def pint_parameters_to_vela(model: TimingModel):
         # Skip things that are not single parameters
         if (
             param_name in ignore_params
+            or isinstance(param, funcParameter)
             or param_name in pseudo_single_params
             or not isinstance(
                 param,

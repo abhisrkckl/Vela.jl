@@ -58,6 +58,19 @@
         TNCHROMIDX = dimensionless(2.0),
         CMEPOCH = time(53470.0 * day_to_s),
         CM = (GQ(4e4, 1), GQ(1e-1, 0)),
+        TASC = time(53470.0 * day_to_s),
+        PB = time(8e4),
+        PBDOT = dimensionless(1e-10),
+        XPBDOT = dimensionless(0.0),
+        FB = (frequency(1.25e-5), GQ(-1.5625e-20, -2)),
+        A1 = distance(5.0),
+        A1DOT = dimensionless(0.0),
+        EPS1 = dimensionless(1e-5),
+        EPS2 = dimensionless(-2e-5),
+        EPS1DOT = frequency(0.0),
+        EPS2DOT = frequency(0.0),
+        M2 = mass(5e-9),
+        SINI = dimensionless(0.5),
         FD = (time(0.1), time(0.2)),
     )
 
@@ -167,6 +180,31 @@
         cmwx = CMWaveX()
         @test isfinite(delay(cmwx, ctoa, params))
         @test @ballocated(delay($cmwx, $ctoa, $params)) == 0
+    end
+
+    @testset "BinaryELL1" begin
+        ell1 = BinaryELL1(true)
+        @test isfinite(delay(ell1, ctoa, params))
+        display(ell1)
+
+        ell1 = BinaryELL1(false)
+        @test isfinite(delay(ell1, ctoa, params))
+        display(ell1)
+
+        @test @ballocated(delay($ell1, $ctoa, $params)) == 0
+
+        params1 = (
+            TASC = time(53470.0 * day_to_s),
+            PB = time(8e4),
+            PBDOT = dimensionless(1e-10),
+            A1 = distance(5.0),
+            A1DOT = dimensionless(0.0),
+            EPS1 = dimensionless(1e-5),
+            EPS2 = dimensionless(-2e-5),
+            EPS1DOT = frequency(0.0),
+            EPS2DOT = frequency(0.0),
+        )
+        @test isfinite(delay(ell1, ctoa, params1))
     end
 
     @testset "PhaseOffset" begin

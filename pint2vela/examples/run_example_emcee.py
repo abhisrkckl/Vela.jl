@@ -61,11 +61,11 @@ for pname, mean, std in zip(param_names, means, stds):
     print(f"{pname}\t\t{mean}\t\t{std}")
 
 # %%
-param_labels = [f"\n{pname}\n({m[pname].units})" for pname in param_names]
+param_labels = [f"\n\n{pname}\n({m[pname].units})\n" for pname in param_names]
 fig = corner.corner(
     samples_v,
     labels=param_labels,
-    label_kwargs={"fontsize": 15},
+    label_kwargs={"fontsize": 11},
     range=[0.999999] * ndim,
     truths=maxlike_params_v / scale_factors,
     plot_datapoints=False,
