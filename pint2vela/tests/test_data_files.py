@@ -75,8 +75,8 @@ def test_prior(model_and_toas):
     assert calc_lnprior(params) == calc_lnprior(mv.param_handler._default_params_tuple)
 
 
-@pytest.mark.xfail
 def test_alloc(model_and_toas):
-    mv, tv, params, _, _ = model_and_toas
+    mv, tv, _, _, _ = model_and_toas
+    params = mv.param_handler._default_params_tuple
     calc_lnlike = vl.get_lnlike_serial_func(mv, tv)
     assert jl.get_alloc(calc_lnlike, params) == 0

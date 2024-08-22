@@ -23,9 +23,10 @@
 - Fourier series representation of achromatic red noise (`WaveX`), DM noise (`DMWaveX`), and chromatic noise (`ChromaticCM`)
 - `get_lnpost_func` function
 - Frequency-dependent profile variability corrections (`FrequencyDependent`)
-- Memory allocation tests for all components
+- Memory allocation tests for all components in `test_components.jl`
 - `mean_anomaly` and `mean_motion` functions
 - `BinaryELL1` model
+- Memory allocation tests in the `pint2vela` test suite.
 ## Changed
 - Reorganized source files into subdirectories
 - Replaced `par` and `tim` files for testing with `JLSO` files
@@ -35,6 +36,7 @@
 - Replaced `pint2vela` test datasets with symlinks.
 ## Fixed
 - `show` method for `MeasurementNoise`
+- Copy the `toas` inside `get_lnlike_parallel_func` and `get_lnlike_serial_func` to avoid repeated allocations. 
 ## Removed
 - `read_model_and_toas()` function. Data is now read from `JLSO` files created using `pint2vela`
 - `plot_summary()` function. (This is better done in Python.)
