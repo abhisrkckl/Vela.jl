@@ -4,6 +4,10 @@ import pytest
 from pint.models import get_model_and_toas
 from pint2vela import read_model_and_toas
 from pint2vela.vela import vl
+from juliacall import Main as jl
+
+jl.seval("using BenchmarkTools")
+jl.seval("get_alloc(func, args...) = @ballocated(($func)(($args)...))")
 
 datasets = [
     "NGC6440E",
@@ -69,3 +73,10 @@ def test_prior(model_and_toas):
     calc_lnprior = vl.get_lnprior_func(mv)
     assert np.isfinite(calc_lnprior(mv.param_handler._default_params_tuple))
     assert calc_lnprior(params) == calc_lnprior(mv.param_handler._default_params_tuple)
+
+
+def test_alloc(model_and_toas):
+    mv, tv, _, _, _ = model_and_toas
+    params = mv.param_handler._default_params_tuple
+    calc_lnlike = vl.get_lnlike_serial_func(mv, tv)
+    assert jl.get_alloc(calc_lnlike, params) == 0
