@@ -176,6 +176,19 @@
         ell1 = BinaryELL1(false)
         @test isfinite(delay(ell1, ctoa, params))
         display(ell1)
+
+        params1 = (
+            TASC = time(53470.0 * day_to_s),
+            PB = time(8e4),
+            PBDOT = dimensionless(1e-10),
+            A1 = distance(5.0),
+            A1DOT = dimensionless(0.0),
+            EPS1 = dimensionless(1e-5),
+            EPS2 = dimensionless(-2e-5),
+            EPS1DOT = frequency(0.0),
+            EPS2DOT = frequency(0.0),
+        )
+        @test isfinite(delay(ell1, ctoa, params1))
     end
 
     @testset "PhaseOffset" begin
