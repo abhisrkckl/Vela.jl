@@ -15,13 +15,15 @@
 - Variable-index chromatic delay as a Taylor expansion (`ChromaticTaylor`)
 - Auto-generation of HTML documentation using `Documenter`
 - `docs-CI` tests
-- Examples - `sim1`, `sim_jump`, `sim_jump_ex`, `sim_fdjumpdm`, `sim_sw`, `sim_cm`, `J0613-0200.InPTA.NB`
+- Examples - `sim1`, `sim_jump`, `sim_jump_ex`, `sim_fdjumpdm`, `sim_sw`, `sim_cm`, `sim_fd`, `J0613-0200.InPTA.NB`
 - Tests corresponding to the example datasets
 - System-dependent DM offsets (`DispersionOffset`)
 - `compare_residuals.py` script in `examples`.
 - Codecov upload for `pint2vela`
 - Fourier series representation of achromatic red noise (`WaveX`), DM noise (`DMWaveX`), and chromatic noise (`ChromaticCM`)
 - `get_lnpost_func` function
+- Frequency-dependent profile variability corrections (`FrequencyDependent`)
+- Memory allocation tests for all components
 - `mean_anomaly` and `mean_motion` functions
 - `BinaryELL1` model
 ## Changed

@@ -34,7 +34,7 @@ correct_toa(component::DelayComponent, ctoa::CorrectedTOA, params::NamedTuple) =
 abstract type DispersionComponent <: DelayComponent end
 
 """Compute a dispersion delay."""
-delay(component::DispersionComponent, ctoa::CorrectedTOA, params) =
+delay(component::DispersionComponent, ctoa::CorrectedTOA, params::NamedTuple)::GQ =
     dispersion_slope(component, ctoa, params) /
     doppler_corrected_observing_frequency(ctoa)^2
 

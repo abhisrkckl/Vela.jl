@@ -87,6 +87,9 @@ def pint_components_to_vela(model: TimingModel, toas: TOAs):
         use_fbx = model["FB0"].quantity is not None
         components.append(vl.BinaryELL1(use_fbx))
 
+    if "FD" in component_names:
+        components.append(vl.FrequencyDependent())
+
     if "WaveX" in component_names:
         components.append(vl.WaveX())
 

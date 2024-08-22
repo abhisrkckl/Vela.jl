@@ -4,7 +4,7 @@ export ChromaticComponent, ChromaticTaylor, chromatic_slope
 abstract type ChromaticComponent <: DelayComponent end
 
 """Compute a chromatic delay."""
-delay(component::ChromaticComponent, ctoa::CorrectedTOA, params) =
+delay(component::ChromaticComponent, ctoa::CorrectedTOA, params::NamedTuple)::GQ =
     chromatic_slope(component, ctoa, params) *
     (frequency(1e6) / doppler_corrected_observing_frequency(ctoa))^params.TNCHROMIDX
 
@@ -14,7 +14,7 @@ Corresponds to `ChromaticCM` in `PINT`."""
 struct ChromaticTaylor <: ChromaticComponent end
 
 """Compute the chromatic slope corresponding to a TOA using a Taylor series representation."""
-function chromatic_slope(::ChromaticTaylor, ctoa::CorrectedTOA, params)
+function chromatic_slope(::ChromaticTaylor, ctoa::CorrectedTOA, params::NamedTuple)::GQ
     t0 = params.CMEPOCH
     t = corrected_toa_value(ctoa)
     cms = params.CM

@@ -6,7 +6,7 @@ Corresponds to `DispersionDM` in `PINT`."""
 struct DispersionTaylor <: DispersionComponent end
 
 """Compute the dispersion slope corresponding to a TOA using a Taylor series representation."""
-function dispersion_slope(::DispersionTaylor, ctoa::CorrectedTOA, params)
+function dispersion_slope(::DispersionTaylor, ctoa::CorrectedTOA, params::NamedTuple)::GQ
     t0 = params.DMEPOCH
     t = corrected_toa_value(ctoa)
     dms = params.DM

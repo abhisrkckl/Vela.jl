@@ -71,6 +71,7 @@
         EPS2DOT = frequency(0.0),
         M2 = mass(5e-9),
         SINI = dimensionless(0.5),
+        FD = (time(0.1), time(0.2)),
     )
 
     @testset "SolarSystem" begin
@@ -78,6 +79,8 @@
         @test ss.ecliptic_coordinates && ss.planet_shapiro
 
         ctoa1 = correct_toa(ss, ctoa, params)
+
+        @test @ballocated(correct_toa($ss, $ctoa, $params)) == 0
 
         @test ctoa1.phase == ctoa.phase
         @test ctoa1.delay != ctoa.delay
@@ -97,6 +100,8 @@
         ss = SolarSystem(true, true)
         ctoa1 = correct_toa(ss, ctoa, params)
         @test dispersion_slope(swd, ctoa1, params) != GQ(0.0, -1)
+
+        @test @ballocated(delay($swd, $ctoa1, $params)) == 0
     end
 
     @testset "DispersionTaylor" begin
@@ -104,6 +109,8 @@
         @test dispersion_slope(dmt, ctoa, params) == params.DM[1]
         @test delay(dmt, ctoa, params) ==
               dispersion_slope(dmt, ctoa, params) / ctoa.toa.observing_frequency^2
+
+        @test @ballocated(delay($dmt, $ctoa, $params)) == 0
     end
 
     @testset "DispersionOffset" begin
@@ -112,6 +119,8 @@
 
         @test dispersion_slope(dmoff, ctzrtoa, params) == GQ(0.0, -1)
         @test dispersion_slope(dmoff, ctoa, params) == -params.FDJUMPDM[1]
+
+        @test @ballocated(delay($dmoff, $ctoa, $params)) == 0
 
         display(dmoff)
 
@@ -145,27 +154,32 @@
         # in the par file must give equal delays. In our units, this corresponds
         # to `value(DM) / value(CM) == 1e12`. See the `params` tuple above.
         @test delay(dmt, ctoa, params) == delay(cmt, ctoa, params)
+
+        @test @ballocated(delay($cmt, $ctoa, $params)) == 0
+    end
+
+    @testset "FrequencyDependent" begin
+        fd = FrequencyDependent()
+        @test isfinite(delay(fd, ctoa, params))
+        @test @ballocated(delay($fd, $ctoa, $params)) == 0
     end
 
     @testset "WaveX" begin
         wx = WaveX()
-        δ = delay(wx, ctoa, params)
-        @test isfinite(δ)
-        @test δ.d == 1
+        @test isfinite(delay(wx, ctoa, params))
+        @test @ballocated(delay($wx, $ctoa, $params)) == 0
     end
 
     @testset "DMWaveX" begin
         dmwx = DMWaveX()
-        δ = delay(dmwx, ctoa, params)
-        @test isfinite(δ)
-        @test δ.d == 1
+        @test isfinite(delay(dmwx, ctoa, params))
+        @test @ballocated(delay($dmwx, $ctoa, $params)) == 0
     end
 
     @testset "CMWaveX" begin
         cmwx = CMWaveX()
-        δ = delay(cmwx, ctoa, params)
-        @test isfinite(δ)
-        @test δ.d == 1
+        @test isfinite(delay(cmwx, ctoa, params))
+        @test @ballocated(delay($cmwx, $ctoa, $params)) == 0
     end
 
     @testset "BinaryELL1" begin
@@ -196,6 +210,8 @@
         @test phase(poff, ctoa, params) == dimensionless(-1e-6)
         @test phase(poff, ctzrtoa, params) == dimensionless(0.0)
 
+        @test @ballocated(phase($poff, $ctoa, $params)) == 0
+
         ctoa1 = correct_toa(poff, ctoa, params)
         @test ctoa1.delay == ctoa.delay
         @test ctoa1.phase ≈ ctoa.phase + phase(poff, ctoa, params)
@@ -222,6 +238,7 @@
         @test ctoa.spin_frequency == frequency(-1.0) &&
               ctoa1.spin_frequency > frequency(0.0)
 
+        @ballocated(correct_toa($spn, $ctoa, $params)) == 0
     end
 
     @testset "PhaseJump" begin
@@ -230,6 +247,8 @@
 
         @test phase(pjmp, ctzrtoa, params) == 0
         @test phase(pjmp, ctoa, params) ≈ params.JUMP[1] * params.F_
+
+        @ballocated(phase($pjmp, $ctzrtoa, $params)) == 0
 
         display(pjmp)
 
@@ -264,6 +283,9 @@
         @test efac(wn, ctoa, params) == params.EFAC[1]
         @test equad2(wn, ctoa, params) == time(0.0)^2
         ctoa1 = correct_toa(wn, ctoa, params)
+
+        @ballocated(correct_toa($wn, $ctoa, $params)) == 0
+
         @test ctoa1.delay == ctoa.delay
         @test ctoa1.phase == ctoa.phase
         @test ctoa1.doppler == ctoa.doppler
