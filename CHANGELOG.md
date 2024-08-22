@@ -22,6 +22,8 @@
 - Codecov upload for `pint2vela`
 - Fourier series representation of achromatic red noise (`WaveX`), DM noise (`DMWaveX`), and chromatic noise (`ChromaticCM`)
 - `get_lnpost_func` function
+- Frequency-dependent profile variability corrections (`FrequencyDependent`)
+- Memory allocation tests for all componentss
 ## Changed
 - Reorganized source files into subdirectories
 - Replaced `par` and `tim` files for testing with `JLSO` files
