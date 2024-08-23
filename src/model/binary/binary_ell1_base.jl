@@ -93,13 +93,9 @@ end
 
 """Shapiro delay due to a nearly circular binary."""
 function shapiro_delay(::BinaryELL1Base, state::ELL1State)::GQ
-    if !issubset((:M2, :SINI), keys(params))
-        return time(0.0)
-    end
-
     sinΦ = state.Φ_trigs[1][1]
-    m2 = state.M2
-    sini = state.SINI
+    m2 = state.m2
+    sini = state.sini
     return -2 * m2 * log(1 - sini * sinΦ)
 end
 
