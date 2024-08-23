@@ -216,15 +216,26 @@
     end
 
     @testset "BinaryDD" begin
+        toa1 = TOA(
+            time(Double64(53470.0 * day_to_s)),
+            time(1e-6),
+            frequency(2.5e9),
+            dimensionless(Double64(0.0)),
+            false,
+            ephem,
+            1,
+        )
+        ctoa1 = CorrectedTOA(toa1)
+
         dd = BinaryDD(true)
-        @test isfinite(delay(dd, ctoa, params))
+        @test isfinite(delay(dd, ctoa1, params))
         display(dd)
 
         dd = BinaryDD(false)
-        @test isfinite(delay(dd, ctoa, params))
+        @test isfinite(delay(dd, ctoa1, params))
         display(dd)
 
-        @test @ballocated(delay($dd, $ctoa, $params)) == 0
+        @test @ballocated(delay($dd, $ctoa1, $params)) == 0
 
         # params1 = (
         #     TASC = time(53470.0 * day_to_s),
