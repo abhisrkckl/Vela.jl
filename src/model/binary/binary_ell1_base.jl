@@ -113,7 +113,7 @@ function delay(ell1::BinaryELL1Base, ctoa::CorrectedTOA, params::NamedTuple)
     nhat = state.n
     ΔR_inv = ΔR * (1 - nhat * ΔRp + (nhat * ΔRp)^2 + 0.5 * nhat^2 * ΔR * ΔRp2)
 
-    ΔS = shapiro_delay(ell1, state, params)
+    ΔS = shapiro_delay(ell1, state)
 
     return ΔR_inv + ΔS
 end
