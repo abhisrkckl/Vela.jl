@@ -16,8 +16,16 @@ function DDState(dd::BinaryDD, ctoa::CorrectedTOA, params::NamedTuple)
 
     k = params.OMDOT / n
     ω = params.OM + k * v
+    sinω, cosω = sincos(ω)
 
     a1 = params.A1 + Δt * params.A1DOT
 
-    return DDState(sincos(u), sincos(ω), et, er, eϕ, a1)
+    α = a1 * sinω
+    β = a1 * sqrt(1 - eϕ * eϕ) * cosω
+    γ = params.GAMMA
+
+    m2 = params.M2
+    sini = params.SINI
+
+    return DDState((α, β, γ), sincos(u), et, er, a1, n, m2, sini)
 end
