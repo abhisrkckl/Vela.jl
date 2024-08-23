@@ -1,3 +1,5 @@
+export BinaryDD
+
 struct BinaryDD <: BinaryDDBase
     use_fbx::Bool
 end
@@ -28,4 +30,9 @@ function DDState(dd::BinaryDD, ctoa::CorrectedTOA, params::NamedTuple)
     sini = params.SINI
 
     return DDState((α, β, γ), sincos(u), et, er, a1, n, m2, sini)
+end
+
+function show(io::IO, dd::BinaryDD)
+    mode = dd.use_fbx ? "FBX" : "PB"
+    print(io, "BinaryDD(with $mode)")
 end

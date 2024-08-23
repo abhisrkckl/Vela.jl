@@ -7,9 +7,9 @@ struct DDState
     et::GQ{Float64}
     er::GQ{Float64}
     a1::GQ{Float64}
-    n::GQ{Float32}
-    m2::GQ{Float32}
-    sini::GQ{Float32}
+    n::GQ{Float64}
+    m2::GQ{Float64}
+    sini::GQ{Float64}
 end
 
 function rømer_einstein_delay(::BinaryDDBase, state::DDState)::GQ
@@ -41,6 +41,7 @@ function shapiro_delay(::BinaryDDBase, state::DDState)
     sini = state.sini
     sinu, cosu = state.sincosu
 
+    er = state.er
     et = state.et
     a1 = state.a1
     α, β, _ = state.rømer_einstein_coeffs
@@ -67,7 +68,7 @@ function delay(dd::BinaryDDBase, ctoa::CorrectedTOA, params::NamedTuple)::GQ
             0.5 * et * sinu / (1 - et * cosu) * nhat^2 * ΔRE * ΔREp
         )
 
-    ΔS = shapiro_delay(dd, state, params)
+    ΔS = shapiro_delay(dd, state)
 
     return ΔRE_inv + ΔS
 end

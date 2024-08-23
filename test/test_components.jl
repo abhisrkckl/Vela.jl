@@ -71,6 +71,14 @@
         EPS2DOT = frequency(0.0),
         M2 = mass(5e-9),
         SINI = dimensionless(0.5),
+        ECC = dimensionless(0.5),
+        EDOT = frequency(0.0),
+        OM = dimensionless(0.1),
+        OMDOT = frequency(0.0),
+        T0 = time(53470.0 * day_to_s),
+        DR = dimensionless(0.0),
+        DTH = dimensionless(0.0),
+        GAMMA = time(0.0),
         FD = (time(0.1), time(0.2)),
     )
 
@@ -205,6 +213,31 @@
             EPS2DOT = frequency(0.0),
         )
         @test isfinite(delay(ell1, ctoa, params1))
+    end
+
+    @testset "BinaryDD" begin
+        dd = BinaryDD(true)
+        @test isfinite(delay(dd, ctoa, params))
+        display(dd)
+
+        dd = BinaryDD(false)
+        @test isfinite(delay(dd, ctoa, params))
+        display(dd)
+
+        @test @ballocated(delay($dd, $ctoa, $params)) == 0
+
+        # params1 = (
+        #     TASC = time(53470.0 * day_to_s),
+        #     PB = time(8e4),
+        #     PBDOT = dimensionless(1e-10),
+        #     A1 = distance(5.0),
+        #     A1DOT = dimensionless(0.0),
+        #     EPS1 = dimensionless(1e-5),
+        #     EPS2 = dimensionless(-2e-5),
+        #     EPS1DOT = frequency(0.0),
+        #     EPS2DOT = frequency(0.0),
+        # )
+        # @test isfinite(delay(ell1, ctoa, params1))
     end
 
     @testset "PhaseOffset" begin
