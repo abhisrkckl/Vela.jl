@@ -89,6 +89,18 @@ function d2_rømer_delay_d_Φ2(::BinaryELL1Base, state::ELL1State)::GQ
     )
 end
 
+"""Shapiro delay due to a nearly circular binary."""
+function shapiro_delay(::BinaryELL1Base, state::ELL1State, params::NamedTuple)::GQ
+    if !issubset((:M2, :SINI), keys(params))
+        return time(0.0)
+    end
+
+    sinΦ = state.Φ_trigs[1][1]
+    m2 = params.M2
+    sini = params.SINI
+    return -2 * m2 * log(1 - sini * sinΦ)
+end
+
 """Total delay due to a nearly circular binary."""
 function delay(ell1::BinaryELL1Base, ctoa::CorrectedTOA, params::NamedTuple)
     state = ELL1State(ell1, ctoa, params)
