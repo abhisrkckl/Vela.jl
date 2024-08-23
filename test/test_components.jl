@@ -216,6 +216,17 @@
     end
 
     @testset "BinaryDD" begin
+        @testset "mikkola" begin
+            kepler = (u, e) -> u - e * sin(u)
+            us = [-π / 4, 0.0, π / 4, 3 * π / 4, 4 * π / 3, 7 * π / 3]
+            es = [0.0, 0.5, 0.3]
+            for e in es
+                for u in us
+                    @test u ≈ Vela.mikkola(kepler(u, e), e)
+                end
+            end
+        end
+
         toa1 = TOA(
             time(Double64(53471.0 * day_to_s)),
             time(1e-6),
