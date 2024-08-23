@@ -17,6 +17,8 @@ struct ELL1State
     a1::GQ{Float64}
     ϵ1::GQ{Float64}
     ϵ2::GQ{Float64}
+    m2::GQ{Float64}
+    sini::GQ{Float64}
 end
 
 """Rømer delay due to a nearly circular binary. Includes terms up to the
@@ -90,14 +92,14 @@ function d2_rømer_delay_d_Φ2(::BinaryELL1Base, state::ELL1State)::GQ
 end
 
 """Shapiro delay due to a nearly circular binary."""
-function shapiro_delay(::BinaryELL1Base, state::ELL1State, params::NamedTuple)::GQ
+function shapiro_delay(::BinaryELL1Base, state::ELL1State)::GQ
     if !issubset((:M2, :SINI), keys(params))
         return time(0.0)
     end
 
     sinΦ = state.Φ_trigs[1][1]
-    m2 = params.M2
-    sini = params.SINI
+    m2 = state.M2
+    sini = state.SINI
     return -2 * m2 * log(1 - sini * sinΦ)
 end
 

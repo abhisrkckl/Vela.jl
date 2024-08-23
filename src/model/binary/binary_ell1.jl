@@ -16,7 +16,10 @@ function ELL1State(ell1::BinaryELL1, ctoa::CorrectedTOA, params::NamedTuple)
 
     n = mean_motion(Δt, params, ell1.use_fbx)
 
-    return ELL1State(Φ_trigs, n, a1, ϵ1, ϵ2)
+    m2 = params.M2
+    sini = params.SINI
+
+    return ELL1State(Φ_trigs, n, a1, ϵ1, ϵ2, m2, sini)
 end
 
 function show(io::IO, ell1::BinaryELL1)
