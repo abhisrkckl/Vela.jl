@@ -217,7 +217,7 @@
 
     @testset "BinaryDD" begin
         toa1 = TOA(
-            time(Double64(53470.0 * day_to_s)),
+            time(Double64(53471.0 * day_to_s)),
             time(1e-6),
             frequency(2.5e9),
             dimensionless(Double64(0.0)),

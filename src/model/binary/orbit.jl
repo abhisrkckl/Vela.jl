@@ -47,7 +47,8 @@ function mikkola(l, e)
     E0 = (l + e * (3 * w - 4 * w3))
     u = E0
 
-    esu, ecu = e .* sincos(u)
+    su, cu = sincos(u)
+    esu, ecu = e * su, e * cu
 
     fu = u - esu - l
     f1u = 1 - ecu
