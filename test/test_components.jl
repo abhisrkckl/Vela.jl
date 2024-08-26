@@ -191,20 +191,11 @@
     end
 
     @testset "BinaryELL1" begin
-        ell1 = BinaryELL1(true)
-        @test isfinite(delay(ell1, ctoa, params))
-        display(ell1)
-
-        ell1 = BinaryELL1(false)
-        @test isfinite(delay(ell1, ctoa, params))
-        display(ell1)
-
-        @test @ballocated(delay($ell1, $ctoa, $params)) == 0
-
         params1 = (
-            TASC = time(53470.0 * day_to_s),
+            TASC = time(53470.1 * day_to_s),
             PB = time(8e4),
             PBDOT = dimensionless(1e-10),
+            FB = (frequency(1.25e-5), GQ(-1.5625e-20, -2)),
             A1 = distance(5.0),
             A1DOT = dimensionless(0.0),
             EPS1 = dimensionless(1e-5),
@@ -212,7 +203,15 @@
             EPS1DOT = frequency(0.0),
             EPS2DOT = frequency(0.0),
         )
-        @test isfinite(delay(ell1, ctoa, params1))
+        for use_fbx in [true, false]
+            ell1 = BinaryELL1(use_fbx)
+            display(ell1)
+            for pars in [params, params1]
+                ctoa_1 = correct_toa(ell1, ctoa, pars)
+                @test isfinite(ctoa_1.delay) && isfinite(ctoa_1.doppler)
+                @test @ballocated(correct_toa($ell1, $ctoa, $pars)) == 0
+            end
+        end
     end
 
     @testset "BinaryDD" begin

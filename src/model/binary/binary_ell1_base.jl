@@ -99,8 +99,9 @@ function shapiro_delay(::BinaryELL1Base, state::ELL1State)::GQ
     return -2 * m2 * log(1 - sini * sinΦ)
 end
 
-"""Total delay due to a nearly circular binary."""
-function delay(ell1::BinaryELL1Base, ctoa::CorrectedTOA, params::NamedTuple)
+"""Update the `CorrectedTOA` object with delays and Doppler factor due to a nearly
+circular binary."""
+function correct_toa(ell1::BinaryELL1Base, ctoa::CorrectedTOA, params::NamedTuple)
     state = ELL1State(ell1, ctoa, params)
 
     ΔR = rømer_delay(ell1, state)
@@ -111,5 +112,9 @@ function delay(ell1::BinaryELL1Base, ctoa::CorrectedTOA, params::NamedTuple)
 
     ΔS = shapiro_delay(ell1, state)
 
-    return ΔR_inv + ΔS
+    delay = ΔR_inv + ΔS
+
+    doppler = -ΔRp * nhat
+
+    return correct_toa(ctoa; delay = delay, doppler = doppler)
 end
