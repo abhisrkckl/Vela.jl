@@ -17,7 +17,7 @@ const M_NEPTUNE = mass(2.5373119991867603e-10)
 """Solar system Rømer delay, Parallax delay, and Shapiro delay.
 
 Corresponds to `AstrometryEquatorial`, `AstrometryEcliptic`, and `SolarSystemShapiro` in `PINT`."""
-struct SolarSystem <: DelayComponent
+struct SolarSystem <: KinematicDelayComponent
     ecliptic_coordinates::Bool
     planet_shapiro::Bool
 end
