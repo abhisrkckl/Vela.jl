@@ -34,10 +34,15 @@ end
 calc_lnlike_serial(model::TimingModel, toas::Vector{TOA}, params) =
     calc_lnlike_serial(model, toas, read_params(model, params))
 
-get_lnlike_serial_func(model::TimingModel, toas::Vector{TOA}) =
-    params -> calc_lnlike_serial(model, toas, params)
+function get_lnlike_serial_func(model::TimingModel, toas::Vector{TOA})
+    toas_ = copy(toas)
+    params -> calc_lnlike_serial(model, toas_, params)
+end
 
-get_lnlike_parallel_func(model, toas) = params -> calc_lnlike(model, toas, params)
+function get_lnlike_parallel_func(model::TimingModel, toas::Vector{TOA})
+    toas_ = copy(toas)
+    params -> calc_lnlike(model, toas_, params)
+end
 
 """Get the log_likelihood(params) function for a given timing model and collection of TOAs.
 Serial or parallel execution is decided based on the number of available threads."""

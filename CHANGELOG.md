@@ -1,5 +1,11 @@
 # [Unreleased]
 ## Added
+## Changed
+## Fixed
+## Removed
+
+# [0.0.3] - 2024-08-22
+## Added
 - `load_pulsar_data()` and `save_pulsar_data()` functions
 - `par_tim_to_jlso()` function and `par_tim-to-jlso` script in `pint2vela`
 - `Prior` as the abstract base class for prior distributions
@@ -23,9 +29,10 @@
 - Fourier series representation of achromatic red noise (`WaveX`), DM noise (`DMWaveX`), and chromatic noise (`ChromaticCM`)
 - `get_lnpost_func` function
 - Frequency-dependent profile variability corrections (`FrequencyDependent`)
-- Memory allocation tests for all components
+- Memory allocation tests for all components in `test_components.jl`
 - `mean_anomaly` and `mean_motion` functions
 - `BinaryELL1` model
+- Memory allocation tests in the `pint2vela` test suite.
 ## Changed
 - Reorganized source files into subdirectories
 - Replaced `par` and `tim` files for testing with `JLSO` files
@@ -33,8 +40,11 @@
 - Rearranged `pint2vela` code into multiple files.
 - Merged `pint2vela` into the main repo.
 - Replaced `pint2vela` test datasets with symlinks.
+- Updated `README.md`
+- Moved `setup.py` from `Vela.jl/pint2vela` to `Vela.jl`
 ## Fixed
 - `show` method for `MeasurementNoise`
+- Copy the `toas` inside `get_lnlike_parallel_func`, `get_lnlike_serial_func`, `get_chi2_serial_func`, and `get_chi2_parallel_func` to avoid repeated allocations. 
 ## Removed
 - `read_model_and_toas()` function. Data is now read from `JLSO` files created using `pint2vela`
 - `plot_summary()` function. (This is better done in Python.)
