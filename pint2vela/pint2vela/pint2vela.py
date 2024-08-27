@@ -5,7 +5,7 @@ from pint.toa import TOAs
 
 from pint2vela.convert_components import pint_components_to_vela
 
-from .vela import vl
+from .vela import jl, vl
 from .convert_toas import pint_toa_to_vela, pint_toas_to_vela
 from .convert_parameters import pint_parameters_to_vela
 from .priors import get_default_priors
@@ -33,11 +33,15 @@ def fix_params(model: TimingModel) -> None:
             model[p].value = 0
 
 
+default_priors = {
+    "PHOFF": jl.Uniform(-1.0, 1.0),
+}
+
 def pint_model_to_vela(
     model: TimingModel,
     toas: TOAs,
     cheat_prior_scale: float = 10.0,
-    custom_prior_dists: dict = {},
+    custom_prior_dists: dict = default_priors,
 ):
     toas.compute_pulse_numbers(model)
     fix_params(model)

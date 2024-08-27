@@ -22,23 +22,25 @@ def get_default_prior(
         param.tcb2tdb_scale_factor if param.tcb2tdb_scale_factor is not None else 1
     )
 
-    assert param.uncertainty is not None and param.uncertainty > 0
-
-    val = (
-        (
-            param.value * day_to_s
-            if isinstance(param, MJDParameter)
-            else (param.quantity * scale_factor).si.value
+    if param_name in custom_prior_dists:
+        pdist = custom_prior_dists[param_name]
+    else:
+        assert param.uncertainty is not None and param.uncertainty > 0
+        val = (
+            (
+                param.value * day_to_s
+                if isinstance(param, MJDParameter)
+                else (param.quantity * scale_factor).si.value
+            )
+            if param_name != "F0"
+            else 0.0
         )
-        if param_name != "F0"
-        else 0.0
-    )
-    err = (param.uncertainty * scale_factor).si.value
+        err = (param.uncertainty * scale_factor).si.value
 
-    pmin = val - cheat_prior_scale * err
-    pmax = val + cheat_prior_scale * err
+        pmin = val - cheat_prior_scale * err
+        pmax = val + cheat_prior_scale * err
 
-    pdist = custom_prior_dists.get(param_name, jl.Uniform(pmin, pmax))
+        pdist = jl.Uniform(pmin, pmax)
 
     if (
         isinstance(param, (floatParameter, MJDParameter, AngleParameter))
