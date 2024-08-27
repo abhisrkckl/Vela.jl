@@ -78,4 +78,5 @@
     # |ssb_obs_vel| should be less than the speed of light
     @test dot(ephem_vecs.ssb_obs_vel, ephem_vecs.ssb_obs_vel) < 1
 
+    @test sizeof(ephem_vecs) == 9 * 3 * sizeof(GQ{Float64})
 end
