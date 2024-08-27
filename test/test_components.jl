@@ -79,6 +79,8 @@
         DR = dimensionless(0.0),
         DTH = dimensionless(0.0),
         GAMMA = time(0.0),
+        H3 = time(1e-9),
+        STIGMA = dimensionless(0.02),
         FD = (time(0.1), time(0.2)),
     )
 
@@ -200,6 +202,16 @@
         end
     end
 
+    @testset "BinaryELL1H" begin
+        for use_fbx in [true, false]
+            ell1h = BinaryELL1H(use_fbx)
+            display(ell1h)
+            ctoa_1 = correct_toa(ell1h, ctoa, params)
+            @test isfinite(ctoa_1.delay) && isfinite(ctoa_1.doppler)
+            @test @ballocated(correct_toa($ell1h, $ctoa, $params)) == 0
+        end
+    end
+
     @testset "BinaryDD" begin
         @testset "mikkola" begin
             kepler = (u, e) -> u - e * sin(u)
@@ -229,6 +241,27 @@
             @test isfinite(ctoa_1.delay) && isfinite(ctoa_1.doppler)
             @test @ballocated(correct_toa($dd, $ctoa1, $params)) == 0
             display(dd)
+        end
+    end
+
+    @testset "BinaryDDH" begin
+        toa1 = TOA(
+            time(Double64(53471.0 * day_to_s)),
+            time(1e-6),
+            frequency(2.5e9),
+            dimensionless(Double64(0.0)),
+            false,
+            ephem,
+            1,
+        )
+        ctoa1 = CorrectedTOA(toa1)
+
+        for use_fbx in [true, false]
+            ddh = BinaryDDH(use_fbx)
+            ctoa_1 = correct_toa(ddh, ctoa1, params)
+            @test isfinite(ctoa_1.delay) && isfinite(ctoa_1.doppler)
+            @test @ballocated(correct_toa($ddh, $ctoa1, $params)) == 0
+            display(ddh)
         end
     end
 

@@ -1,3 +1,5 @@
+export BinaryELL1H
+
 """A binary model representing a nearly circular orbit."""
 struct BinaryELL1H <: BinaryELL1Base
     use_fbx::Bool

@@ -1,4 +1,4 @@
-export BinaryDD
+export BinaryDDH
 
 struct BinaryDDH <: BinaryDDBase
     use_fbx::Bool
