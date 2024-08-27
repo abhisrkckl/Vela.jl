@@ -93,6 +93,8 @@ def pint_components_to_vela(model: TimingModel, toas: TOAs):
             components.append(vl.BinaryDD(use_fbx))
         elif "BinaryDDH" in component_names:
             components.append(vl.BinaryDDH(use_fbx))
+        elif "BinaryDDS" in component_names:
+            components.append(vl.BinaryDDS(use_fbx))
 
     if "FD" in component_names:
         components.append(vl.FrequencyDependent())

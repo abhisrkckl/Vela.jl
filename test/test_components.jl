@@ -81,6 +81,7 @@
         GAMMA = time(0.0),
         H3 = time(1e-9),
         STIGMA = dimensionless(0.02),
+        SHAPMAX = dimensionless(5.0),
         FD = (time(0.1), time(0.2)),
     )
 
@@ -262,6 +263,27 @@
             @test isfinite(ctoa_1.delay) && isfinite(ctoa_1.doppler)
             @test @ballocated(correct_toa($ddh, $ctoa1, $params)) == 0
             display(ddh)
+        end
+    end
+
+    @testset "BinaryDDS" begin
+        toa1 = TOA(
+            time(Double64(53471.0 * day_to_s)),
+            time(1e-6),
+            frequency(2.5e9),
+            dimensionless(Double64(0.0)),
+            false,
+            ephem,
+            1,
+        )
+        ctoa1 = CorrectedTOA(toa1)
+
+        for use_fbx in [true, false]
+            dds = BinaryDDS(use_fbx)
+            ctoa_1 = correct_toa(dds, ctoa1, params)
+            @test isfinite(ctoa_1.delay) && isfinite(ctoa_1.doppler)
+            @test @ballocated(correct_toa($dds, $ctoa1, $params)) == 0
+            display(dds)
         end
     end
 

@@ -22,7 +22,9 @@ def get_default_prior(
         param.tcb2tdb_scale_factor if param.tcb2tdb_scale_factor is not None else 1
     )
 
-    assert param.uncertainty is not None and param.uncertainty > 0, f"Unable to set prior for {param.name}"
+    assert (
+        param.uncertainty is not None and param.uncertainty > 0
+    ), f"Unable to set prior for {param.name}"
 
     val = (
         (
