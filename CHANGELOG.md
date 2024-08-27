@@ -3,6 +3,7 @@
 - `KinematicDelayComponent` as the abstract base class for `DelayComponent`s that also contribute a Doppler factor.
 - Doppler factor in `BinaryELL1`
 - `BinaryDD` model
+- Doppler factor in `BinaryDD`
 ## Changed
 ## Fixed
 ## Removed

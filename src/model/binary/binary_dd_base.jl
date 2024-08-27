@@ -50,7 +50,7 @@ function shapiro_delay(::BinaryDDBase, state::DDState)
 end
 
 """Total delay due to a nearly circular binary."""
-function delay(dd::BinaryDDBase, ctoa::CorrectedTOA, params::NamedTuple)::GQ
+function correct_toa(dd::BinaryDDBase, ctoa::CorrectedTOA, params::NamedTuple)
     state = DDState(dd, ctoa, params)
 
     ΔRE = rømer_einstein_delay(dd, state)
@@ -70,5 +70,10 @@ function delay(dd::BinaryDDBase, ctoa::CorrectedTOA, params::NamedTuple)::GQ
 
     ΔS = shapiro_delay(dd, state)
 
-    return ΔRE_inv + ΔS
+    delay = ΔRE_inv + ΔS
+
+    # Is this accurate enough?
+    doppler = ΔREp * nhat
+
+    return correct_toa(ctoa; delay = delay, doppler = doppler)
 end
