@@ -34,6 +34,7 @@
 - `BinaryELL1` model
 - Memory allocation tests in the `pint2vela` test suite.
 - `KinematicDelayComponent` as the abstract base class for `DelayComponent`s that also contribute a Doppler factor.
+- `BinaryDD` model
 ## Changed
 - Reorganized source files into subdirectories
 - Replaced `par` and `tim` files for testing with `JLSO` files
