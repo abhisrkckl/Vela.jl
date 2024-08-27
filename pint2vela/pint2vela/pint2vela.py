@@ -25,7 +25,8 @@ def fix_params(model: TimingModel) -> None:
     if "PhaseOffset" not in model.components:
         model.add_component(PhaseOffset())
 
-    model.PHOFF.frozen = False
+    model["PHOFF"].frozen = False
+    model["PHOFF"].uncertainty_value = 0.1
 
     if (
         "H4" in model
