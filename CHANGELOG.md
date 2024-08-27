@@ -1,5 +1,9 @@
 # [Unreleased]
 ## Added
+- `KinematicDelayComponent` as the abstract base class for `DelayComponent`s that also contribute a Doppler factor.
+- Doppler factor in `BinaryELL1`
+- `BinaryDD` model
+- Doppler factor in `BinaryDD`
 ## Changed
 ## Fixed
 ## Removed
@@ -33,8 +37,6 @@
 - `mean_anomaly` and `mean_motion` functions
 - `BinaryELL1` model
 - Memory allocation tests in the `pint2vela` test suite.
-- `KinematicDelayComponent` as the abstract base class for `DelayComponent`s that also contribute a Doppler factor.
-- `BinaryDD` model
 ## Changed
 - Reorganized source files into subdirectories
 - Replaced `par` and `tim` files for testing with `JLSO` files
