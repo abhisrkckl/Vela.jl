@@ -71,6 +71,14 @@
         EPS2DOT = frequency(0.0),
         M2 = mass(5e-9),
         SINI = dimensionless(0.5),
+        ECC = dimensionless(0.5),
+        EDOT = frequency(0.0),
+        OM = dimensionless(0.1),
+        OMDOT = frequency(0.0),
+        T0 = time(53470.0 * day_to_s),
+        DR = dimensionless(0.0),
+        DTH = dimensionless(0.0),
+        GAMMA = time(0.0),
         FD = (time(0.1), time(0.2)),
     )
 
@@ -204,6 +212,53 @@
                 @test @ballocated(correct_toa($ell1, $ctoa, $pars)) == 0
             end
         end
+    end
+
+    @testset "BinaryDD" begin
+        @testset "mikkola" begin
+            kepler = (u, e) -> u - e * sin(u)
+            us = [-π / 4, 0.0, π / 4, 3 * π / 4, 4 * π / 3, 7 * π / 3]
+            es = [0.0, 0.5, 0.3]
+            for e in es
+                for u in us
+                    @test u ≈ Vela.mikkola(kepler(u, e), e)
+                end
+            end
+        end
+
+        toa1 = TOA(
+            time(Double64(53471.0 * day_to_s)),
+            time(1e-6),
+            frequency(2.5e9),
+            dimensionless(Double64(0.0)),
+            false,
+            ephem,
+            1,
+        )
+        ctoa1 = CorrectedTOA(toa1)
+
+        dd = BinaryDD(true)
+        @test isfinite(delay(dd, ctoa1, params))
+        display(dd)
+
+        dd = BinaryDD(false)
+        @test isfinite(delay(dd, ctoa1, params))
+        display(dd)
+
+        @test @ballocated(delay($dd, $ctoa1, $params)) == 0
+
+        # params1 = (
+        #     TASC = time(53470.0 * day_to_s),
+        #     PB = time(8e4),
+        #     PBDOT = dimensionless(1e-10),
+        #     A1 = distance(5.0),
+        #     A1DOT = dimensionless(0.0),
+        #     EPS1 = dimensionless(1e-5),
+        #     EPS2 = dimensionless(-2e-5),
+        #     EPS1DOT = frequency(0.0),
+        #     EPS2DOT = frequency(0.0),
+        # )
+        # @test isfinite(delay(ell1, ctoa, params1))
     end
 
     @testset "PhaseOffset" begin

@@ -16,19 +16,10 @@ function ELL1State(ell1::BinaryELL1, ctoa::CorrectedTOA, params::NamedTuple)
 
     n = mean_motion(Δt, params, ell1.use_fbx)
 
-    return ELL1State(Φ_trigs, n, a1, ϵ1, ϵ2)
-end
+    m2 = (:M2 in keys(params)) ? params.M2 : mass(0.0)
+    sini = (:SINI in keys(params)) ? params.SINI : dimensionless(0.0)
 
-"""Shapiro delay due to a nearly circular binary."""
-function shapiro_delay(::BinaryELL1, state::ELL1State, params::NamedTuple)::GQ
-    if !issubset((:M2, :SINI), keys(params))
-        return time(0.0)
-    end
-
-    sinΦ = state.Φ_trigs[1][1]
-    m2 = params.M2
-    sini = params.SINI
-    return -2 * m2 * log(1 - sini * sinΦ)
+    return ELL1State(Φ_trigs, n, a1, ϵ1, ϵ2, m2, sini)
 end
 
 function show(io::IO, ell1::BinaryELL1)

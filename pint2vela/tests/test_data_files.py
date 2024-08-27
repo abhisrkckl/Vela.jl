@@ -23,6 +23,7 @@ datasets = [
     "sim_fd",
     # "sim6",
     "J0613-0200.InPTA.NB",
+    "J1857+0943.InPTA.NB",
 ]
 
 
