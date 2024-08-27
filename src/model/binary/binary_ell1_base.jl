@@ -17,6 +17,8 @@ struct ELL1State
     a1::GQ{Float64}
     ϵ1::GQ{Float64}
     ϵ2::GQ{Float64}
+    m2::GQ{Float64}
+    sini::GQ{Float64}
 end
 
 """Rømer delay due to a nearly circular binary. Includes terms up to the
@@ -89,6 +91,14 @@ function d2_rømer_delay_d_Φ2(::BinaryELL1Base, state::ELL1State)::GQ
     )
 end
 
+"""Shapiro delay due to a nearly circular binary."""
+function shapiro_delay(::BinaryELL1Base, state::ELL1State)::GQ
+    sinΦ = state.Φ_trigs[1][1]
+    m2 = state.m2
+    sini = state.sini
+    return -2 * m2 * log(1 - sini * sinΦ)
+end
+
 """Update the `CorrectedTOA` object with delays and Doppler factor due to a nearly
 circular binary."""
 function correct_toa(ell1::BinaryELL1Base, ctoa::CorrectedTOA, params::NamedTuple)
@@ -100,7 +110,7 @@ function correct_toa(ell1::BinaryELL1Base, ctoa::CorrectedTOA, params::NamedTupl
     nhat = state.n
     ΔR_inv = ΔR * (1 - nhat * ΔRp + (nhat * ΔRp)^2 + 0.5 * nhat^2 * ΔR * ΔRp2)
 
-    ΔS = shapiro_delay(ell1, state, params)
+    ΔS = shapiro_delay(ell1, state)
 
     delay = ΔR_inv + ΔS
 
