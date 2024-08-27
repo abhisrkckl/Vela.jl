@@ -27,7 +27,25 @@ def fix_params(model: TimingModel) -> None:
 
     model.PHOFF.frozen = False
 
-    zeroable_params = ["M2", "SINI", "PBDOT", "XPBDOT", "A1DOT", "EPS1DOT", "EPS2DOT"]
+    if (
+        "H4" in model
+        and model["H4"].quantity is not None
+        and model["STIGMA"].quantity is None
+    ):
+        model["STIGMA"].quantity = model["H4"].quantity / model["H3"].quantity
+        model["H4"].quantity = None
+
+    zeroable_params = [
+        "M2",
+        "SINI",
+        "PBDOT",
+        "XPBDOT",
+        "A1DOT",
+        "EPS1DOT",
+        "EPS2DOT",
+        "H3",
+        "STIGMA",
+    ]
     for p in zeroable_params:
         if p in model and model[p].quantity is None:
             model[p].value = 0
