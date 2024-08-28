@@ -9,8 +9,8 @@ from .convert_parameters import pseudo_single_params
 
 DEFAULT_PRIOR_DISTS = {
     "PHOFF": jl.Uniform(-0.5, 0.5),
-    "EFAC": jl.Uniform(-0.1, 5.0),
-    "EQUAD": jl.Uniform(-0.0, 1e-4),
+    "EFAC": jl.Uniform(0.1, 5.0),
+    "EQUAD": jl.Uniform(0.0, 1e-4),
 }
 
 
