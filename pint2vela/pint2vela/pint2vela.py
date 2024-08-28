@@ -36,8 +36,8 @@ def fix_params(model: TimingModel) -> None:
 def pint_model_to_vela(
     model: TimingModel,
     toas: TOAs,
-    cheat_prior_scale: float = 10.0,
-    custom_prior_dists: dict = {},
+    cheat_prior_scale: float,
+    custom_prior_dists: dict,
 ):
     toas.compute_pulse_numbers(model)
     fix_params(model)
@@ -71,7 +71,9 @@ def pint_model_to_vela(
     )
 
 
-def read_model_and_toas(parfile: str, timfile: str):
+def read_model_and_toas(
+    parfile: str, timfile: str, cheat_prior_scale=20, custom_prior_dicts={}
+):
     """Read a pair of par & tim files and create a `Vela.TimingModel` object and a
     Julia `Vector` of `TOA`s."""
     setup_log(level="WARNING")
@@ -84,7 +86,7 @@ def read_model_and_toas(parfile: str, timfile: str):
         add_tzr_to_model=True,
     )
 
-    model = pint_model_to_vela(mp, tp)
+    model = pint_model_to_vela(mp, tp, cheat_prior_scale, custom_prior_dicts)
     toas = pint_toas_to_vela(tp)
 
     return model, toas

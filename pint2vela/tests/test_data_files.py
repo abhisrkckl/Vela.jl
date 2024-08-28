@@ -30,7 +30,14 @@ datasets = [
 @pytest.fixture(params=datasets, scope="module")
 def model_and_toas(request):
     dataset = request.param
-    mv, tv = read_model_and_toas(f"datafiles/{dataset}.par", f"datafiles/{dataset}.tim")
+    mv, tv = read_model_and_toas(
+        f"datafiles/{dataset}.par",
+        f"datafiles/{dataset}.tim",
+        custom_prior_dicts={
+            "PHOFF": jl.Uniform(-0.5, 0.25),
+            "EFAC": jl.Uniform(0.5, 2.5),
+        },
+    )
     params = vl.read_param_values_to_vector(
         mv.param_handler, mv.param_handler._default_params_tuple
     )

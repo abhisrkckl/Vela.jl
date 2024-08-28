@@ -7,6 +7,12 @@ from .vela import jl, vl
 from .convert_toas import day_to_s
 from .convert_parameters import pseudo_single_params
 
+DEFAULT_PRIOR_DISTS = {
+    "PHOFF": jl.Uniform(-0.5, 0.5),
+    "EFAC": jl.Uniform(0.1, 5.0),
+    "EQUAD": jl.Uniform(0.0, 1e-4),
+}
+
 
 def get_default_prior(
     model: TimingModel,
@@ -22,23 +28,32 @@ def get_default_prior(
         param.tcb2tdb_scale_factor if param.tcb2tdb_scale_factor is not None else 1
     )
 
-    assert param.uncertainty is not None and param.uncertainty > 0
-
-    val = (
-        (
-            param.value * day_to_s
-            if isinstance(param, MJDParameter)
-            else (param.quantity * scale_factor).si.value
+    if param_name in custom_prior_dists:
+        pdist = custom_prior_dists[param_name]
+    elif hasattr(param, "prefix") and param.prefix in custom_prior_dists:
+        pdist = custom_prior_dists[param.prefix]
+    elif param_name in DEFAULT_PRIOR_DISTS:
+        pdist = DEFAULT_PRIOR_DISTS[param_name]
+    elif hasattr(param, "prefix") and param.prefix in DEFAULT_PRIOR_DISTS:
+        pdist = DEFAULT_PRIOR_DISTS[param.prefix]
+    else:
+        val = (
+            (
+                param.value * day_to_s
+                if isinstance(param, MJDParameter)
+                else (param.quantity * scale_factor).si.value
+            )
+            if param_name != "F0"
+            else 0.0
         )
-        if param_name != "F0"
-        else 0.0
-    )
-    err = (param.uncertainty * scale_factor).si.value
 
-    pmin = val - cheat_prior_scale * err
-    pmax = val + cheat_prior_scale * err
+        assert param.uncertainty is not None and param.uncertainty > 0
+        err = (param.uncertainty * scale_factor).si.value
 
-    pdist = custom_prior_dists.get(param_name, jl.Uniform(pmin, pmax))
+        pmin = val - cheat_prior_scale * err
+        pmax = val + cheat_prior_scale * err
+
+        pdist = jl.Uniform(pmin, pmax)
 
     if (
         isinstance(param, (floatParameter, MJDParameter, AngleParameter))
