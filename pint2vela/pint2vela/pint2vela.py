@@ -1,3 +1,4 @@
+import numpy as np
 from pint.logging import setup as setup_log
 from pint.models import PhaseOffset, TimingModel, get_model_and_toas
 from pint.models.parameter import MJDParameter
@@ -35,6 +36,10 @@ def fix_params(model: TimingModel) -> None:
 
 default_priors = {
     "PHOFF": jl.Uniform(-1.0, 1.0),
+    # "RAJ": jl.Uniform(0.0, 2*np.pi),
+    # "DECJ": vl.UniformLongitude(),
+    # "ELONG": jl.Uniform(0.0, 2*np.pi),
+    # "ELAT": vl.UniformLongitude(),
 }
 
 def pint_model_to_vela(

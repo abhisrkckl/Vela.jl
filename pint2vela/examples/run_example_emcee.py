@@ -11,6 +11,7 @@ from matplotlib import pyplot as plt
 import sys
 from timeit import timeit
 import os
+from numdifftools import Hessdiag
 
 from pint2vela import read_model_and_toas, Vela as vl
 
@@ -42,16 +43,20 @@ maxlike_params_v = np.array(
 print(lnpost(maxlike_params_v))
 print(timeit("lnpost(maxlike_params_v)", globals=globals(), number=1000))
 
+hess_steps = np.array([(m[p].uncertainty_value if m[p].uncertainty_value is not None else 1e-9) for p in param_names], dtype=float)
+
 # %%
 ndim = len(param_names)
 nwalkers = 100
-p0 = np.array([prior_transform(cube) for cube in np.random.rand(nwalkers, ndim)])
+nsteps = 2500
+# p0 = np.array([prior_transform(cube) for cube in np.random.rand(nwalkers, ndim)])
+p0 = np.array([maxlike_params_v + 2 * hess_steps * x for x in np.random.rand(nwalkers, ndim)])
 
 sampler = emcee.EnsembleSampler(nwalkers, ndim, lnpost)
-sampler.run_mcmc(p0, 1100, progress=True)
+sampler.run_mcmc(p0, 2500, progress=True)
 
 # %%
-samples_v_0 = sampler.get_chain(flat=True, discard=100, thin=10)
+samples_v_0 = sampler.get_chain(flat=True, discard=1000, thin=10)
 samples_v = samples_v_0 / scale_factors
 
 # %%
@@ -69,6 +74,8 @@ fig = corner.corner(
     range=[0.999999] * ndim,
     truths=maxlike_params_v / scale_factors,
     plot_datapoints=False,
+    hist_kwargs={"density":True},
+    hist2d_kwargs={"density":True},
 )
 
 if os.path.isfile(f"{m.PSR.value}_chain_emcee_jl.txt"):
@@ -79,6 +86,8 @@ if os.path.isfile(f"{m.PSR.value}_chain_emcee_jl.txt"):
         plot_datapoints=False,
         fig=fig,
         color="blue",
+        hist_kwargs={"density":True},
+        hist2d_kwargs={"density":True},
     )
 
 plt.suptitle(m.PSR.value)
