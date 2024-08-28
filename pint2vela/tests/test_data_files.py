@@ -34,8 +34,8 @@ def model_and_toas(request):
         f"datafiles/{dataset}.par",
         f"datafiles/{dataset}.tim",
         custom_prior_dicts={
-            "PHOFF": jl.Uniform(-0.25, 0.25),
-            "EFAC": jl.Uniform(0.5, 2.0),
+            "PHOFF": jl.Uniform(-0.5, 0.25),
+            "EFAC": jl.Uniform(0.5, 2.5),
         },
     )
     params = vl.read_param_values_to_vector(
