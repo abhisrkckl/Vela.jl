@@ -72,16 +72,16 @@ fig = corner.corner(
     hist_kwargs={"density": True},
 )
 
-if os.path.isfile(f"{m.PSR.value}_chain_emcee_jl.txt"):
-    samples_v1 = np.genfromtxt(f"{m.PSR.value}_chain_emcee_jl.txt", skip_header=1)
-    corner.corner(
-        samples_v1,
-        range=[0.999999] * ndim,
-        plot_datapoints=False,
-        fig=fig,
-        color="blue",
-        hist_kwargs={"density": True},
-    )
+# if os.path.isfile(f"{m.PSR.value}_chain_emcee_jl.txt"):
+#     samples_v1 = np.genfromtxt(f"{m.PSR.value}_chain_emcee_jl.txt", skip_header=1)
+#     corner.corner(
+#         samples_v1,
+#         range=[0.999999] * ndim,
+#         plot_datapoints=False,
+#         fig=fig,
+#         color="blue",
+#         hist_kwargs={"density": True},
+#     )
 
 plt.suptitle(m.PSR.value)
 plt.tight_layout()

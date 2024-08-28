@@ -7,6 +7,12 @@ from .vela import jl, vl
 from .convert_toas import day_to_s
 from .convert_parameters import pseudo_single_params
 
+DEFAULT_PRIOR_DISTS = {
+    "PHOFF": jl.Uniform(-0.5, 0.5),
+    "EFAC": jl.Uniform(-0.1, 5.0),
+    "EQUAD": jl.Uniform(-0.0, 1e-4),
+}
+
 
 def get_default_prior(
     model: TimingModel,
@@ -24,6 +30,12 @@ def get_default_prior(
 
     if param_name in custom_prior_dists:
         pdist = custom_prior_dists[param_name]
+    elif hasattr(param, "prefix") and param.prefix in custom_prior_dists:
+        pdist = custom_prior_dists[param.prefix]
+    elif param_name in DEFAULT_PRIOR_DISTS:
+        pdist = DEFAULT_PRIOR_DISTS[param_name]
+    elif hasattr(param, "prefix") and param.prefix in DEFAULT_PRIOR_DISTS:
+        pdist = DEFAULT_PRIOR_DISTS[param.prefix]
     else:
         val = (
             (
