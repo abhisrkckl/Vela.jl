@@ -17,6 +17,8 @@ from timeit import timeit
 
 from pint2vela import read_model_and_toas, Vela as vl
 
+np.product = np.prod
+
 # %%
 setup_log(level="WARNING")
 
@@ -125,6 +127,7 @@ fig = corner.corner(
     labels=param_names,
     label_kwargs={"fontsize": 15},
     range=[0.999999] * bt.nparams,
+    hist_kwargs={"density": True},
 )
 corner.corner(
     samples_v,
@@ -134,6 +137,7 @@ corner.corner(
     range=[0.999999] * bt.nparams,
     fig=fig,
     color="red",
+    hist_kwargs={"density": True},
 )
 plt.suptitle(m.PSR.value)
 plt.tight_layout()

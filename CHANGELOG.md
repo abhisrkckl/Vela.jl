@@ -5,6 +5,7 @@
 - `BinaryDD` model
 - Doppler factor in `BinaryDD`
 ## Changed
+- Exposed `cheat_prior_scale` and `custom_prior_dists` options in `read_model_and_toas()`
 ## Fixed
 ## Removed
 
