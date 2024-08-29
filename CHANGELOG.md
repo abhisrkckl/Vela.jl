@@ -9,6 +9,7 @@
 - Test Python code formatting using `black`
 ## Changed
 - Exposed `cheat_prior_scale` and `custom_prior_dists` options in `read_model_and_toas()`
+- Tests now use the dev version of `PINT`
 ## Fixed
 - Tests now handle par files without `PHOFF` properly.
 ## Removed
