@@ -2,6 +2,7 @@ from pint.logging import setup as setup_log
 from pint.models import PhaseOffset, TimingModel, get_model_and_toas
 from pint.models.parameter import MJDParameter
 from pint.toa import TOAs
+from pint.binaryconvert import convert_binary
 
 from pint2vela.convert_components import pint_components_to_vela
 
@@ -104,6 +105,9 @@ def read_model_and_toas(
         allow_T2=True,
         add_tzr_to_model=True,
     )
+
+    if "BinaryBT" in mp.components:
+        mp = convert_binary(mp, "DD")
 
     model = pint_model_to_vela(mp, tp, cheat_prior_scale, custom_prior_dicts)
     toas = pint_toas_to_vela(tp)
