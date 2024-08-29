@@ -42,11 +42,15 @@ struct TimingModel{ComponentsTuple<:Tuple,PriorsTuple<:Tuple}
 end
 
 read_params(model::TimingModel, values) = read_params(model.param_handler, values)
+
 get_free_param_names(model::TimingModel) = get_free_param_names(model.param_handler)
+get_free_param_labels(model::TimingModel) = get_free_param_labels(model.param_handler)
+
 read_param_values_to_vector(model::TimingModel) =
     read_param_values_to_vector(model.param_handler)
 read_param_values_to_vector(model::TimingModel, params::NamedTuple) =
     read_param_values_to_vector(model.param_handler, params)
+
 get_scale_factors(model::TimingModel) = get_scale_factors(model.param_handler)
 
 @unroll function correct_toa(

@@ -4,6 +4,7 @@
 - Doppler factor in `BinaryELL1`
 - `BinaryDD` model
 - Doppler factor in `BinaryDD`
+- `get_free_param_labels()` function
 ## Changed
 - Exposed `cheat_prior_scale` and `custom_prior_dists` options in `read_model_and_toas()`
 ## Fixed

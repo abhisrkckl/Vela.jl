@@ -35,6 +35,7 @@
         @test length(param_handler.multi_params) + length(param_handler.single_params) ==
               length(param_handler._default_params_tuple)
         @test length(get_free_param_names(model)) == length(param_handler._free_indices)
+        @test length(get_free_param_labels(model)) == length(param_handler._free_indices)
         @test sizeof(param_handler._default_params_tuple) ==
               sizeof(GQ{Float64}) * length(param_handler._default_quantities)
 
