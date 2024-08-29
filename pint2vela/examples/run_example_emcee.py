@@ -48,7 +48,7 @@ nwalkers = 100
 p0 = np.array([prior_transform(cube) for cube in np.random.rand(nwalkers, ndim)])
 
 sampler = emcee.EnsembleSampler(nwalkers, ndim, lnpost)
-sampler.run_mcmc(p0, 1100, progress=True)
+sampler.run_mcmc(p0, 2100, progress=True)
 
 # %%
 samples_v_0 = sampler.get_chain(flat=True, discard=100, thin=10)
@@ -69,6 +69,7 @@ fig = corner.corner(
     range=[0.999999] * ndim,
     truths=maxlike_params_v / scale_factors,
     plot_datapoints=False,
+    hist_kwargs={"density": True},
 )
 
 if os.path.isfile(f"{m.PSR.value}_chain_emcee_jl.txt"):
@@ -79,6 +80,7 @@ if os.path.isfile(f"{m.PSR.value}_chain_emcee_jl.txt"):
         plot_datapoints=False,
         fig=fig,
         color="blue",
+        hist_kwargs={"density": True},
     )
 
 plt.suptitle(m.PSR.value)
