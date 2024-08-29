@@ -4,9 +4,8 @@ from pint.models.parameter import MJDParameter
 from pint.toa import TOAs
 from pint.binaryconvert import convert_binary
 
-from pint2vela.convert_components import pint_components_to_vela
-
 from .vela import vl
+from .convert_components import pint_components_to_vela
 from .convert_toas import pint_toa_to_vela, pint_toas_to_vela
 from .convert_parameters import pint_parameters_to_vela
 from .priors import get_default_priors
@@ -35,7 +34,9 @@ def fix_params(model: TimingModel) -> None:
         and model["STIGMA"].quantity is None
     ):
         model["STIGMA"].quantity = model["H4"].quantity / model["H3"].quantity
+        model["STIGMA"].frozen = model["H4"].frozen
         model["H4"].quantity = None
+        model["H4"].frozen = True
 
     zeroable_params = [
         "M2",
