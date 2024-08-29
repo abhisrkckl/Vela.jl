@@ -10,6 +10,7 @@
 ## Changed
 - Exposed `cheat_prior_scale` and `custom_prior_dists` options in `read_model_and_toas()`
 ## Fixed
+- Tests now handle par files without `PHOFF` properly.
 ## Removed
 
 # [0.0.3] - 2024-08-22
