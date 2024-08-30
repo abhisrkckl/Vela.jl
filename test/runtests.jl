@@ -24,7 +24,7 @@ const obs_earth_pos = distance.((0.01199435, 0.01159591, -0.01316261))
 
     include("test_ephemeris.jl")
 
-    # include("test_toa.jl")
+    include("test_toa.jl")
 
     # include("test_param.jl")
 
