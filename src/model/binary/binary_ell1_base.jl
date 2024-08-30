@@ -108,7 +108,7 @@ function correct_toa(ell1::BinaryELL1Base, ctoa::CorrectedTOA, params::NamedTupl
     ΔRp = d_rømer_delay_d_Φ(ell1, state)
     ΔRp2 = d2_rømer_delay_d_Φ2(ell1, state)
     nhat = state.n
-    ΔR_inv = ΔR * (1 - nhat * ΔRp + (nhat * ΔRp)^Val(2) + 0.5 * nhat^Val(2) * ΔR * ΔRp2)
+    ΔR_inv = ΔR * (1 - nhat * ΔRp + nhat * nhat * ΔRp * ΔRp + 0.5 * nhat^Val(2) * ΔR * ΔRp2)
 
     ΔS = shapiro_delay(ell1, state)
 
