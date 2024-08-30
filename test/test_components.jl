@@ -112,59 +112,59 @@
         @test @ballocated(delay($swd, $ctoa1, $params)) == 0
     end
 
-    # @testset "DispersionTaylor" begin
-    #     dmt = DispersionTaylor()
-    #     @test dispersion_slope(dmt, ctoa, params) == params.DM[1]
-    #     @test delay(dmt, ctoa, params) ==
-    #           dispersion_slope(dmt, ctoa, params) / ctoa.toa.observing_frequency^2
+    @testset "DispersionTaylor" begin
+        dmt = DispersionTaylor()
+        @test dispersion_slope(dmt, ctoa, params) == params.DM[1]
+        @test delay(dmt, ctoa, params) ==
+              dispersion_slope(dmt, ctoa, params) / ctoa.toa.observing_frequency^Val(2)
 
-    #     @test @ballocated(delay($dmt, $ctoa, $params)) == 0
-    # end
+        @test @ballocated(delay($dmt, $ctoa, $params)) == 0
+    end
 
-    # @testset "DispersionOffset" begin
-    #     jump_mask = BitMatrix([1 0 0; 0 1 0])
-    #     dmoff = DispersionOffset(jump_mask)
+    @testset "DispersionOffset" begin
+        jump_mask = BitMatrix([1 0 0; 0 1 0])
+        dmoff = DispersionOffset(jump_mask)
 
-    #     @test dispersion_slope(dmoff, ctzrtoa, params) == GQ(0.0, -1)
-    #     @test dispersion_slope(dmoff, ctoa, params) == -params.FDJUMPDM[1]
+        @test dispersion_slope(dmoff, ctzrtoa, params) == GQ{-1}(0.0)
+        @test dispersion_slope(dmoff, ctoa, params) == -params.FDJUMPDM[1]
 
-    #     @test @ballocated(delay($dmoff, $ctoa, $params)) == 0
+        @test @ballocated(delay($dmoff, $ctoa, $params)) == 0
 
-    #     display(dmoff)
+        display(dmoff)
 
-    #     jump_mask_ex = [1, 2, 0]
-    #     dmoff_ex = ExclusiveDispersionOffset(jump_mask_ex)
+        jump_mask_ex = [1, 2, 0]
+        dmoff_ex = ExclusiveDispersionOffset(jump_mask_ex)
 
-    #     @test dispersion_slope(dmoff_ex, ctzrtoa, params) == GQ(0.0, -1)
-    #     @test dispersion_slope(dmoff_ex, ctoa, params) == -params.FDJUMPDM[1]
+        @test dispersion_slope(dmoff_ex, ctzrtoa, params) == GQ{-1}(0.0)
+        @test dispersion_slope(dmoff_ex, ctoa, params) == -params.FDJUMPDM[1]
 
-    #     toa1 = TOA(
-    #         time(Double64(53470.0 * day_to_s)),
-    #         time(1e-6),
-    #         frequency(2.5e9),
-    #         dimensionless(Double64(0.0)),
-    #         false,
-    #         ephem,
-    #         3,
-    #     )
-    #     ctoa1 = CorrectedTOA(toa1)
-    #     @test dispersion_slope(dmoff_ex, ctoa1, params) ≈ GQ(0.0, -1)
+        toa1 = TOA(
+            time(Double64(53470.0 * day_to_s)),
+            time(1e-6),
+            frequency(2.5e9),
+            dimensionless(Double64(0.0)),
+            false,
+            ephem,
+            3,
+        )
+        ctoa1 = CorrectedTOA(toa1)
+        @test dispersion_slope(dmoff_ex, ctoa1, params) ≈ GQ{-1}(0.0)
 
-    #     display(dmoff_ex)
-    # end
+        display(dmoff_ex)
+    end
 
-    # @testset "ChromaticTaylor" begin
-    #     cmt = ChromaticTaylor()
-    #     dmt = DispersionTaylor()
-    #     @test chromatic_slope(cmt, ctoa, params) == params.CM[1]
+    @testset "ChromaticTaylor" begin
+        cmt = ChromaticTaylor()
+        dmt = DispersionTaylor()
+        @test chromatic_slope(cmt, ctoa, params) == params.CM[1]
 
-    #     # When TNCHROMIDX == 2, DM and CM that have equal numerical values
-    #     # in the par file must give equal delays. In our units, this corresponds
-    #     # to `value(DM) / value(CM) == 1e12`. See the `params` tuple above.
-    #     @test delay(dmt, ctoa, params) == delay(cmt, ctoa, params)
+        # When TNCHROMIDX == 2, DM and CM that have equal numerical values
+        # in the par file must give equal delays. In our units, this corresponds
+        # to `value(DM) / value(CM) == 1e12`. See the `params` tuple above.
+        @test delay(dmt, ctoa, params) == delay(cmt, ctoa, params)
 
-    #     @test @ballocated(delay($cmt, $ctoa, $params)) == 0
-    # end
+        @test @ballocated(delay($cmt, $ctoa, $params)) == 0
+    end
 
     # @testset "FrequencyDependent" begin
     #     fd = FrequencyDependent()
