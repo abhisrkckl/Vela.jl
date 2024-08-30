@@ -166,53 +166,53 @@
         @test @ballocated(delay($cmt, $ctoa, $params)) == 0
     end
 
-    # @testset "FrequencyDependent" begin
-    #     fd = FrequencyDependent()
-    #     @test isfinite(delay(fd, ctoa, params))
-    #     @test @ballocated(delay($fd, $ctoa, $params)) == 0
-    # end
+    @testset "FrequencyDependent" begin
+        fd = FrequencyDependent()
+        @test isfinite(delay(fd, ctoa, params))
+        @test @ballocated(delay($fd, $ctoa, $params)) == 0
+    end
 
-    # @testset "WaveX" begin
-    #     wx = WaveX()
-    #     @test isfinite(delay(wx, ctoa, params))
-    #     @test @ballocated(delay($wx, $ctoa, $params)) == 0
-    # end
+    @testset "WaveX" begin
+        wx = WaveX()
+        @test isfinite(delay(wx, ctoa, params))
+        @test @ballocated(delay($wx, $ctoa, $params)) == 0
+    end
 
-    # @testset "DMWaveX" begin
-    #     dmwx = DMWaveX()
-    #     @test isfinite(delay(dmwx, ctoa, params))
-    #     @test @ballocated(delay($dmwx, $ctoa, $params)) == 0
-    # end
+    @testset "DMWaveX" begin
+        dmwx = DMWaveX()
+        @test isfinite(delay(dmwx, ctoa, params))
+        @test @ballocated(delay($dmwx, $ctoa, $params)) == 0
+    end
 
-    # @testset "CMWaveX" begin
-    #     cmwx = CMWaveX()
-    #     @test isfinite(delay(cmwx, ctoa, params))
-    #     @test @ballocated(delay($cmwx, $ctoa, $params)) == 0
-    # end
+    @testset "CMWaveX" begin
+        cmwx = CMWaveX()
+        @test isfinite(delay(cmwx, ctoa, params))
+        @test @ballocated(delay($cmwx, $ctoa, $params)) == 0
+    end
 
-    # @testset "BinaryELL1" begin
-    #     params1 = (
-    #         TASC = time(53470.1 * day_to_s),
-    #         PB = time(8e4),
-    #         PBDOT = dimensionless(1e-10),
-    #         FB = (frequency(1.25e-5), GQ(-1.5625e-20, -2)),
-    #         A1 = distance(5.0),
-    #         A1DOT = dimensionless(0.0),
-    #         EPS1 = dimensionless(1e-5),
-    #         EPS2 = dimensionless(-2e-5),
-    #         EPS1DOT = frequency(0.0),
-    #         EPS2DOT = frequency(0.0),
-    #     )
-    #     for use_fbx in [true, false]
-    #         ell1 = BinaryELL1(use_fbx)
-    #         display(ell1)
-    #         for pars in [params, params1]
-    #             ctoa_1 = correct_toa(ell1, ctoa, pars)
-    #             @test isfinite(ctoa_1.delay) && isfinite(ctoa_1.doppler)
-    #             @test @ballocated(correct_toa($ell1, $ctoa, $pars)) == 0
-    #         end
-    #     end
-    # end
+    @testset "BinaryELL1" begin
+        params1 = (
+            TASC = time(53470.1 * day_to_s),
+            PB = time(8e4),
+            PBDOT = dimensionless(1e-10),
+            FB = (frequency(1.25e-5), GQ{-2}(-1.5625e-20)),
+            A1 = distance(5.0),
+            A1DOT = dimensionless(0.0),
+            EPS1 = dimensionless(1e-5),
+            EPS2 = dimensionless(-2e-5),
+            EPS1DOT = frequency(0.0),
+            EPS2DOT = frequency(0.0),
+        )
+        for use_fbx in [true, false]
+            ell1 = BinaryELL1(use_fbx)
+            display(ell1)
+            for pars in [params, params1]
+                ctoa_1 = correct_toa(ell1, ctoa, pars)
+                @test isfinite(ctoa_1.delay) && isfinite(ctoa_1.doppler)
+                @test @ballocated(correct_toa($ell1, $ctoa, $pars)) == 0
+            end
+        end
+    end
 
     # @testset "BinaryDD" begin
     #     @testset "mikkola" begin
