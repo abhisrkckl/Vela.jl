@@ -30,7 +30,7 @@ const obs_earth_pos = distance.((0.01199435, 0.01159591, -0.01316261))
 
     include("test_components.jl")
 
-    # include("test_priors.jl")
+    include("test_priors.jl")
 
     # include("test_pure_rotator.jl")
 
