@@ -10,6 +10,7 @@
 ## Changed
 - Exposed `cheat_prior_scale` and `custom_prior_dists` options in `read_model_and_toas()`
 - Tests now use the dev version of `PINT`
+- Made changes according to the `GeometricUnits` API changes (`GQ` now represents dimensions as a type parameter)
 ## Fixed
 - Tests now handle par files without `PHOFF` properly.
 ## Removed
