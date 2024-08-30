@@ -2,7 +2,7 @@
 circular orbits."""
 abstract type BinaryELL1Base <: BinaryComponent end
 
-ELL1ΦTrigs = NTuple{4,NTuple{2,GQ{Float64}}}
+ELL1ΦTrigs = NTuple{4,NTuple{2,GQ{0,Float64}}}
 
 """The instantaneous state of a nearly circular binary.
 
@@ -13,12 +13,12 @@ the pulsar orbit. `ϵ1` and `ϵ2` are the Laplace-Lagrange parameters.
 """
 struct ELL1State
     Φ_trigs::ELL1ΦTrigs
-    n::GQ{Float64}
-    a1::GQ{Float64}
-    ϵ1::GQ{Float64}
-    ϵ2::GQ{Float64}
-    m2::GQ{Float64}
-    sini::GQ{Float64}
+    n::GQ{-1,Float64}
+    a1::GQ{1,Float64}
+    ϵ1::GQ{0,Float64}
+    ϵ2::GQ{0,Float64}
+    m2::GQ{1,Float64}
+    sini::GQ{0,Float64}
 end
 
 function ELL1State(ell1::BinaryELL1Base, ctoa::CorrectedTOA, params::NamedTuple)
@@ -124,7 +124,7 @@ function correct_toa(ell1::BinaryELL1Base, ctoa::CorrectedTOA, params::NamedTupl
     ΔRp = d_rømer_delay_d_Φ(ell1, state)
     ΔRp2 = d2_rømer_delay_d_Φ2(ell1, state)
     nhat = state.n
-    ΔR_inv = ΔR * (1 - nhat * ΔRp + (nhat * ΔRp)^2 + 0.5 * nhat^2 * ΔR * ΔRp2)
+    ΔR_inv = ΔR * (1 - nhat * ΔRp + nhat * nhat * ΔRp * ΔRp + 0.5 * nhat * nhat * ΔR * ΔRp2)
 
     ΔS = shapiro_delay(ell1, state)
 

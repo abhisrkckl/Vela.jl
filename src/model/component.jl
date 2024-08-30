@@ -40,7 +40,7 @@ abstract type DispersionComponent <: DelayComponent end
 """Compute a dispersion delay."""
 delay(component::DispersionComponent, ctoa::CorrectedTOA, params::NamedTuple)::GQ =
     dispersion_slope(component, ctoa, params) /
-    doppler_corrected_observing_frequency(ctoa)^2
+    doppler_corrected_observing_frequency(ctoa)^Val(2)
 
 """Abstract base type of all binary components."""
 abstract type BinaryComponent <: KinematicDelayComponent end

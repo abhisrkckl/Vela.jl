@@ -30,16 +30,16 @@
         PHOFF = dimensionless(1e-6),
         PEPOCH = time(53470.0 * day_to_s),
         F_ = frequency(100.0),
-        F = (frequency(0.0), GQ(-1e-14, -2)),
+        F = (frequency(0.0), GQ{-2}(-1e-14)),
         DMEPOCH = time(53470.0 * day_to_s),
-        DM = (GQ(4e16, -1), GQ(1e11, -2)),
-        FDJUMPDM = (GQ(1e11, -1), GQ(-1e11, -1)),
+        DM = (GQ{-1}(4e16), GQ{-2}(1e11)),
+        FDJUMPDM = (GQ{-1}(1e11), GQ{-1}(-1e11)),
         POSEPOCH = time(53470.0 * day_to_s),
         ELAT = dimensionless(1.2),
         ELONG = dimensionless(1.25),
-        PX = GQ(3e-12, -1),
-        PMELAT = GQ(-7e-16, -1),
-        PMELONG = GQ(-5e-16, -1),
+        PX = GQ{-1}(3e-12),
+        PMELAT = GQ{-1}(-7e-16),
+        PMELONG = GQ{-1}(-5e-16),
         EFAC = (dimensionless(1.1),),
         JUMP = (time(1e-6), time(1.2e-6)),
         WXEPOCH = time(53470.0 * day_to_s),
@@ -48,21 +48,21 @@
         WXCOS_ = (time(-1.3e-6), time(5.2e-7), time(2.6e-7)),
         DMWXEPOCH = time(53470.0 * day_to_s),
         DMWXFREQ_ = (frequency(1e-9), frequency(2e-9), frequency(3e-9)),
-        DMWXSIN_ = (GQ(1.2e+4, -1), GQ(5.1e+3, -1), GQ(2.5e+2, -1)),
-        DMWXCOS_ = (GQ(-1.3e+4, -1), GQ(5.2e+3, -1), GQ(2.6e+3, -1)),
+        DMWXSIN_ = (GQ{-1}(1.2e+4), GQ{-1}(5.1e+3), GQ{-1}(2.5e+2)),
+        DMWXCOS_ = (GQ{-1}(-1.3e+4), GQ{-1}(5.2e+3), GQ{-1}(2.6e+3)),
         CMWXEPOCH = time(53470.0 * day_to_s),
         CMWXFREQ_ = (frequency(1e-9), frequency(2e-9), frequency(3e-9)),
-        CMWXSIN_ = (GQ(1.2e+4, 1), GQ(5.1e+3, 1), GQ(2.5e+2, 1)),
-        CMWXCOS_ = (GQ(-1.3e+4, 1), GQ(5.2e+3, 1), GQ(2.6e+3, 1)),
-        NE_SW = GQ(1.6e8, -2),
+        CMWXSIN_ = (GQ{1}(1.2e+4), GQ{1}(5.1e+3), GQ{1}(2.5e+2)),
+        CMWXCOS_ = (GQ{1}(-1.3e+4), GQ{1}(5.2e+3), GQ{1}(2.6e+3)),
+        NE_SW = GQ{-2}(1.6e8),
         TNCHROMIDX = dimensionless(2.0),
         CMEPOCH = time(53470.0 * day_to_s),
-        CM = (GQ(4e4, 1), GQ(1e-1, 0)),
+        CM = (GQ{1}(4e4), GQ{0}(1e-1)),
         TASC = time(53470.0 * day_to_s),
         PB = time(8e4),
         PBDOT = dimensionless(1e-10),
         XPBDOT = dimensionless(0.0),
-        FB = (frequency(1.25e-5), GQ(-1.5625e-20, -2)),
+        FB = (frequency(1.25e-5), GQ{-2}(-1.5625e-20)),
         A1 = distance(5.0),
         A1DOT = dimensionless(0.0),
         EPS1 = dimensionless(1e-5),
@@ -110,7 +110,7 @@
         @test_throws AssertionError dispersion_slope(swd, ctoa, params)
         ss = SolarSystem(true, true)
         ctoa1 = correct_toa(ss, ctoa, params)
-        @test dispersion_slope(swd, ctoa1, params) != GQ(0.0, -1)
+        @test dispersion_slope(swd, ctoa1, params) != GQ{-1}(0.0)
 
         @test @ballocated(delay($swd, $ctoa1, $params)) == 0
     end
@@ -119,7 +119,7 @@
         dmt = DispersionTaylor()
         @test dispersion_slope(dmt, ctoa, params) == params.DM[1]
         @test delay(dmt, ctoa, params) ==
-              dispersion_slope(dmt, ctoa, params) / ctoa.toa.observing_frequency^2
+              dispersion_slope(dmt, ctoa, params) / ctoa.toa.observing_frequency^Val(2)
 
         @test @ballocated(delay($dmt, $ctoa, $params)) == 0
     end
@@ -128,7 +128,7 @@
         jump_mask = BitMatrix([1 0 0; 0 1 0])
         dmoff = DispersionOffset(jump_mask)
 
-        @test dispersion_slope(dmoff, ctzrtoa, params) == GQ(0.0, -1)
+        @test dispersion_slope(dmoff, ctzrtoa, params) == GQ{-1}(0.0)
         @test dispersion_slope(dmoff, ctoa, params) == -params.FDJUMPDM[1]
 
         @test @ballocated(delay($dmoff, $ctoa, $params)) == 0
@@ -138,7 +138,7 @@
         jump_mask_ex = [1, 2, 0]
         dmoff_ex = ExclusiveDispersionOffset(jump_mask_ex)
 
-        @test dispersion_slope(dmoff_ex, ctzrtoa, params) == GQ(0.0, -1)
+        @test dispersion_slope(dmoff_ex, ctzrtoa, params) == GQ{-1}(0.0)
         @test dispersion_slope(dmoff_ex, ctoa, params) == -params.FDJUMPDM[1]
 
         toa1 = TOA(
@@ -151,7 +151,7 @@
             3,
         )
         ctoa1 = CorrectedTOA(toa1)
-        @test dispersion_slope(dmoff_ex, ctoa1, params) ≈ GQ(0.0, -1)
+        @test dispersion_slope(dmoff_ex, ctoa1, params) ≈ GQ{-1}(0.0)
 
         display(dmoff_ex)
     end
@@ -363,7 +363,7 @@
     @testset "MeasurementNoise" begin
         wn = MeasurementNoise(UInt[1], UInt[0])
         @test efac(wn, ctoa, params) == params.EFAC[1]
-        @test equad2(wn, ctoa, params) == time(0.0)^2
+        @test equad2(wn, ctoa, params) == time(0.0)^Val(2)
         ctoa1 = correct_toa(wn, ctoa, params)
 
         @ballocated(correct_toa($wn, $ctoa, $params)) == 0
@@ -372,7 +372,7 @@
         @test ctoa1.phase == ctoa.phase
         @test ctoa1.doppler == ctoa.doppler
         @test ctoa1.spin_frequency == ctoa.spin_frequency
-        @test scaled_toa_error_sqr(ctoa1) > ctoa1.toa.error^2
+        @test scaled_toa_error_sqr(ctoa1) > ctoa1.toa.error^Val(2)
         display(wn)
     end
 end

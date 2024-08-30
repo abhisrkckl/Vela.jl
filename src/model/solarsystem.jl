@@ -72,7 +72,7 @@ function correct_toa(ss::SolarSystem, ctoa::CorrectedTOA, params::NamedTuple)
 
     if value(px) != 0.0
         Rvec_sqr = dot(Rvec, Rvec)
-        Rperp_sqr = Rvec_sqr - Lhat_dot_Rvec^2
+        Rperp_sqr = Rvec_sqr - Lhat_dot_Rvec * Lhat_dot_Rvec
 
         # Parallax delay
         delay += 0.5 * px * Rperp_sqr

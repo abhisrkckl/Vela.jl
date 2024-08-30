@@ -29,7 +29,7 @@
     )
 
     # Wrong dimensions for TOA value.
-    @test_throws AssertionError TOA(
+    @test_throws MethodError TOA(
         dimensionless(toaval.x),
         toaerr,
         freq,
@@ -40,7 +40,7 @@
     )
 
     # Wrong dimensions for TOA error.
-    @test_throws AssertionError TOA(
+    @test_throws MethodError TOA(
         toaval,
         dimensionless(1e-6),
         freq,
@@ -51,26 +51,10 @@
     )
 
     # Wrong dimensions for TOA observing_frequency.
-    @test_throws AssertionError TOA(
-        toaval,
-        toaerr,
-        time(1.4e9),
-        phase,
-        barycentered,
-        ephem,
-        1,
-    )
+    @test_throws MethodError TOA(toaval, toaerr, time(1.4e9), phase, barycentered, ephem, 1)
 
     # Wrong dimensions for TOA pulse_number.
-    @test_throws AssertionError TOA(
-        toaval,
-        toaerr,
-        freq,
-        time(1000.0),
-        barycentered,
-        ephem,
-        1,
-    )
+    @test_throws MethodError TOA(toaval, toaerr, freq, time(1000.0), barycentered, ephem, 1)
 
     toa1 = TOA(toaval, toaerr, freq, pulse_number, barycentered, ephem, 1)
     @test !toa1.tzr
@@ -101,7 +85,7 @@
     @test ctoa3.level == 2
 
     efac = dimensionless(1.1)
-    equad2 = time(1e-6)^2
+    equad2 = time(1e-6)^Val(2)
     ctoa4 = correct_toa(ctoa3; efac = efac, equad2 = equad2)
     @test ctoa4.delay == ctoa3.delay
     @test ctoa4.phase == ctoa3.phase

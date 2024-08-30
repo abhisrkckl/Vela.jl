@@ -14,11 +14,27 @@ Corresponds to `floatParameter`, `AngleParameter`, or `MJDParameter` in `PINT`.
 """
 struct Parameter
     name::Symbol
-    default_quantity::GQ{Float64}
+    default_value::Float64
+    dimension::Int
     frozen::Bool
     original_units::String
     unit_conversion_factor::Float64
 end
+
+Parameter(
+    name::Symbol,
+    default_quantity::GQ,
+    frozen::Bool,
+    original_units::String,
+    unit_conversion_factor::Float64,
+) = Parameter(
+    name,
+    value(default_quantity),
+    udim(default_quantity),
+    frozen,
+    original_units,
+    unit_conversion_factor,
+)
 
 """A set of model parameters that are characterized by a common name and a varying index.
 
@@ -29,16 +45,9 @@ struct MultiParameter
     parameters::Vector{Parameter}
 end
 
-"""Read a parameter value into a `GQ` object."""
-function read_param(param::Parameter, value::Float64)::GQ{Float64}
-    @assert !param.frozen "Refusing to read a frozen parameter $(param.name)."
-
-    return quantity_like(param.default_quantity, value)
-end
-
 function _get_single_params_tuple(single_params)
     pkeys = Tuple((sp.name for sp in single_params))
-    pquants = Tuple((sp.default_quantity for sp in single_params))
+    pquants = Tuple((GQ{sp.dimension}(sp.default_value) for sp in single_params))
     return (; zip(pkeys, pquants)...)
 end
 
@@ -56,14 +65,14 @@ struct ParamHandler{ParamsType<:NamedTuple}
     single_params::Vector{Parameter}
     multi_params::Vector{MultiParameter}
     _default_params_tuple::ParamsType
-    _default_quantities::Vector{GQ{Float64}}
+    _default_values::Vector{Float64}
     _free_indices::Vector{Int}
     _nfree::Int
 end
 
 function ParamHandler(single_params, multi_params)
     default_params = _get_params_tuple(single_params, multi_params)
-    default_quantities = collect(Iterators.flatten(default_params))
+    default_values = collect(map(value, Iterators.flatten(default_params)))
 
     all_params = [
         single_params
@@ -75,7 +84,7 @@ function ParamHandler(single_params, multi_params)
         single_params,
         multi_params,
         default_params,
-        default_quantities,
+        default_values,
         free_indices,
         length(free_indices),
     )
@@ -90,13 +99,12 @@ function read_params(
     free_values,
 )::ParamsType where {ParamsType<:NamedTuple}
     @assert length(free_values) == ph._nfree
-    quantities = copy(ph._default_quantities)
-    for (idx, value) in zip(ph._free_indices, free_values)
-        d = quantities[idx].d
-        quantities[idx] = GQ(value, d)
+    values = copy(ph._default_values)
+    @inbounds for (idx, value) in zip(ph._free_indices, free_values)
+        values[idx] = value
     end
 
-    return reinterpret(ParamsType, quantities)[1]
+    return reinterpret(ParamsType, values)[1]
 end
 
 """Generate an ordered collection of free parameter names."""

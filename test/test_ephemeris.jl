@@ -1,6 +1,6 @@
 @testset "ephemeris" begin
     # Wrong dimensions
-    @test_throws AssertionError SolarSystemEphemeris(
+    @test_throws MethodError SolarSystemEphemeris(
         ssb_obs_vel,
         ssb_obs_vel,
         obs_sun_pos,
@@ -13,7 +13,7 @@
     )
 
     # Wrong dimensions
-    @test_throws AssertionError SolarSystemEphemeris(
+    @test_throws MethodError SolarSystemEphemeris(
         ssb_obs_pos,
         ssb_obs_pos,
         obs_sun_pos,
@@ -26,7 +26,7 @@
     )
 
     # Wrong dimensions
-    @test_throws AssertionError SolarSystemEphemeris(
+    @test_throws MethodError SolarSystemEphemeris(
         ssb_obs_pos,
         ssb_obs_vel,
         ssb_obs_vel,
@@ -78,5 +78,5 @@
     # |ssb_obs_vel| should be less than the speed of light
     @test dot(ephem_vecs.ssb_obs_vel, ephem_vecs.ssb_obs_vel) < 1
 
-    @test sizeof(ephem_vecs) == 9 * 3 * sizeof(GQ{Float64})
+    @test sizeof(ephem_vecs) == 9 * 3 * sizeof(GQ{0,Float64})
 end
