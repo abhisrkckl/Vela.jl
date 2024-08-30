@@ -6,7 +6,7 @@ Corresponds to `Spindown` in `PINT`."""
 struct Spindown <: PhaseComponent end
 
 """Rotational phase of the pulsar."""
-function phase(::Spindown, ctoa::CorrectedTOA, params::NamedTuple)::GQ{Double64}
+function phase(::Spindown, ctoa::CorrectedTOA, params::NamedTuple)::GQ{0,Double64}
     t0 = params.PEPOCH
     t = corrected_toa_value_F128(ctoa)
     fs = params.F
@@ -16,7 +16,7 @@ function phase(::Spindown, ctoa::CorrectedTOA, params::NamedTuple)::GQ{Double64}
 end
 
 """Instantaneous rotational frequency of the pulsar."""
-function spin_frequency(::Spindown, ctoa::CorrectedTOA, params::NamedTuple)::GQ{Float64}
+function spin_frequency(::Spindown, ctoa::CorrectedTOA, params::NamedTuple)::GQ{-1,Float64}
     t0 = params.PEPOCH
     t = corrected_toa_value(ctoa)
     fs = params.F

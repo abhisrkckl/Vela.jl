@@ -17,7 +17,7 @@ end
 """The EQUAD corresponding to a TOA (assumes exclusivity)."""
 function equad2(wn::MeasurementNoise, ctoa::CorrectedTOA, params::NamedTuple)
     idx = wn.equad_index_mask[ctoa.toa.index]
-    return (idx == 0) ? GQ(0.0, 2) : params.EQUAD[idx]^2
+    return (idx == 0) ? GQ{2}(0.0) : params.EQUAD[idx]^Val(2)
 end
 
 """Apply EFAC and EQUAD to a TOA."""

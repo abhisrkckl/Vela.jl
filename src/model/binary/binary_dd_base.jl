@@ -2,14 +2,14 @@
 abstract type BinaryDDBase <: BinaryComponent end
 
 struct DDState
-    rømer_einstein_coeffs::NTuple{3,GQ{Float64}}
+    rømer_einstein_coeffs::NTuple{3,GQ{1,Float64}}
     sincosu::SinCos
-    et::GQ{Float64}
-    er::GQ{Float64}
-    a1::GQ{Float64}
-    n::GQ{Float64}
-    m2::GQ{Float64}
-    sini::GQ{Float64}
+    et::GQ{0,Float64}
+    er::GQ{0,Float64}
+    a1::GQ{1,Float64}
+    n::GQ{-1,Float64}
+    m2::GQ{1,Float64}
+    sini::GQ{0,Float64}
 end
 
 function rømer_einstein_delay(::BinaryDDBase, state::DDState)::GQ
@@ -64,8 +64,10 @@ function correct_toa(dd::BinaryDDBase, ctoa::CorrectedTOA, params::NamedTuple)
 
     ΔRE_inv =
         ΔRE * (
-            1 - nhat * ΔREp + (nhat * ΔREp)^2 + 0.5 * nhat^2 * ΔRE * ΔREp2 -
-            0.5 * et * sinu / (1 - et * cosu) * nhat^2 * ΔRE * ΔREp
+            1 - nhat * ΔREp +
+            (nhat * nhat * ΔREp * ΔREp) +
+            0.5 * nhat * nhat * ΔRE * ΔREp2 -
+            0.5 * et * sinu / (1 - et * cosu) * nhat * nhat * ΔRE * ΔREp
         )
 
     ΔS = shapiro_delay(dd, state)

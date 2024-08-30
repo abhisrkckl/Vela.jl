@@ -55,7 +55,7 @@ def pint_parameter_to_vela(param: Parameter):
     if param.name != "F0":
         return vl.Parameter(
             jl.Symbol(param.name),
-            vl.GQ(default_value, dim),
+            vl.GQ[dim](default_value),
             param.frozen,
             original_units,
             unit_conversion_factor,
@@ -63,7 +63,7 @@ def pint_parameter_to_vela(param: Parameter):
     else:
         return vl.Parameter(
             jl.Symbol(param.name),
-            vl.GQ(to_jldd(default_value).lo, dim),
+            vl.GQ[dim](to_jldd(default_value).lo),
             param.frozen,
             original_units,
             unit_conversion_factor,
@@ -133,7 +133,7 @@ def pint_parameters_to_vela(model: TimingModel):
     single_params.append(
         vl.Parameter(
             jl.Symbol("F_"),
-            vl.GQ(to_jldd(model.F0.quantity.si.value).hi, -1),
+            vl.GQ[-1](to_jldd(model.F0.quantity.si.value).hi),
             True,
             str(model.F0.units),
             1.0,

@@ -1,7 +1,7 @@
 @testset "priors" begin
     @testset "SimplePrior" begin
-        params = (PHOFF = dimensionless(0.1), F = (frequency(100.0), GQ(-1e-14, -2)))
-        bad_params = (PHOFF = dimensionless(1.1), F = (frequency(-200.0), GQ(-2e-14, -2)))
+        params = (PHOFF = dimensionless(0.1), F = (frequency(100.0), GQ{-2}(-1e-14)))
+        bad_params = (PHOFF = dimensionless(1.1), F = (frequency(-200.0), GQ{-2}(-2e-14)))
 
         phoff_prior = SimplePrior{:PHOFF}(Uniform(-0.5, 0.5))
         @test isfinite(lnprior(phoff_prior, params))

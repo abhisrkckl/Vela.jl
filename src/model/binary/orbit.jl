@@ -11,7 +11,7 @@ OR the orbital frequency and its derivatives."""
 mean_motion(Δt::GQ, params::NamedTuple, use_fbx::Bool) =
     2π * (use_fbx ? taylor_horner(Δt, params.FB) : 1 / (params.PB + params.PBDOT * Δt))
 
-SinCos = NTuple{2,GQ{Float64}}
+SinCos = NTuple{2,GQ{0,Float64}}
 
 """Solves the Kepler equation using Mikkola's method."""
 function mikkola(l, e)

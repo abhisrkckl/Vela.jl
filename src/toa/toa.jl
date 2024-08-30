@@ -14,10 +14,10 @@ export TOA,
 
 The TOA value incorporates the clock corrections computed using `PINT`."""
 struct TOA
-    value::GQ{Double64}
-    error::GQ{Float64}
-    observing_frequency::GQ{Float64}
-    pulse_number::GQ{Double64}
+    value::GQ{1,Double64}
+    error::GQ{1,Float64}
+    observing_frequency::GQ{-1,Float64}
+    pulse_number::GQ{0,Double64}
     barycentered::Bool
     tzr::Bool
     ephem::SolarSystemEphemeris
@@ -33,10 +33,6 @@ struct TOA
         ephem,
         index,
     )
-        @assert value.d == 1 "Dimension mismatch in value (given $(value.d), expected 1)."
-        @assert error.d == 1 "Dimension mismatch in error (given $(error.d), expected 1)."
-        @assert observing_frequency.d == -1 "Dimension mismatch in observing_frequency (given $(observing_frequency.d), expected -1)."
-        @assert pulse_number.d == 0 "Dimension mismatch in pulse_number (given $(pulse_number.d), expected 0)."
         @assert tzr || index > 0 "The index can be 0 only for the TZR TOA."
 
         return new(
@@ -70,14 +66,14 @@ make_tzr_toa(tzrtdb, tzrfreq, tzrbary, tzrephem) = TOA(
 """The accumulated timing & noise model corrections applied to a narrowband TOA."""
 struct CorrectedTOA
     toa::TOA
-    delay::GQ{Float64}
-    phase::GQ{Double64}
-    efac::GQ{Float64}
-    equad2::GQ{Float64}
-    spin_frequency::GQ{Float64}
-    doppler::GQ{Float64}
+    delay::GQ{1,Float64}
+    phase::GQ{0,Double64}
+    efac::GQ{0,Float64}
+    equad2::GQ{2,Float64}
+    spin_frequency::GQ{-1,Float64}
+    doppler::GQ{0,Float64}
     barycentered::Bool
-    ssb_psr_pos::NTuple{3,GQ{Float64}}
+    ssb_psr_pos::NTuple{3,GQ{0,Float64}}
     level::UInt
 
     function CorrectedTOA(
@@ -92,13 +88,6 @@ struct CorrectedTOA
         ssb_psr_pos,
         level,
     )
-        @assert delay.d == 1 "Dimension mismatch in value (given $(delay.d), expected 1)."
-        @assert phase.d == 0 "Dimension mismatch in phase (given $(phase.d), expected 0)."
-        @assert efac.d == 0 "Dimension mismatch in efac (given $(efac.d), expected 0)."
-        @assert equad2.d == 2 "Dimension mismatch in equad (given $(equad2.d), expected 2)."
-        @assert spin_frequency.d == -1 "Dimension mismatch in spin_frequency (given $(spin_frequency.d), expected -1)."
-        @assert doppler.d == 0 "Dimension mismatch in doppler (given $(doppler.d), expected 0)."
-
         @assert abs(doppler) < dimensionless(1.0) "|doppler| must be less than 1."
         @assert spin_frequency == frequency(-1.0) || spin_frequency > frequency(0.0) "spin_frequency must either be a positive value or a default value of -1."
 
@@ -125,7 +114,7 @@ CorrectedTOA(toa) = CorrectedTOA(
     time(0.0),
     dimensionless(Double64(0.0)),
     dimensionless(1.0),
-    GQ(0.0, 2),
+    GQ{2}(0.0),
     frequency(-1.0),
     dimensionless(0.0),
     toa.barycentered,
@@ -164,7 +153,7 @@ correct_toa(
     delay::GQ = time(0.0),
     phase::GQ = dimensionless(0.0),
     efac::GQ = dimensionless(1.0),
-    equad2::GQ = GQ(0.0, 2),
+    equad2::GQ = GQ{2}(0.0),
     delta_spin_frequency::GQ = frequency(0.0),
     doppler::GQ = dimensionless(0.0),
     barycentered = false,
