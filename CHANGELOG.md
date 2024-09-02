@@ -8,6 +8,8 @@
 - Exposed `cheat_prior_scale` and `custom_prior_dists` options in `read_model_and_toas()`
 - Made changes according to the `GeometricUnits` API changes (`GQ` now represents dimensions as a type parameter)
 ## Fixed
+- Proper motion computation
+- Default of `CorrectedTOA.spin_frequency`
 ## Removed
 
 # [0.0.3] - 2024-08-22
