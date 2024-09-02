@@ -31,6 +31,23 @@ function solar_system_shapiro_delay(M::GQ, obs_obj_pos::Tuple, obj_psr_pos::Tupl
     return -2 * M * log((r - Lhat_dot_rvec) / AU)
 end
 
+function evaluate_proper_motion(α0, δ0, pmα, pmδ, dt)
+    sinα0, cosα0 = sincos(α0)
+    sinδ0, cosδ0 = sincos(δ0)
+
+    x0 = (cosα0 * cosδ0, sinα0 * cosδ0, sinδ0)
+
+    xdot_α = (-sinα0 * pmα, cosα0 * pmα, zero(pmα))
+    xdot_δ = (-cosα0 * sinδ0 * pmδ, -sinα0 * sinδ0 * pmδ, cosδ0 * pmδ)
+    Δx = map((x, y) -> (x + y) * dt, xdot_α, xdot_δ)
+
+    x1 = map(+, x0, Δx)
+    x1_mag = sqrt(dot(x1, x1))
+    x1hat = map(x -> x / x1_mag, x1)
+
+    return x1hat
+end
+
 """Update the `CorrectedTOA` object with solar system delays and Doppler factor."""
 function correct_toa(ss::SolarSystem, ctoa::CorrectedTOA, params::NamedTuple)
     if ctoa.barycentered
@@ -46,15 +63,15 @@ function correct_toa(ss::SolarSystem, ctoa::CorrectedTOA, params::NamedTuple)
     posepoch = params.POSEPOCH
 
     # TODO: Do this properly.
-    if value(pmlong) == 0.0 && value(pmlat) == 0.0
-        long, lat = long0, lat0
+    Lhat = if value(pmlong) == 0.0 && value(pmlat) == 0.0
+        sinlong0, coslong0 = sincos(long0)
+        sinlat0, coslat0 = sincos(lat0)
+        (coslong0 * coslat0, sinlong0 * coslat0, sinlat0)
     else
         dt = corrected_toa_value(ctoa) - posepoch
-        long = long0 + pmlong * dt / cos(lat0)
-        lat = lat0 + pmlat * dt
+        evaluate_proper_motion(long0, lat0, pmlong, pmlat, dt)
     end
 
-    Lhat = (cos(long) * cos(lat), sin(long) * cos(lat), sin(lat))
     Rvec = ctoa.toa.ephem.ssb_obs_pos
 
     if ss.ecliptic_coordinates
