@@ -89,7 +89,7 @@ struct CorrectedTOA
         level,
     )
         @assert abs(doppler) < dimensionless(1.0) "|doppler| must be less than 1."
-        @assert spin_frequency == frequency(-1.0) || spin_frequency > frequency(0.0) "spin_frequency must either be a positive value or a default value of -1."
+        @assert spin_frequency >= frequency(0.0) "spin_frequency must either be a positive value or a default value of 0.0."
 
         @assert all(iszero.(ssb_psr_pos)) ||
                 dot(ssb_psr_pos, ssb_psr_pos) ≈ dimensionless(1.0) "ssb_psr_pos must be a zero vector (representing pending computation) or a unit vector."
@@ -115,7 +115,7 @@ CorrectedTOA(toa) = CorrectedTOA(
     dimensionless(Double64(0.0)),
     dimensionless(1.0),
     GQ{2}(0.0),
-    frequency(-1.0),
+    frequency(0.0),
     dimensionless(0.0),
     toa.barycentered,
     dimensionless.((0.0, 0.0, 0.0)),
@@ -129,7 +129,7 @@ scaled_toa_error_sqr(ctoa::CorrectedTOA) =
 """Spin frequency in topocentric or barycentric frame, depending on the correction level.
 The spin_frequency is originally in the pulsar frame."""
 function doppler_shifted_spin_frequency(ctoa::CorrectedTOA)::GQ
-    @assert ctoa.spin_frequency != frequency(-1.0) "The spin_frequency has not been set."
+    @assert ctoa.spin_frequency != frequency(0.0) "The spin_frequency has not been set."
     return ctoa.spin_frequency * (1 + ctoa.doppler)
 end
 
