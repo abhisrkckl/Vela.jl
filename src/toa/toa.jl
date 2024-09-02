@@ -129,7 +129,7 @@ scaled_toa_error_sqr(ctoa::CorrectedTOA) =
 """Spin frequency in topocentric or barycentric frame, depending on the correction level.
 The spin_frequency is originally in the pulsar frame."""
 function doppler_shifted_spin_frequency(ctoa::CorrectedTOA)::GQ
-    @assert ctoa.spin_frequency != frequency(0.0) "The spin_frequency has not been set."
+    @assert !iszero(ctoa.spin_frequency) "The spin_frequency has not been set."
     return ctoa.spin_frequency * (1 + ctoa.doppler)
 end
 
