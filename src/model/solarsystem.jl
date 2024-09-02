@@ -37,6 +37,10 @@ function evaluate_proper_motion(α0, δ0, pmα, pmδ, dt)
 
     x0 = (cosα0 * cosδ0, sinα0 * cosδ0, sinδ0)
 
+    if iszero(pmα) && iszero(pmδ)
+        return x0
+    end
+
     xdot_α = (-sinα0 * pmα, cosα0 * pmα, zero(pmα))
     xdot_δ = (-cosα0 * sinδ0 * pmδ, -sinα0 * sinδ0 * pmδ, cosδ0 * pmδ)
     Δx = map((x, y) -> (x + y) * dt, xdot_α, xdot_δ)
@@ -62,15 +66,8 @@ function correct_toa(ss::SolarSystem, ctoa::CorrectedTOA, params::NamedTuple)
     px = params.PX
     posepoch = params.POSEPOCH
 
-    # TODO: Do this properly.
-    Lhat = if value(pmlong) == 0.0 && value(pmlat) == 0.0
-        sinlong0, coslong0 = sincos(long0)
-        sinlat0, coslat0 = sincos(lat0)
-        (coslong0 * coslat0, sinlong0 * coslat0, sinlat0)
-    else
-        dt = corrected_toa_value(ctoa) - posepoch
-        evaluate_proper_motion(long0, lat0, pmlong, pmlat, dt)
-    end
+    dt = corrected_toa_value(ctoa) - posepoch
+    Lhat = evaluate_proper_motion(long0, lat0, pmlong, pmlat, dt)
 
     Rvec = ctoa.toa.ephem.ssb_obs_pos
 
@@ -87,7 +84,7 @@ function correct_toa(ss::SolarSystem, ctoa::CorrectedTOA, params::NamedTuple)
     # Rømer delay
     delay = -Lhat_dot_Rvec
 
-    if value(px) != 0.0
+    if !iszero(px)
         Rvec_sqr = dot(Rvec, Rvec)
         Rperp_sqr = Rvec_sqr - Lhat_dot_Rvec * Lhat_dot_Rvec
 
