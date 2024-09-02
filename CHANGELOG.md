@@ -4,10 +4,12 @@
 - Doppler factor in `BinaryELL1`
 - `BinaryDD` model
 - Doppler factor in `BinaryDD`
-- Examples - `J1856-3754.sim`
+- Examples - `J1856-3754.sim`, `sim6`
+- Test Python formatting using `black`
 ## Changed
 - Exposed `cheat_prior_scale` and `custom_prior_dists` options in `read_model_and_toas()`
 - Made changes according to the `GeometricUnits` API changes (`GQ` now represents dimensions as a type parameter)
+- Use the github version of `PINT` for testing
 ## Fixed
 - Proper motion computation
 - Default of `CorrectedTOA.spin_frequency`
