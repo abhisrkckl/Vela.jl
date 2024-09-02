@@ -7,10 +7,8 @@
 - `get_free_param_labels()` function
 - Examples - `J0613-0200.sim`, `J1856-3754.sim`, `sim6`
 - Test Python code formatting using `black`
-- Test Python formatting using `black`
 ## Changed
 - Exposed `cheat_prior_scale` and `custom_prior_dists` options in `read_model_and_toas()`
-- Tests now use the dev version of `PINT`
 - Made changes according to the `GeometricUnits` API changes (`GQ` now represents dimensions as a type parameter)
 - Use the github version of `PINT` for testing
 ## Fixed
