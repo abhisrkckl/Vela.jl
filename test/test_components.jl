@@ -299,7 +299,7 @@
         @test ctoa1.phase ≈ ctoa.phase + phase(poff, ctoa, params)
         @test ctoa1.efac == ctoa.efac
         @test ctoa1.equad2 == ctoa.equad2
-        @test ctoa1.spin_frequency == ctoa.spin_frequency == frequency(-1.0)
+        @test ctoa1.spin_frequency == ctoa.spin_frequency == frequency(0.0)
 
         ctzrtoa1 = correct_toa(poff, ctzrtoa, params)
         @test ctzrtoa1.delay == ctzrtoa.delay
@@ -317,8 +317,7 @@
         @test ctoa1.delay == ctoa.delay
         @test ctoa1.phase == ctoa.phase + phase(spn, ctoa, params)
         @test ctoa1.doppler == ctoa.doppler
-        @test ctoa.spin_frequency == frequency(-1.0) &&
-              ctoa1.spin_frequency > frequency(0.0)
+        @test ctoa.spin_frequency == frequency(0.0) && ctoa1.spin_frequency > frequency(0.0)
 
         @ballocated(correct_toa($spn, $ctoa, $params)) == 0
     end

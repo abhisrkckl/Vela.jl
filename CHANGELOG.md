@@ -5,14 +5,18 @@
 - `BinaryDD` model
 - Doppler factor in `BinaryDD`
 - `get_free_param_labels()` function
-- Examples - `J0613-0200.sim`, `sim6`
+- Examples - `J0613-0200.sim`, `J1856-3754.sim`, `sim6`
 - Test Python code formatting using `black`
+- Test Python formatting using `black`
 ## Changed
 - Exposed `cheat_prior_scale` and `custom_prior_dists` options in `read_model_and_toas()`
 - Tests now use the dev version of `PINT`
 - Made changes according to the `GeometricUnits` API changes (`GQ` now represents dimensions as a type parameter)
+- Use the github version of `PINT` for testing
 ## Fixed
 - Tests now handle par files without `PHOFF` properly.
+- Proper motion computation
+- Default of `CorrectedTOA.spin_frequency`
 ## Removed
 
 # [0.0.3] - 2024-08-22
