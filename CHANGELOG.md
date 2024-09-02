@@ -4,6 +4,7 @@
 - Doppler factor in `BinaryELL1`
 - `BinaryDD` model
 - Doppler factor in `BinaryDD`
+- Examples - `J1856-3754.sim`
 ## Changed
 - Exposed `cheat_prior_scale` and `custom_prior_dists` options in `read_model_and_toas()`
 - Made changes according to the `GeometricUnits` API changes (`GQ` now represents dimensions as a type parameter)
