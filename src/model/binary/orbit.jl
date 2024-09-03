@@ -69,4 +69,4 @@ function mikkola(l, e)
     return u
 end
 
-true_anomaly(u, e) = 2 * atan(sqrt((1 + e) / (1 - e)) * tan(u / 2))
+# true_anomaly(u, e) = 2 * atan(sqrt((1 + e) / (1 - e)) * tan(u / 2))

@@ -20,8 +20,8 @@ function DDState(dd::BinaryDD, ctoa::CorrectedTOA, params::NamedTuple)
 
     βφ = (1 - ηϕ) / eϕ
     v_u = 2 * atan(βφ * sinu, 1 - βφ * cosu)
-    # v = true_anomaly(u, eϕ)
     v = v_u + u
+    # v = true_anomaly(u, eϕ)
 
     k = params.OMDOT / n
     ω = params.OM + k * v
