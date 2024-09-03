@@ -14,7 +14,14 @@ function DDState(dd::BinaryDD, ctoa::CorrectedTOA, params::NamedTuple)
     eϕ = et * (1 + params.DTH)
 
     u = mikkola(l, et)
-    v = true_anomaly(u, eϕ)
+    sinu, cosu = sincos(u)
+
+    ηϕ = sqrt(1 - eϕ^2)
+
+    βφ = (1 - ηϕ) / eϕ
+    v_u = 2 * atan(βφ * sinu, 1 - βφ * cosu)
+    # v = true_anomaly(u, eϕ)
+    v = v_u + u
 
     k = params.OMDOT / n
     ω = params.OM + k * v
@@ -23,13 +30,13 @@ function DDState(dd::BinaryDD, ctoa::CorrectedTOA, params::NamedTuple)
     a1 = params.A1 + Δt * params.A1DOT
 
     α = a1 * sinω
-    β = a1 * sqrt(1 - eϕ * eϕ) * cosω
+    β = a1 * ηϕ * cosω
     γ = params.GAMMA
 
     m2 = params.M2
     sini = params.SINI
 
-    return DDState((α, β, γ), sincos(u), et, er, a1, n, m2, sini)
+    return DDState((α, β, γ), (sinu, cosu), et, er, a1, n, m2, sini)
 end
 
 function show(io::IO, dd::BinaryDD)
