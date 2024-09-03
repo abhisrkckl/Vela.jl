@@ -73,7 +73,7 @@ function shapiro_delay(::BinaryDDBase, state::DDState)
     a1 = state.a1
     α, β, _ = state.rømer_einstein_coeffs
 
-    return -2 * m2 * (1 - et * cosu - (sini / a1) * (α * (cosu - er) + β * sinu))
+    return -2 * m2 * log(1 - et * cosu - (sini / a1) * (α * (cosu - er) + β * sinu))
 end
 
 """Total delay due to a nearly circular binary."""
