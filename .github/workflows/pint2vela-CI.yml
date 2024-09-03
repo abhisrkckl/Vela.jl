@@ -51,7 +51,7 @@ jobs:
       - name: Test with pytest
         run: |
           cd pint2vela/tests
-          pytest --verbose -n 3 --cov=pint2vela .
+          pytest --verbose -n auto --cov=pint2vela .
       - name: Test formatting with black
         run: |
           black ..
