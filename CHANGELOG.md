@@ -4,7 +4,7 @@
 - Doppler factor in `BinaryELL1`
 - `BinaryDD` model
 - Doppler factor in `BinaryDD`
-- Examples - `J1856-3754.sim`, `J1802-2124.sim`, `sim6`
+- Examples - `J1856-3754.sim`, `J1802-2124.sim`, `sim6`, `sim_dd`
 - Test Python formatting using `black`
 ## Changed
 - Exposed `cheat_prior_scale` and `custom_prior_dists` options in `read_model_and_toas()`
