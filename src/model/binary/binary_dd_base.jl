@@ -22,7 +22,14 @@ function DDState(dd::BinaryDDBase, ctoa::CorrectedTOA, params::NamedTuple)
     eϕ = et * (1 + params.DTH)
 
     u = mikkola(l, et)
-    v = true_anomaly(u, eϕ)
+    sinu, cosu = sincos(u)
+
+    ηϕ = sqrt(1 - eϕ^2)
+
+    βφ = (1 - ηϕ) / eϕ
+    v_u = 2 * atan(βφ * sinu, 1 - βφ * cosu)
+    v = v_u + u
+    # v = true_anomaly(u, eϕ)
 
     k = params.OMDOT / n
     ω = params.OM + k * v
@@ -31,7 +38,7 @@ function DDState(dd::BinaryDDBase, ctoa::CorrectedTOA, params::NamedTuple)
     a1 = params.A1 + Δt * params.A1DOT
 
     α = a1 * sinω
-    β = a1 * sqrt(1 - eϕ * eϕ) * cosω
+    β = a1 * ηϕ * cosω
     γ = params.GAMMA
 
     m2, sini = shapiro_delay_params(dd, params)
