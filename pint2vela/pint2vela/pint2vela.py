@@ -35,7 +35,6 @@ def fix_params(model: TimingModel) -> None:
     ):
         model["STIGMA"].quantity = model["H4"].quantity / model["H3"].quantity
         model["STIGMA"].frozen = model["H4"].frozen
-        model["H4"].quantity = None
         model["H4"].frozen = True
 
     zeroable_params = [
