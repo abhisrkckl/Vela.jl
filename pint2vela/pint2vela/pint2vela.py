@@ -2,10 +2,10 @@ from pint.logging import setup as setup_log
 from pint.models import PhaseOffset, TimingModel, get_model_and_toas
 from pint.models.parameter import MJDParameter
 from pint.toa import TOAs
-
-from pint2vela.convert_components import pint_components_to_vela
+from pint.binaryconvert import convert_binary
 
 from .vela import vl
+from .convert_components import pint_components_to_vela
 from .convert_toas import pint_toa_to_vela, pint_toas_to_vela
 from .convert_parameters import pint_parameters_to_vela
 from .priors import get_default_priors
@@ -25,9 +25,29 @@ def fix_params(model: TimingModel) -> None:
     if "PhaseOffset" not in model.components:
         model.add_component(PhaseOffset())
 
-    model.PHOFF.frozen = False
+    model["PHOFF"].frozen = False
+    model["PHOFF"].uncertainty_value = 0.1
 
-    zeroable_params = ["M2", "SINI", "PBDOT", "XPBDOT", "A1DOT", "EPS1DOT", "EPS2DOT"]
+    if (
+        "H4" in model
+        and model["H4"].quantity is not None
+        and model["STIGMA"].quantity is None
+    ):
+        model["STIGMA"].quantity = model["H4"].quantity / model["H3"].quantity
+        model["STIGMA"].frozen = model["H4"].frozen
+        model["H4"].frozen = True
+
+    zeroable_params = [
+        "M2",
+        "SINI",
+        "PBDOT",
+        "XPBDOT",
+        "A1DOT",
+        "EPS1DOT",
+        "EPS2DOT",
+        "H3",
+        "STIGMA",
+    ]
     for p in zeroable_params:
         if p in model and model[p].quantity is None:
             model[p].value = 0
@@ -85,6 +105,9 @@ def read_model_and_toas(
         allow_T2=True,
         add_tzr_to_model=True,
     )
+
+    if "BinaryBT" in mp.components:
+        mp = convert_binary(mp, "DD")
 
     model = pint_model_to_vela(mp, tp, cheat_prior_scale, custom_prior_dicts)
     toas = pint_toas_to_vela(tp)

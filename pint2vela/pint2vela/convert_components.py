@@ -87,8 +87,14 @@ def pint_components_to_vela(model: TimingModel, toas: TOAs):
         use_fbx = model["FB0"].quantity is not None
         if "BinaryELL1" in component_names:
             components.append(vl.BinaryELL1(use_fbx))
+        elif "BinaryELL1H" in component_names:
+            components.append(vl.BinaryELL1H(use_fbx))
         elif "BinaryDD" in component_names:
             components.append(vl.BinaryDD(use_fbx))
+        elif "BinaryDDH" in component_names:
+            components.append(vl.BinaryDDH(use_fbx))
+        elif "BinaryDDS" in component_names:
+            components.append(vl.BinaryDDS(use_fbx))
 
     if "FD" in component_names:
         components.append(vl.FrequencyDependent())

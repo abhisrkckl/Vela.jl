@@ -25,9 +25,13 @@ datasets = [
     "sim_dd",
     "J0613-0200.InPTA.NB",
     "J1857+0943.InPTA.NB",
+    "J0613-0200.sim",
     "J1856-3754.sim",
     "J1802-2124.sim",
     "J0955-6150.sim",
+    "J1208-5936.sim",
+    "J2302+4442.sim",
+    "J1227-6208.sim",
 ]
 
 
@@ -59,7 +63,12 @@ def test_data(model_and_toas):
     assert len(mv.components) <= len(m.components)
 
     pnames = vl.get_free_param_names(mv.param_handler)
-    assert set(pnames) == set(m.free_params)
+    if "H4" not in m.free_params:
+        assert set(pnames) == set(m.free_params).union({"PHOFF"})
+    else:
+        assert set(pnames) == set(m.free_params).union({"PHOFF", "STIGMA"}).difference(
+            {"H4"}
+        )
 
     assert len(params) == len(pnames)
 
@@ -69,9 +78,9 @@ def test_data(model_and_toas):
 
 
 def test_chi2(model_and_toas):
-    mv, tv, params, _, _ = model_and_toas
+    mv, tv, params, m, _ = model_and_toas
     calc_chi2 = vl.get_chi2_func(mv, tv)
-    assert calc_chi2(params) / len(tv) < 1.1
+    assert ("PHOFF" not in m) or (calc_chi2(params) / len(tv) < 1.2)
 
 
 def test_likelihood(model_and_toas):

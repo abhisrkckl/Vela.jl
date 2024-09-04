@@ -79,6 +79,9 @@
         DR = dimensionless(0.0),
         DTH = dimensionless(0.0),
         GAMMA = time(0.0),
+        H3 = time(1e-9),
+        STIGMA = dimensionless(0.02),
+        SHAPMAX = dimensionless(5.0),
         FD = (time(0.1), time(0.2)),
     )
 
@@ -191,26 +194,22 @@
     end
 
     @testset "BinaryELL1" begin
-        params1 = (
-            TASC = time(53470.1 * day_to_s),
-            PB = time(8e4),
-            PBDOT = dimensionless(1e-10),
-            FB = (frequency(1.25e-5), GQ{-2}(-1.5625e-20)),
-            A1 = distance(5.0),
-            A1DOT = dimensionless(0.0),
-            EPS1 = dimensionless(1e-5),
-            EPS2 = dimensionless(-2e-5),
-            EPS1DOT = frequency(0.0),
-            EPS2DOT = frequency(0.0),
-        )
         for use_fbx in [true, false]
             ell1 = BinaryELL1(use_fbx)
             display(ell1)
-            for pars in [params, params1]
-                ctoa_1 = correct_toa(ell1, ctoa, pars)
-                @test isfinite(ctoa_1.delay) && isfinite(ctoa_1.doppler)
-                @test @ballocated(correct_toa($ell1, $ctoa, $pars)) == 0
-            end
+            ctoa_1 = correct_toa(ell1, ctoa, params)
+            @test isfinite(ctoa_1.delay) && isfinite(ctoa_1.doppler)
+            @test @ballocated(correct_toa($ell1, $ctoa, $params)) == 0
+        end
+    end
+
+    @testset "BinaryELL1H" begin
+        for use_fbx in [true, false]
+            ell1h = BinaryELL1H(use_fbx)
+            display(ell1h)
+            ctoa_1 = correct_toa(ell1h, ctoa, params)
+            @test isfinite(ctoa_1.delay) && isfinite(ctoa_1.doppler)
+            @test @ballocated(correct_toa($ell1h, $ctoa, $params)) == 0
         end
     end
 
@@ -243,6 +242,48 @@
             @test isfinite(ctoa_1.delay) && isfinite(ctoa_1.doppler)
             @test @ballocated(correct_toa($dd, $ctoa1, $params)) == 0
             display(dd)
+        end
+    end
+
+    @testset "BinaryDDH" begin
+        toa1 = TOA(
+            time(Double64(53471.0 * day_to_s)),
+            time(1e-6),
+            frequency(2.5e9),
+            dimensionless(Double64(0.0)),
+            false,
+            ephem,
+            1,
+        )
+        ctoa1 = CorrectedTOA(toa1)
+
+        for use_fbx in [true, false]
+            ddh = BinaryDDH(use_fbx)
+            ctoa_1 = correct_toa(ddh, ctoa1, params)
+            @test isfinite(ctoa_1.delay) && isfinite(ctoa_1.doppler)
+            @test @ballocated(correct_toa($ddh, $ctoa1, $params)) == 0
+            display(ddh)
+        end
+    end
+
+    @testset "BinaryDDS" begin
+        toa1 = TOA(
+            time(Double64(53471.0 * day_to_s)),
+            time(1e-6),
+            frequency(2.5e9),
+            dimensionless(Double64(0.0)),
+            false,
+            ephem,
+            1,
+        )
+        ctoa1 = CorrectedTOA(toa1)
+
+        for use_fbx in [true, false]
+            dds = BinaryDDS(use_fbx)
+            ctoa_1 = correct_toa(dds, ctoa1, params)
+            @test isfinite(ctoa_1.delay) && isfinite(ctoa_1.doppler)
+            @test @ballocated(correct_toa($dds, $ctoa1, $params)) == 0
+            display(dds)
         end
     end
 

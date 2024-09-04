@@ -13,6 +13,8 @@
     @test get_free_param_names(ph) == ["PHOFF", "F0", "F1"]
     @test Set(keys(ph._default_params_tuple)) == Set([:PEPOCH, :PHOFF, :F])
 
+    @test length(get_free_param_labels(ph)) == length(get_free_param_names(ph))
+
     params = read_params(ph, [0.01, 100.01, -1.01e-14])
     @test Set(keys(params)) == Set([:PEPOCH, :PHOFF, :F])
     @test params.F == (frequency(100.01), GQ{-2}(-1.01e-14))

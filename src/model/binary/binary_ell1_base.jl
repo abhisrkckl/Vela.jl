@@ -21,6 +21,22 @@ struct ELL1State
     sini::GQ{0,Float64}
 end
 
+function ELL1State(ell1::BinaryELL1Base, ctoa::CorrectedTOA, params::NamedTuple)
+    Δt = corrected_toa_value(ctoa) - params.TASC
+    a1 = params.A1 + Δt * params.A1DOT
+    ϵ1 = params.EPS1 + Δt * params.EPS1DOT
+    ϵ2 = params.EPS2 + Δt * params.EPS2DOT
+
+    Φ = mean_anomaly(Δt, params, ell1.use_fbx)
+    Φ_trigs = sincos(Φ), sincos(2Φ), sincos(3Φ), sincos(4Φ)
+
+    n = mean_motion(Δt, params, ell1.use_fbx)
+
+    m2, sini = shapiro_delay_params(ell1, params)
+
+    return ELL1State(Φ_trigs, n, a1, ϵ1, ϵ2, m2, sini)
+end
+
 """Rømer delay due to a nearly circular binary. Includes terms up to the
 cubic order in eccentricity."""
 function rømer_delay(::BinaryELL1Base, state::ELL1State)::GQ

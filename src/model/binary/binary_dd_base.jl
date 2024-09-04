@@ -12,6 +12,40 @@ struct DDState
     sini::GQ{0,Float64}
 end
 
+function DDState(dd::BinaryDDBase, ctoa::CorrectedTOA, params::NamedTuple)
+    Δt = corrected_toa_value(ctoa) - params.T0
+    n = mean_motion(Δt, params, dd.use_fbx)
+    l = mean_anomaly(Δt, params, dd.use_fbx)
+
+    et = params.ECC + Δt * params.EDOT
+    er = et * (1 + params.DR)
+    eϕ = et * (1 + params.DTH)
+
+    u = mikkola(l, et)
+    sinu, cosu = sincos(u)
+
+    ηϕ = sqrt(1 - eϕ^2)
+
+    βφ = (1 - ηϕ) / eϕ
+    v_u = 2 * atan(βφ * sinu, 1 - βφ * cosu)
+    v = v_u + u
+    # v = true_anomaly(u, eϕ)
+
+    k = params.OMDOT / n
+    ω = params.OM + k * v
+    sinω, cosω = sincos(ω)
+
+    a1 = params.A1 + Δt * params.A1DOT
+
+    α = a1 * sinω
+    β = a1 * ηϕ * cosω
+    γ = params.GAMMA
+
+    m2, sini = shapiro_delay_params(dd, params)
+
+    return DDState((α, β, γ), sincos(u), et, er, a1, n, m2, sini)
+end
+
 function rømer_einstein_delay(::BinaryDDBase, state::DDState)::GQ
     sinu, cosu = state.sincosu
     er = state.er
@@ -78,4 +112,9 @@ function correct_toa(dd::BinaryDDBase, ctoa::CorrectedTOA, params::NamedTuple)
     doppler = ΔREp * nhat
 
     return correct_toa(ctoa; delay = delay, doppler = doppler)
+end
+
+function show(io::IO, binary::BinaryComponent)
+    mode = binary.use_fbx ? "FBX" : "PB"
+    print(io, "$(typeof(binary))(with $mode)")
 end

@@ -12,6 +12,7 @@ DEFAULT_PRIOR_DISTS = {
     "EFAC": jl.Uniform(0.1, 5.0),
     "EQUAD": jl.Uniform(0.0, 1e-4),
     "SINI": jl.Uniform(0.0, 1.0),
+    "STIGMA": jl.Uniform(0.0, 1.0),
 }
 
 
@@ -48,7 +49,9 @@ def get_default_prior(
             else 0.0
         )
 
-        assert param.uncertainty is not None and param.uncertainty > 0
+        assert (
+            param.uncertainty is not None and param.uncertainty > 0
+        ), f"Uncertainty not given for {param_name}."
         err = (param.uncertainty * scale_factor).si.value
 
         pmin = val - cheat_prior_scale * err

@@ -2,15 +2,18 @@
 ## Added
 - `KinematicDelayComponent` as the abstract base class for `DelayComponent`s that also contribute a Doppler factor.
 - Doppler factor in `BinaryELL1`
-- `BinaryDD` model
+- `BinaryDD`, `BinaryDDH`, `BinaryDDS`, and `BinaryELL1H` models
 - Doppler factor in `BinaryDD`
-- Examples - `J1856-3754.sim`, `J1802-2124.sim`, `J0955-6150.sim`, `sim6`, `sim_dd`
+- `get_free_param_labels()` function
+- Examples - `J0613-0200.sim`, `J1856-3754.sim`, `J1802-2124.sim`, `J0955-6150.sim`, `J1208-5936.sim`, `J2302+4442.sim`, `J1227-6208.sim`, `sim6`, `sim_dd`
 - Test Python formatting using `black`
+- Use `BinaryDD` for par files with the BT model. 
 ## Changed
 - Exposed `cheat_prior_scale` and `custom_prior_dists` options in `read_model_and_toas()`
 - Made changes according to the `GeometricUnits` API changes (`GQ` now represents dimensions as a type parameter)
 - Use the github version of `PINT` for testing
 ## Fixed
+- Tests now handle par files without `PHOFF` properly.
 - Proper motion computation
 - Default of `CorrectedTOA.spin_frequency`
 - Shapiro delay expression for `BinaryDDBase`
