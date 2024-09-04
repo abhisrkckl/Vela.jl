@@ -26,8 +26,15 @@
 
     ddm = GQ{-1}(1e14)
     cdminfo = cwtoa1.corrected_dminfo
-    cdminfo2 = correct_dminfo(cdminfo; delta_dm = ddm)
+    cdminfo2 = correct_dminfo(
+        cdminfo;
+        delta_dm = ddm,
+        dmefac = dimensionless(1.1),
+        dmequad2 = GQ{-2}(1e-12),
+    )
     @test cdminfo2.model_dm == cdminfo.model_dm + ddm
+    @test cdminfo2.dmefac == dimensionless(1.1)
+    @test cdminfo2.dmequad2 == GQ{-2}(1e-12)
     # @test corrected_toa_value(ctoa2) == corrected_toa_value(ctoa1) - dt
     # @test ctoa2.phase == ctoa1.phase
     # @test ctoa2.efac == ctoa1.efac
