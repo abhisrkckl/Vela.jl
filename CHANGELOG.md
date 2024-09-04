@@ -2,10 +2,10 @@
 ## Added
 - `KinematicDelayComponent` as the abstract base class for `DelayComponent`s that also contribute a Doppler factor.
 - Doppler factor in `BinaryELL1`
-- `BinaryDD` model
+- `BinaryDD` and `BinaryDDH` models
 - Doppler factor in `BinaryDD`
 - `get_free_param_labels()` function
-- Examples - `J0613-0200.sim`, `J1856-3754.sim`, `J1802-2124.sim`, `J0955-6150.sim`, `sim6`, `sim_dd`
+- Examples - `J0613-0200.sim`, `J1856-3754.sim`, `J1802-2124.sim`, `J0955-6150.sim`, `J1208-5936.sim`, `sim6`, `sim_dd`
 - Test Python formatting using `black`
 ## Changed
 - Exposed `cheat_prior_scale` and `custom_prior_dists` options in `read_model_and_toas()`
