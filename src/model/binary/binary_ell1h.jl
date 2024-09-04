@@ -12,3 +12,20 @@ function shapiro_delay_params(::BinaryELL1H, params::NamedTuple)
     sini = 2 * Ϛ / (1 + Ϛ^2)
     return m2, sini
 end
+
+function shapiro_delay(ell1h::BinaryELL1H, state::ELL1State)
+    ΔS_total = invoke(shapiro_delay, Tuple{BinaryELL1Base,ELL1State}, ell1h, state)
+
+    (sinΦ, _), (_, cos2Φ), (_, _), (_, _) = state.Φ_trigs
+
+    m2 = state.m2
+    s = state.sini
+    c̄ = sqrt(1 - s * s)
+    Ϛ = s / (1 + c̄)
+    a0 = -log(1 + Ϛ * Ϛ)
+    b1 = -2 * Ϛ
+    a2 = Ϛ * Ϛ
+    ΔS_012 = -2 * m2 * (a0 + b1 * sinΦ + a2 * cos2Φ)
+
+    return ΔS_total - ΔS_012
+end
