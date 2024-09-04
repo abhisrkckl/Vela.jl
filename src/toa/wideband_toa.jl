@@ -27,6 +27,13 @@ correct_dminfo(
     cdminfo.dmequad2 + dmequad2,
 )
 
+dm_residual(cdminfo::CorrectedDMInfo) = cdminfo.dminfo.value - cdminfo.model_dm
+
+scaled_dm_error_sqr(cdminfo::CorrectedDMInfo) =
+    (cdminfo.dminfo.error * cdminfo.dminfo.error + cdminfo.dmequad2) *
+    cdminfo.dmefac *
+    cdminfo.dmefac
+
 """A single wideband TOA observation."""
 struct WidebandTOA
     toa::TOA
