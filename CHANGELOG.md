@@ -7,6 +7,7 @@
 - `get_free_param_labels()` function
 - Examples - `J0613-0200.sim`, `J1856-3754.sim`, `J1802-2124.sim`, `J0955-6150.sim`, `J1208-5936.sim`, `J2302+4442.sim`, `sim6`, `sim_dd`
 - Test Python formatting using `black`
+- Use `BinaryDD` for par files with the BT model. 
 ## Changed
 - Exposed `cheat_prior_scale` and `custom_prior_dists` options in `read_model_and_toas()`
 - Made changes according to the `GeometricUnits` API changes (`GQ` now represents dimensions as a type parameter)
