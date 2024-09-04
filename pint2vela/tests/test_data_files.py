@@ -63,7 +63,12 @@ def test_data(model_and_toas):
     assert len(mv.components) <= len(m.components)
 
     pnames = vl.get_free_param_names(mv.param_handler)
-    assert set(pnames) == set(m.free_params).union({"PHOFF"})
+    if "H4" not in m.free_params:
+        assert set(pnames) == set(m.free_params).union({"PHOFF"})
+    else:
+        assert set(pnames) == set(m.free_params).union({"PHOFF", "STIGMA"}).difference(
+            {"H4"}
+        )
 
     assert len(params) == len(pnames)
 
