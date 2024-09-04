@@ -1,3 +1,11 @@
+export DMInfo,
+    CorrectedDMInfo,
+    correct_dminfo,
+    dm_residual,
+    scaled_dm_error_sqr,
+    WidebandTOA,
+    CorrectedWidebandTOA
+
 """DM information associated with a wideband TOA."""
 struct DMInfo
     value::GQ{-1,Float64}
@@ -17,12 +25,12 @@ CorrectedDMInfo(dminfo::DMInfo) =
 
 correct_dminfo(
     cdminfo::CorrectedDMInfo;
-    model_dm = GQ{-1}(0.0),
+    delta_dm = GQ{-1}(0.0),
     dmefac = dimensionless(1.0),
     dmequad2 = GQ{-2}(0.0),
 ) = CorrectedDMInfo(
     cdminfo.dminfo,
-    cdminfo.model_dm + model_dm,
+    cdminfo.model_dm + delta_dm,
     cdminfo.dmefac * dmefac,
     cdminfo.dmequad2 + dmequad2,
 )
