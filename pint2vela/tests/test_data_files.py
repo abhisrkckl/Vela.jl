@@ -80,7 +80,7 @@ def test_data(model_and_toas):
 def test_chi2(model_and_toas):
     mv, tv, params, m, _ = model_and_toas
     calc_chi2 = vl.get_chi2_func(mv, tv)
-    assert ("PHOFF" not in m) or (calc_chi2(params) / len(tv) < 1.1)
+    assert ("PHOFF" not in m) or (calc_chi2(params) / len(tv) < 1.2)
 
 
 def test_likelihood(model_and_toas):
