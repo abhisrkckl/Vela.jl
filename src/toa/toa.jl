@@ -10,10 +10,12 @@ export TOA,
     phase_residual,
     correct_toa
 
+abstract type TOABase end
+
 """A single narrowband TOA observation.
 
 The TOA value incorporates the clock corrections computed using `PINT`."""
-struct TOA
+struct TOA <: TOABase
     value::GQ{1,Double64}
     error::GQ{1,Float64}
     observing_frequency::GQ{-1,Float64}
@@ -63,8 +65,10 @@ make_tzr_toa(tzrtdb, tzrfreq, tzrbary, tzrephem) = TOA(
     0,
 )
 
+abstract type CorrectedTOABase end
+
 """The accumulated timing & noise model corrections applied to a narrowband TOA."""
-struct CorrectedTOA
+struct CorrectedTOA <: CorrectedTOABase
     toa::TOA
     delay::GQ{1,Float64}
     phase::GQ{0,Double64}

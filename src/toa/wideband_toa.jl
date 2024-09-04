@@ -35,13 +35,13 @@ scaled_dm_error_sqr(cdminfo::CorrectedDMInfo) =
     cdminfo.dmefac
 
 """A single wideband TOA observation."""
-struct WidebandTOA
+struct WidebandTOA <: TOABase
     toa::TOA
     dminfo::DMInfo
 end
 
 """The accumulated timing & noise model corrections applied to a wideband TOA."""
-struct CorrectedWidebandTOA
+struct CorrectedWidebandTOA <: CorrectedTOABase
     corrected_toa::CorrectedTOA
     corrected_dminfo::CorrectedDMInfo
 end
