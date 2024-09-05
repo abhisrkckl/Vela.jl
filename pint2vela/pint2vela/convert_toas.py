@@ -94,5 +94,5 @@ def pint_wbtoa_to_vela(toas: TOAs, idx: int):
 
 def pint_toas_to_vela(toas: TOAs):
     p2v_toas = pint_wbtoa_to_vela if toas.is_wideband() else pint_toa_to_vela
-    TOAType = vl.WidebandTOA if toas.is_wideband() else pint_toa_to_vela
+    TOAType = vl.WidebandTOA if toas.is_wideband() else vl.TOA
     return jl.Vector[TOAType]([p2v_toas(toas, idx) for idx in range(len(toas))])
