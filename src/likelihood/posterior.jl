@@ -1,6 +1,6 @@
 export get_lnpost_func
 
-function get_lnpost_func(model::TimingModel, toas::Vector{TOA})
+function get_lnpost_func(model::TimingModel, toas::Vector{T}) where {T<:TOABase}
     lnlike_func = get_lnlike_func(model, toas)
     lnprior_func = get_lnprior_func(model)
 
