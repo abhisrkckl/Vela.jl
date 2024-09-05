@@ -19,6 +19,6 @@ function correct_toa(
     dm = dispersion_slope(dmcomp, cwtoa.corrected_toa, params)
     delay = dm / doppler_corrected_observing_frequency(cwtoa.corrected_toa)^Val(2)
     ctoa = correct_toa(cwtoa.corrected_toa; delay = delay)
-    cdminfo = correct_dminfo(cwtoa.corrected_dminfo; model_dm = dm)
+    cdminfo = correct_dminfo(cwtoa.corrected_dminfo; delta_dm = dm)
     return CorrectedWidebandTOA(ctoa, cdminfo)
 end
