@@ -22,3 +22,7 @@ function correct_toa(
     cdminfo = correct_dminfo(cwtoa.corrected_dminfo; delta_dm = dm)
     return CorrectedWidebandTOA(ctoa, cdminfo)
 end
+
+"""Update a `WidebandTOA` object using a timing model."""
+correct_toa(model::TimingModel, toa::WidebandTOA, params::NamedTuple) =
+    correct_toa(model, CorrectedWidebandTOA(toa), params)
