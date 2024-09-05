@@ -30,7 +30,6 @@
         ])
         @test all([modf(toa.pulse_number.x)[1] == 0 for toa in toas])
         @test all([toa.error > time(0.0) for toa in toas])
-
     end
 
     @testset "tzr_toa" begin
