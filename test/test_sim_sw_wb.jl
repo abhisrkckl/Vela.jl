@@ -6,6 +6,12 @@
         @test isfile("__test_wb.jlso")
     end
 
+    @testset "repr" begin
+        @test startswith(string(toas[1]), "WidebandTOA")
+        display(wtoas)
+        display(wtoas[1])
+    end
+
     @testset "read_toas" begin
         @test !any([wtoa.toa.tzr for wtoa in wtoas])
         @test length(wtoas) == 500
