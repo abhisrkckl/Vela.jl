@@ -24,6 +24,9 @@
 
     @test cwtoa1.corrected_toa.level == 0
 
+    @test dm_residual(cwtoa1.corrected_dminfo) == dminfo.value
+    @test scaled_dm_error_sqr(cwtoa1.corrected_dminfo) == dminfo.error^Val(2)
+
     ddm = GQ{-1}(1e14)
     cdminfo = cwtoa1.corrected_dminfo
     cdminfo2 = correct_dminfo(
