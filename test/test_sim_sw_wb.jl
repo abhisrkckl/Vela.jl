@@ -26,4 +26,68 @@
         @test all([modf(wtoa.toa.pulse_number.x)[1] == 0 for wtoa in wtoas])
         @test all([wtoa.toa.error > time(0.0) for wtoa in wtoas])
     end
+
+    @testset "param_handler" begin
+        param_handler = model.param_handler
+        @test Set(get_free_param_names(param_handler)) ==
+              Set(["F0", "F1", "PHOFF", "ELONG", "ELAT", "DM", "DM1", "NE_SW"])
+        @test length(param_handler.multi_params) + length(param_handler.single_params) ==
+              length(param_handler._default_params_tuple)
+        @test length(get_free_param_names(param_handler)) ==
+              length(param_handler._free_indices)
+        @test sizeof(param_handler._default_params_tuple) ==
+              sizeof(GQ{0,Float64}) * length(param_handler._default_values)
+
+        @test length(
+            read_param_values_to_vector(
+                model.param_handler,
+                model.param_handler._default_params_tuple,
+            ),
+        ) == length(param_handler._free_indices)
+
+        @test length(
+            read_param_values_to_vector(model, model.param_handler._default_params_tuple),
+        ) == length(param_handler._free_indices)
+
+        @test all(isfinite.(get_scale_factors(model))) &&
+              !any(iszero.(get_scale_factors(model)))
+    end
+
+    @testset "components" begin
+        components = model.components
+        @test length(components) == 5
+
+        @test isa(components[1], SolarSystem)
+        @test components[1].ecliptic_coordinates
+        @test components[1].planet_shapiro
+
+        @test isa(components[2], SolarWindDispersion)
+        # @test components[3].model == 0
+
+        @test isa(components[3], DispersionTaylor)
+
+        @test isa(components[4], Spindown)
+
+        @test isa(components[5], PhaseOffset)
+
+        # @test all([!isa(c, Troposphere) for c in components])
+    end
+
+    @testset "form_residuals" begin
+        params = model.param_handler._default_params_tuple
+        wres = form_residuals(model, wtoas, params)
+        @test all(abs(r[1]) < 3.5 * wtoa.toa.error for (r, wtoa) in zip(wres, wtoas))
+        @test all(abs(r[2]) < 3.5 * wtoa.dminfo.error for (r, wtoa) in zip(wres, wtoas))
+    end
+
+    @testset "calc_chi2" begin
+        calc_chi2_s = get_chi2_serial_func(model, wtoas)
+        calc_chi2_p = get_chi2_parallel_func(model, wtoas)
+        parv = read_param_values_to_vector(model.param_handler)
+        # parnp = PyArray(parv)
+        chi2_s = calc_chi2_s(parv)
+        chi2_p = calc_chi2_p(parv)
+        @test chi2_s / (2 * length(wtoas)) < 1.1
+        @test chi2_s ≈ chi2_p
+    end
 end
