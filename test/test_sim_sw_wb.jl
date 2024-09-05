@@ -7,7 +7,7 @@
     end
 
     @testset "repr" begin
-        @test startswith(string(toas[1]), "WidebandTOA")
+        @test startswith(string(wtoas[1]), "WidebandTOA")
         display(wtoas)
         display(wtoas[1])
     end
