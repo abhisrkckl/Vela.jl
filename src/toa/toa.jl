@@ -180,6 +180,6 @@ show(io::IO, toa::TOA) = print(
     io,
     "$(toa.tzr ? "TZR" : "")TOA[MJD:$(trunc(Int, toa.value.x/day_to_s)), Freq(MHz):$(trunc(Int, toa.observing_frequency.x/1e6))]",
 )
-show(io::IO, ::MIME"text/plain", toa::TOA) = show(io, toa)
+show(io::IO, ::MIME"text/plain", toa::TOABase) = show(io, toa)
 show(io::IO, toas::Vector{TOA}) = print(io, "[Vector containing $(length(toas)) TOAs.]")
-show(io::IO, ::MIME"text/plain", toas::Vector{TOA}) = show(io, toas)
+show(io::IO, ::MIME"text/plain", toas::Vector{T}) where {T<:TOABase} = show(io, toas)

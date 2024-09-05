@@ -48,6 +48,12 @@ struct WidebandTOA <: TOABase
     dminfo::DMInfo
 end
 
+show(io::IO, wtoa::WidebandTOA) = print(
+    io,
+    "WidebandTOA[MJD:$(trunc(Int, wtoa.toa.value.x/day_to_s)), Freq(MHz):$(trunc(Int, wtoa.toa.observing_frequency.x/1e6))]",
+)
+show(io::IO, toas::Vector{WidebandTOA}) = print(io, "[Vector containing $(length(toas)) wideband TOAs.]")
+
 """The accumulated timing & noise model corrections applied to a wideband TOA."""
 struct CorrectedWidebandTOA <: CorrectedTOABase
     corrected_toa::CorrectedTOA
