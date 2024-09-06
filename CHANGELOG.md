@@ -5,9 +5,17 @@
 - `BinaryDD`, `BinaryDDH`, `BinaryDDS`, and `BinaryELL1H` models
 - Doppler factor in `BinaryDD`
 - `get_free_param_labels()` function
-- Examples - `J0613-0200.sim`, `J1856-3754.sim`, `J1802-2124.sim`, `J0955-6150.sim`, `J1208-5936.sim`, `J2302+4442.sim`, `J1227-6208.sim`, `sim6`, `sim_dd`
+- Examples - `J0613-0200.sim`, `J1856-3754.sim`, `J1802-2124.sim`, `J0955-6150.sim`, `J1208-5936.sim`, `J2302+4442.sim`, `J1227-6208.sim`, `sim6`, `sim_dd`, `sim_sw.wb`
 - Test Python formatting using `black`
-- Use `BinaryDD` for par files with the BT model. 
+- Use `BinaryDD` for par files with the BT model.
+- Basic wideband timing implementation
+  - `TOABase` as the base type for `TOA` and `WidebandTOA`
+  - `WidebandTOA` as the composition of `TOA` and `DMInfo`. The latter contains DM measurement and error.
+  - `CorrectedTOABase` as the base type for `CorrectedTOA` and `CorrectedWidebandTOA`
+  - `CorrectedWidebandTOA` as the composition of `CorrectedTOA` and `CorrectedDMInfo`. The latter contains model DM and DM error.
+  - Methods of `correct_toa()`, `form_residual()`, `calc_chi2()`, `calc_lnlike()`, and `calc_lnpost()` that act on `WidebandTOA`s and relatives.
+  - `load_pulsar_data()` and `save_pulsar_data()` now work with wideband TOAs
+  - `pint2vela` can now read wideband TOAs.
 ## Changed
 - Exposed `cheat_prior_scale` and `custom_prior_dists` options in `read_model_and_toas()`
 - Made changes according to the `GeometricUnits` API changes (`GQ` now represents dimensions as a type parameter)
