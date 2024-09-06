@@ -17,6 +17,7 @@
   - `load_pulsar_data()` and `save_pulsar_data()` now work with wideband TOAs
   - `pint2vela` can now read wideband TOAs.
 - `degrees_of_freedom()` and `reduced_chi2()` functions
+- Wideband DM offsets (`DMJUMP`s)
 ## Changed
 - Exposed `cheat_prior_scale` and `custom_prior_dists` options in `read_model_and_toas()`
 - Made changes according to the `GeometricUnits` API changes (`GQ` now represents dimensions as a type parameter)
