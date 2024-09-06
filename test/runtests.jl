@@ -20,6 +20,46 @@ const obs_uranus_pos = distance.((9936.62957939, -3089.07377113, -1486.17339104)
 const obs_neptune_pos = distance.((11518.60924426, -9405.0693235, -4126.91030657))
 const obs_earth_pos = distance.((0.01199435, 0.01159591, -0.01316261))
 
+function default_ephem()
+    return SolarSystemEphemeris(
+        ssb_obs_pos,
+        ssb_obs_vel,
+        obs_sun_pos,
+        obs_jupiter_pos,
+        obs_saturn_pos,
+        obs_venus_pos,
+        obs_uranus_pos,
+        obs_neptune_pos,
+        obs_earth_pos,
+    )
+end
+
+function default_toa()
+    return TOA(
+        time(Double64(53470.0 * day_to_s)),
+        time(1e-6),
+        frequency(2.5e9),
+        dimensionless(Double64(0.0)),
+        false,
+        default_ephem(),
+        1,
+    )
+end
+
+function default_tzrtoa()
+    return make_tzr_toa(
+        time(Double64(53475.0 * day_to_s)),
+        frequency(2.5e9),
+        false,
+        default_ephem(),
+    )
+end
+
+function default_wbtoa()
+    dminfo = DMInfo(GQ{-1}(1e16), GQ{-1}(1e11))
+    return WidebandTOA(default_toa(), dminfo)
+end
+
 @testset "Vela" verbose = true begin
 
     include("test_ephemeris.jl")
