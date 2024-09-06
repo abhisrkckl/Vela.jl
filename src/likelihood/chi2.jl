@@ -1,4 +1,10 @@
-export calc_chi2, calc_lnlike, get_chi2_serial_func, get_chi2_parallel_func, get_chi2_func
+export calc_chi2,
+    calc_lnlike,
+    get_chi2_serial_func,
+    get_chi2_parallel_func,
+    get_chi2_func,
+    degrees_of_freedom,
+    calc_chi2_reduced
 
 function _chi2_term(model::TimingModel, toa::TOA, params::NamedTuple, tzrphase)
     ctoa = correct_toa(model, toa, params)
@@ -61,3 +67,14 @@ Serial or parallel execution is decided based on the number of available threads
 get_chi2_func(model, toas) =
     (nthreads() == 1) ? get_chi2_serial_func(model, toas) :
     get_chi2_parallel_func(model, toas)
+
+degrees_of_freedom(model::TimingModel, toas::Vector{TOA}) =
+    length(toas) - model.param_handler._nfree
+degrees_of_freedom(model::TimingModel, wtoas::Vector{WidebandTOA}) =
+    2 * length(wtoas) - model.param_handler._nfree
+
+calc_chi2_reduced(
+    model::TimingModel,
+    toas::Vector{T},
+    params::NamedTuple,
+) where {T<:TOABase} = calc_chi2(model, toas, params) / degrees_of_freedom(model, toas)
