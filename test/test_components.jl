@@ -93,49 +93,7 @@
 
     include("test_solarwind.jl")
 
-    @testset "DispersionTaylor" begin
-        dmt = DispersionTaylor()
-        @test dispersion_slope(dmt, ctoa, params) == params.DM[1]
-        @test delay(dmt, ctoa, params) ==
-              dispersion_slope(dmt, ctoa, params) / ctoa.toa.observing_frequency^Val(2)
-
-        @test @ballocated(delay($dmt, $ctoa, $params)) == 0
-
-        cwtoa1 = correct_toa(dmt, cwtoa, params)
-        @test cwtoa1.corrected_dminfo.model_dm == dispersion_slope(dmt, ctoa, params)
-    end
-
-    @testset "DispersionOffset" begin
-        jump_mask = BitMatrix([1 0 0; 0 1 0])
-        dmoff = DispersionOffset(jump_mask)
-
-        @test dispersion_slope(dmoff, ctzrtoa, params) == GQ{-1}(0.0)
-        @test dispersion_slope(dmoff, ctoa, params) == -params.FDJUMPDM[1]
-
-        @test @ballocated(delay($dmoff, $ctoa, $params)) == 0
-
-        display(dmoff)
-
-        jump_mask_ex = [1, 2, 0]
-        dmoff_ex = ExclusiveDispersionOffset(jump_mask_ex)
-
-        @test dispersion_slope(dmoff_ex, ctzrtoa, params) == GQ{-1}(0.0)
-        @test dispersion_slope(dmoff_ex, ctoa, params) == -params.FDJUMPDM[1]
-
-        toa1 = TOA(
-            time(Double64(53470.0 * day_to_s)),
-            time(1e-6),
-            frequency(2.5e9),
-            dimensionless(Double64(0.0)),
-            false,
-            ephem,
-            3,
-        )
-        ctoa1 = CorrectedTOA(toa1)
-        @test dispersion_slope(dmoff_ex, ctoa1, params) ≈ GQ{-1}(0.0)
-
-        display(dmoff_ex)
-    end
+    include("test_dispersion.jl")
 
     @testset "ChromaticTaylor" begin
         cmt = ChromaticTaylor()

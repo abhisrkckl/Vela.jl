@@ -1,33 +1,11 @@
 @testset "SolarWindDispersion" begin
-    ephem = SolarSystemEphemeris(
-        ssb_obs_pos,
-        ssb_obs_vel,
-        obs_sun_pos,
-        obs_jupiter_pos,
-        obs_saturn_pos,
-        obs_venus_pos,
-        obs_uranus_pos,
-        obs_neptune_pos,
-        obs_earth_pos,
-    )
-
-    toa = TOA(
-        time(Double64(53470.0 * day_to_s)),
-        time(1e-6),
-        frequency(2.5e9),
-        dimensionless(Double64(0.0)),
-        false,
-        ephem,
-        1,
-    )
+    toa = default_toa()
     ctoa = CorrectedTOA(toa)
 
-    tzrtoa =
-        make_tzr_toa(time(Double64(53475.0 * day_to_s)), frequency(2.5e9), false, ephem)
+    tzrtoa = default_tzrtoa()
     ctzrtoa = CorrectedTOA(tzrtoa)
 
-    dminfo = DMInfo(GQ{-1}(1e16), GQ{-1}(1e11))
-    wtoa = WidebandTOA(toa, dminfo)
+    wtoa = default_wbtoa()
     cwtoa = CorrectedWidebandTOA(wtoa)
 
     params = (
@@ -54,4 +32,6 @@
     @test cwtoa2.corrected_dminfo != cwtoa.corrected_dminfo
 
     @test @ballocated(correct_toa($swd, $cwtoa1, $params)) == 0
+
+    display(swd)
 end
