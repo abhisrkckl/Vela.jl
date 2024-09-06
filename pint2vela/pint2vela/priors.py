@@ -5,7 +5,7 @@ from pint.models.parameter import floatParameter, MJDParameter, AngleParameter
 
 from .vela import jl, vl
 from .convert_toas import day_to_s
-from .convert_parameters import pseudo_single_params
+from .convert_parameters import get_scale_factor, pseudo_single_params
 
 DEFAULT_PRIOR_DISTS = {
     "PHOFF": jl.Uniform(-0.5, 0.5),
@@ -26,9 +26,7 @@ def get_default_prior(
 
     param = model[param_name]
 
-    scale_factor = (
-        param.tcb2tdb_scale_factor if param.tcb2tdb_scale_factor is not None else 1
-    )
+    scale_factor = get_scale_factor(param)
 
     if param_name in custom_prior_dists:
         pdist = custom_prior_dists[param_name]
