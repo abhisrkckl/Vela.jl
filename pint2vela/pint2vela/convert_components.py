@@ -78,7 +78,7 @@ def pint_components_to_vela(model: TimingModel, toas: TOAs):
 
     if "DispersionJump" in component_names:
         dmjumps = list(
-            map(lambda pname: model[pname], model.components["FDJumpDM"].dm_jumps)
+            map(lambda pname: model[pname], model.components["DispersionJump"].dm_jumps)
         )
         masks0 = read_mask(toas, dmjumps)
         dmjump = (
