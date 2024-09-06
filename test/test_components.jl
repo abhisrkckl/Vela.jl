@@ -88,25 +88,7 @@
 
     include("test_wavex.jl")
 
-    @testset "BinaryELL1" begin
-        for use_fbx in [true, false]
-            ell1 = BinaryELL1(use_fbx)
-            display(ell1)
-            ctoa_1 = correct_toa(ell1, ctoa, params)
-            @test isfinite(ctoa_1.delay) && isfinite(ctoa_1.doppler)
-            @test @ballocated(correct_toa($ell1, $ctoa, $params)) == 0
-        end
-    end
-
-    @testset "BinaryELL1H" begin
-        for use_fbx in [true, false]
-            ell1h = BinaryELL1H(use_fbx)
-            display(ell1h)
-            ctoa_1 = correct_toa(ell1h, ctoa, params)
-            @test isfinite(ctoa_1.delay) && isfinite(ctoa_1.doppler)
-            @test @ballocated(correct_toa($ell1h, $ctoa, $params)) == 0
-        end
-    end
+    include("test_ell1.jl")
 
     @testset "BinaryDD" begin
         @testset "mikkola" begin
