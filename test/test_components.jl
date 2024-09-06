@@ -95,24 +95,9 @@
 
     include("test_dispersion.jl")
 
-    @testset "ChromaticTaylor" begin
-        cmt = ChromaticTaylor()
-        dmt = DispersionTaylor()
-        @test chromatic_slope(cmt, ctoa, params) == params.CM[1]
+    include("test_chromatic.jl")
 
-        # When TNCHROMIDX == 2, DM and CM that have equal numerical values
-        # in the par file must give equal delays. In our units, this corresponds
-        # to `value(DM) / value(CM) == 1e12`. See the `params` tuple above.
-        @test delay(dmt, ctoa, params) == delay(cmt, ctoa, params)
-
-        @test @ballocated(delay($cmt, $ctoa, $params)) == 0
-    end
-
-    @testset "FrequencyDependent" begin
-        fd = FrequencyDependent()
-        @test isfinite(delay(fd, ctoa, params))
-        @test @ballocated(delay($fd, $ctoa, $params)) == 0
-    end
+    include("test_fd.jl")
 
     @testset "WaveX" begin
         wx = WaveX()
