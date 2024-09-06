@@ -20,9 +20,16 @@ t.compute_pulse_numbers(m)
 res = Residuals(t, m)
 
 mv, tv = read_model_and_toas(parfile, timfile)
-rv = list(
-    map(vl.value, vl.form_residuals(mv, tv, mv.param_handler._default_params_tuple))
-)
+
+if not t.is_wideband():
+    rv = list(
+        map(vl.value, vl.form_residuals(mv, tv, mv.param_handler._default_params_tuple))
+    )
+else:
+    rv = [
+        vl.value(wr[0])
+        for wr in vl.form_residuals(mv, tv, mv.param_handler._default_params_tuple)
+    ]
 
 plt.errorbar(
     t.get_mjds(),
