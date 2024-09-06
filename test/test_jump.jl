@@ -34,7 +34,7 @@
         frequency(2.5e9),
         dimensionless(Double64(0.0)),
         false,
-        ephem,
+        default_ephem(),
         3,
     )
     ctoa1 = CorrectedTOA(toa1)
