@@ -89,30 +89,7 @@
         FD = (time(0.1), time(0.2)),
     )
 
-    @testset "SolarSystem" begin
-        ss = SolarSystem(true, true)
-        @test ss.ecliptic_coordinates && ss.planet_shapiro
-
-        ctoa1 = correct_toa(ss, ctoa, params)
-
-        @test @ballocated(correct_toa($ss, $ctoa, $params)) == 0
-
-        @test ctoa1.phase == ctoa.phase
-        @test ctoa1.delay != ctoa.delay
-        @test ctoa.doppler == 0 && ctoa1.doppler != 0
-        @test !ctoa.barycentered && ctoa1.barycentered
-        @test ctoa1.level == ctoa.level + 1
-
-        ctoa2 = correct_toa(ss, ctoa1, params)
-        @test (ctoa2.delay == ctoa1.delay) && (ctoa2.doppler == ctoa1.doppler)
-
-        cwtoa1 = correct_toa(ss, cwtoa, params)
-        @test cwtoa1.corrected_dminfo == cwtoa.corrected_dminfo
-
-        @test @ballocated(correct_toa($ss, $cwtoa, $params)) == 0
-
-        display(ss)
-    end
+    include("test_solarsystem.jl")
 
     @testset "SolarWindDispersion" begin
         swd = SolarWindDispersion()
