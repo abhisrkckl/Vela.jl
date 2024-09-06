@@ -73,8 +73,5 @@ degrees_of_freedom(model::TimingModel, toas::Vector{TOA}) =
 degrees_of_freedom(model::TimingModel, wtoas::Vector{WidebandTOA}) =
     2 * length(wtoas) - model.param_handler._nfree
 
-calc_chi2_reduced(
-    model::TimingModel,
-    toas::Vector{T},
-    params,
-) where {T<:TOABase} = calc_chi2(model, toas, params) / degrees_of_freedom(model, toas)
+calc_chi2_reduced(model::TimingModel, toas::Vector{T}, params) where {T<:TOABase} =
+    calc_chi2(model, toas, params) / degrees_of_freedom(model, toas)
