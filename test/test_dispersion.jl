@@ -86,7 +86,10 @@ end
 
     @test delay(dmjump, ctoa, params) == time(0.0)
 
-    @test @ballocated(delay($dmjump, $ctoa, $params)) == 0
+    cwtoa1 = correct_toa(dmjump, cwtoa, params)
+    @test cwtoa1.corrected_toa.delay == time(0.0)
+
+    @test @ballocated(correct_toa($dmjump, $cwtoa, $params)) == 0
 
     display(dmjump)
 
