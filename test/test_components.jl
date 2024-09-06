@@ -92,72 +92,11 @@
 
     include("test_dd.jl")
 
-    @testset "PhaseOffset" begin
-        poff = PhaseOffset()
-        @test phase(poff, ctoa, params) == dimensionless(-1e-6)
-        @test phase(poff, ctzrtoa, params) == dimensionless(0.0)
+    include("test_phoff.jl")
 
-        @test @ballocated(phase($poff, $ctoa, $params)) == 0
+    include("test_spindown.jl")
 
-        ctoa1 = correct_toa(poff, ctoa, params)
-        @test ctoa1.delay == ctoa.delay
-        @test ctoa1.phase ≈ ctoa.phase + phase(poff, ctoa, params)
-        @test ctoa1.efac == ctoa.efac
-        @test ctoa1.equad2 == ctoa.equad2
-        @test ctoa1.spin_frequency == ctoa.spin_frequency == frequency(0.0)
-
-        ctzrtoa1 = correct_toa(poff, ctzrtoa, params)
-        @test ctzrtoa1.delay == ctzrtoa.delay
-        @test ctzrtoa1.phase == ctzrtoa.phase
-        @test ctzrtoa1.efac == ctzrtoa.efac
-        @test ctzrtoa1.equad2 == ctzrtoa.equad2
-    end
-
-    @testset "Spindown" begin
-        spn = Spindown()
-        @test phase(spn, ctoa, params) == dimensionless(0.0)
-        @test spin_frequency(spn, ctoa, params) == frequency(100.0)
-
-        ctoa1 = correct_toa(spn, ctoa, params)
-        @test ctoa1.delay == ctoa.delay
-        @test ctoa1.phase == ctoa.phase + phase(spn, ctoa, params)
-        @test ctoa1.doppler == ctoa.doppler
-        @test ctoa.spin_frequency == frequency(0.0) && ctoa1.spin_frequency > frequency(0.0)
-
-        @ballocated(correct_toa($spn, $ctoa, $params)) == 0
-    end
-
-    @testset "PhaseJump" begin
-        jump_mask = BitMatrix([1 0 0; 0 1 0])
-        pjmp = PhaseJump(jump_mask)
-
-        @test phase(pjmp, ctzrtoa, params) == 0
-        @test phase(pjmp, ctoa, params) ≈ params.JUMP[1] * params.F_
-
-        @ballocated(phase($pjmp, $ctzrtoa, $params)) == 0
-
-        display(pjmp)
-
-        jump_mask_ex = [1, 2, 0]
-        pjmp_ex = ExclusivePhaseJump(jump_mask_ex)
-
-        @test phase(pjmp_ex, ctzrtoa, params) == 0
-        @test phase(pjmp_ex, ctoa, params) ≈ params.JUMP[1] * params.F_
-
-        toa1 = TOA(
-            time(Double64(53470.0 * day_to_s)),
-            time(1e-6),
-            frequency(2.5e9),
-            dimensionless(Double64(0.0)),
-            false,
-            ephem,
-            3,
-        )
-        ctoa1 = CorrectedTOA(toa1)
-        @test phase(pjmp_ex, ctoa1, params) ≈ dimensionless(0.0)
-
-        display(pjmp_ex)
-    end
+    inclide("test_jump.jl")
 
     # @testset "Troposphere" begin
     #     tropo = Troposphere()
