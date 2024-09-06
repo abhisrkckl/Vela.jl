@@ -20,6 +20,7 @@
 - Exposed `cheat_prior_scale` and `custom_prior_dists` options in `read_model_and_toas()`
 - Made changes according to the `GeometricUnits` API changes (`GQ` now represents dimensions as a type parameter)
 - Use the github version of `PINT` for testing
+- Split `test_components.jl` into multiple files.
 ## Fixed
 - Tests now handle par files without `PHOFF` properly.
 - Proper motion computation
