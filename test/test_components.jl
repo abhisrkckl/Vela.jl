@@ -46,20 +46,7 @@
         PMELONG = GQ{-1}(-5e-16),
         EFAC = (dimensionless(1.1),),
         JUMP = (time(1e-6), time(1.2e-6)),
-        WXEPOCH = time(53470.0 * day_to_s),
-        WXFREQ_ = (frequency(1e-9), frequency(2e-9), frequency(3e-9)),
-        WXSIN_ = (time(1.2e-6), time(5.1e-7), time(2.5e-7)),
-        WXCOS_ = (time(-1.3e-6), time(5.2e-7), time(2.6e-7)),
-        DMWXEPOCH = time(53470.0 * day_to_s),
-        DMWXFREQ_ = (frequency(1e-9), frequency(2e-9), frequency(3e-9)),
-        DMWXSIN_ = (GQ{-1}(1.2e+4), GQ{-1}(5.1e+3), GQ{-1}(2.5e+2)),
-        DMWXCOS_ = (GQ{-1}(-1.3e+4), GQ{-1}(5.2e+3), GQ{-1}(2.6e+3)),
-        CMWXEPOCH = time(53470.0 * day_to_s),
-        CMWXFREQ_ = (frequency(1e-9), frequency(2e-9), frequency(3e-9)),
-        CMWXSIN_ = (GQ{1}(1.2e+4), GQ{1}(5.1e+3), GQ{1}(2.5e+2)),
-        CMWXCOS_ = (GQ{1}(-1.3e+4), GQ{1}(5.2e+3), GQ{1}(2.6e+3)),
         NE_SW = GQ{-2}(1.6e8),
-        TNCHROMIDX = dimensionless(2.0),
         CMEPOCH = time(53470.0 * day_to_s),
         CM = (GQ{1}(4e4), GQ{0}(1e-1)),
         TASC = time(53470.0 * day_to_s),
@@ -99,23 +86,7 @@
 
     include("test_fd.jl")
 
-    @testset "WaveX" begin
-        wx = WaveX()
-        @test isfinite(delay(wx, ctoa, params))
-        @test @ballocated(delay($wx, $ctoa, $params)) == 0
-    end
-
-    @testset "DMWaveX" begin
-        dmwx = DMWaveX()
-        @test isfinite(delay(dmwx, ctoa, params))
-        @test @ballocated(delay($dmwx, $ctoa, $params)) == 0
-    end
-
-    @testset "CMWaveX" begin
-        cmwx = CMWaveX()
-        @test isfinite(delay(cmwx, ctoa, params))
-        @test @ballocated(delay($cmwx, $ctoa, $params)) == 0
-    end
+    include("test_wavex.jl")
 
     @testset "BinaryELL1" begin
         for use_fbx in [true, false]
