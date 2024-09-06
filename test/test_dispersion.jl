@@ -91,10 +91,10 @@ end
     display(dmjump)
 
     jump_mask_ex = [1, 2, 0]
-    dmjump_ex = ExclusiveDispersionOffset(jump_mask_ex)
+    dmjump_ex = ExclusiveDispersionJump(jump_mask_ex)
 
     @test dispersion_slope(dmjump_ex, ctzrtoa, params) == GQ{-1}(0.0)
-    @test dispersion_slope(dmjump_ex, ctoa, params) == -params.FDJUMPDM[1]
+    @test dispersion_slope(dmjump_ex, ctoa, params) == -params.DMJUMP[1]
 
     toa1 = TOA(
         time(Double64(53470.0 * day_to_s)),
