@@ -16,6 +16,7 @@
   - Methods of `correct_toa()`, `form_residual()`, `calc_chi2()`, `calc_lnlike()`, and `calc_lnpost()` that act on `WidebandTOA`s and relatives.
   - `load_pulsar_data()` and `save_pulsar_data()` now work with wideband TOAs
   - `pint2vela` can now read wideband TOAs.
+- `degrees_of_freedom()` and `reduced_chi2()` functions
 ## Changed
 - Exposed `cheat_prior_scale` and `custom_prior_dists` options in `read_model_and_toas()`
 - Made changes according to the `GeometricUnits` API changes (`GQ` now represents dimensions as a type parameter)

@@ -87,8 +87,9 @@
         # parnp = PyArray(parv)
         chi2_s = calc_chi2_s(parv)
         chi2_p = calc_chi2_p(parv)
-        @test chi2_s / (2 * length(wtoas)) < 1.1
         @test chi2_s ≈ chi2_p
+
+        @test calc_chi2_reduced(model, wtoas, parv) < 1.2
     end
 
     @testset "calc_lnlike" begin

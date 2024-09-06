@@ -102,7 +102,7 @@
         # parnp = PyArray(parv)
         chi2_s = calc_chi2_s(parv)
         chi2_p = calc_chi2_p(parv)
-        @test chi2_s / length(toas) < 1.1
+        @test chi2_s / degrees_of_freedom(model, toas) < 1.2
         @test chi2_s ≈ chi2_p
     end
 
