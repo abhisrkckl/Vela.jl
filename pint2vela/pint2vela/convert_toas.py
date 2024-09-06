@@ -1,6 +1,7 @@
 import numpy as np
 
 from pint.toa import TOAs
+from pint import DMconst
 
 from .vela import jl, vl, to_jldd
 
@@ -79,5 +80,19 @@ def pint_toa_to_vela(toas: TOAs, idx: int, tzr: bool = False):
     return vl.TOA(tdb, err, freq, phase, False, tzr, ephem, idx + 1)
 
 
+def pint_wbtoa_to_vela(toas: TOAs, idx: int):
+    assert toas.is_wideband()
+
+    vtoa = pint_toa_to_vela(toas, idx)
+
+    dm = vl.GQ[-1]((DMconst * toas.get_dms()[idx]).si.value)
+    dmerr = vl.GQ[-1]((DMconst * toas.get_dm_errors()[idx]).si.value)
+    dminfo = vl.DMInfo(dm, dmerr)
+
+    return vl.WidebandTOA(vtoa, dminfo)
+
+
 def pint_toas_to_vela(toas: TOAs):
-    return jl.Vector[vl.TOA]([pint_toa_to_vela(toas, idx) for idx in range(len(toas))])
+    p2v_toas = pint_wbtoa_to_vela if toas.is_wideband() else pint_toa_to_vela
+    TOAType = vl.WidebandTOA if toas.is_wideband() else vl.TOA
+    return jl.Vector[TOAType]([p2v_toas(toas, idx) for idx in range(len(toas))])

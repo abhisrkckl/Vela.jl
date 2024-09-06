@@ -1,50 +1,36 @@
-@testset "NGC6440E" begin
-    model, toas = Vela.load_pulsar_data("datafiles/NGC6440E.jlso")
+@testset "sim_sw.wb" begin
+    model, wtoas = Vela.load_pulsar_data("datafiles/sim_sw.wb.jlso")
 
     @testset "file save" begin
-        Vela.save_pulsar_data("__test.jlso", model, toas)
-        @test isfile("__test.jlso")
+        Vela.save_pulsar_data("__test_wb.jlso", model, wtoas)
+        @test isfile("__test_wb.jlso")
     end
 
-    @testset "copy" begin
-        m2 = TimingModel(
-            model.pulsar_name,
-            model.ephem,
-            model.clock,
-            model.units,
-            model.components,
-            model.param_handler,
-            model.tzr_toa,
-            model.priors,
-        )
+    @testset "repr" begin
+        @test startswith(string(wtoas[1]), "WidebandTOA")
+        display(wtoas)
+        display(wtoas[1])
     end
 
     @testset "read_toas" begin
-        @test !any([toa.tzr for toa in toas])
-        @test length(toas) == 62
+        @test !any([wtoa.toa.tzr for wtoa in wtoas])
+        @test length(wtoas) == 500
         @test all([
-            frequency(1e9) < toa.observing_frequency < frequency(2.5e9) for toa in toas
+            frequency(1.3e9) < wtoa.toa.observing_frequency < frequency(1.5e9) for
+            wtoa in wtoas
         ])
         @test all([
-            time(53470.0 * day_to_s) < toa.value < time(54200.0 * day_to_s) for toa in toas
+            time(53999.0 * day_to_s) < wtoa.toa.value < time(56001.0 * day_to_s) for
+            wtoa in wtoas
         ])
-        @test all([modf(toa.pulse_number.x)[1] == 0 for toa in toas])
-        @test all([toa.error > time(0.0) for toa in toas])
-    end
-
-    @testset "tzr_toa" begin
-        tzrtoa = model.tzr_toa
-        @test tzrtoa.tzr
-        @test tzrtoa.error > time(0.0)
-        @test tzrtoa.pulse_number == dimensionless(0.0)
-        @test frequency(1e9) < tzrtoa.observing_frequency < frequency(2.5e9)
-        @test time(53470.0 * day_to_s) < tzrtoa.value < time(54200.0 * day_to_s)
+        @test all([modf(wtoa.toa.pulse_number.x)[1] == 0 for wtoa in wtoas])
+        @test all([wtoa.toa.error > time(0.0) for wtoa in wtoas])
     end
 
     @testset "param_handler" begin
         param_handler = model.param_handler
         @test Set(get_free_param_names(param_handler)) ==
-              Set(["F0", "F1", "PHOFF", "RAJ", "DECJ", "DM"])
+              Set(["F0", "F1", "PHOFF", "ELONG", "ELAT", "DM", "DM1", "NE_SW"])
         @test length(param_handler.multi_params) + length(param_handler.single_params) ==
               length(param_handler._default_params_tuple)
         @test length(get_free_param_names(param_handler)) ==
@@ -69,56 +55,55 @@
 
     @testset "components" begin
         components = model.components
-        @test length(components) == 4
+        @test length(components) == 5
 
         @test isa(components[1], SolarSystem)
-        @test !components[1].ecliptic_coordinates
-        @test !components[1].planet_shapiro
+        @test components[1].ecliptic_coordinates
+        @test components[1].planet_shapiro
 
-        # @test isa(components[2], Troposphere)
-
-        #,@test isa(components[3], SolarWindDispersion)
+        @test isa(components[2], SolarWindDispersion)
         # @test components[3].model == 0
 
-        @test isa(components[2], DispersionTaylor)
+        @test isa(components[3], DispersionTaylor)
 
-        @test isa(components[3], Spindown)
+        @test isa(components[4], Spindown)
 
-        @test isa(components[4], PhaseOffset)
+        @test isa(components[5], PhaseOffset)
 
         # @test all([!isa(c, Troposphere) for c in components])
     end
 
     @testset "form_residuals" begin
         params = model.param_handler._default_params_tuple
-        res = form_residuals(model, toas, params)
-        @test all(abs(r) < 3 * toa.error for (r, toa) in zip(res, toas))
+        wres = form_residuals(model, wtoas, params)
+        @test all(abs(r[1]) < 3.5 * wtoa.toa.error for (r, wtoa) in zip(wres, wtoas))
+        @test all(abs(r[2]) < 3.5 * wtoa.dminfo.error for (r, wtoa) in zip(wres, wtoas))
     end
 
     @testset "calc_chi2" begin
-        calc_chi2_s = get_chi2_serial_func(model, toas)
-        calc_chi2_p = get_chi2_parallel_func(model, toas)
+        calc_chi2_s = get_chi2_serial_func(model, wtoas)
+        calc_chi2_p = get_chi2_parallel_func(model, wtoas)
         parv = read_param_values_to_vector(model.param_handler)
         # parnp = PyArray(parv)
         chi2_s = calc_chi2_s(parv)
         chi2_p = calc_chi2_p(parv)
-        @test chi2_s / length(toas) < 1.1
+        @test chi2_s / (2 * length(wtoas)) < 1.1
         @test chi2_s ≈ chi2_p
     end
 
     @testset "calc_lnlike" begin
-        calc_lnlike_s = get_lnlike_serial_func(model, toas)
-        calc_lnlike_p = get_lnlike_parallel_func(model, toas)
+        calc_lnlike_s = get_lnlike_serial_func(model, wtoas)
+        calc_lnlike_p = get_lnlike_parallel_func(model, wtoas)
         params = model.param_handler._default_params_tuple
         parv = read_param_values_to_vector(model)
         # parnp = PyArray(parv)
         @test calc_lnlike_s(parv) ≈ calc_lnlike_p(parv)
 
-        @test @ballocated(Vela.calc_lnlike_serial($model, $toas, $params)) == 0
+        @test @ballocated(Vela.calc_lnlike_serial($model, $wtoas, $params)) == 0
 
         parv1 = read_param_values_to_vector(model.param_handler, params)
         parv1[end] *= 2
-        @test calc_lnlike(model, toas, parv1) < calc_lnlike(model, toas, params)
+        @test calc_lnlike(model, wtoas, parv1) < calc_lnlike(model, wtoas, params)
     end
 
     @testset "priors" begin
@@ -128,7 +113,7 @@
         @test isfinite(calc_lnprior(model.param_handler._default_params_tuple))
         @test calc_lnprior(params) == calc_lnprior(parv)
 
-        calc_lnpost = get_lnpost_func(model, toas)
+        calc_lnpost = get_lnpost_func(model, wtoas)
         @test isfinite(calc_lnpost(params))
 
         prior_transform = get_prior_transform_func(model)

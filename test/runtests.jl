@@ -26,6 +26,8 @@ const obs_earth_pos = distance.((0.01199435, 0.01159591, -0.01316261))
 
     include("test_toa.jl")
 
+    include("test_wideband_toa.jl")
+
     include("test_param.jl")
 
     include("test_components.jl")
@@ -35,6 +37,8 @@ const obs_earth_pos = distance.((0.01199435, 0.01159591, -0.01316261))
     include("test_pure_rotator.jl")
 
     include("test_NGC6440E.jl")
+
+    include("test_sim_sw_wb.jl")
 
     @testset "formatting" begin
         @test format(Vela)

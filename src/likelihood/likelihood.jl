@@ -9,11 +9,20 @@ function _lnlike_term(model::TimingModel, toa::TOA, params::NamedTuple, tzrphase
     return value(tres * tres / err2) + norm
 end
 
-_lnlike_chunk(model::TimingModel, toas::Vector{TOA}, params, tzrphase, chunk) =
-    sum(ii -> _lnlike_term(model, toas[ii], params, tzrphase), chunk)
+_lnlike_chunk(
+    model::TimingModel,
+    toas::Vector{T},
+    params,
+    tzrphase,
+    chunk,
+) where {T<:TOABase} = sum(ii -> _lnlike_term(model, toas[ii], params, tzrphase), chunk)
 
 """Compute the log-likelihood value for a given timing model and collection of TOAs (parallel execution)."""
-function calc_lnlike(model::TimingModel, toas::Vector{TOA}, params::NamedTuple)
+function calc_lnlike(
+    model::TimingModel,
+    toas::Vector{T},
+    params::NamedTuple,
+) where {T<:TOABase}
     tzrphase = calc_tzr_phase(model, params)
     chunks = Iterators.partition(eachindex(toas), length(toas) ÷ nthreads())
     spawn_chunk(chunk) = @spawn _lnlike_chunk(model, toas, params, tzrphase, chunk)
@@ -22,24 +31,28 @@ function calc_lnlike(model::TimingModel, toas::Vector{TOA}, params::NamedTuple)
     return -result / 2
 end
 
-calc_lnlike(model::TimingModel, toas::Vector{TOA}, params) =
+calc_lnlike(model::TimingModel, toas::Vector{T}, params) where {T<:TOABase} =
     calc_lnlike(model, toas, read_params(model, params))
 
 """Compute the log-likelihood value for a given timing model and collection of TOAs (serial execution)."""
-function calc_lnlike_serial(model::TimingModel, toas::Vector{TOA}, params::NamedTuple)
+function calc_lnlike_serial(
+    model::TimingModel,
+    toas::Vector{T},
+    params::NamedTuple,
+) where {T<:TOABase}
     tzrphase = calc_tzr_phase(model, params)
     return -sum(toa -> _lnlike_term(model, toa, params, tzrphase), toas) / 2
 end
 
-calc_lnlike_serial(model::TimingModel, toas::Vector{TOA}, params) =
+calc_lnlike_serial(model::TimingModel, toas::Vector{T}, params) where {T<:TOABase} =
     calc_lnlike_serial(model, toas, read_params(model, params))
 
-function get_lnlike_serial_func(model::TimingModel, toas::Vector{TOA})
+function get_lnlike_serial_func(model::TimingModel, toas::Vector{T}) where {T<:TOABase}
     toas_ = copy(toas)
     params -> calc_lnlike_serial(model, toas_, params)
 end
 
-function get_lnlike_parallel_func(model::TimingModel, toas::Vector{TOA})
+function get_lnlike_parallel_func(model::TimingModel, toas::Vector{T}) where {T<:TOABase}
     toas_ = copy(toas)
     params -> calc_lnlike(model, toas_, params)
 end

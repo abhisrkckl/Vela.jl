@@ -26,6 +26,10 @@
         make_tzr_toa(time(Double64(53475.0 * day_to_s)), frequency(2.5e9), false, ephem)
     ctzrtoa = CorrectedTOA(tzrtoa)
 
+    dminfo = DMInfo(GQ{-1}(1e16), GQ{-1}(1e11))
+    wtoa = WidebandTOA(toa, dminfo)
+    cwtoa = CorrectedWidebandTOA(wtoa)
+
     params = (
         PHOFF = dimensionless(1e-6),
         PEPOCH = time(53470.0 * day_to_s),
@@ -102,6 +106,11 @@
         ctoa2 = correct_toa(ss, ctoa1, params)
         @test (ctoa2.delay == ctoa1.delay) && (ctoa2.doppler == ctoa1.doppler)
 
+        cwtoa1 = correct_toa(ss, cwtoa, params)
+        @test cwtoa1.corrected_dminfo == cwtoa.corrected_dminfo
+
+        @test @ballocated(correct_toa($ss, $cwtoa, $params)) == 0
+
         display(ss)
     end
 
@@ -113,6 +122,12 @@
         @test dispersion_slope(swd, ctoa1, params) != GQ{-1}(0.0)
 
         @test @ballocated(delay($swd, $ctoa1, $params)) == 0
+
+        cwtoa1 = correct_toa(ss, cwtoa, params)
+        cwtoa2 = correct_toa(swd, cwtoa1, params)
+        @test cwtoa2.corrected_dminfo != cwtoa.corrected_dminfo
+
+        @test @ballocated(correct_toa($swd, $cwtoa1, $params)) == 0
     end
 
     @testset "DispersionTaylor" begin
@@ -122,6 +137,9 @@
               dispersion_slope(dmt, ctoa, params) / ctoa.toa.observing_frequency^Val(2)
 
         @test @ballocated(delay($dmt, $ctoa, $params)) == 0
+
+        cwtoa1 = correct_toa(dmt, cwtoa, params)
+        @test cwtoa1.corrected_dminfo.model_dm == dispersion_slope(dmt, ctoa, params)
     end
 
     @testset "DispersionOffset" begin

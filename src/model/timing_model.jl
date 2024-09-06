@@ -55,7 +55,7 @@ get_scale_factors(model::TimingModel) = get_scale_factors(model.param_handler)
 
 @unroll function correct_toa(
     components::Tuple,
-    ctoa::CorrectedTOA,
+    ctoa::CorrectedTOABase,
     params::NamedTuple,
 )::CorrectedTOA
     ctoa1 = ctoa
@@ -67,7 +67,7 @@ end
 
 """Update a `CorrectedTOA` object using a timing model.
 This involves applying the correction from each component in succession."""
-correct_toa(model::TimingModel, ctoa::CorrectedTOA, params::NamedTuple) =
+correct_toa(model::TimingModel, ctoa::CorrectedTOABase, params::NamedTuple) =
     correct_toa(model.components, ctoa, params)
 
 """Update a `TOA` object using a timing model."""
