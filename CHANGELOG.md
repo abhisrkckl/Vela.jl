@@ -29,6 +29,7 @@
 - Default of `CorrectedTOA.spin_frequency`
 - Shapiro delay expression for `BinaryDDBase`
 - True anomaly computation in `DDState`
+- Scale factor computation in `get_default_prior()`
 ## Removed
 
 # [0.0.3] - 2024-08-22
