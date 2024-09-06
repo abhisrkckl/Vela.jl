@@ -2,6 +2,18 @@ export DispersionJump, ExclusiveDispersionJump
 
 abstract type DispersionJumpBase <: DispersionComponent end
 
+delay(::DispersionJumpBase, ::CorrectedTOA, ::NamedTuple) = time(0.0)
+
+function correct_toa(
+    dmjump::DispersionJumpBase,
+    cwtoa::CorrectedWidebandTOA,
+    params::NamedTuple,
+)
+    dm = dispersion_slope(dmjump, cwtoa.corrected_toa, params)
+    cdminfo = correct_dminfo(cwtoa.corrected_dminfo; delta_dm = dm)
+    return CorrectedWidebandTOA(cwtoa.corrected_toa, cdminfo)
+end
+
 """System-dependent wideband DM offsets (`DMJUMP`) with non-exclusive selection masks.
 Unlike an `FDJUMPDM`, a `DMJUMP` only provides a DM correction and no delay."""
 struct DispersionJump <: DispersionJumpBase
