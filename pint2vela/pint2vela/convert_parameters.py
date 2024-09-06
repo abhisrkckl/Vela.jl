@@ -22,7 +22,8 @@ def get_scale_factor(param):
     elif isinstance(param, MJDParameter):
         return 1
     elif param.name == "CM" or (
-        hasattr(param, "prefix") and param.prefix in ["CM", "CMWXSIN_", "CMWXCOS_"]
+        hasattr(param, "prefix")
+        and param.prefix in ["CM", "CMWXSIN_", "CMWXCOS_", "DMJUMP"]
     ):
         return DMconst
     elif hasattr(param, "prefix") and param.prefix in ["EFAC", "EQUAD", "ECORR", "FD"]:

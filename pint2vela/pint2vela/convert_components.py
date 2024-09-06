@@ -76,6 +76,18 @@ def pint_components_to_vela(model: TimingModel, toas: TOAs):
         )
         components.append(dmoff)
 
+    if "DispersionJump" in component_names:
+        dmjumps = list(
+            map(lambda pname: model[pname], model.components["DispersionJump"].dm_jumps)
+        )
+        masks0 = read_mask(toas, dmjumps)
+        dmjump = (
+            vl.ExclusiveDispersionJump(jl.Vector[jl.UInt](get_exclusive_mask(masks0)))
+            if is_exclusive_mask(masks0)
+            else vl.DispersionJump(jl.BitMatrix(masks0))
+        )
+        components.append(dmjump)
+
     if "ChromaticCM" in component_names:
         components.append(vl.ChromaticTaylor())
 

@@ -18,6 +18,7 @@ datasets = [
     "sim_sw",
     "sim_sw.wb",
     "sim_fdjumpdm",
+    "sim_dmjump",
     "sim_cm",
     "sim3",
     "sim4",
