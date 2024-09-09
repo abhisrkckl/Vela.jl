@@ -18,6 +18,7 @@
   - `pint2vela` can now read wideband TOAs.
 - `degrees_of_freedom()` and `reduced_chi2()` functions
 - Wideband DM offsets (`DMJUMP`s)
+- `DispersionMeasurementNoise` component (`DMEFAC`s and `DMEQUAD`s) for wideband data
 ## Changed
 - Exposed `cheat_prior_scale` and `custom_prior_dists` options in `read_model_and_toas()`
 - Made changes according to the `GeometricUnits` API changes (`GQ` now represents dimensions as a type parameter)
