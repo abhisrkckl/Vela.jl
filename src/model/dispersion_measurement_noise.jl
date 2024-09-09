@@ -24,7 +24,7 @@ function dmequad2(
     params::NamedTuple,
 )
     idx = dwn.dmequad_index_mask[cwtoa.corrected_toa.toa.index]
-    return (idx == 0) ? GQ{2}(0.0) : params.DMEQUAD[idx]^Val(2)
+    return (idx == 0) ? GQ{-2}(0.0) : params.DMEQUAD[idx]^Val(2)
 end
 
 """Apply DMEFAC and DMEQUAD to a TOA."""
