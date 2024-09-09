@@ -153,6 +153,40 @@ def pint_components_to_vela(model: TimingModel, toas: TOAs):
 
         components.append(vl.MeasurementNoise(efac_mask, equad_mask))
 
+    if "ScaleDmError" in component_names:
+        dmefac_mask0 = read_mask(
+            toas,
+            [
+                model[dmef]
+                for dmef in model.DMEFACs
+                if model.DMEFACs[dmef][0] is not None
+            ],
+        )
+        dmequad_mask0 = read_mask(
+            toas,
+            [
+                model[dmeq]
+                for dmeq in model.DMEQUADs
+                if model.DMEQUADs[dmeq][0] is not None
+            ],
+        )
+
+        assert len(dmefac_mask0) == 0 or is_exclusive_mask(dmefac_mask0)
+        assert len(dmequad_mask0) == 0 or is_exclusive_mask(dmequad_mask0)
+
+        dmefac_mask = (
+            jl.Vector[jl.UInt](get_exclusive_mask(dmefac_mask0))
+            if len(dmefac_mask0) > 0
+            else jl.Vector[jl.UInt](np.zeros(len(toas)))
+        )
+        dmequad_mask = (
+            jl.Vector[jl.UInt](get_exclusive_mask(dmequad_mask0))
+            if len(dmequad_mask0) > 0
+            else jl.Vector[jl.UInt](np.zeros(len(toas)))
+        )
+
+        components.append(vl.DispersionMeasurementNoise(dmefac_mask, dmequad_mask))
+
     components = jl.Tuple(components)
 
     return components
