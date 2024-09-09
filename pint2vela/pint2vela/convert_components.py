@@ -107,6 +107,17 @@ def pint_components_to_vela(model: TimingModel, toas: TOAs):
             components.append(vl.BinaryDDH(use_fbx))
         elif "BinaryDDS" in component_names:
             components.append(vl.BinaryDDS(use_fbx))
+        elif "BinaryDDK" in component_names:
+            assert (
+                "AstrometryEcliptic" in component_names
+                or "AstrometryEquatorial" in component_names
+            )
+            ecliptic_coords = "AstrometryEcliptic" in component_names
+            components.append(vl.BinaryDDK(use_fbx, ecliptic_coords))
+        else:
+            raise NotImplementedError(
+                f"BINARY {model.BINARY.value} not (yet?) implemented."
+            )
 
     if "FD" in component_names:
         components.append(vl.FrequencyDependent())
