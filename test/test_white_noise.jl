@@ -33,6 +33,8 @@ end
 
     @ballocated(correct_toa($dmwn, $cwtoa, $params)) == 0
 
+    @test correct_toa(dmwn, cwtoa.corrected_toa, params) == cwtoa.corrected_toa
+
     @test cwtoa1.corrected_toa.delay == cwtoa.corrected_toa.delay
     @test cwtoa1.corrected_toa.phase == cwtoa.corrected_toa.phase
     @test cwtoa1.corrected_toa.doppler == cwtoa.corrected_toa.doppler
