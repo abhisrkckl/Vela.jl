@@ -13,6 +13,7 @@ datasets = [
     "NGC6440E",
     "pure_rotator",
     "sim1",
+    "sim_dmwn",
     "sim_jump",
     "sim_jump_ex",
     "sim_sw",

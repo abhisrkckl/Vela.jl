@@ -21,14 +21,22 @@ def get_scale_factor(param):
         return param.tcb2tdb_scale_factor
     elif isinstance(param, MJDParameter):
         return 1
-    elif param.name == "CM" or (
+    elif param.name in ["CM"] or (
         hasattr(param, "prefix")
-        and param.prefix in ["CM", "CMWXSIN_", "CMWXCOS_", "DMJUMP"]
+        and param.prefix in ["CM", "CMWXSIN_", "CMWXCOS_", "DMJUMP", "DMEQUAD"]
     ):
         return DMconst
-    elif hasattr(param, "prefix") and param.prefix in ["EFAC", "EQUAD", "ECORR", "FD"]:
-        return 1
-    elif param.name == "TNCHROMIDX":
+    elif param.name in ["TNCHROMIDX"] or (
+        hasattr(param, "prefix")
+        and param.prefix
+        in [
+            "EFAC",
+            "EQUAD",
+            "ECORR",
+            "FD",
+            "DMEFAC",
+        ]
+    ):
         return 1
     else:
         raise ValueError(f"Unable to estimate scale factor for {param.name}.")

@@ -5,7 +5,7 @@
 - `BinaryDD`, `BinaryDDH`, `BinaryDDS`, and `BinaryELL1H` models
 - Doppler factor in `BinaryDD`
 - `get_free_param_labels()` function
-- Examples - `J0613-0200.sim`, `J1856-3754.sim`, `J1802-2124.sim`, `J0955-6150.sim`, `J1208-5936.sim`, `J2302+4442.sim`, `J1227-6208.sim`, `sim6`, `sim_dd`, `sim_sw.wb`, `sim_dmjump`
+- Examples - `J0613-0200.sim`, `J1856-3754.sim`, `J1802-2124.sim`, `J0955-6150.sim`, `J1208-5936.sim`, `J2302+4442.sim`, `J1227-6208.sim`, `sim6`, `sim_dd`, `sim_sw.wb`, `sim_dmjump`, `sim_dmwn`
 - Test Python formatting using `black`
 - Use `BinaryDD` for par files with the BT model.
 - Basic wideband timing implementation
@@ -18,6 +18,7 @@
   - `pint2vela` can now read wideband TOAs.
 - `degrees_of_freedom()` and `reduced_chi2()` functions
 - Wideband DM offsets (`DMJUMP`s)
+- `DispersionMeasurementNoise` component (`DMEFAC`s and `DMEQUAD`s) for wideband data
 ## Changed
 - Exposed `cheat_prior_scale` and `custom_prior_dists` options in `read_model_and_toas()`
 - Made changes according to the `GeometricUnits` API changes (`GQ` now represents dimensions as a type parameter)
