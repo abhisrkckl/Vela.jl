@@ -7,8 +7,8 @@ end
 
 function DDState(ddk::BinaryDDK, ctoa::CorrectedTOA, params::NamedTuple)
     Δt = corrected_toa_value(ctoa) - params.T0
-    n = mean_motion(Δt, params, dd.use_fbx)
-    l = mean_anomaly(Δt, params, dd.use_fbx)
+    n = mean_motion(Δt, params, ddk.use_fbx)
+    l = mean_anomaly(Δt, params, ddk.use_fbx)
 
     et = params.ECC + Δt * params.EDOT
 
@@ -77,7 +77,7 @@ function kopeikin_corrections(dt, x, ι, Ω, μα, μδ, px, ssb_obs_pos, ssb_ps
     cscι = 1 / sinι
 
     δι_pm = (-μα * sinΩ + μδ * cosΩ) * dt
-    δx_pm = x * cotι * δι
+    δx_pm = x * cotι * δι_pm
     δω_pm = cscι * (μα * cosΩ + μδ * sinΩ) * dt
 
     I0, J0 = kopeikin_I0_J0(ssb_psr_pos)
