@@ -43,7 +43,7 @@ function DDState(dd::BinaryDDBase, ctoa::CorrectedTOA, params::NamedTuple)
 
     m2, sini = shapiro_delay_params(dd, params)
 
-    return DDState((α, β, γ), sincos(u), et, er, a1, n, m2, sini)
+    return DDState((α, β, γ), (sinu, cosu), et, er, a1, n, m2, sini)
 end
 
 function rømer_einstein_delay(::BinaryDDBase, state::DDState)::GQ
