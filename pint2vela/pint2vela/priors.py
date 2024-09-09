@@ -13,6 +13,7 @@ DEFAULT_PRIOR_DISTS = {
     "EQUAD": jl.Uniform(0.0, 1e-4),
     "SINI": jl.Uniform(0.0, 1.0),
     "STIGMA": jl.Uniform(0.0, 1.0),
+    "DMEFAC": jl.Uniform(0.1, 5.0),
 }
 
 
