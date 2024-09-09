@@ -41,6 +41,21 @@ function correct_toa(
     return CorrectedWidebandTOA(cwtoa.corrected_toa, cdminfo)
 end
 
+function correct_toa(
+    dwn::DispersionMeasurementNoise,
+    cwtoa::CorrectedWidebandTOA,
+    params::NamedTuple,
+)
+    cdminfo = correct_dminfo(
+        cwtoa.corrected_dminfo;
+        dmefac = dmefac(dwn, cwtoa, params),
+        dmequad2 = dmequad2(dwn, cwtoa, params),
+    )
+    return CorrectedWidebandTOA(cwtoa.corrected_toa, cdminfo)
+end
+
+correct_toa(::DispersionMeasurementNoise, ctoa::CorrectedTOA, ::NamedTuple) = ctoa
+
 function show(io::IO, dwn::DispersionMeasurementNoise)
     num_dmefacs = length(filter(x -> x > 0, unique(dwn.dmefac_index_mask)))
     num_dmequads = length(filter(x -> x > 0, unique(dwn.dmequad_index_mask)))
