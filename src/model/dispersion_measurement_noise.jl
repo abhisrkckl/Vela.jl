@@ -41,19 +41,6 @@ function correct_toa(
     return CorrectedWidebandTOA(cwtoa.corrected_toa, cdminfo)
 end
 
-function correct_toa(
-    dwn::DispersionMeasurementNoise,
-    cwtoa::CorrectedWidebandTOA,
-    params::NamedTuple,
-)
-    cdminfo = correct_dminfo(
-        cwtoa.corrected_dminfo;
-        dmefac = dmefac(dwn, cwtoa, params),
-        dmequad2 = dmequad2(dwn, cwtoa, params),
-    )
-    return CorrectedWidebandTOA(cwtoa.corrected_toa, cdminfo)
-end
-
 correct_toa(::DispersionMeasurementNoise, ctoa::CorrectedTOA, ::NamedTuple) = ctoa
 
 function show(io::IO, dwn::DispersionMeasurementNoise)
