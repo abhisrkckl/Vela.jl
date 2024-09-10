@@ -20,8 +20,8 @@ function DDState(ddk::BinaryDDK, ctoa::CorrectedTOA, params::NamedTuple)
 
     ηϕ = sqrt(1 - eϕ * eϕ)
 
-    βφ = (1 - ηϕ) / eϕ
-    v_u = 2 * atan(βφ * sinu, 1 - βφ * cosu)
+    βϕ = (1 - ηϕ) / eϕ
+    v_u = 2 * atan(βϕ * sinu, 1 - βϕ * cosu)
     v = v_u + u
 
     μα, μδ = proper_motion(params, ddk.ecliptic_coordinates)
@@ -60,8 +60,8 @@ proper_motion(params::NamedTuple, ecliptic_coordinates::Bool)::NTuple{2,GQ{-1,Fl
 function kopeikin_I0_J0(ssb_psr_pos)
     sinδ = ssb_psr_pos[3]
     cosδ = sqrt(1 - sinδ * sinδ)
-    cosα = ssb_psr_pos[1] / sinδ
-    sinα = ssb_psr_pos[2] / sinδ
+    cosα = ssb_psr_pos[1] / cosδ
+    sinα = ssb_psr_pos[2] / cosδ
 
     I0 = (-sinα, cosα, zero(sinα))
     J0 = (-cosα * sinδ, -sinα * sinδ, cosδ)
