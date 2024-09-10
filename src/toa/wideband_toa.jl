@@ -6,7 +6,12 @@ export DMInfo,
     WidebandTOA,
     CorrectedWidebandTOA
 
-"""DM information associated with a wideband TOA."""
+"""DM information associated with a wideband TOA.
+
+References:
+    [Pennucci+ 2014](http://doi.org/10.1088/0004-637X/790/2/93)
+    [Pennucci 2019](http://doi.org/10.3847/1538-4357/aaf6ef)
+"""
 struct DMInfo
     value::GQ{-1,Float64}
     error::GQ{-1,Float64}
@@ -42,7 +47,16 @@ scaled_dm_error_sqr(cdminfo::CorrectedDMInfo) =
     cdminfo.dmefac *
     cdminfo.dmefac
 
-"""A single wideband TOA observation."""
+"""A single wideband TOA observation.
+
+`toa.value` incorporates the clock corrections and `toa.ephem` contains the 
+solar system ephemerides. These are computed using `PINT`.
+
+References:
+    [Pennucci+ 2014](http://doi.org/10.1088/0004-637X/790/2/93)
+    [Pennucci 2019](http://doi.org/10.3847/1538-4357/aaf6ef)
+    [Luo+ 2021](http://doi.org/10.3847/1538-4357/abe62f)
+"""
 struct WidebandTOA <: TOABase
     toa::TOA
     dminfo::DMInfo

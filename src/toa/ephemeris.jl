@@ -2,7 +2,12 @@ export SolarSystemEphemeris
 
 """Struct containing solar system ephemeris vectors corresponding to a TOA.
 
-These are computed using PINT."""
+These are computed using PINT.
+
+References:
+    [Hobbs+ 2006](http://doi.org/10.1111/j.1365-2966.2006.10302.x)
+    [Luo+ 2021](http://doi.org/10.3847/1538-4357/abe62f)
+"""
 struct SolarSystemEphemeris
     ssb_obs_pos::NTuple{3,GQ{1,Float64}}
     ssb_obs_vel::NTuple{3,GQ{0,Float64}}
