@@ -13,7 +13,11 @@ mean_motion(Δt::GQ, params::NamedTuple, use_fbx::Bool) =
 
 SinCos = NTuple{2,GQ{0,Float64}}
 
-"""Solves the Kepler equation using Mikkola's method."""
+"""Solves the Kepler equation using Mikkola's method.
+
+Reference:
+    [Mikkola 1987](https://doi.org/10.1007/BF01235850)
+"""
 function mikkola(l, e)
     if iszero(e) || iszero(l)
         return l
