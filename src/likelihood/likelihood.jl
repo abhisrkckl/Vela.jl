@@ -17,7 +17,12 @@ _lnlike_chunk(
     chunk,
 ) where {T<:TOABase} = sum(ii -> _lnlike_term(model, toas[ii], params, tzrphase), chunk)
 
-"""Compute the log-likelihood value for a given timing model and collection of TOAs (parallel execution)."""
+"""Compute the log-likelihood value for a given timing model and collection of TOAs 
+(parallel execution).
+
+Reference:
+    [Lentati+ 2014](https://doi.org/10.1093/mnras/stt2122)
+"""
 function calc_lnlike(
     model::TimingModel,
     toas::Vector{T},
@@ -34,7 +39,12 @@ end
 calc_lnlike(model::TimingModel, toas::Vector{T}, params) where {T<:TOABase} =
     calc_lnlike(model, toas, read_params(model, params))
 
-"""Compute the log-likelihood value for a given timing model and collection of TOAs (serial execution)."""
+"""Compute the log-likelihood value for a given timing model and collection of TOAs 
+(serial execution).
+
+Reference:
+    [Lentati+ 2014](https://doi.org/10.1093/mnras/stt2122)
+"""
 function calc_lnlike_serial(
     model::TimingModel,
     toas::Vector{T},
@@ -58,7 +68,18 @@ function get_lnlike_parallel_func(model::TimingModel, toas::Vector{T}) where {T<
 end
 
 """Get the log_likelihood(params) function for a given timing model and collection of TOAs.
-Serial or parallel execution is decided based on the number of available threads."""
+Serial or parallel execution is decided based on the number of available threads.
+
+Supports both narrowband and wideband TOAs.
+
+Use `get_lnlike_serial_func(model, toas)` to force serial execution of the likelihood. 
+The serial version should be used if parallelization is to be implemented at a different level 
+(e.g., within the sampling method).
+
+Reference:
+    [Lentati+ 2014](https://doi.org/10.1093/mnras/stt2122)
+    [Alam+ 2021](http://doi.org/10.3847/1538-4365/abc6a1)
+"""
 get_lnlike_func(model, toas) =
     (nthreads() == 1) ? get_lnlike_serial_func(model, toas) :
     get_lnlike_parallel_func(model, toas)
