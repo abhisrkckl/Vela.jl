@@ -63,7 +63,14 @@ function get_chi2_parallel_func(model::TimingModel, toas::Vector{T}) where {T<:T
 end
 
 """Get the χ^2(params) function for a given timing model and collection of TOAs.
-Serial or parallel execution is decided based on the number of available threads."""
+Serial or parallel execution is decided based on the number of available threads.
+
+Supports both narrowband and wideband TOAs.
+
+Reference:
+    [Hobbs+ 2006](http://doi.org/10.1111/j.1365-2966.2006.10302.x)
+    [Alam+ 2021](http://doi.org/10.3847/1538-4365/abc6a1)
+"""
 get_chi2_func(model, toas) =
     (nthreads() == 1) ? get_chi2_serial_func(model, toas) :
     get_chi2_parallel_func(model, toas)

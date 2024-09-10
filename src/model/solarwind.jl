@@ -17,7 +17,11 @@ end
 abstract type SolarWind <: DispersionComponent end
 
 """Solar wind model assuming a spherically symmetric distribution of electrons which
-falls off as an inverse-square function of the distance from the Sun."""
+falls off as an inverse-square function of the distance from the Sun.
+
+Reference:
+    [Edwards+ 2006](http://doi.org/10.1111/j.1365-2966.2006.10870.x)
+"""
 struct SolarWindDispersion <: SolarWind end
 
 function dispersion_slope(::SolarWindDispersion, ctoa::CorrectedTOA, params::NamedTuple)::GQ

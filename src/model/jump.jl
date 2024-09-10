@@ -2,7 +2,11 @@ export PhaseJump, ExclusivePhaseJump
 
 abstract type PhaseJumpBase <: PhaseComponent end
 
-"""System-dependent phase jumps with non-exclusive selection masks."""
+"""System-dependent phase jumps with non-exclusive selection masks.
+
+Reference:
+    [Hobbs+ 2006](http://doi.org/10.1111/j.1365-2966.2006.10302.x)
+"""
 struct PhaseJump <: PhaseJumpBase
     jump_mask::BitMatrix
 end

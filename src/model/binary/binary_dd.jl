@@ -1,5 +1,10 @@
 export BinaryDD
 
+"""The Damour & Deruelle binary model for eccentric binaries.
+
+Reference:
+    [Damour & Deruelle 1986](https://ui.adsabs.harvard.edu/abs/1986AIHPA..44..263D/abstract)
+"""
 struct BinaryDD <: BinaryDDBase
     use_fbx::Bool
 end

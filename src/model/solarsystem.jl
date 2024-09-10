@@ -16,7 +16,12 @@ const M_NEPTUNE = mass(2.5373119991867603e-10)
 
 """Solar system Rømer delay, Parallax delay, and Shapiro delay.
 
-Corresponds to `AstrometryEquatorial`, `AstrometryEcliptic`, and `SolarSystemShapiro` in `PINT`."""
+Corresponds to `AstrometryEquatorial`, `AstrometryEcliptic`, 
+and `SolarSystemShapiro` in `PINT`.
+
+Reference:
+    [Edwards+ 2006](http://doi.org/10.1111/j.1365-2966.2006.10870.x)
+"""
 struct SolarSystem <: KinematicDelayComponent
     ecliptic_coordinates::Bool
     planet_shapiro::Bool
@@ -31,6 +36,12 @@ function solar_system_shapiro_delay(M::GQ, obs_obj_pos::Tuple, obj_psr_pos::Tupl
     return -2 * M * log((r - Lhat_dot_rvec) / AU)
 end
 
+
+"""Evaluate proper motion assuming uniform linear motion of the pulsar.
+
+Reference:
+    [Gaia Data Release Documentation](https://gea.esac.esa.int/archive/documentation/GDR2/Data_processing/chap_cu3ast/sec_cu3ast_intro/ssec_cu3ast_intro_motion.html)
+"""
 function evaluate_proper_motion(α0, δ0, pmα, pmδ, dt)
     sinα0, cosα0 = sincos(α0)
     sinδ0, cosδ0 = sincos(δ0)

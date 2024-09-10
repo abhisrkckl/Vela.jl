@@ -92,7 +92,7 @@ end
 
 """Create a parameter tuple from a collection of free parameter values.
 
-Reverse of `read_param_values_to_vector`.
+Reverse of `read_param_values_to_vector()`.
 """
 function read_params(
     ph::ParamHandler{ParamsType},
@@ -128,7 +128,7 @@ function get_free_param_names(param_handler::ParamHandler)::Vector{String}
     return pnames
 end
 
-"""Generate an ordered collection of free parameter names."""
+"""Generate an ordered collection of free parameter labels."""
 function get_free_param_labels(
     param_handler::ParamHandler;
     delim::String = "\n",
@@ -162,7 +162,7 @@ end
 
 """Generate a collection of free parameter values from a parameter tuple.
 
-Reverse of `read_params`
+Reverse of `read_params()`
 """
 function read_param_values_to_vector(
     param_handler::ParamHandler,
@@ -189,6 +189,8 @@ end
 read_param_values_to_vector(param_handler::ParamHandler) =
     read_param_values_to_vector(param_handler, param_handler._default_params_tuple)
 
+"""Get the scale factors that convert the free parameters from `Vela.jl`'s 
+internal representation to the units used in `PINT`."""
 function get_scale_factors(param_handler::ParamHandler)
     scale_factors = Float64[]
 

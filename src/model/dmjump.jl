@@ -15,7 +15,12 @@ function correct_toa(
 end
 
 """System-dependent wideband DM offsets (`DMJUMP`) with non-exclusive selection masks.
-Unlike an `FDJUMPDM`, a `DMJUMP` only provides a DM correction and no delay."""
+
+Unlike an `FDJUMPDM`, a `DMJUMP` only provides a DM correction and no delay.
+
+Reference:
+    [Alam+ 2021](http://doi.org/10.3847/1538-4365/abc6a1)
+"""
 struct DispersionJump <: DispersionJumpBase
     jump_mask::BitMatrix
 end

@@ -1,6 +1,21 @@
-"""The abstract base type for all binary models representing eccentric orbits."""
+"""The abstract base type for all binary models representing eccentric orbits.
+
+Reference:
+    [Damour & Deruelle 1985](https://ui.adsabs.harvard.edu/abs/1985AIHPA..43..107D/abstract)
+"""
 abstract type BinaryDDBase <: BinaryComponent end
 
+"""The instantaneous state of an eccentric binary.
+
+Contains the various quantities required to compute the binary delays for the 
+"Damour & Deruelle (DD)" family of binary models. This is used to avoid unnecessarily 
+repeating these computations.
+
+Reference:
+    [Damour & Deruelle 1985](https://ui.adsabs.harvard.edu/abs/1985AIHPA..43..107D/abstract),
+    [Damour & Deruelle 1986](https://ui.adsabs.harvard.edu/abs/1986AIHPA..44..263D/abstract),
+    [Königsdörffer & Gopakumar 2006](https://doi.org/10.1103/PhysRevD.73.124012)
+"""
 struct DDState
     rømer_einstein_coeffs::NTuple{3,GQ{1,Float64}}
     sincosu::SinCos
@@ -46,6 +61,11 @@ function DDState(dd::BinaryDDBase, ctoa::CorrectedTOA, params::NamedTuple)
     return DDState((α, β, γ), (sinu, cosu), et, er, a1, n, m2, sini)
 end
 
+"""The Rømer and Einstein delays due to an eccentric binary orbit.
+
+Reference:
+    [Damour & Deruelle 1986](https://ui.adsabs.harvard.edu/abs/1986AIHPA..44..263D/abstract)
+"""
 function rømer_einstein_delay(::BinaryDDBase, state::DDState)::GQ
     sinu, cosu = state.sincosu
     er = state.er
@@ -54,6 +74,12 @@ function rømer_einstein_delay(::BinaryDDBase, state::DDState)::GQ
     return α * (cosu - er) + (β + γ) * sinu
 end
 
+"""The derivative of the Rømer and Einstein delays due to an eccentric binary orbit with respect
+to the eccentric anomaly. Needed for evaluating the inverse timing formula.
+
+Reference:
+    [Damour & Deruelle 1986](https://ui.adsabs.harvard.edu/abs/1986AIHPA..44..263D/abstract)
+"""
 function d_rømer_einstein_delay_d_u(::BinaryDDBase, state::DDState)::GQ
     sinu, cosu = state.sincosu
     er = state.er
@@ -62,6 +88,12 @@ function d_rømer_einstein_delay_d_u(::BinaryDDBase, state::DDState)::GQ
     return -α * sinu + (β + γ) * cosu
 end
 
+"""The second derivative of the Rømer and Einstein delays due to an eccentric binary orbit with respect
+to the eccentric anomaly. Needed for evaluating the inverse timing formula.
+
+Reference:
+    [Damour & Deruelle 1986](https://ui.adsabs.harvard.edu/abs/1986AIHPA..44..263D/abstract)
+"""
 function d2_rømer_einstein_delay_d_u2(::BinaryDDBase, state::DDState)::GQ
     sinu, cosu = state.sincosu
     er = state.er
@@ -70,6 +102,11 @@ function d2_rømer_einstein_delay_d_u2(::BinaryDDBase, state::DDState)::GQ
     return -α * cosu - (β + γ) * sinu
 end
 
+"""The Shapiro delay due to an eccentric orbit.
+
+Reference:
+    [Damour & Deruelle 1986](https://ui.adsabs.harvard.edu/abs/1986AIHPA..44..263D/abstract)
+"""
 function shapiro_delay(::BinaryDDBase, state::DDState)
     m2 = state.m2
     sini = state.sini
@@ -83,7 +120,11 @@ function shapiro_delay(::BinaryDDBase, state::DDState)
     return -2 * m2 * log(1 - et * cosu - (sini / a1) * (α * (cosu - er) + β * sinu))
 end
 
-"""Total delay due to a nearly circular binary."""
+"""Correct a TOA to remove the effects of binary motion (Rømer delay, Einstein delay, and Shapiro delay) 
+in an eccentric orbit using the inverse timing formula.
+
+Reference:
+    [Damour & Deruelle 1986](https://ui.adsabs.harvard.edu/abs/1986AIHPA..44..263D/abstract)"""
 function correct_toa(dd::BinaryDDBase, ctoa::CorrectedTOA, params::NamedTuple)
     state = DDState(dd, ctoa, params)
 
