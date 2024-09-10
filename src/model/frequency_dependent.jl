@@ -1,6 +1,10 @@
 export FrequencyDependent
 
-"""A frequency-dependent delay to account for frequency-dependent profile evolution."""
+"""A frequency-dependent delay to account for frequency-dependent profile evolution.
+
+Reference:
+    [Arzoumanian+ 2015](http://doi.org/10.1088/0004-637X/813/1/65)
+"""
 struct FrequencyDependent <: DelayComponent end
 
 function delay(::FrequencyDependent, ctoa::CorrectedTOA, params::NamedTuple)::GQ

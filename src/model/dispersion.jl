@@ -2,7 +2,11 @@ export DispersionTaylor, dispersion_slope
 
 """Taylor series representation of the dispersion measure.
 
-Corresponds to `DispersionDM` in `PINT`."""
+Corresponds to `DispersionDM` in `PINT`.
+
+Reference:
+    [Backer & Hellings 1986](http://doi.org/10.1146/annurev.aa.24.090186.002541)
+"""
 struct DispersionTaylor <: DispersionComponent end
 
 """Compute the dispersion slope corresponding to a TOA using a Taylor series representation."""

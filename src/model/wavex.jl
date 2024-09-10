@@ -1,6 +1,10 @@
 export WaveX, DMWaveX, CMWaveX
 
-"""A Fourier series representation of the achromatic red noise."""
+"""A Fourier series representation of the achromatic red noise.
+
+Reference:
+    [Susobhanan+ 2024](http://doi.org/10.3847/1538-4357/ad59f7)
+"""
 struct WaveX <: DelayComponent end
 
 """A single term in the Fourier series appearing in the implementation of `WaveX`,
@@ -20,7 +24,11 @@ end
 delay(::WaveX, ctoa::CorrectedTOA, params::NamedTuple)::GQ =
     evaluate_xwavex(ctoa, params.WXEPOCH, params.WXSIN_, params.WXCOS_, params.WXFREQ_)
 
-"""A Fourier series representation of the achromatic red noise."""
+"""A Fourier series representation of the achromatic red noise.
+
+Reference:
+    [Susobhanan+ 2024](http://doi.org/10.3847/1538-4357/ad59f7)
+"""
 struct DMWaveX <: DispersionComponent end
 
 """Dispersion slope due to DM noise (Fourier series representation)."""
@@ -32,7 +40,11 @@ dispersion_slope(::DMWaveX, ctoa::CorrectedTOA, params::NamedTuple)::GQ = evalua
     params.DMWXFREQ_,
 )
 
-"""A Fourier series representation of the variable-index chromatic red noise."""
+"""A Fourier series representation of the variable-index chromatic red noise.
+
+Reference:
+    [Susobhanan+ 2024](http://doi.org/10.3847/1538-4357/ad59f7)
+"""
 struct CMWaveX <: ChromaticComponent end
 
 """Chromatic slope due to variable-index chromatic red noise (Fourier series representation)."""

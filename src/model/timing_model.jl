@@ -2,7 +2,15 @@ export TimingModel, correct_toa
 
 """The pulsar timing & noise model.
 
-Corresponds to `TimingModel` in `PINT`."""
+Supports both narrowband and wideband timing.
+
+Corresponds to `TimingModel` in `PINT`.
+
+References:
+    [Edwards+ 2006](http://doi.org/10.1111/j.1365-2966.2006.10870.x),
+    [Lentati+ 2014](http://doi.org/10.1093/mnras/stt2122),
+    [Alam+ 2021](http://doi.org/10.3847/1538-4365/abc6a1)
+"""
 struct TimingModel{ComponentsTuple<:Tuple,PriorsTuple<:Tuple}
     pulsar_name::String
     ephem::String

@@ -2,7 +2,11 @@ export Spindown, phase, spin_frequency, read_params_from_dict
 
 """Rotation or the pulsar represented as a Taylor series in spin frequency.
 
-Corresponds to `Spindown` in `PINT`."""
+Corresponds to `Spindown` in `PINT`.
+
+Reference:
+    [Backer & Hellings 1986](http://doi.org/10.1146/annurev.aa.24.090186.002541)
+"""
 struct Spindown <: PhaseComponent end
 
 """Rotational phase of the pulsar."""
