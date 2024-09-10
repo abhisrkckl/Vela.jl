@@ -5,7 +5,7 @@ Shapiro delay applicable to almost edge-on orbits.
 
 References:
     [Damour & Deruelle 1986](https://ui.adsabs.harvard.edu/abs/1986AIHPA..44..263D/abstract),
-    [Kramer+ 2006](http://doi.org/10.1126/science.1132305)
+    [Kramer+ 2006](http://doi.org/10.1126/science.1132305),
     [Rafikov & Lai 2006](http://doi.org/10.1103/PhysRevD.73.063003)
 """
 struct BinaryDDS <: BinaryDDBase
