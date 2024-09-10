@@ -160,8 +160,8 @@ correct_toa(
     equad2::GQ = GQ{2}(0.0),
     delta_spin_frequency::GQ = frequency(0.0),
     doppler::GQ = dimensionless(0.0),
-    barycentered = false,
-    ssb_psr_pos = dimensionless.((0.0, 0.0, 0.0)),
+    barycentered::Bool = false,
+    ssb_psr_pos::Union{Nothing,NTuple{3,GQ{0,Float64}}} = nothing,
 ) = CorrectedTOA(
     ctoa.toa,
     ctoa.delay + delay,
@@ -171,7 +171,7 @@ correct_toa(
     ctoa.spin_frequency + delta_spin_frequency,
     ctoa.doppler + doppler,
     ctoa.barycentered || barycentered,
-    ssb_psr_pos,
+    isnothing(ssb_psr_pos) ? ctoa.ssb_psr_pos : ssb_psr_pos,
     ctoa.level + 1,
 )
 

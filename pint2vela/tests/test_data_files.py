@@ -26,6 +26,7 @@ datasets = [
     "sim_fd",
     "sim6",
     "sim_dd",
+    "sim_ddk",
     "J0613-0200.InPTA.NB",
     "J1857+0943.InPTA.NB",
     "J0613-0200.sim",
