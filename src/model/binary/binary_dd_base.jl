@@ -2,12 +2,12 @@
 abstract type BinaryDDBase <: BinaryComponent end
 
 """Struct containing the various quantities required to compute the binary delays
-for the `DD` family of binary models. This is used to avoid unnecessarily repeating
+for the "Damour & Deruelle (DD)" family of binary models. This is used to avoid unnecessarily repeating
 these computations.
 
 Reference:
-    [Damour & Deruelle 1985](https://ui.adsabs.harvard.edu/abs/1985AIHPA..43..107D/abstract)
-    [Damour & Deruelle 1986](https://ui.adsabs.harvard.edu/abs/1986AIHPA..44..263D/abstract)
+    [Damour & Deruelle 1985](https://ui.adsabs.harvard.edu/abs/1985AIHPA..43..107D/abstract),
+    [Damour & Deruelle 1986](https://ui.adsabs.harvard.edu/abs/1986AIHPA..44..263D/abstract),
     [Königsdörffer & Gopakumar 2006](https://doi.org/10.1103/PhysRevD.73.124012)
 """
 struct DDState
