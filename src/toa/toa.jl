@@ -10,11 +10,14 @@ export TOA,
     phase_residual,
     correct_toa
 
+
+"""Abstract base type of all TOAs."""
 abstract type TOABase end
 
 """A single narrowband TOA observation.
 
-The TOA value incorporates the clock corrections computed using `PINT`."""
+`value` incorporates the clock corrections and `ephem` contains the 
+solar system ephemerides. These are computed using `PINT`."""
 struct TOA <: TOABase
     value::GQ{1,Double64}
     error::GQ{1,Float64}
