@@ -31,6 +31,7 @@
 - Shapiro delay expression for `BinaryDDBase`
 - True anomaly computation in `DDState`
 - Scale factor computation in `get_default_prior()`
+- Bug in `correct_toa()` (`ssb_psr_pos` was being set incorrectly)
 ## Removed
 
 # [0.0.3] - 2024-08-22

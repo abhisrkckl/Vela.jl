@@ -18,7 +18,7 @@ function DDState(ddk::BinaryDDK, ctoa::CorrectedTOA, params::NamedTuple)
     u = mikkola(l, et)
     sinu, cosu = sincos(u)
 
-    ηϕ = sqrt(1 - eϕ^2)
+    ηϕ = sqrt(1 - eϕ * eϕ)
 
     βφ = (1 - ηϕ) / eϕ
     v_u = 2 * atan(βφ * sinu, 1 - βφ * cosu)
