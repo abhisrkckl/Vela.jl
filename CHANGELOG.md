@@ -5,7 +5,7 @@
 - `BinaryDD`, `BinaryDDH`, `BinaryDDS`, `BinaryELL1H`, and `BinaryDDK` models
 - Doppler factor in `BinaryDD`
 - `get_free_param_labels()` function
-- Examples - `J0613-0200.sim`, `J1856-3754.sim`, `J1802-2124.sim`, `J0955-6150.sim`, `J1208-5936.sim`, `J2302+4442.sim`, `J1227-6208.sim`, `sim6`, `sim_dd`, `sim_sw.wb`, `sim_dmjump`, `sim_dmwn`
+- Examples - `J0613-0200.sim`, `J1856-3754.sim`, `J1802-2124.sim`, `J0955-6150.sim`, `J1208-5936.sim`, `J2302+4442.sim`, `J1227-6208.sim`, `sim6`, `sim_dd`, `sim_ddk`, `sim_sw.wb`, `sim_dmjump`, `sim_dmwn`
 - Test Python formatting using `black`
 - Use `BinaryDD` for par files with the BT model.
 - Basic wideband timing implementation
