@@ -1,6 +1,14 @@
 export BinaryDDK
 
-""""""
+"""The Damour & Deruelle model for eccentric binaries with Kopeikin corrections included,
+which account for the apparent changes in the orbital elements due to proper motion and 
+parallax.
+
+References:
+    [Damour & Deruelle 1986](https://ui.adsabs.harvard.edu/abs/1986AIHPA..44..263D/abstract),
+    [Kopeikin 1995](http://doi.org/10.1086/187731),
+    [Kopeikin 1996](http://doi.org/10.1086/310201)
+"""
 struct BinaryDDK <: BinaryDDBase
     use_fbx::Bool
     ecliptic_coordinates::Bool
@@ -58,6 +66,11 @@ end
 proper_motion(params::NamedTuple, ecliptic_coordinates::Bool)::NTuple{2,GQ{-1,Float64}} =
     ecliptic_coordinates ? (params.PMELONG, params.PMELAT) : (params.PMRA, params.PMDEC)
 
+"""Compute the vectors I0 and J0 that appear in the Kopeikin parallax corrections.
+
+References:
+    [Kopeikin 1995](http://doi.org/10.1086/187731)
+"""
 function kopeikin_I0_J0(ssb_psr_pos)
     sinδ = ssb_psr_pos[3]
     cosδ = sqrt(1 - sinδ * sinδ)
@@ -70,6 +83,13 @@ function kopeikin_I0_J0(ssb_psr_pos)
     return I0, J0
 end
 
+"""Evaluate the Kopeikin corrections to the projected semi-major axis, argument of
+periapsis, and the inclination due to proper motion and parallax.
+
+References:
+    [Kopeikin 1995](http://doi.org/10.1086/187731),
+    [Kopeikin 1996](http://doi.org/10.1086/310201)
+"""
 function kopeikin_corrections(dt, x, ι, Ω, μα, μδ, px, ssb_obs_pos, ssb_psr_pos)
     sinι, cosι = sincos(ι)
     sinΩ, cosΩ = sincos(Ω)
