@@ -1,9 +1,15 @@
-"""The abstract base type for all binary models representing eccentric orbits."""
+"""The abstract base type for all binary models representing eccentric orbits.
+
+Reference:
+    [Damour & Deruelle 1985](https://ui.adsabs.harvard.edu/abs/1985AIHPA..43..107D/abstract)
+"""
 abstract type BinaryDDBase <: BinaryComponent end
 
-"""Struct containing the various quantities required to compute the binary delays
-for the "Damour & Deruelle (DD)" family of binary models. This is used to avoid unnecessarily repeating
-these computations.
+"""The instantaneous state of an eccentric binary.
+
+Contains the various quantities required to compute the binary delays for the 
+"Damour & Deruelle (DD)" family of binary models. This is used to avoid unnecessarily 
+repeating these computations.
 
 Reference:
     [Damour & Deruelle 1985](https://ui.adsabs.harvard.edu/abs/1985AIHPA..43..107D/abstract),

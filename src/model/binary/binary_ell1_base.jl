@@ -1,5 +1,8 @@
-"""The abstract base type for all binary models representing nearly
-circular orbits."""
+"""The abstract base type for all binary models representing nearly circular orbits.
+
+Reference:
+    [Lange+ 2001](http://doi.org/10.1046/j.1365-8711.2001.04606.x)
+"""
 abstract type BinaryELL1Base <: BinaryComponent end
 
 ELL1ΦTrigs = NTuple{4,NTuple{2,GQ{0,Float64}}}
@@ -10,6 +13,9 @@ ELL1ΦTrigs = NTuple{4,NTuple{2,GQ{0,Float64}}}
 required for evaluating the Rømer delay and the Shapiro delay for such
 binaries. `n` is the mean motion. `a1` is the projected semi-major axis of
 the pulsar orbit. `ϵ1` and `ϵ2` are the Laplace-Lagrange parameters.
+
+Reference:
+    [Lange+ 2001](http://doi.org/10.1046/j.1365-8711.2001.04606.x)
 """
 struct ELL1State
     Φ_trigs::ELL1ΦTrigs
@@ -38,7 +44,11 @@ function ELL1State(ell1::BinaryELL1Base, ctoa::CorrectedTOA, params::NamedTuple)
 end
 
 """Rømer delay due to a nearly circular binary. Includes terms up to the
-cubic order in eccentricity."""
+cubic order in eccentricity.
+
+Reference:
+    [Lange+ 2001](http://doi.org/10.1046/j.1365-8711.2001.04606.x)
+"""
 function rømer_delay(::BinaryELL1Base, state::ELL1State)::GQ
     (sinΦ, cosΦ), (sin2Φ, cos2Φ), (sin3Φ, cos3Φ), (sin4Φ, cos4Φ) = state.Φ_trigs
     a1 = state.a1
@@ -61,7 +71,12 @@ function rømer_delay(::BinaryELL1Base, state::ELL1State)::GQ
     )
 end
 
-"""Derivative of the Rømer delay w.r.t. the mean anomaly."""
+"""Derivative of the Rømer delay w.r.t. the mean anomaly. Used for evaluating the inverse
+timing formula.
+
+Reference:
+    [Lange+ 2001](http://doi.org/10.1046/j.1365-8711.2001.04606.x)
+"""
 function d_rømer_delay_d_Φ(::BinaryELL1Base, state::ELL1State)::GQ
     (sinΦ, cosΦ), (sin2Φ, cos2Φ), (sin3Φ, cos3Φ), (sin4Φ, cos4Φ) = state.Φ_trigs
     a1 = state.a1
@@ -84,7 +99,12 @@ function d_rømer_delay_d_Φ(::BinaryELL1Base, state::ELL1State)::GQ
     )
 end
 
-"""Second derivative of the Rømer delay w.r.t. the mean anomaly."""
+"""Second derivative of the Rømer delay w.r.t. the mean anomaly. Used for evaluating the inverse
+timing formula.
+
+Reference:
+    [Lange+ 2001](http://doi.org/10.1046/j.1365-8711.2001.04606.x)
+"""
 function d2_rømer_delay_d_Φ2(::BinaryELL1Base, state::ELL1State)::GQ
     (sinΦ, cosΦ), (sin2Φ, cos2Φ), (sin3Φ, cos3Φ), (sin4Φ, cos4Φ) = state.Φ_trigs
     a1 = state.a1
@@ -107,7 +127,11 @@ function d2_rømer_delay_d_Φ2(::BinaryELL1Base, state::ELL1State)::GQ
     )
 end
 
-"""Shapiro delay due to a nearly circular binary."""
+"""Shapiro delay due to a nearly circular binary.
+
+Reference:
+    [Lange+ 2001](http://doi.org/10.1046/j.1365-8711.2001.04606.x)
+"""
 function shapiro_delay(::BinaryELL1Base, state::ELL1State)::GQ
     sinΦ = state.Φ_trigs[1][1]
     m2 = state.m2
@@ -116,7 +140,11 @@ function shapiro_delay(::BinaryELL1Base, state::ELL1State)::GQ
 end
 
 """Update the `CorrectedTOA` object with delays and Doppler factor due to a nearly
-circular binary."""
+circular binary.
+
+Reference:
+    [Lange+ 2001](http://doi.org/10.1046/j.1365-8711.2001.04606.x)
+"""
 function correct_toa(ell1::BinaryELL1Base, ctoa::CorrectedTOA, params::NamedTuple)
     state = ELL1State(ell1, ctoa, params)
 

@@ -1,6 +1,14 @@
 export BinaryELL1H
 
-"""A binary model representing a nearly circular orbit."""
+"""A binary model representing a nearly circular orbit with orthometric 
+parametrization of the Shapiro delay. The Shapiro delay computed in this model
+does not include the Fourier components that are fully covariant with the Rømer
+delay.
+
+Reference:
+    [Lange+ 2001](http://doi.org/10.1046/j.1365-8711.2001.04606.x)
+    [Freire & Wex 2010](http://doi.org/10.1111/j.1365-2966.2010.17319.x)
+"""
 struct BinaryELL1H <: BinaryELL1Base
     use_fbx::Bool
 end
