@@ -108,6 +108,7 @@ def pint_parameters_to_vela(model: TimingModel):
         "TZRFRQ",
         "SWM",
         "H4",  # Handled separately; converted to STIG.
+        "DMX", # The actual DMX parameters are "DMX_".
     ]
 
     assert all(psp not in ignore_params for psp in pseudo_single_params)

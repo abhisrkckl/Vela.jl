@@ -1,20 +1,23 @@
 from pint2vela.ecorr import ecorr_sort
+from pint2vela import read_model_and_toas
 from pint.models import get_model_and_toas
-from pint.config import examplefile
 
 import numpy as np
 import pytest
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def data_B1855p09():
-    parfile = examplefile("B1855+09_NANOGrav_9yv1.gls.par")
-    timfile = examplefile("B1855+09_NANOGrav_9yv1.tim")
-    return get_model_and_toas(parfile, timfile)
+    parfile = "datafiles/B1855+09_NANOGrav_9yv1.par"
+    timfile = "datafiles/B1855+09_NANOGrav_9yv1.tim"
+    mp, tp = get_model_and_toas(parfile, timfile)
+    mv, tv = read_model_and_toas(parfile, timfile)
+
+    return mp, tp, mv, tv
 
 
 def test_ecorr_sort(data_B1855p09):
-    m, t = data_B1855p09
+    m, t, _, _ = data_B1855p09
 
     t_sorted, ranges, indices = ecorr_sort(m, t)
 
@@ -30,3 +33,13 @@ def test_ecorr_sort(data_B1855p09):
         len(np.unique(m.components["EcorrNoise"].get_noise_weights(t)))
         == len(np.unique(indices)) - 1
     )
+
+
+def test_read_data(data_B1855p09):
+    mp, tp, mv, tv = data_B1855p09
+
+    t_sorted, ranges, indices = ecorr_sort(mp, tp)
+
+    assert len(t_sorted) == len(tv)
+    assert len(mv.kernel.ecorr_groups) == len(indices)
+    assert mv.kernel.ecorr_groups[0].index == 0
