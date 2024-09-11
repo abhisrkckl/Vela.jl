@@ -25,6 +25,6 @@ end
 
 show(io::IO, ::MIME"text/plain", model::Kernel) = show(io, model)
 show(io::IO, ek::EcorrKernel) = print(
-    io, 
-    "EcorrKernel[$(length(unique(grp.index for grp in ek.ecorr_groups)) - 1) ECORRs, $(length(ek.ecorr_groups)) groups]"
+    io,
+    "EcorrKernel[$(length(unique(grp.index for grp in ek.ecorr_groups)) - 1) ECORRs, $(length(ek.ecorr_groups)) groups]",
 )
