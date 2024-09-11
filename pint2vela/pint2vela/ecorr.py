@@ -19,7 +19,7 @@ def ecorr_weight_indices(model: TimingModel, toas: TOAs):
         weight_indices[nctot : nn + nctot] = ec.index
         nctot += nn
 
-    weight_indices = np.insert(weight_indices, 0, 0)
+    # weight_indices = np.insert(weight_indices, 0, 0)
 
     return weight_indices
 
@@ -32,19 +32,22 @@ def ecorr_sort(model: TimingModel, toas: TOAs):
     toa_indices = np.arange(len(toas))
 
     ecorr_sort_mask = []
+    toa_ranges = []
+
+    weight_indices = ecorr_weight_indices(model, toas)
 
     # TOAs which do not belong to any ECORR group
     no_ecorr_mask = np.logical_not(np.any(ecorr_masks, axis=0))
-    ecorr_sort_mask.extend(toa_indices[no_ecorr_mask])
-    toa_ranges = [(1, int(sum(no_ecorr_mask)))]
+    if np.any(no_ecorr_mask):
+        ecorr_sort_mask.extend(toa_indices[no_ecorr_mask])
+        toa_ranges.append((1, int(sum(no_ecorr_mask))))
+        weight_indices = np.insert(weight_indices, 0, 0)
 
     for ecmask in ecorr_masks:
         ecorr_sort_mask.extend(toa_indices[ecmask])
         toa_ranges.append(
             (len(ecorr_sort_mask) - int(sum(ecmask)) + 1, len(ecorr_sort_mask))
         )
-
-    weight_indices = ecorr_weight_indices(model, toas)
 
     assert len(ecorr_sort_mask) == len(toas)
     assert len(toa_ranges) == len(weight_indices)
