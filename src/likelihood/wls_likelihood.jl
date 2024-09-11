@@ -46,10 +46,10 @@ Reference:
     [Lentati+ 2014](https://doi.org/10.1093/mnras/stt2122)
 """
 function calc_lnlike_serial(
-    model::TimingModel,
+    model::TimingModel{ComponentsTuple,WhiteNoiseKernel,PriorsTuple},
     toas::Vector{T},
     params::NamedTuple,
-) where {T<:TOABase}
+) where {ComponentsTuple<:Tuple,PriorsTuple<:Tuple,T<:TOABase}
     tzrphase = calc_tzr_phase(model, params)
     return -sum(toa -> _wls_lnlike_term(model, toa, params, tzrphase), toas) / 2
 end
