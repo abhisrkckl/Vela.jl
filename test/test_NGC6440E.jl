@@ -13,6 +13,7 @@
             model.clock,
             model.units,
             model.components,
+            model.kernel,
             model.param_handler,
             model.tzr_toa,
             model.priors,

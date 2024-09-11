@@ -85,5 +85,6 @@ correct_toa(model::TimingModel, ctoa::CorrectedTOABase, params::NamedTuple) =
 correct_toa(model::TimingModel, toa::TOA, params::NamedTuple) =
     correct_toa(model, CorrectedTOA(toa), params)
 
-show(io::IO, model::TimingModel) = print(io, "TimingModel[$(string(model.components)); $(string(model.kernel))]")
+show(io::IO, model::TimingModel) =
+    print(io, "TimingModel[$(string(model.components)); $(string(model.kernel))]")
 show(io::IO, ::MIME"text/plain", model::TimingModel) = show(io, model)
