@@ -49,7 +49,7 @@ function calc_chi2(
     spawn_chunk(chunk) = @spawn _ecorr_chi2_chunk(model, toas, params, tzrphase, chunk)
     tasks = map(spawn_chunk, chunks)
     result = sum(fetch, tasks)
-    return result
+    return value(result)
 end
 
 function calc_chi2_serial(
@@ -58,8 +58,10 @@ function calc_chi2_serial(
     params::NamedTuple,
 ) where {ComponentsTuple<:Tuple,PriorsTuple<:Tuple,T<:TOABase}
     tzrphase = calc_tzr_phase(model, params)
-    return sum(
-        group -> _ecorr_chi2_group(model, toas, params, tzrphase, group),
-        model.kernel.ecorr_groups,
+    return value(
+        sum(
+            group -> _ecorr_chi2_group(model, toas, params, tzrphase, group),
+            model.kernel.ecorr_groups,
+        ),
     )
 end
