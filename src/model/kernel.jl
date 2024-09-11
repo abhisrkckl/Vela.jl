@@ -7,6 +7,18 @@ abstract type Kernel end
 The covariance matrix is diagonal."""
 struct WhiteNoiseKernel <: Kernel end
 
-"""A kernel representing only time-uncorrelated noise.
-The covariance matrix is block-diagonal."""
-struct EcorrKernel <: Kernel end
+"""Range of TOAs belonging to an ECORR block."""
+struct EcorrGroup
+    start::UInt
+    stop::UInt
+    index::UInt
+end
+
+"""A kernel representing white noise and ECORR.
+The covariance matrix is block-diagonal.
+
+Assumes that the `TOA`s are sorted in the correct order.
+"""
+struct EcorrKernel <: Kernel
+    ecorr_groups::Vector{EcorrGroup}
+end
