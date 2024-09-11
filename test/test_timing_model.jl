@@ -61,6 +61,8 @@
         ]
         ecorr_kernel = EcorrKernel(ecorr_groups)
 
+        display(ecorr_kernel)
+
         ecorr1 = Parameter(:ECORR1, time(1e-6), false, "us", 1e-6)
         ecorr2 = Parameter(:ECORR2, time(1e-6), false, "us", 1e-6)
         ecorr_mpar = MultiParameter(:ECORR, [ecorr1, ecorr2])
