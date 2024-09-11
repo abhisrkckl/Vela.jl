@@ -22,7 +22,7 @@ and `SolarSystemShapiro` in `PINT`.
 Reference:
     [Edwards+ 2006](http://doi.org/10.1111/j.1365-2966.2006.10870.x)
 """
-struct SolarSystem <: KinematicDelayComponent
+struct SolarSystem <: DelayComponent
     ecliptic_coordinates::Bool
     planet_shapiro::Bool
 end

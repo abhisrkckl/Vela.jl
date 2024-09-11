@@ -24,6 +24,7 @@
 - Made changes according to the `GeometricUnits` API changes (`GQ` now represents dimensions as a type parameter)
 - Use the github version of `PINT` for testing
 - Split `test_components.jl` into multiple files.
+- Simplify the type hierarchy of `Component`s. Now all `Component`s are `TOA`-uncorrelated by definition.
 ## Fixed
 - Tests now handle par files without `PHOFF` properly.
 - Proper motion computation
