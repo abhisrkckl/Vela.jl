@@ -51,3 +51,15 @@ function calc_chi2(
     result = sum(fetch, tasks)
     return result
 end
+
+function calc_chi2_serial(
+    model::TimingModel{ComponentsTuple,EcorrKernel,PriorsTuple},
+    toas::Vector{T},
+    params::NamedTuple,
+) where {ComponentsTuple<:Tuple,PriorsTuple<:Tuple,T<:TOABase}
+    tzrphase = calc_tzr_phase(model, params)
+    return sum(
+        toa -> _ecorr_chi2_group(model, toas, params, tzrphase, group),
+        model.kernel.ecorr_groups,
+    )
+end
