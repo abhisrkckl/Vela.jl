@@ -1,3 +1,5 @@
+export WhiteNoiseKernel, EcorrKernel
+
 """Abstract base class of all likelihood kernels"""
 abstract type Kernel end
 

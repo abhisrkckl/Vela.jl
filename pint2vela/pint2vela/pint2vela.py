@@ -53,6 +53,13 @@ def fix_params(model: TimingModel) -> None:
             model[p].value = 0
 
 
+def get_kernel(model: TimingModel):
+    if not model.has_correlated_errors:
+        return vl.WhiteNoiseKernel()
+    else:
+        raise NotImplementedError("Correlated noise kernels are not yet implemented.")
+
+
 def pint_model_to_vela(
     model: TimingModel,
     toas: TOAs,
@@ -79,12 +86,15 @@ def pint_model_to_vela(
     tzr_toa.compute_pulse_numbers(model)
     tzr_toa = pint_toa_to_vela(tzr_toa, 0, tzr=True)
 
+    kernel = get_kernel(model)
+
     return vl.TimingModel(
         pulsar_name,
         model.EPHEM.value,
         model.CLOCK.value,
         model.UNITS.value,
         components,
+        kernel,
         param_handler,
         tzr_toa,
         priors,
