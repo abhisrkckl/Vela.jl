@@ -66,7 +66,7 @@ function calc_lnlike_serial(
 ) where {ComponentsTuple<:Tuple,PriorsTuple<:Tuple,T<:TOABase}
     tzrphase = calc_tzr_phase(model, params)
     return -sum(
-        toa -> _ecorr_lnlike_group(model, toas, params, tzrphase, group),
+        group -> _ecorr_lnlike_group(model, toas, params, tzrphase, group),
         model.kernel.ecorr_groups,
     ) / 2
 end

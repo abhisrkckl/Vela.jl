@@ -59,7 +59,7 @@ function calc_chi2_serial(
 ) where {ComponentsTuple<:Tuple,PriorsTuple<:Tuple,T<:TOABase}
     tzrphase = calc_tzr_phase(model, params)
     return sum(
-        toa -> _ecorr_chi2_group(model, toas, params, tzrphase, group),
+        group -> _ecorr_chi2_group(model, toas, params, tzrphase, group),
         model.kernel.ecorr_groups,
     )
 end
