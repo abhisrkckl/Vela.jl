@@ -135,6 +135,7 @@ def read_model_and_toas(
         mp = convert_binary(mp, "DD")
 
     if "EcorrNoise" in mp.components:
+        assert not tp.is_wideband(), "ECORR is not supported for wideband data."
         tp, ecorr_toa_ranges, ecorr_indices = ecorr_sort(mp, tp)
     else:
         ecorr_toa_ranges, ecorr_indices = None, None
