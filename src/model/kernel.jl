@@ -22,3 +22,9 @@ Assumes that the `TOA`s are sorted in the correct order.
 struct EcorrKernel <: Kernel
     ecorr_groups::Vector{EcorrGroup}
 end
+
+show(io::IO, ::MIME"text/plain", model::Kernel) = show(io, model)
+show(io::IO, ek::EcorrKernel) = print(
+    io, 
+    "EcorrKernel[$(length(unique(grp.index for grp in ek.ecorr_groups)) - 1) ECORRs, $(length(ek.ecorr_groups)) groups]"
+)
