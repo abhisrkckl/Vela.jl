@@ -1,9 +1,9 @@
-@testset "NGC6440E" begin
-    model, toas = Vela.load_pulsar_data("datafiles/NGC6440E.jlso")
+@testset "sim2" begin
+    model, toas = Vela.load_pulsar_data("datafiles/sim2.jlso")
 
     @testset "file save" begin
-        Vela.save_pulsar_data("__test.jlso", model, toas)
-        @test isfile("__test.jlso")
+        Vela.save_pulsar_data("__test_sim2.jlso", model, toas)
+        @test isfile("__test_sim2.jlso")
     end
 
     @testset "copy" begin
@@ -22,12 +22,12 @@
 
     @testset "read_toas" begin
         @test !any([toa.tzr for toa in toas])
-        @test length(toas) == 62
+        @test length(toas) == 2000
         @test all([
-            frequency(1e9) < toa.observing_frequency < frequency(2.5e9) for toa in toas
+            frequency(4.9e8) < toa.observing_frequency < frequency(1.51e9) for toa in toas
         ])
         @test all([
-            time(53470.0 * day_to_s) < toa.value < time(54200.0 * day_to_s) for toa in toas
+            time(52999.0 * day_to_s) < toa.value < time(57001.0 * day_to_s) for toa in toas
         ])
         @test all([modf(toa.pulse_number.x)[1] == 0 for toa in toas])
         @test all([toa.error > time(0.0) for toa in toas])
@@ -38,14 +38,14 @@
         @test tzrtoa.tzr
         @test tzrtoa.error > time(0.0)
         @test tzrtoa.pulse_number == dimensionless(0.0)
-        @test frequency(1e9) < tzrtoa.observing_frequency < frequency(2.5e9)
-        @test time(53470.0 * day_to_s) < tzrtoa.value < time(54200.0 * day_to_s)
+        @test frequency(4.9e8) < tzrtoa.observing_frequency < frequency(1.51e9)
+        @test time(52999.0 * day_to_s) < tzrtoa.value < time(57001.0 * day_to_s)
     end
 
     @testset "param_handler" begin
         param_handler = model.param_handler
         @test Set(get_free_param_names(param_handler)) ==
-              Set(["F0", "F1", "PHOFF", "RAJ", "DECJ", "DM"])
+              Set(["F0", "F1", "PHOFF", "RAJ", "DECJ", "EFAC1", "ECORR1"])
         @test length(param_handler.multi_params) + length(param_handler.single_params) ==
               length(param_handler._default_params_tuple)
         @test length(get_free_param_names(param_handler)) ==
@@ -70,16 +70,13 @@
 
     @testset "components" begin
         components = model.components
-        @test length(components) == 4
+        @test length(components) == 5
+
+        @test isa(model.kernel, EcorrKernel)
 
         @test isa(components[1], SolarSystem)
         @test !components[1].ecliptic_coordinates
         @test !components[1].planet_shapiro
-
-        # @test isa(components[2], Troposphere)
-
-        #,@test isa(components[3], SolarWindDispersion)
-        # @test components[3].model == 0
 
         @test isa(components[2], DispersionTaylor)
 
@@ -87,13 +84,13 @@
 
         @test isa(components[4], PhaseOffset)
 
-        # @test all([!isa(c, Troposphere) for c in components])
+        @test isa(components[5], MeasurementNoise)
     end
 
     @testset "form_residuals" begin
         params = model.param_handler._default_params_tuple
         res = form_residuals(model, toas, params)
-        @test all(abs(r) < 3 * toa.error for (r, toa) in zip(res, toas))
+        @test all(abs(r) < 7 * toa.error for (r, toa) in zip(res, toas))
     end
 
     @testset "calc_chi2" begin

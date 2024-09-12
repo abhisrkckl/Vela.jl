@@ -1,4 +1,4 @@
-function _chi2_term(model::TimingModel, wtoa::WidebandTOA, params::NamedTuple, tzrphase)
+function _wls_chi2_term(model::TimingModel, wtoa::WidebandTOA, params::NamedTuple, tzrphase)
     cwtoa::CorrectedWidebandTOA = correct_toa(model, wtoa, params)
 
     dphase = GQ{Float64}(phase_residual(cwtoa.corrected_toa) - tzrphase)

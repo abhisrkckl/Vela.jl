@@ -1,10 +1,10 @@
 import numpy as np
 import pytest
-
+from juliacall import Main as jl
 from pint.models import get_model_and_toas
+
 from pint2vela import read_model_and_toas
 from pint2vela.vela import vl
-from juliacall import Main as jl
 
 jl.seval("using BenchmarkTools")
 jl.seval("get_alloc(func, args...) = @ballocated(($func)(($args)...))")
@@ -21,6 +21,7 @@ datasets = [
     "sim_fdjumpdm",
     "sim_dmjump",
     "sim_cm",
+    "sim2",
     "sim3",
     "sim4",
     "sim_fd",

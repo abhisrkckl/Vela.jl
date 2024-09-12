@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 
 import sys
-from matplotlib import pyplot as plt
 
+from matplotlib import pyplot as plt
+from pint.logging import setup as setup_log
 from pint.models import get_model_and_toas
 from pint.residuals import Residuals
-from pint.logging import setup as setup_log
 
-from pint2vela import read_model_and_toas, Vela as vl
-
+from pint2vela import Vela as vl
+from pint2vela import read_model_and_toas
 
 setup_log(level="WARNING")
 
