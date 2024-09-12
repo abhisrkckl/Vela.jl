@@ -1,17 +1,18 @@
 #!/usr/bin/env python
 
 # %%
-from pint.models import get_model_and_toas
-from pint.logging import setup as setup_log
-
-import numpy as np
-import emcee
-import corner
-from matplotlib import pyplot as plt
 import sys
 from timeit import timeit
 
-from pint2vela import read_model_and_toas, Vela as vl
+import corner
+import emcee
+import numpy as np
+from matplotlib import pyplot as plt
+from pint.logging import setup as setup_log
+from pint.models import get_model_and_toas
+
+from pint2vela import Vela as vl
+from pint2vela import read_model_and_toas
 
 # %%
 setup_log(level="WARNING")

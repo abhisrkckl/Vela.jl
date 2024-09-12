@@ -1,21 +1,22 @@
 #!/usr/bin/env python
 
 # %%
-from pint.models import get_model_and_toas
-from pint.models.priors import Prior
-from pint.logging import setup as setup_log
-from pint.bayesian import BayesianTiming
-
-import numpy as np
-import nestle
-import corner
-from scipy.stats import uniform
-from matplotlib import pyplot as plt
 import sys
 import time
 from timeit import timeit
 
-from pint2vela import read_model_and_toas, Vela as vl
+import corner
+import nestle
+import numpy as np
+from matplotlib import pyplot as plt
+from pint.bayesian import BayesianTiming
+from pint.logging import setup as setup_log
+from pint.models import get_model_and_toas
+from pint.models.priors import Prior
+from scipy.stats import uniform
+
+from pint2vela import Vela as vl
+from pint2vela import read_model_and_toas
 
 np.product = np.prod
 
