@@ -21,6 +21,7 @@ datasets = [
     "sim_fdjumpdm",
     "sim_dmjump",
     "sim_cm",
+    "sim2",
     "sim3",
     "sim4",
     "sim_fd",
