@@ -5,7 +5,7 @@
 - `BinaryDD`, `BinaryDDH`, `BinaryDDS`, `BinaryELL1H`, and `BinaryDDK` models
 - Doppler factor in `BinaryDD`
 - `get_free_param_labels()` function
-- Examples - `J0613-0200.sim`, `J1856-3754.sim`, `J1802-2124.sim`, `J0955-6150.sim`, `J1208-5936.sim`, `J2302+4442.sim`, `J1227-6208.sim`, `sim6`, `sim_dd`, `sim_ddk`, `sim_sw.wb`, `sim_dmjump`, `sim_dmwn`
+- Examples - `J0613-0200.sim`, `J1856-3754.sim`, `J1802-2124.sim`, `J0955-6150.sim`, `J1208-5936.sim`, `J2302+4442.sim`, `J1227-6208.sim`, `sim6`, `sim_dd`, `sim_ddk`, `sim_sw.wb`, `sim_dmjump`, `sim_dmwn`, `sim2`
 - Test Python formatting using `black`
 - Use `BinaryDD` for par files with the BT model.
 - Basic wideband timing implementation
@@ -19,6 +19,13 @@
 - `degrees_of_freedom()` and `reduced_chi2()` functions
 - Wideband DM offsets (`DMJUMP`s)
 - `DispersionMeasurementNoise` component (`DMEFAC`s and `DMEQUAD`s) for wideband data
+- `ECORR` implementation
+  - `Kernel` as the abstract base class for all likelihood kernels; added the `kernel` member in `TimingModel`.
+  - `WhiteNoiseKernel` marks white noise-only likelihood computation.
+  - `EcorrKernel` marks likelihood computation with only white noise and ECORR.
+  - Methods of `calc_chi2` and `calc_lnlike` specialized for `WhiteNoiseKernel` and `EcorrKernel`
+  - `ecorr_sort` function in `pint2vela`
+  - `get_kernel` function in `pint2vela` that constructs `Kernel`s based on the `PINT` `TimingModel` object
 ## Changed
 - Exposed `cheat_prior_scale` and `custom_prior_dists` options in `read_model_and_toas()`
 - Made changes according to the `GeometricUnits` API changes (`GQ` now represents dimensions as a type parameter)
@@ -33,6 +40,7 @@
 - True anomaly computation in `DDState`
 - Scale factor computation in `get_default_prior()`
 - Bug in `correct_toa()` (`ssb_psr_pos` was being set incorrectly)
+- `black` failure now shows up as a CI failure.
 ## Removed
 
 # [0.0.3] - 2024-08-22
