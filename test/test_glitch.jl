@@ -11,7 +11,7 @@
         default_ephem(),
         1,
     )
-    ctoa2 = CorrectedTOA(toa)
+    ctoa2 = CorrectedTOA(toa2)
 
     params = (
         GLEP_ = (time(day_to_s * 54952.92239),),
@@ -26,5 +26,7 @@
     glitch = Glitch()
 
     @test phase(glitch, ctoa, params) == dimensionless(0.0)
-    # @test phase(glitch, ctoa2, params) != dimensionless(0.0)
+    @test phase(glitch, ctoa2, params) != dimensionless(0.0)
+
+    @test @ballocated(phase($glitch, $ctoa2, $params)) == 0
 end
