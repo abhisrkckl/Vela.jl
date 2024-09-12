@@ -25,7 +25,7 @@ function _ecorr_lnlike_group(
         norm += log(value(err2))
     end
 
-    return r_r - w * r_u * r_u / (1 + w * u_u) + norm + 2 * log(1 + w * u_u)
+    return r_r - w * r_u * r_u / (1 + w * u_u) + norm + log(1 + w * u_u)
 end
 
 _ecorr_lnlike_chunk(
