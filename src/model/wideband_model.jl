@@ -1,13 +1,10 @@
 """Update a `CorrectedWidebandTOA` object. 
 Most components only affect the TOA part and not the DM part."""
-correct_toa(
-    component::UncorrelatedComponent,
-    cwtoa::CorrectedWidebandTOA,
-    params::NamedTuple,
-) = CorrectedWidebandTOA(
-    correct_toa(component, cwtoa.corrected_toa, params),
-    cwtoa.corrected_dminfo,
-)
+correct_toa(component::Component, cwtoa::CorrectedWidebandTOA, params::NamedTuple) =
+    CorrectedWidebandTOA(
+        correct_toa(component, cwtoa.corrected_toa, params),
+        cwtoa.corrected_dminfo,
+    )
 
 """Update a `CorrectedWidebandTOA` object. 
 `DispersionComponent`s affect both the TOA part and the DM part."""
