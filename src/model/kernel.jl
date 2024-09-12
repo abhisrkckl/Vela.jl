@@ -4,7 +4,11 @@ export WhiteNoiseKernel, EcorrKernel, EcorrGroup
 abstract type Kernel end
 
 """A kernel representing only uncorrelated noise.
-The covariance matrix is diagonal."""
+The covariance matrix is diagonal.
+
+Reference:
+    [Hobbs+ 2006](http://doi.org/10.1111/j.1365-2966.2006.10302.x)
+"""
 struct WhiteNoiseKernel <: Kernel end
 
 """Range of TOAs belonging to an ECORR block."""
@@ -18,6 +22,9 @@ end
 The covariance matrix is block-diagonal.
 
 Assumes that the `TOA`s are sorted in the correct order.
+
+Reference:
+    [Johnson+ 2024](https://doi.org/10.1103/PhysRevD.109.103012)
 """
 struct EcorrKernel <: Kernel
     ecorr_groups::Vector{EcorrGroup}

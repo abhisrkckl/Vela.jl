@@ -6,6 +6,7 @@ export calc_chi2,
     degrees_of_freedom,
     calc_chi2_reduced
 
+"""A single term in the pulsar timing χ^2 expression (white noise-only)."""
 function _wls_chi2_term(model::TimingModel, toa::TOA, params::NamedTuple, tzrphase)
     ctoa = correct_toa(model, toa, params)
     dphase = GQ{Float64}(phase_residual(ctoa) - tzrphase)

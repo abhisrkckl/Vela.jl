@@ -1,3 +1,8 @@
+"""A single block in the pulsar timing χ^2 expression when white noise and ECORR are present.
+
+Reference:
+    [Johnson+ 2024](https://doi.org/10.1103/PhysRevD.109.103012)
+"""
 function _ecorr_chi2_group(
     model::TimingModel,
     toas::Vector{TOA},
