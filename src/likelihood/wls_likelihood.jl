@@ -80,8 +80,9 @@ The serial version should be used if parallelization is to be implemented at a d
 (e.g., within the sampling method).
 
 Reference:
-    [Lentati+ 2014](https://doi.org/10.1093/mnras/stt2122)
-    [Alam+ 2021](http://doi.org/10.3847/1538-4365/abc6a1)
+    [Lentati+ 2014](https://doi.org/10.1093/mnras/stt2122),
+    [Alam+ 2021](http://doi.org/10.3847/1538-4365/abc6a1),
+    [Johnson+ 2024](https://doi.org/10.1103/PhysRevD.109.103012)
 """
 get_lnlike_func(model, toas) =
     (nthreads() == 1) ? get_lnlike_serial_func(model, toas) :

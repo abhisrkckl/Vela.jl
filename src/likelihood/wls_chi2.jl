@@ -69,8 +69,9 @@ Serial or parallel execution is decided based on the number of available threads
 Supports both narrowband and wideband TOAs.
 
 Reference:
-    [Hobbs+ 2006](http://doi.org/10.1111/j.1365-2966.2006.10302.x)
-    [Alam+ 2021](http://doi.org/10.3847/1538-4365/abc6a1)
+    [Hobbs+ 2006](http://doi.org/10.1111/j.1365-2966.2006.10302.x),
+    [Alam+ 2021](http://doi.org/10.3847/1538-4365/abc6a1),
+    [Johnson+ 2024](https://doi.org/10.1103/PhysRevD.109.103012)
 """
 get_chi2_func(model, toas) =
     (nthreads() == 1) ? get_chi2_serial_func(model, toas) :
