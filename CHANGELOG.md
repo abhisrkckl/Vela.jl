@@ -42,6 +42,7 @@
 - Scale factor computation in `get_default_prior()`
 - Bug in `correct_toa()` (`ssb_psr_pos` was being set incorrectly)
 - `black` failure now shows up as a CI failure.
+- Handling of `prefixParameters` with `Time` quantities
 ## Removed
 
 # [0.0.3] - 2024-08-22
