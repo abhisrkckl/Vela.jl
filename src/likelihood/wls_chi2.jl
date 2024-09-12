@@ -6,7 +6,8 @@ export calc_chi2,
     degrees_of_freedom,
     calc_chi2_reduced
 
-function _chi2_term(model::TimingModel, toa::TOA, params::NamedTuple, tzrphase)
+"""A single term in the pulsar timing χ^2 expression (white noise-only)."""
+function _wls_chi2_term(model::TimingModel, toa::TOA, params::NamedTuple, tzrphase)
     ctoa = correct_toa(model, toa, params)
     dphase = GQ{Float64}(phase_residual(ctoa) - tzrphase)
     tres = dphase / doppler_shifted_spin_frequency(ctoa)
@@ -14,23 +15,23 @@ function _chi2_term(model::TimingModel, toa::TOA, params::NamedTuple, tzrphase)
     return value(tres * tres / err2)
 end
 
-_chi2_chunk(
+_wls_chi2_chunk(
     model::TimingModel,
     toas::Vector{T},
     params,
     tzrphase,
     chunk,
-) where {T<:TOABase} = sum(ii -> _chi2_term(model, toas[ii], params, tzrphase), chunk)
+) where {T<:TOABase} = sum(ii -> _wls_chi2_term(model, toas[ii], params, tzrphase), chunk)
 
 """Compute the χ^2 value for a given timing model and collection of TOAs (parallel execution)."""
 function calc_chi2(
-    model::TimingModel,
+    model::TimingModel{ComponentsTuple,WhiteNoiseKernel,PriorsTuple},
     toas::Vector{T},
     params::NamedTuple,
-) where {T<:TOABase}
+) where {ComponentsTuple<:Tuple,PriorsTuple<:Tuple,T<:TOABase}
     tzrphase = calc_tzr_phase(model, params)
     chunks = Iterators.partition(eachindex(toas), length(toas) ÷ nthreads())
-    spawn_chunk(chunk) = @spawn _chi2_chunk(model, toas, params, tzrphase, chunk)
+    spawn_chunk(chunk) = @spawn _wls_chi2_chunk(model, toas, params, tzrphase, chunk)
     tasks = map(spawn_chunk, chunks)
     result = sum(fetch, tasks)
     return result
@@ -41,12 +42,12 @@ calc_chi2(model::TimingModel, toas::Vector{T}, params) where {T<:TOABase} =
 
 """Compute the χ^2 value for a given timing model and collection of TOAs (serial execution)."""
 function calc_chi2_serial(
-    model::TimingModel,
+    model::TimingModel{ComponentsTuple,WhiteNoiseKernel,PriorsTuple},
     toas::Vector{T},
     params::NamedTuple,
-) where {T<:TOABase}
+) where {ComponentsTuple<:Tuple,PriorsTuple<:Tuple,T<:TOABase}
     tzrphase = calc_tzr_phase(model, params)
-    return sum(toa -> _chi2_term(model, toa, params, tzrphase), toas)
+    return sum(toa -> _wls_chi2_term(model, toa, params, tzrphase), toas)
 end
 
 calc_chi2_serial(model::TimingModel, toas::Vector{T}, params) where {T<:TOABase} =
@@ -68,8 +69,9 @@ Serial or parallel execution is decided based on the number of available threads
 Supports both narrowband and wideband TOAs.
 
 Reference:
-    [Hobbs+ 2006](http://doi.org/10.1111/j.1365-2966.2006.10302.x)
-    [Alam+ 2021](http://doi.org/10.3847/1538-4365/abc6a1)
+    [Hobbs+ 2006](http://doi.org/10.1111/j.1365-2966.2006.10302.x),
+    [Alam+ 2021](http://doi.org/10.3847/1538-4365/abc6a1),
+    [Johnson+ 2024](https://doi.org/10.1103/PhysRevD.109.103012)
 """
 get_chi2_func(model, toas) =
     (nthreads() == 1) ? get_chi2_serial_func(model, toas) :

@@ -11,12 +11,13 @@ References:
     [Lentati+ 2014](http://doi.org/10.1093/mnras/stt2122),
     [Alam+ 2021](http://doi.org/10.3847/1538-4365/abc6a1)
 """
-struct TimingModel{ComponentsTuple<:Tuple,PriorsTuple<:Tuple}
+struct TimingModel{ComponentsTuple<:Tuple,KernelType<:Kernel,PriorsTuple<:Tuple}
     pulsar_name::String
     ephem::String
     clock::String
     units::String
     components::ComponentsTuple
+    kernel::KernelType
     param_handler::ParamHandler
     tzr_toa::TOA
     priors::PriorsTuple
@@ -27,6 +28,7 @@ struct TimingModel{ComponentsTuple<:Tuple,PriorsTuple<:Tuple}
         clock::String,
         units::String,
         components::Tuple,
+        kernel::Kernel,
         param_handler::ParamHandler,
         tzr_toa::TOA,
         priors::Tuple,
@@ -36,12 +38,13 @@ struct TimingModel{ComponentsTuple<:Tuple,PriorsTuple<:Tuple}
         @assert all(map(p -> isa(p, Prior), priors)) "priors must be a tuple containing Prior objects."
         @assert length(priors) == length(get_free_param_names(param_handler)) "The number of prior distributions must match the number of free parameters."
 
-        return new{typeof(components),typeof(priors)}(
+        return new{typeof(components),typeof(kernel),typeof(priors)}(
             pulsar_name,
             ephem,
             clock,
             units,
             components,
+            kernel,
             param_handler,
             tzr_toa,
             priors,
@@ -82,5 +85,6 @@ correct_toa(model::TimingModel, ctoa::CorrectedTOABase, params::NamedTuple) =
 correct_toa(model::TimingModel, toa::TOA, params::NamedTuple) =
     correct_toa(model, CorrectedTOA(toa), params)
 
-show(io::IO, model::TimingModel) = print(io, "TimingModel[$(string(model.components))]")
+show(io::IO, model::TimingModel) =
+    print(io, "TimingModel[$(string(model.components)); $(string(model.kernel))]")
 show(io::IO, ::MIME"text/plain", model::TimingModel) = show(io, model)

@@ -1,14 +1,17 @@
 from typing import List
-import numpy as np
 
+import numpy as np
 from pint.models import TimingModel
-from pint.models.parameter import Parameter
+from pint.models.parameter import maskParameter
 from pint.toa import TOAs
 
-from .vela import vl, jl
+from .vela import jl, vl
 
 
-def read_mask(toas: TOAs, params: List[Parameter]):
+def read_mask(toas: TOAs, params: List[maskParameter]):
+    """Read a TOA mask from a `maskParameter` in a `Vela`-friendly
+    representation."""
+
     masks = []
     for param in params:
         mask = np.repeat(False, len(toas))
@@ -19,10 +22,18 @@ def read_mask(toas: TOAs, params: List[Parameter]):
 
 
 def is_exclusive_mask(mask: np.ndarray):
+    """Check if the mask is exclusive. An exclusive mask is where one TOA
+    belongs to only one group.
+
+    For example, `EFAC`s and `EQUAD`s are generally exclusive, whereas `JUMP`s
+    are sometimes not.
+    """
     return all(map(lambda x: x in [0, 1], mask.sum(axis=0)))
 
 
 def get_exclusive_mask(mask: np.ndarray):
+    """Convert a mask to its exclusive representation. Throws an error
+    if the input is not exclusive."""
     result = []
     for m in mask.T:
         wh = np.where(m)[0]
@@ -37,6 +48,23 @@ def get_exclusive_mask(mask: np.ndarray):
 
 
 def pint_components_to_vela(model: TimingModel, toas: TOAs):
+    """Construct a tuple containing the `Vela.Component` objects from a
+    pair of `PINT` `TimingModel` and `TOAs` objects.
+
+    Most `Vela.Component` types have a one-to-one correspondence with their
+    `PINT` counterparts. Exceptions include `SolarSystemShapiro`, which is
+    implemented in `Vela.SolarSystem` along with astrometric delays.
+
+    Note that only the TOA-uncorrelated `PINT` `Components` have their
+    `Vela.Component` counterparts. The TOA-correlated components such as
+    `EcorrNoise` are represented as `Vela.Kernel`s.
+
+    Unlike `PINT` `Component`s, `Vela.Component`s are sometimes tightly coupled
+    to a set of TOAs for performance reasons. Examples include `Vela.MeasurementNoise`
+    and `Vela.PhaseJump`, where the TOA selection masks are precomputed and stored
+    within the `Vela.Component` object.
+    """
+
     component_names = list(model.components.keys())
 
     components = []

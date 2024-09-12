@@ -54,7 +54,7 @@ jobs:
           pytest --verbose -n auto --cov=pint2vela .
       - name: Test formatting with black
         run: |
-          black ..
+          black --check ..
       - name: Upload coverage to codecov
         uses: codecov/codecov-action@v4
         with:

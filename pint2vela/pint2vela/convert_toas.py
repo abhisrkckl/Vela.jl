@@ -1,14 +1,15 @@
 import numpy as np
-
-from pint.toa import TOAs
 from pint import DMconst
+from pint.toa import TOAs
 
-from .vela import jl, vl, to_jldd
+from .vela import jl, to_jldd, vl
 
 day_to_s = 86400
 
 
 def pint_toa_to_vela(toas: TOAs, idx: int, tzr: bool = False):
+    """Construct a `Vela.TOA` object from a `PINT` `TOAs` object and an index."""
+
     assert toas.planets
     assert toas.get_pulse_numbers() is not None
 
@@ -81,6 +82,9 @@ def pint_toa_to_vela(toas: TOAs, idx: int, tzr: bool = False):
 
 
 def pint_wbtoa_to_vela(toas: TOAs, idx: int):
+    """Construct a `Vela.WidebandTOA`s from a `PINT` `TOAs` object containing
+    wideband data and an index."""
+
     assert toas.is_wideband()
 
     vtoa = pint_toa_to_vela(toas, idx)
@@ -93,6 +97,9 @@ def pint_wbtoa_to_vela(toas: TOAs, idx: int):
 
 
 def pint_toas_to_vela(toas: TOAs):
+    """Construct a Julia `Vector` of `Vela.TOA` or `Vela.WidebandTOA` objects from a
+    `PINT` TOAs object."""
+
     p2v_toas = pint_wbtoa_to_vela if toas.is_wideband() else pint_toa_to_vela
     TOAType = vl.WidebandTOA if toas.is_wideband() else vl.TOA
     return jl.Vector[TOAType]([p2v_toas(toas, idx) for idx in range(len(toas))])
