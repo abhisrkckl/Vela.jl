@@ -48,7 +48,7 @@ def model_and_toas(request):
         f"datafiles/{dataset}.par",
         f"datafiles/{dataset}.tim",
         custom_prior_dicts={
-            "PHOFF": jl.Uniform(-0.5, 0.25),
+            "PHOFF": jl.Uniform(-0.5, 0.5),
             "EFAC": jl.Uniform(0.5, 2.5),
         },
     )
