@@ -1,12 +1,16 @@
+from typing import List, Tuple
+
+import astropy.units as u
+import numpy as np
 from pint.models import TimingModel
 from pint.models.noise_model import get_ecorr_nweights
 from pint.toa import TOAs
 
-import numpy as np
-import astropy.units as u
 
-
-def ecorr_weight_indices(model: TimingModel, toas: TOAs):
+def ecorr_weight_indices(model: TimingModel, toas: TOAs) -> np.ndarray:
+    """Returns an array containing the ECORR parameter indices corresponding to each ECORR group.
+    The indices start from 1 to match Julia indexing. 0 represents no ECORR group affiliation.
+    """
     ecorrs = model.components["EcorrNoise"].get_ecorrs()
 
     ts = (toas.table["tdbld"].quantity * u.day).to(u.s).value
@@ -24,7 +28,14 @@ def ecorr_weight_indices(model: TimingModel, toas: TOAs):
     return weight_indices
 
 
-def ecorr_sort(model: TimingModel, toas: TOAs):
+def ecorr_sort(
+    model: TimingModel, toas: TOAs
+) -> Tuple[TOAs, List[Tuple[int]], np.ndarray]:
+    """Returns a `TOAs` object that is sorted according to ECORR groups.
+    The TOAs without any ECORR group affiliation appear at the beginning.
+    Also returns a list containing the start and end indices of each ECORR
+    group and an array containing the ECORR parameter indices for each group."""
+
     assert "EcorrNoise" in model.components
 
     ecorr_masks = model.components["EcorrNoise"].get_noise_basis(toas).T.astype(bool)
