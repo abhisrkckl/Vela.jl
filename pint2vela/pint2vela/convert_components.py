@@ -155,6 +155,9 @@ def pint_components_to_vela(model: TimingModel, toas: TOAs):
 
     if "Spindown" in component_names:
         components.append(vl.Spindown())
+    
+    if "Glitch" in component_names:
+        components.append(vl.Glitch())
 
     if "PhaseOffset" in component_names:
         components.append(vl.PhaseOffset())
