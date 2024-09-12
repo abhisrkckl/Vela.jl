@@ -1,5 +1,6 @@
 from typing import List
 
+from astropy.time import Time
 from pint.models import TimingModel
 from pint.models.parameter import AngleParameter, MJDParameter, floatParameter
 
@@ -49,7 +50,7 @@ def get_default_prior(
         val = (
             (
                 param.value * day_to_s
-                if isinstance(param, MJDParameter)
+                if isinstance(param.quantity, Time)
                 else (param.quantity * scale_factor).si.value
             )
             if param_name != "F0"
