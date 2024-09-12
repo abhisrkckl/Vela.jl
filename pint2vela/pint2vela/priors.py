@@ -1,11 +1,11 @@
 from typing import List
 
 from pint.models import TimingModel
-from pint.models.parameter import floatParameter, MJDParameter, AngleParameter
+from pint.models.parameter import AngleParameter, MJDParameter, floatParameter
 
-from .vela import jl, vl
-from .convert_toas import day_to_s
 from .convert_parameters import get_scale_factor, pseudo_single_params
+from .convert_toas import day_to_s
+from .vela import jl, vl
 
 DEFAULT_PRIOR_DISTS = {
     "PHOFF": jl.Uniform(-0.5, 0.5),
@@ -24,6 +24,13 @@ def get_default_prior(
     cheat_prior_scale: float,
     custom_prior_dists: dict,
 ):
+    """Returns a `Vela.Prior` object corresponding to a free model parameter.
+    If the parameter is included in `custom_prior_dists`, the custom prior is
+    used. Otherwise, if the parameter is included in `DEFAULT_PRIOR_DISTS`, the default
+    prior is used. Otherwise, a 'cheat' prior is used, which corresponds to a uniform
+    distribution centered at the default value in the `model`, and a width that is
+    `2 * cheat_prior_scale` times the uncertainty quoted in the model."""
+
     assert param_name in model.free_params
 
     param = model[param_name]
@@ -88,7 +95,8 @@ def get_default_priors(
     free_params: List[str],
     cheat_prior_scale: float,
     custom_prior_dists: dict,
-):
+) -> tuple:
+    """Returns a tuple of `Vela.Prior` objects corresponding to each free parameter."""
     return tuple(
         get_default_prior(model, param_name, cheat_prior_scale, custom_prior_dists)
         for param_name in free_params
