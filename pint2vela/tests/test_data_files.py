@@ -28,6 +28,7 @@ datasets = [
     "sim6",
     "sim_dd",
     "sim_ddk",
+    "sim_glitch",
     "J0613-0200.InPTA.NB",
     "J1857+0943.InPTA.NB",
     "J0613-0200.sim",
@@ -47,7 +48,7 @@ def model_and_toas(request):
         f"datafiles/{dataset}.par",
         f"datafiles/{dataset}.tim",
         custom_prior_dicts={
-            "PHOFF": jl.Uniform(-0.5, 0.25),
+            "PHOFF": jl.Uniform(-0.5, 0.5),
             "EFAC": jl.Uniform(0.5, 2.5),
         },
     )

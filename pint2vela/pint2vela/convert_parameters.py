@@ -1,6 +1,7 @@
 from typing import List
 
 from astropy import units as u
+from astropy.time import Time
 from pint import DMconst
 from pint.models import TimingModel
 from pint.models.parameter import (
@@ -16,7 +17,7 @@ from .convert_toas import day_to_s
 from .vela import jl, to_jldd, vl
 
 
-def get_scale_factor(param):
+def get_scale_factor(param: Parameter):
     """Get the scale factor that converts a given parameter value from the `PINT`
     units to the `Vela` units.
 
@@ -31,7 +32,7 @@ def get_scale_factor(param):
 
     if param.tcb2tdb_scale_factor is not None:
         return param.tcb2tdb_scale_factor
-    elif isinstance(param, MJDParameter):
+    elif isinstance(param.quantity, Time):
         return 1
     elif param.name in ["CM"] or (
         hasattr(param, "prefix")
@@ -60,13 +61,13 @@ def pint_parameter_to_vela(param: Parameter):
     scale_factor = get_scale_factor(param)
     default_value = (
         param.value * day_to_s
-        if isinstance(param, MJDParameter)
+        if isinstance(param.quantity, Time)
         else (param.quantity * scale_factor).si.value
     )
 
     dim = (
         compute_effective_dimensionality(param.quantity, scale_factor)
-        if not isinstance(param, MJDParameter)
+        if not isinstance(param.quantity, Time)
         else 1
     )
 
