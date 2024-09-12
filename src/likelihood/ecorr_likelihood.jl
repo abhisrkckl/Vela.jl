@@ -1,3 +1,10 @@
+"""A single block in the pulsar timing log-likelihood expression when white noise and ECORR are present.
+
+A factor of 1/2 is excluded here.
+
+Reference:
+    [Johnson+ 2024](https://doi.org/10.1103/PhysRevD.109.103012)
+"""
 function _ecorr_lnlike_group(
     model::TimingModel,
     toas::Vector{TOA},
@@ -39,12 +46,6 @@ _ecorr_lnlike_chunk(
     chunk,
 )
 
-"""Compute the log-likelihood value for a given timing model and collection of TOAs 
-(parallel execution).
-
-Reference:
-    [Lentati+ 2014](https://doi.org/10.1093/mnras/stt2122)
-"""
 function calc_lnlike(
     model::TimingModel{ComponentsTuple,EcorrKernel,PriorsTuple},
     toas::Vector{T},

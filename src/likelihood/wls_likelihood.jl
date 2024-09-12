@@ -1,5 +1,8 @@
 export get_lnlike_serial_func, get_lnlike_parallel_func, get_lnlike_func
 
+"""A single term in the pulsar timing log-likelihood expression (white noise-only).
+
+A factor of 1/2 is excluded here."""
 function _wls_lnlike_term(model::TimingModel, toa::TOA, params::NamedTuple, tzrphase)
     ctoa = correct_toa(model, toa, params)
     dphase = GQ{Float64}(phase_residual(ctoa) - tzrphase)
