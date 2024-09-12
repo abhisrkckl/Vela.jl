@@ -1,22 +1,34 @@
-from astropy import units as u
 from typing import List
 
+from astropy import units as u
+from pint import DMconst
 from pint.models import TimingModel
 from pint.models.parameter import (
     AngleParameter,
     MJDParameter,
-    floatParameter,
-    funcParameter,
     Parameter,
     compute_effective_dimensionality,
+    floatParameter,
+    funcParameter,
 )
-from pint import DMconst
 
 from .convert_toas import day_to_s
-from .vela import vl, jl, to_jldd
+from .vela import jl, to_jldd, vl
 
 
 def get_scale_factor(param):
+    """Get the scale factor that converts a given parameter value from the `PINT`
+    units to the `Vela` units.
+
+    In `Vela`'s internal representation, all quantities have dimensions of [T^n]
+    with units of second^n for some n∈ℕ. This is because all measurable quantities
+    in pulsar timing are times, frequencies, or phases, and time-derivatives thereof.
+    All of these can be written with units second^n for some n∈ℕ.
+
+    Most of these scale factors are the same as the TCB <-> TDB conversion factors discussed
+    in https://nanograv-pint.readthedocs.io/en/latest/tcb2tdb-factors.html.
+    """
+
     if param.tcb2tdb_scale_factor is not None:
         return param.tcb2tdb_scale_factor
     elif isinstance(param, MJDParameter):
@@ -43,6 +55,8 @@ def get_scale_factor(param):
 
 
 def pint_parameter_to_vela(param: Parameter):
+    """Construct a `Vela.Parameter` object from a `PINT` `Parameter` object."""
+
     scale_factor = get_scale_factor(param)
     default_value = (
         param.value * day_to_s
@@ -80,6 +94,10 @@ def pint_parameter_to_vela(param: Parameter):
 
 
 def _get_multiparam_elements(model: TimingModel, multi_param_names: List[str]):
+    """Construct a Julia `Vector` of `Vela.Parameter` objects from a list of
+    `PINT` parameter names. This is usually done for `prefixParameters` and
+    `maskParameters`."""
+
     elements = []
     for pxname in multi_param_names:
         pxparam = model[pxname]
@@ -92,10 +110,20 @@ def _get_multiparam_elements(model: TimingModel, multi_param_names: List[str]):
     return jl.Vector[vl.Parameter](elements)
 
 
+# Parameters that are treated as single `Parameter`s in `PINT` due to compatibility reasons,
+# but logically should have been `prefixParameter`s.
 pseudo_single_params = ["DM", "CM"]
 
 
 def pint_parameters_to_vela(model: TimingModel):
+    """Convert the parameters in a `PINT` `TimingModel` to their `Vela` representation.
+
+    Single parameters are represented as `Vela.Parameter` objects.
+    `prefixParameter`s and `maskParameter`s are represented as `Vela.MultiParameter` objects.
+
+    Returns Julia `Vector`s of `Vela.Parameter`s and `Vela.MultiParameter`s.
+    """
+
     ignore_params = [
         "START",
         "FINISH",

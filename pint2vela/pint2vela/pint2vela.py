@@ -1,19 +1,29 @@
 from typing import List, Optional, Tuple
+
+from pint.binaryconvert import convert_binary
 from pint.logging import setup as setup_log
 from pint.models import PhaseOffset, TimingModel, get_model_and_toas
 from pint.models.parameter import MJDParameter
 from pint.toa import TOAs
-from pint.binaryconvert import convert_binary
 
-from .vela import vl
 from .convert_components import pint_components_to_vela
-from .convert_toas import pint_toa_to_vela, pint_toas_to_vela
 from .convert_parameters import pint_parameters_to_vela
-from .priors import get_default_priors
+from .convert_toas import pint_toa_to_vela, pint_toas_to_vela
 from .ecorr import ecorr_sort
+from .priors import get_default_priors
+from .vela import vl
 
 
 def fix_params(model: TimingModel) -> None:
+    """Fix the parameters of a `PINT` `TimingModel` to make it `Vela`-friendly.
+
+    It does the following.
+        1. Ensures that all the `EPOCH`s are set.
+        2. Ensures that `PHOFF` is included and is free.
+        3. Converts `H4` to `STIGMA`
+        4. Sets the unset parameter values to 0 where possible.
+    """
+
     assert model.PEPOCH.value is not None
 
     for param in model.params:
@@ -60,6 +70,8 @@ def get_kernel(
     ecorr_toa_ranges: List[Tuple[int, int]],
     ecorr_indices: List[int],
 ):
+    """Construct a `Vela.Kernel` object. It may be a white noise kernel or
+    an ECORR kernel. Time-correlated noise kernels are not yet suppoted."""
     if not model.has_correlated_errors:
         return vl.WhiteNoiseKernel()
     elif not model.has_time_correlated_errors:
@@ -70,7 +82,8 @@ def get_kernel(
             ]
         )
         return vl.EcorrKernel(ecorr_groups)
-    raise NotImplementedError("Correlated noise kernels are not yet implemented.")
+
+    raise NotImplementedError("Time-correlated noise kernels are not yet implemented.")
 
 
 def pint_model_to_vela(
@@ -81,6 +94,8 @@ def pint_model_to_vela(
     ecorr_toa_ranges: Optional[List[Tuple[int, int]]] = None,
     ecorr_indices: Optional[List[Tuple[int]]] = None,
 ):
+    """Construct a `Vela.TimingModel` from a `PINT` `TimingModel`."""
+
     toas.compute_pulse_numbers(model)
     fix_params(model)
 
@@ -121,6 +136,7 @@ def read_model_and_toas(
 ):
     """Read a pair of par & tim files and create a `Vela.TimingModel` object and a
     Julia `Vector` of `TOA`s."""
+
     setup_log(level="WARNING")
     mp, tp = get_model_and_toas(
         parfile,
@@ -154,5 +170,6 @@ def read_model_and_toas(
 
 
 def par_tim_to_jlso(parfile: str, timfile: str, jlsofile: str):
+    """Save a pair of `par` & `tim` files as a `JLSO` file."""
     mv, tv = read_model_and_toas(parfile, timfile)
     vl.save_pulsar_data(jlsofile, mv, tv)
