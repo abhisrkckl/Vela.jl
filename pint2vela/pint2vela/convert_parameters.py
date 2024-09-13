@@ -46,8 +46,9 @@ def get_scale_factor(param: Parameter):
             "EFAC",
             "EQUAD",
             "ECORR",
-            "FD",
             "DMEFAC",
+            "FD",
+            "FDJUMP",
         ]
     ):
         return 1

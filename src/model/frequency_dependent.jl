@@ -11,7 +11,8 @@ function delay(::FrequencyDependent, ctoa::CorrectedTOA, params::NamedTuple)::GQ
     fds = params.FD
     ν = doppler_corrected_observing_frequency(ctoa)
     νref = frequency(1e9) # 1 GHz
-    return sum(fd * (log(ν / νref))^p for (p, fd) in enumerate(fds))
+    λ = log(ν / νref)
+    return sum(fd * λ^p for (p, fd) in enumerate(fds))
 end
 
 """A frequency-dependent delay to account for frequency-dependent profile evolution.
@@ -40,9 +41,13 @@ function delay(fdj::FrequencyDependentJump, ctoa::CorrectedTOA, params::NamedTup
 
     mask = @view(fdj.jump_mask[:, ctoa.toa.index])
 
+    λ = log(ν / νref)
+
     delay = time(0.0)
     for (fdjump, p, m) in zip(fdjumps, fdj.exponents, mask)
-        delay += m * fdjump * (log(ν / νref))^p
+        if m
+            delay += fdjump * λ^p
+        end
     end
 
     return delay
