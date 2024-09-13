@@ -6,6 +6,7 @@ makedocs(
     pages = [
         "Home" => "index.md",
         "getting-started.md",
+        "tutorial.md",
         "explanation.md",
         "api-reference.md",
     ],

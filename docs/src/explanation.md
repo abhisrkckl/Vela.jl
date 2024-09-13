@@ -126,6 +126,50 @@ method).
 
 The DM residuals can be similarly computed for `WidebandTOA`s.
 
+A type hierarchy of all available `Component`s is shown below:
+
+```
+Component
+├─ DelayComponent
+│  ├─ ChromaticComponent
+│  │  ├─ CMWaveX
+│  │  └─ ChromaticTaylor
+│  ├─ FrequencyDependent
+│  ├─ SolarSystem
+│  ├─ Troposphere
+│  ├─ BinaryComponent
+│  │  ├─ BinaryDDBase
+│  │  │  ├─ BinaryDD
+│  │  │  ├─ BinaryDDH
+│  │  │  ├─ BinaryDDK
+│  │  │  └─ BinaryDDS
+│  │  └─ BinaryELL1Base
+│  │     ├─ BinaryELL1
+│  │     └─ BinaryELL1H
+│  ├─ DispersionComponent
+│  │  ├─ DMWaveX
+│  │  ├─ DispersionTaylor
+│  │  ├─ SolarWind
+│  │  │  └─ SolarWindDispersion
+│  │  ├─ DispersionJumpBase
+│  │  │  ├─ DispersionJump
+│  │  │  └─ ExclusiveDispersionJump
+│  │  └─ DispersionOffsetBase
+│  │     ├─ DispersionOffset
+│  │     └─ ExclusiveDispersionOffset
+│  └─ WaveX
+├─ PhaseComponent
+│  ├─ Glitch
+│  ├─ PhaseOffset
+│  ├─ Spindown
+│  └─ PhaseJumpBase
+│     ├─ ExclusivePhaseJump
+│     └─ PhaseJump
+└─ WhiteNoiseComponent
+   ├─ DispersionMeasurementNoise
+   └─ MeasurementNoise
+```
+
 ## The Likelihood Function
 
 The pulsar timing log-likelihood function is given by 

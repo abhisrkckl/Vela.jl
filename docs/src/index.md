@@ -19,6 +19,7 @@ It is under active development.
 ```@contents
 Pages = [
     "getting-started.md",
+    "tutorial.md",
     "explanation.md",
     "api-reference.md",
 ]
