@@ -8,6 +8,10 @@ with most commonly used pulsar timing models. It can be used from Julia REPL, sc
 notebooks. It can also be used from Python REPL, scripts, and notebooks with the help of the 
 `pint2vela` interface.
 
+`Vela.jl` is named after the brightest radio pulsar, the Vela pulsar (J0835-4510).
+Also, Vēḻa (വേള, वेळ, ...) is a word meaning occasion, time, etc. in some Indian
+languages.
+
 It is under active development.
 
 ## Table of contents
@@ -15,7 +19,8 @@ It is under active development.
 ```@contents
 Pages = [
     "getting-started.md",
+    "explanation.md",
     "api-reference.md",
 ]
-Depth = 1
+Depth = 2
 ```

@@ -3,6 +3,8 @@
 `Vela.jl` can be installed directly from GitHub. We recommend installing it within a dedicated 
 `conda` environment.
 
+Please note that `Vela.jl` is only tested against Python 3.12 and Julia 1.10 in Ubuntu at present.
+
 The following commands install the Python and Julia packages that are needed for developing `Vela.jl` and running the examples and tests.
 
 ```
