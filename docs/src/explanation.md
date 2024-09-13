@@ -1,7 +1,7 @@
 # Explanation
 
 This page provides somewhat technical descriptions about the theory, internal workings, and design 
-choices of `Vela.jl`. If you are a beginner please go to Tutorials first.
+choices of `Vela.jl`. If you are a beginner please go to Tutorial page first.
 
 ## Quantities
 
