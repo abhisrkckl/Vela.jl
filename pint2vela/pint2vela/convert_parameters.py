@@ -1,3 +1,4 @@
+import re
 from typing import List
 
 from astropy import units as u
@@ -15,6 +16,9 @@ from pint.models.parameter import (
 
 from .convert_toas import day_to_s
 from .vela import jl, to_jldd, vl
+
+
+fdjump_rx = re.compile("^FD(\\d+)JUMP(\\d+)")
 
 
 def get_scale_factor(param: Parameter):
@@ -39,17 +43,20 @@ def get_scale_factor(param: Parameter):
         and param.prefix in ["CM", "CMWXSIN_", "CMWXCOS_", "DMJUMP", "DMEQUAD"]
     ):
         return DMconst
-    elif param.name in ["TNCHROMIDX"] or (
-        hasattr(param, "prefix")
-        and param.prefix
-        in [
-            "EFAC",
-            "EQUAD",
-            "ECORR",
-            "DMEFAC",
-            "FD",
-            "FDJUMP",
-        ]
+    elif (
+        param.name in ["TNCHROMIDX"]
+        or (
+            hasattr(param, "prefix")
+            and param.prefix
+            in [
+                "EFAC",
+                "EQUAD",
+                "ECORR",
+                "DMEFAC",
+                "FD",
+            ]
+        )
+        or fdjump_rx.match(param.name)
     ):
         return 1
     else:
@@ -171,6 +178,7 @@ def pint_parameters_to_vela(model: TimingModel):
             continue
 
         single_params.append(pint_parameter_to_vela(param))
+
     single_params.append(
         vl.Parameter(
             jl.Symbol("F_"),
@@ -196,7 +204,7 @@ def pint_parameters_to_vela(model: TimingModel):
             multi_params.append(vl.MultiParameter(jl.Symbol(param_name), elements))
             processed_multi_params.append(param_name)
 
-    # Process ordinary multi parameters
+    # Process ordinary multi parameters (does not include `FDJUMP`s)
     for param_name in model.params:
         param = model[param_name]
 
@@ -207,6 +215,7 @@ def pint_parameters_to_vela(model: TimingModel):
             or param.prefix in pseudo_single_params
             or param.prefix in processed_multi_params
             or param.quantity is None
+            or fdjump_rx.match(param.name)
         ):
             continue
 
@@ -216,6 +225,17 @@ def pint_parameters_to_vela(model: TimingModel):
 
         multi_params.append(vl.MultiParameter(jl.Symbol(param.prefix), elements))
         processed_multi_params.append(param.prefix)
+
+    # Special treatment for `FDJUMP`s
+    if "FDJump" in model.components:
+        fdjump_names = [
+            fdj
+            for fdj in model.components["FDJump"].fdjumps
+            if model[fdj].quantity is not None
+        ]
+        elements = _get_multiparam_elements(model, fdjump_names)
+        multi_params.append(vl.MultiParameter(jl.Symbol("FDJUMP"), elements))
+
     multi_params = jl.Vector[vl.MultiParameter](multi_params)
 
     return single_params, multi_params
