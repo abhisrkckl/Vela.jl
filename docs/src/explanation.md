@@ -1,5 +1,8 @@
 # Explanation
 
+This page provides somewhat technical descriptions about the theory, internal workings, and design 
+choices of `Vela.jl`. If you are a beginner please go to Tutorials first.
+
 ## Quantities
 
 It turns out that we can write the entire pulsar timing formula (e.g., see Equations 1-2 of 
@@ -154,4 +157,40 @@ It turns out that the log-likelihood can be evaluated at linear time for both th
 and the `EcorrKernel`.
 
 (Time-correlated noise processes are currently work in progress...)
+
+## `Parameter`s
+
+Each `TimingModel` has a number of model parameters, some of which are free and some frozen.
+Some of these parameters are single parameters, like the phase offset `PHOFF`, and is 
+represented by the `Parameter` type. Some come as families of similar parameters, such as the
+pulsar frequency `F0` and its derivatives `F1`, `F2`, etc. These are represented as 
+`MultiParameter`s. These contain information about parameter names, their original units (used
+by `PINT`), the scaling factors for converting to and from the `Vela.jl` units, default values,
+ whether they are free/frozen, etc. 
+
+The `correct_toa` methods expect the parameters to be passed in as a `NamedTuple` containing 
+`GQ`s for single `Parameter`s and `NTuple`s of `GQ`s for `MultiParameter`s. 
+
+The `ParamHandler` type contains a collection of all the parameters of a model, and is used
+to convert a `Vector{Float64}` of free parameter values provided by the sampler to a `NamedTuple` 
+the `correct_toa` methods can understand. Each `TimingModel` has a `ParamHandler` attached to it.
+
+## Prior and Posterior distributions
+
+The prior distributions of each free parameter is represented as a `Prior` object. These use
+the `Distribution`s defined by `Distributions.jl` under the hood. Each `Prior` has the 
+`lnprior` and `prior_transform` methods which compute the log-prior distribution and the 
+[prior transform function](http://kylebarbary.com/nestle/prior.html) for that parameter.
+The former is necessary for MCMC samplers and the latter for nested samplers.
+Please note that these functions act on `Float64`s rather than `GQ`s because the samplers 
+only provide `Float64`s.
+
+A `TimingModel` also has the `lnprior` and `prior_transform` methods; they evaluate the log-prior
+and the prior transform over all free parameters.
+
+The log-posterior is the sum of the log-likelihood and the log-prior up to an additive 
+constant, and can be evaluated using the `lnpost` function. The `get_lnpost_func` function
+returns a callable that can be passed on to samplers. 
+
+Note that the expensive log-likelihood is evaluated only if the log-prior is finite. 
 
