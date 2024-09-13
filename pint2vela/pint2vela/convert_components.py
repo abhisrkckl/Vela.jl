@@ -150,6 +150,9 @@ def pint_components_to_vela(model: TimingModel, toas: TOAs):
     if "FD" in component_names:
         components.append(vl.FrequencyDependent())
 
+    if "FDJump" in component_names:
+        components.append(vl.FrequencyDependentJump())
+
     if "WaveX" in component_names:
         components.append(vl.WaveX())
 
