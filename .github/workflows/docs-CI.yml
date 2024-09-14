@@ -40,7 +40,7 @@ jobs:
       - name: Install dependencies
         run: |
           julia -e 'import Pkg; Pkg.develop(path=".")'
-          julia -e 'import Pkg; Pkg.add(["Documenter"])'
+          julia -e 'import Pkg; Pkg.add(["Documenter", "AbstractTrees"])'
       - name: Build documentation
         run: |
           julia --color=yes --project docs/make.jl
