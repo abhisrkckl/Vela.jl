@@ -4,9 +4,9 @@ import numpy as np
 import pytest
 from pint.models import get_model, get_model_and_toas
 
-from pint2vela import read_model_and_toas
-from pint2vela.ecorr import ecorr_sort
-from pint2vela.pint2vela import get_kernel
+from pyvela import read_model_and_toas
+from pyvela.ecorr import ecorr_sort
+from pyvela.pint2vela import get_kernel
 
 
 @pytest.fixture(scope="module")

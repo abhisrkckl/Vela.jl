@@ -3,9 +3,9 @@ import pytest
 from juliacall import Main as jl
 from pint.models import get_model_and_toas
 
-from pint2vela import read_model_and_toas
-from pint2vela.vela import vl
-from pint2vela.convert_parameters import fdjump_rx
+from pyvela import read_model_and_toas
+from pyvela.vela import vl
+from pyvela.convert_parameters import fdjump_rx
 
 jl.seval("using BenchmarkTools")
 jl.seval("get_alloc(func, args...) = @ballocated(($func)(($args)...))")

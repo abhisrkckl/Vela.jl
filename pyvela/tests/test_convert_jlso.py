@@ -1,7 +1,7 @@
 import os
 
-from pint2vela.pint2vela import par_tim_to_jlso
-from pint2vela.vela import vl
+from pyvela.pint2vela import par_tim_to_jlso
+from pyvela.vela import vl
 
 
 def test_convert_jlso():
