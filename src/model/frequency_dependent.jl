@@ -24,9 +24,9 @@ struct FrequencyDependentJump <: DelayComponent
     jump_mask::BitMatrix
     exponents::Vector{UInt}
 
-    function FrequencyDependentJump(mask, idxs)
-        @assert size(mask)[1] == length(idxs)
-        return new(jump_mask, idxs)
+    function FrequencyDependentJump(mask, exps)
+        @assert size(mask)[1] == length(exps)
+        return new(mask, exps)
     end
 end
 
@@ -51,4 +51,9 @@ function delay(fdj::FrequencyDependentJump, ctoa::CorrectedTOA, params::NamedTup
     end
 
     return delay
+end
+
+function show(io::IO, fdjmp::FrequencyDependentJump)
+    num_jumps = length(fdjmp.exponents)
+    print(io, "FrequencyDependentJump($num_jumps FDJUMPs)")
 end
