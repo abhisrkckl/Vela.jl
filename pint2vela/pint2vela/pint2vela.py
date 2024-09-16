@@ -6,7 +6,7 @@ from pint.models import PhaseOffset, TimingModel, get_model_and_toas
 from pint.models.parameter import MJDParameter
 from pint.toa import TOAs
 
-from .convert_components import pint_components_to_vela
+from .convert_components import is_exclusive_mask, pint_components_to_vela, read_mask
 from .convert_parameters import pint_parameters_to_vela
 from .convert_toas import pint_toa_to_vela, pint_toas_to_vela
 from .ecorr import ecorr_sort
@@ -67,6 +67,7 @@ def fix_params(model: TimingModel) -> None:
 
 def get_kernel(
     model: TimingModel,
+    toas: TOAs,
     ecorr_toa_ranges: List[Tuple[int, int]],
     ecorr_indices: List[int],
 ):
@@ -75,6 +76,14 @@ def get_kernel(
     if not model.has_correlated_errors:
         return vl.WhiteNoiseKernel()
     elif not model.has_time_correlated_errors:
+        ecorr_mask0 = read_mask(
+            toas, [model[ef] for ef in model.EFACs if model.EFACs[ef][0] is not None]
+        )
+
+        assert len(ecorr_mask0) == 0 or is_exclusive_mask(
+            ecorr_mask0
+        ), "Non-exclusive ECORRs are not supported."
+
         ecorr_groups = vl.Vector(
             [
                 vl.EcorrGroup(start, stop, index)
@@ -116,7 +125,7 @@ def pint_model_to_vela(
     tzr_toa.compute_pulse_numbers(model)
     tzr_toa = pint_toa_to_vela(tzr_toa, 0, tzr=True)
 
-    kernel = get_kernel(model, ecorr_toa_ranges, ecorr_indices)
+    kernel = get_kernel(model, toas, ecorr_toa_ranges, ecorr_indices)
 
     return vl.TimingModel(
         pulsar_name,
