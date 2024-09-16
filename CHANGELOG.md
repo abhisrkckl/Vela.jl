@@ -1,4 +1,10 @@
-# [Unreleased]
+# Unreleased
+## Added
+## Changed
+## Fixed
+## Removed
+
+# [0.0.4]
 ## Added
 - Doppler factor in `BinaryELL1`
 - `BinaryDD`, `BinaryDDH`, `BinaryDDS`, `BinaryELL1H`, and `BinaryDDK` models
