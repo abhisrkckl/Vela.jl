@@ -87,4 +87,4 @@ def test_plrednoise_error():
     m = get_model(StringIO(par))
 
     with pytest.raises(NotImplementedError):
-        get_kernel(m, [], [])
+        get_kernel(m, None, [], [])
