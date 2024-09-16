@@ -4,7 +4,7 @@ from astropy.time import Time
 from pint.models import TimingModel
 from pint.models.parameter import AngleParameter, MJDParameter, floatParameter
 
-from .convert_parameters import get_scale_factor, pseudo_single_params
+from .convert_parameters import get_scale_factor, pseudo_single_params, fdjump_rx
 from .convert_toas import day_to_s
 from .vela import jl, vl
 
@@ -74,6 +74,15 @@ def get_default_prior(
     ):
         pname = jl.Symbol(param_name)
         return vl.SimplePrior[pname](pdist)
+    elif hasattr(param, "prefix") and fdjump_rx.match(param.name):
+        pname = jl.Symbol("FDJUMP")
+        fdjump_names = [
+            fdj
+            for fdj in model.components["FDJump"].fdjumps
+            if model[fdj].quantity is not None
+        ]
+        index = fdjump_names.index(param.name) + 1
+        return vl.SimplePriorMulti[pname, index](pdist)
     elif hasattr(param, "prefix") and param.prefix not in pseudo_single_params:
         pname = jl.Symbol(param.prefix)
         index = (
