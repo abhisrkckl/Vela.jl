@@ -89,9 +89,18 @@ make_tzr_toa(tzrtdb, tzrfreq, tzrbary, tzrephem) = TOA(
     0,
 )
 
+"""
+    CorrectedTOABase
+
+The abstract base type representing the accumulated timing & noise model 
+corrections applied to a TOA.
+"""
 abstract type CorrectedTOABase end
 
-"""The accumulated timing & noise model corrections applied to a narrowband TOA."""
+"""
+    CorrectedTOA
+
+The accumulated timing & noise model corrections applied to a narrowband TOA."""
 struct CorrectedTOA <: CorrectedTOABase
     toa::TOA
     delay::GQ{1,Float64}
@@ -150,32 +159,79 @@ CorrectedTOA(toa) = CorrectedTOA(
     0,
 )
 
-"""Squared TOA uncertainty after applying EFAC and EQUAD."""
+"""
+    scaled_toa_error_sqr(ctoa::CorrectedTOA)
+
+Squared TOA uncertainty incorporating the effect of `EFAC`s and `EQUAD`s.
+"""
 scaled_toa_error_sqr(ctoa::CorrectedTOA) =
     (ctoa.toa.error * ctoa.toa.error + ctoa.equad2) * ctoa.efac * ctoa.efac
 
-"""Spin frequency in topocentric or barycentric frame, depending on the correction level.
-The spin_frequency is originally in the pulsar frame."""
-function doppler_shifted_spin_frequency(ctoa::CorrectedTOA)::GQ
+"""
+    doppler_shifted_spin_frequency(ctoa::CorrectedTOA)
+
+The spin frequency after applying the various Doppler corrections (i.e., from the
+solar system motion, pulsar binary motion, etc.) depending on the correction level. 
+The spin frequency is originally computed in the pulsar frame.
+"""
+function doppler_shifted_spin_frequency(ctoa::CorrectedTOA)
     @assert !iszero(ctoa.spin_frequency) "The spin_frequency has not been set."
     return ctoa.spin_frequency * (1 + ctoa.doppler)
 end
 
-"""Observing frequency in the barycentric or pulsar frame, depending on the correction level.
-The observing_frequency is originally in the topocentric frame."""
+"""
+    doppler_corrected_observing_frequency(ctoa::CorrectedTOA)
+
+The observing radio frequency after applying the various Doppler corrections (i.e., 
+from the solar system motion, pulsar binary motion, etc.) depending on the correction 
+level. The observing frequency is originally measured in the topocentric frame.
+"""
 doppler_corrected_observing_frequency(ctoa::CorrectedTOA)::GQ =
     ctoa.toa.observing_frequency * (1 - ctoa.doppler)
 
-"""TOA value after delay correction with 128-bit precision."""
+"""
+    corrected_toa_value_F128(ctoa::CorrectedTOA)
+
+TOA value after delay correction with extended precision.
+"""
 corrected_toa_value_F128(ctoa::CorrectedTOA) = ctoa.toa.value - ctoa.delay
 
-"""TOA value after delay correction with 64-bit precision."""
+"""
+    corrected_toa_value(ctoa::CorrectedTOA)
+
+TOA value after delay correction with 64-bit precision.
+"""
 corrected_toa_value(ctoa::CorrectedTOA) = GQ{Float64}(ctoa.toa.value) - ctoa.delay
 
 """TOA phase residual"""
 phase_residual(ctoa::CorrectedTOA) = ctoa.phase - ctoa.toa.pulse_number
 
-"""Apply a correction to a CorrectedTOA object."""
+"""
+    correct_toa(
+        ctoa::CorrectedTOA;
+        delay::GQ = time(0.0),
+        phase::GQ = dimensionless(0.0),
+        efac::GQ = dimensionless(1.0),
+        equad2::GQ = GQ{2}(0.0),
+        delta_spin_frequency::GQ = frequency(0.0),
+        doppler::GQ = dimensionless(0.0),
+        barycentered::Bool = false,
+        ssb_psr_pos::Union{Nothing,NTuple{3,GQ{0,Float64}}} = nothing,
+    )
+
+Apply a correction to a TOA.
+
+# Arguments
+- `ctoa`: A `CorrectedTOA` object to be corrected
+- `delay`: A delay to be added to existing delay corrections
+- `phase`: A phase to be added to existing phase corrections
+- `efac`: An EFAC to be multiplied to existing EFAC corrections
+- `equad2`: A squared EQUAD to be added to existing squared EQUAD corrections
+- `delta_spin_frequency`: A spin frequency correction (additive)
+- `doppler`: A Doppler shift (additive)
+- `barycentered`: Whether the TOA has been barycentered (will be OR-ed to the existing value).
+- `ssb_psr_pos`: A unit 3-vector pointing from the SSB to the pulsar (will replace the existing value).
+"""
 correct_toa(
     ctoa::CorrectedTOA;
     delay::GQ = time(0.0),
