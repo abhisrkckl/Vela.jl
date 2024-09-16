@@ -62,7 +62,7 @@ for pname, mean, std in zip(param_names, means, stds):
 
 # %%
 # param_labels = [f"\n\n{pname}\n({m[pname].units})\n" for pname in param_names]
-param_labels = vl.get_free_param_labels(mv)
+param_labels = [f"\n\n{label}\n" for label in vl.get_free_param_labels(mv)]
 fig = corner.corner(
     samples_v,
     labels=param_labels,
