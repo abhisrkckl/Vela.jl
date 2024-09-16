@@ -1,4 +1,4 @@
-name: pint2vela-CI
+name: pyvela-CI
 
 on:
   push:
@@ -16,7 +16,7 @@ concurrency:
 
 jobs:
   test:
-    name: Test pint2vela
+    name: Test pyvela
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -50,8 +50,8 @@ jobs:
           pip install .
       - name: Test with pytest
         run: |
-          cd pint2vela/tests
-          pytest --verbose -n auto --cov=pint2vela .
+          cd pyvela/tests
+          pytest --verbose -n auto --cov=pyvela .
       - name: Test formatting with black
         run: |
           black --check ..
