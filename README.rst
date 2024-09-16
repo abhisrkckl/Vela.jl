@@ -16,7 +16,7 @@ Vela
 Installation
 ------------
 The following commands install the Python and Julia packages that are needed for developing
-`Vela.jl` and running the examples and tests. 
+``Vela.jl`` and running the examples and tests. 
 
 ::
 
