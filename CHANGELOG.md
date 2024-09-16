@@ -1,5 +1,6 @@
 # Unreleased
 ## Added
+- Check for `ECORR` exclusivity
 ## Changed
 ## Fixed
 ## Removed
