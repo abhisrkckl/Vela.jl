@@ -1,6 +1,7 @@
 # Unreleased
 ## Added
 ## Changed
+- Renamed `pint2vela` -> `pyvela`
 ## Fixed
 ## Removed
 
