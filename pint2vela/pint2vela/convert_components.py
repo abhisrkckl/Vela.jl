@@ -150,6 +150,24 @@ def pint_components_to_vela(model: TimingModel, toas: TOAs):
     if "FD" in component_names:
         components.append(vl.FrequencyDependent())
 
+    if "FDJump" in component_names:
+        assert model["FDJUMPLOG"].value, "Only 'FDJUMPLOG Y' is supported currently."
+
+        fdjumps = [
+            model[fdj]
+            for fdj in model.components["FDJump"].fdjumps
+            if model[fdj].quantity is not None
+        ]
+        mask0 = read_mask(toas, fdjumps)
+        exponents = [model.components["FDJump"].get_fd_index(fd.name) for fd in fdjumps]
+
+        components.append(
+            vl.FrequencyDependentJump(
+                vl.BitMatrix(mask0),
+                vl.Vector[vl.UInt](exponents),
+            )
+        )
+
     if "WaveX" in component_names:
         components.append(vl.WaveX())
 

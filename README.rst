@@ -36,5 +36,5 @@ The following commands install the Python and Julia packages that are needed for
 
 Usage
 -----
-See `run_example_nestle.py` and `run_example_emcee.py` in `pint2vela/examples` directory
-for examples on how to use `Vela.jl` with an MCMC sampler and a nested sampler respectively.
+See ``run_example_nestle.py`` and ``run_example_emcee.py`` in ``pint2vela/examples`` directory
+for examples on how to use ``Vela.jl`` with an MCMC sampler and a nested sampler respectively.

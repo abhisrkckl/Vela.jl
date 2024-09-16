@@ -5,6 +5,7 @@ from pint.models import get_model_and_toas
 
 from pint2vela import read_model_and_toas
 from pint2vela.vela import vl
+from pint2vela.convert_parameters import fdjump_rx
 
 jl.seval("using BenchmarkTools")
 jl.seval("get_alloc(func, args...) = @ballocated(($func)(($args)...))")
@@ -25,6 +26,7 @@ datasets = [
     "sim3",
     "sim4",
     "sim_fd",
+    "sim_fdjump",
     "sim6",
     "sim_dd",
     "sim_ddk",
@@ -80,7 +82,9 @@ def test_data(model_and_toas):
 
     prnames = [str(vl.param_name(pr)) for pr in mv.priors]
     assert len(mv.priors) == len(pnames)
-    assert all([pn.startswith(prn) for pn, prn in zip(pnames, prnames)])
+    assert all(
+        [pn.startswith(prn) or fdjump_rx.match(pn) for pn, prn in zip(pnames, prnames)]
+    )
 
 
 def test_chi2(model_and_toas):
