@@ -27,6 +27,7 @@
   - `get_kernel` function in `pint2vela` that constructs `Kernel`s based on the `PINT` `TimingModel` object
 - `Glitch` component
 - `FrequencyDependentJump` component (`FDJUMP`s)
+- Documentation - Getting Started and Explanation pages
 ## Changed
 - Exposed `cheat_prior_scale` and `custom_prior_dists` options in `read_model_and_toas()`
 - Made changes according to the `GeometricUnits` API changes (`GQ` now represents dimensions as a type parameter)
