@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from pint2vela.convert_components import get_exclusive_mask, is_exclusive_mask
+from pyvela.convert_components import get_exclusive_mask, is_exclusive_mask
 
 
 def test_non_exclusive_mask():

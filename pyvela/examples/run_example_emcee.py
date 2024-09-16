@@ -11,8 +11,8 @@ from matplotlib import pyplot as plt
 from pint.logging import setup as setup_log
 from pint.models import get_model_and_toas
 
-from pint2vela import Vela as vl
-from pint2vela import read_model_and_toas
+from pyvela import Vela as vl
+from pyvela import read_model_and_toas
 
 # %%
 setup_log(level="WARNING")

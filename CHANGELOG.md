@@ -2,6 +2,7 @@
 ## Added
 - Check for `ECORR` exclusivity
 ## Changed
+- Renamed `pint2vela` -> `pyvela`
 ## Fixed
 ## Removed
 
