@@ -11,16 +11,22 @@ export TOA,
     correct_toa
 
 
-"""Abstract base type of all TOAs."""
+"""
+    TOABase
+
+Abstract base type of all TOAs."""
 abstract type TOABase end
 
-"""A single narrowband TOA observation.
+"""
+    TOA
 
-`value` incorporates the clock corrections and `ephem` contains the 
-solar system ephemerides. These are computed using `PINT`.
+A single narrowband TOA observation.
+
+`value` is the TOA in the TDB timescale incorporating the clock corrections.
+`ephem` contains the solar system ephemerides. These are computed using `PINT`.
 
 References:
-    [Hobbs+ 2006](http://doi.org/10.1111/j.1365-2966.2006.10302.x)
+    [Hobbs+ 2006](http://doi.org/10.1111/j.1365-2966.2006.10302.x),
     [Luo+ 2021](http://doi.org/10.3847/1538-4357/abe62f)
 """
 struct TOA <: TOABase
@@ -61,7 +67,17 @@ end
 TOA(value, error, observing_frequency, pulse_number, barycentered, ephem, index) =
     TOA(value, error, observing_frequency, pulse_number, barycentered, false, ephem, index)
 
-"""Create a TZR TOA object."""
+"""
+    make_tzr_toa(tzrtdb, tzrfreq, tzrbary, tzrephem)
+
+Create a TZR TOA object.
+
+# Arguments
+- `tzrtdb::GQ{1,Double64}`: The TZR TOA value (`TZRMJD`) in the TDB timescale
+- `tzrfreq::GQ{-1,Float64}`: The TZR TOA observing frequency (`TZRFRQ`)
+- `tzrbary::Bool`: Whether the TZR TOA has been barycentered
+- `tzrephem::SolarSystemEphemeris`: The solar system ephemeris at `TZRMJD`
+"""
 make_tzr_toa(tzrtdb, tzrfreq, tzrbary, tzrephem) = TOA(
     tzrtdb,
     time(0.0),
