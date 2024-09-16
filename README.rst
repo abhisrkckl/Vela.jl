@@ -13,6 +13,8 @@ Vela
    :target: LICENCE
    :alt: License: MIT
 
+A Bayesian pulsar timing and noise analysis package.
+
 Installation
 ------------
 The following commands install the Python and Julia packages that are needed for developing
