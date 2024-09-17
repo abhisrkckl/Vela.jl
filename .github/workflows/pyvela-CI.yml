@@ -43,7 +43,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install pytest pytest-xdist pytest-cov coverage black
+          pip install setuptools pytest pytest-xdist pytest-cov coverage black
           pip install git+https://github.com/nanograv/PINT/
           julia -e 'import Pkg; Pkg.develop(path=".")'
           julia -e 'import Pkg; Pkg.add(["Distributions", "DoubleFloats", "BenchmarkTools"])'
