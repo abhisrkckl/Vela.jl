@@ -42,6 +42,8 @@
 - Use the github version of `PINT` for testing
 - Split `test_components.jl` into multiple files.
 - Simplify the type hierarchy of `Component`s. Now all `Component`s are `TOA`-uncorrelated by definition.
+- Infer `is_tzr(toa)` from `toa.index`
+- Infer `is_barycentered(toa)` from `toa.ephem.ssb_obs_pos`
 ## Fixed
 - Tests now handle par files without `PHOFF` properly.
 - Proper motion computation
@@ -52,6 +54,7 @@
 - Bug in `correct_toa()` (`ssb_psr_pos` was being set incorrectly)
 - `black` failure now shows up as a CI failure.
 - Handling of `prefixParameters` with `Time` quantities
+- Don't apply `MeasurementNoise` to TZR TOAs
 ## Removed
 
 # [0.0.3] - 2024-08-22
