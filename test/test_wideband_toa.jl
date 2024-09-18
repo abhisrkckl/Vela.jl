@@ -4,30 +4,20 @@
     freq = frequency(1.4e9)
     pulse_number = dimensionless(Double64(1000.0))
 
-    ephem = SolarSystemEphemeris(
-        ssb_obs_pos,
-        ssb_obs_vel,
-        obs_sun_pos,
-        obs_jupiter_pos,
-        obs_saturn_pos,
-        obs_venus_pos,
-        obs_uranus_pos,
-        obs_neptune_pos,
-        obs_earth_pos,
-    )
+    ephem = default_ephem()
 
     toa = TOA(toaval, toaerr, freq, pulse_number, ephem, 1)
     dminfo = DMInfo(GQ{-1}(1e16), GQ{-1}(1e11))
     wtoa = WidebandTOA(toa, dminfo)
-    cwtoa1 = CorrectedWidebandTOA(wtoa)
+    cwtoa1 = WidebandTOACorrection()
 
-    @test cwtoa1.corrected_toa.level == 0
+    @test cwtoa1.toa_correction.level == 0
 
-    @test dm_residual(cwtoa1.corrected_dminfo) == dminfo.value
-    @test scaled_dm_error_sqr(cwtoa1.corrected_dminfo) == dminfo.error^Val(2)
+    @test dm_residual(wtoa.dminfo, cwtoa1.dm_correction) == dminfo.value
+    @test scaled_dm_error_sqr(wtoa.dminfo, cwtoa1.dm_correction) == dminfo.error^Val(2)
 
     ddm = GQ{-1}(1e14)
-    cdminfo = cwtoa1.corrected_dminfo
+    cdminfo = cwtoa1.dm_correction
     cdminfo2 = correct_dminfo(
         cdminfo;
         delta_dm = ddm,

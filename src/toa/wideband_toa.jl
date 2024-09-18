@@ -31,8 +31,7 @@ correct_dminfo(
     delta_dm = GQ{-1}(0.0),
     dmefac = dimensionless(1.0),
     dmequad2 = GQ{-2}(0.0),
-) = CorrectedDMInfo(
-    dmcorr.dminfo,
+) = DMInfoCorrection(
     dmcorr.model_dm + delta_dm,
     dmcorr.dmefac * dmefac,
     dmcorr.dmequad2 + dmequad2,
@@ -68,7 +67,7 @@ show(io::IO, toas::Vector{WidebandTOA}) =
 """The accumulated timing & noise model corrections applied to a wideband TOA."""
 struct WidebandTOACorrection <: TOACorrectionBase
     toa_correction::TOACorrection
-    dm_corrtion::DMInfoCorrection
+    dm_correction::DMInfoCorrection
 end
 
 WidebandTOACorrection() = WidebandTOACorrection(TOACorrection(), DMInfoCorrection())
