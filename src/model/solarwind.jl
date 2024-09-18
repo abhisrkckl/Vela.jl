@@ -4,10 +4,10 @@ export SolarWind, SolarWindDispersion
 This is different from the sun angle defined in PINT; that angle is π-ρ in our
 notation. This function assumes that the ssb_psr_pos has already been computed and
 is available in the CorrectedTOA object."""
-function sun_angle_and_distance(ctoa::CorrectedTOA)
-    Lhat = ctoa.ssb_psr_pos
-    @assert !all(iszero.(Lhat)) "ssb_psr_pos is not available!"
-    rvec = ctoa.toa.ephem.obs_sun_pos
+function sun_angle_and_distance(toa::TOA, toacorr::TOACorrection)
+    Lhat = toacorr.ssb_psr_pos
+    @assert !all(iszero, Lhat) "ssb_psr_pos is not available!"
+    rvec = toa.ephem.obs_sun_pos
     r = sqrt(dot(rvec, rvec))
     cos_ρ = -dot(Lhat, rvec) / r
     return acos(cos_ρ), r
@@ -24,7 +24,12 @@ Reference:
 """
 struct SolarWindDispersion <: SolarWind end
 
-function dispersion_slope(::SolarWindDispersion, ctoa::CorrectedTOA, params::NamedTuple)::GQ
-    ρ, r = sun_angle_and_distance(ctoa)
+function dispersion_slope(
+    ::SolarWindDispersion,
+    toa::TOA,
+    toacorr::TOACorrection,
+    params::NamedTuple,
+)::GQ
+    ρ, r = sun_angle_and_distance(toa, toacorr)
     return params.NE_SW * AU * AU * ρ / (r * sin(ρ))
 end

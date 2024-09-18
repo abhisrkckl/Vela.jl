@@ -27,8 +27,8 @@ struct DDState
     sini::GQ{0,Float64}
 end
 
-function DDState(dd::BinaryDDBase, ctoa::CorrectedTOA, params::NamedTuple)
-    Δt = corrected_toa_value(ctoa) - params.T0
+function DDState(dd::BinaryDDBase, toa::TOA, toacorr::TOACorrection, params::NamedTuple)
+    Δt = corrected_toa_value(toa, toacorr, Float64) - params.T0
     n = mean_motion(Δt, params, dd.use_fbx)
     l = mean_anomaly(Δt, params, dd.use_fbx)
 
@@ -125,8 +125,8 @@ in an eccentric orbit using the inverse timing formula.
 
 Reference:
     [Damour & Deruelle 1986](https://ui.adsabs.harvard.edu/abs/1986AIHPA..44..263D/abstract)"""
-function correct_toa(dd::BinaryDDBase, ctoa::CorrectedTOA, params::NamedTuple)
-    state = DDState(dd, ctoa, params)
+function correct_toa(dd::BinaryDDBase, toa::TOA, toacorr::TOACorrection, params::NamedTuple)
+    state = DDState(dd, toa, toacorr, params)
 
     ΔRE = rømer_einstein_delay(dd, state)
     ΔREp = d_rømer_einstein_delay_d_u(dd, state)

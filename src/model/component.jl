@@ -7,23 +7,36 @@ abstract type Component end
 abstract type PhaseComponent <: Component end
 
 """Correct the phase of a `TOA`."""
-correct_toa(component::PhaseComponent, ctoa::CorrectedTOA, params::NamedTuple) =
-    correct_toa(ctoa; phase = phase(component, ctoa, params))
+correct_toa(
+    component::PhaseComponent,
+    toa::TOABase,
+    toacorr::TOACorrection,
+    params::NamedTuple,
+) = correct_toa(toacorr; phase = phase(component, toa, toacorr, params))
 
 """Abstract base type of all timing model components which contribute a time delay correction to a TOA."""
 abstract type DelayComponent <: Component end
 
 """Correct the value of a `TOA` using a delay."""
-correct_toa(component::DelayComponent, ctoa::CorrectedTOA, params::NamedTuple) =
-    correct_toa(ctoa; delay = delay(component, ctoa, params))
+correct_toa(
+    component::DelayComponent,
+    toa::TOA,
+    toacorr::TOACorrection,
+    params::NamedTuple,
+) = correct_toa(toacorr; delay = delay(component, toa, toacorr, params))
 
 """Abstrct base type of all timing model components which provide a dispersion measure correction."""
 abstract type DispersionComponent <: DelayComponent end
 
 """Compute a dispersion delay."""
-delay(component::DispersionComponent, ctoa::CorrectedTOA, params::NamedTuple)::GQ =
-    dispersion_slope(component, ctoa, params) /
-    doppler_corrected_observing_frequency(ctoa)^Val(2)
+delay(
+    component::DispersionComponent,
+    toa::TOA,
+    toacorr::TOACorrection,
+    params::NamedTuple,
+) =
+    dispersion_slope(component, toa, toacorr, params) /
+    doppler_corrected_observing_frequency(toa, toacorr)^Val(2)
 
 """Abstract base type of all binary components."""
 abstract type BinaryComponent <: DelayComponent end

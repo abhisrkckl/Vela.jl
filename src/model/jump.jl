@@ -11,9 +11,9 @@ struct PhaseJump <: PhaseJumpBase
     jump_mask::BitMatrix
 end
 
-phase(pjmp::PhaseJump, ctoa::CorrectedTOA, params::NamedTuple)::GQ =
-    is_tzr(ctoa.toa) ? dimensionless(0.0) :
-    (basis_dot(pjmp.jump_mask, params.JUMP, ctoa.toa.index) * (params.F_ + params.F[1]))
+phase(pjmp::PhaseJump, toa::TOA, ::TOACorrection, params::NamedTuple)::GQ =
+    is_tzr(toa) ? dimensionless(0.0) :
+    (basis_dot(pjmp.jump_mask, params.JUMP, toa.index) * (params.F_ + params.F[1]))
 
 function show(io::IO, jmp::PhaseJump)
     num_jumps = size(jmp.jump_mask)[1]
@@ -25,11 +25,11 @@ struct ExclusivePhaseJump <: PhaseJumpBase
     jump_mask::Vector{UInt}
 end
 
-function phase(pjmp::ExclusivePhaseJump, ctoa::CorrectedTOA, params::NamedTuple)::GQ
-    return if is_tzr(ctoa.toa)
+function phase(pjmp::ExclusivePhaseJump, toa::TOA, ::TOACorrection, params::NamedTuple)::GQ
+    return if is_tzr(toa)
         dimensionless(0.0)
     else
-        idx = pjmp.jump_mask[ctoa.toa.index]
+        idx = pjmp.jump_mask[toa.index]
         if idx == 0
             dimensionless(0.0)
         else

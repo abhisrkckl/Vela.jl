@@ -10,9 +10,14 @@ Reference:
 struct Spindown <: PhaseComponent end
 
 """Rotational phase of the pulsar."""
-function phase(::Spindown, ctoa::CorrectedTOA, params::NamedTuple)::GQ{0,Double64}
+function phase(
+    ::Spindown,
+    toa::TOA,
+    toacorr::TOACorrection,
+    params::NamedTuple,
+)::GQ{0,Double64}
     t0 = params.PEPOCH
-    t = corrected_toa_value_F128(ctoa)
+    t = corrected_toa_value(toa, toacorr)
     fs = params.F
     phase0 = dimensionless(0.0)
     t_t0 = t - t0
@@ -20,16 +25,22 @@ function phase(::Spindown, ctoa::CorrectedTOA, params::NamedTuple)::GQ{0,Double6
 end
 
 """Instantaneous rotational frequency of the pulsar."""
-function spin_frequency(::Spindown, ctoa::CorrectedTOA, params::NamedTuple)::GQ{-1,Float64}
+function spin_frequency(
+    ::Spindown,
+    toa::TOA,
+    toacorr::TOACorrection,
+    params::NamedTuple,
+)::GQ{-1,Float64}
     t0 = params.PEPOCH
-    t = corrected_toa_value(ctoa)
+    t = corrected_toa_value(toa, toacorr, Float64)
     fs = params.F
     return params.F_ + taylor_horner(t - t0, fs)
 end
 
 """Update the `CorrectedTOA` object with the rotational phase and spin frequency"""
-correct_toa(spindown::Spindown, ctoa::CorrectedTOA, params::NamedTuple) = correct_toa(
-    ctoa;
-    phase = phase(spindown, ctoa, params),
-    delta_spin_frequency = spin_frequency(spindown, ctoa, params),
-)
+correct_toa(spindown::Spindown, toa::TOA, toacorr::TOACorrection, params::NamedTuple) =
+    correct_toa(
+        toacorr;
+        phase = phase(spindown, toa, toacorr, params),
+        delta_spin_frequency = spin_frequency(spindown, toa, toacorr, params),
+    )

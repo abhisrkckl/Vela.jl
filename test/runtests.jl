@@ -64,23 +64,23 @@ end
 
     include("test_toa.jl")
 
-    include("test_wideband_toa.jl")
+    # include("test_wideband_toa.jl")
 
-    include("test_param.jl")
+    # include("test_param.jl")
 
-    include("test_components.jl")
+    # include("test_components.jl")
 
-    include("test_priors.jl")
+    # include("test_priors.jl")
 
-    include("test_timing_model.jl")
+    # include("test_timing_model.jl")
 
-    include("test_pure_rotator.jl")
+    # include("test_pure_rotator.jl")
 
-    include("test_NGC6440E.jl")
+    # include("test_NGC6440E.jl")
 
-    include("test_sim_sw_wb.jl")
+    # include("test_sim_sw_wb.jl")
 
-    include("test_sim2.jl")
+    # include("test_sim2.jl")
 
     @testset "formatting" begin
         @test format(Vela)

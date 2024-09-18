@@ -10,9 +10,14 @@ Reference:
 struct DispersionTaylor <: DispersionComponent end
 
 """Compute the dispersion slope corresponding to a TOA using a Taylor series representation."""
-function dispersion_slope(::DispersionTaylor, ctoa::CorrectedTOA, params::NamedTuple)::GQ
+function dispersion_slope(
+    ::DispersionTaylor,
+    toa::TOA,
+    toacorr::TOACorrection,
+    params::NamedTuple,
+)::GQ
     t0 = params.DMEPOCH
-    t = corrected_toa_value(ctoa)
+    t = corrected_toa_value(toa, toacorr, Float64)
     dms = params.DM
     dm = taylor_horner(t - t0, dms)
     return dm

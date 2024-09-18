@@ -17,8 +17,8 @@ function glitch_phase(t, t_gl, ϕ_gl, f0_gl, f1_gl, f2_gl, fd_gl, τ_gl)
     )
 end
 
-function phase(::Glitch, ctoa::CorrectedTOA, params::NamedTuple)::GQ
-    t = corrected_toa_value(ctoa)
+function phase(::Glitch, toa::TOA, toacorr::TOACorrection, params::NamedTuple)::GQ
+    t = corrected_toa_value(toa, toacorr, Float64)
     return sum(
         glitch_phase(t, t_gl, ϕ_gl, f0_gl, f1_gl, f2_gl, fd_gl, τ_gl) for
         (t_gl, ϕ_gl, f0_gl, f1_gl, f2_gl, fd_gl, τ_gl) in zip(

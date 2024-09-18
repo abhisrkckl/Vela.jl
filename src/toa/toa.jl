@@ -4,7 +4,7 @@ export TOA,
     make_tzr_toa,
     is_tzr,
     is_barycentered,
-    CorrectedTOA,
+    TOACorrection,
     scaled_toa_error_sqr,
     doppler_shifted_spin_frequency,
     doppler_corrected_observing_frequency,
@@ -45,11 +45,10 @@ is_barycentered(toa::TOA) = all(iszero, toa.ephem.ssb_obs_pos)
 make_tzr_toa(tzrtdb, tzrfreq, tzrephem) =
     TOA(tzrtdb, time(0.0), tzrfreq, dimensionless(Double64(0.0)), tzrephem, 0)
 
-abstract type CorrectedTOABase end
+abstract type TOACorrectionBase end
 
 """The accumulated timing & noise model corrections applied to a narrowband TOA."""
-struct CorrectedTOA <: CorrectedTOABase
-    toa::TOA
+struct TOACorrection <: TOACorrectionBase
     delay::GQ{1,Float64}
     phase::GQ{0,Double64}
     efac::GQ{0,Float64}
@@ -59,8 +58,7 @@ struct CorrectedTOA <: CorrectedTOABase
     ssb_psr_pos::NTuple{3,GQ{0,Float64}}
     level::UInt
 
-    function CorrectedTOA(
-        toa,
+    function TOACorrection(
         delay,
         phase,
         efac,
@@ -76,24 +74,13 @@ struct CorrectedTOA <: CorrectedTOABase
         @assert all(iszero.(ssb_psr_pos)) ||
                 dot(ssb_psr_pos, ssb_psr_pos) ≈ dimensionless(1.0) "ssb_psr_pos must be a zero vector (representing pending computation) or a unit vector."
 
-        return new(
-            toa,
-            delay,
-            phase,
-            efac,
-            equad2,
-            spin_frequency,
-            doppler,
-            ssb_psr_pos,
-            level,
-        )
+        return new(delay, phase, efac, equad2, spin_frequency, doppler, ssb_psr_pos, level)
     end
 end
 
-is_barycentered(ctoa::CorrectedTOA) = !all(iszero, ctoa.ssb_psr_pos)
+is_barycentered(toacorr::TOACorrection) = !all(iszero, toacorr.ssb_psr_pos)
 
-CorrectedTOA(toa) = CorrectedTOA(
-    toa,
+TOACorrection() = TOACorrection(
     time(0.0),
     dimensionless(Double64(0.0)),
     dimensionless(1.0),
@@ -105,33 +92,33 @@ CorrectedTOA(toa) = CorrectedTOA(
 )
 
 """Squared TOA uncertainty after applying EFAC and EQUAD."""
-scaled_toa_error_sqr(ctoa::CorrectedTOA) =
-    (ctoa.toa.error * ctoa.toa.error + ctoa.equad2) * ctoa.efac * ctoa.efac
+scaled_toa_error_sqr(toa::TOA, toacorr::TOACorrection) =
+    (toa.error * toa.error + toacorr.equad2) * toacorr.efac * toacorr.efac
 
 """Spin frequency in topocentric or barycentric frame, depending on the correction level.
 The spin_frequency is originally in the pulsar frame."""
-function doppler_shifted_spin_frequency(ctoa::CorrectedTOA)::GQ
-    @assert !iszero(ctoa.spin_frequency) "The spin_frequency has not been set."
-    return ctoa.spin_frequency * (1 + ctoa.doppler)
+function doppler_shifted_spin_frequency(toacorr::TOACorrection)
+    @assert !iszero(toacorr.spin_frequency) "The spin_frequency has not been set."
+    return toacorr.spin_frequency * (1 + toacorr.doppler)
 end
 
 """Observing frequency in the barycentric or pulsar frame, depending on the correction level.
 The observing_frequency is originally in the topocentric frame."""
-doppler_corrected_observing_frequency(ctoa::CorrectedTOA)::GQ =
-    ctoa.toa.observing_frequency * (1 - ctoa.doppler)
+doppler_corrected_observing_frequency(toa::TOA, toacorr::TOACorrection) =
+    toa.observing_frequency * (1 - toacorr.doppler)
 
-"""TOA value after delay correction with 128-bit precision."""
-corrected_toa_value_F128(ctoa::CorrectedTOA) = ctoa.toa.value - ctoa.delay
-
-"""TOA value after delay correction with 64-bit precision."""
-corrected_toa_value(ctoa::CorrectedTOA) = GQ{Float64}(ctoa.toa.value) - ctoa.delay
+"""TOA value after delay correction."""
+corrected_toa_value(toa::TOA, toacorr::TOACorrection)::GQ{1,Double64} =
+    toa.value - toacorr.delay
+corrected_toa_value(toa::TOA, toacorr::TOACorrection, ::Type{Float64}) =
+    GQ{Float64}(corrected_toa_value(toa, toacorr))
 
 """TOA phase residual"""
-phase_residual(ctoa::CorrectedTOA) = ctoa.phase - ctoa.toa.pulse_number
+phase_residual(toa::TOA, toacorr::TOACorrection) = toacorr.phase - toa.pulse_number
 
 """Apply a correction to a CorrectedTOA object."""
 correct_toa(
-    ctoa::CorrectedTOA;
+    toacorr::TOACorrection;
     delay::GQ = time(0.0),
     phase::GQ = dimensionless(0.0),
     efac::GQ = dimensionless(1.0),
@@ -139,22 +126,21 @@ correct_toa(
     delta_spin_frequency::GQ = frequency(0.0),
     doppler::GQ = dimensionless(0.0),
     ssb_psr_pos::Union{Nothing,NTuple{3,GQ{0,Float64}}} = nothing,
-) = CorrectedTOA(
-    ctoa.toa,
-    ctoa.delay + delay,
-    ctoa.phase + phase,
-    ctoa.efac * efac,
-    ctoa.equad2 + equad2,
-    ctoa.spin_frequency + delta_spin_frequency,
-    ctoa.doppler + doppler,
-    isnothing(ssb_psr_pos) ? ctoa.ssb_psr_pos : ssb_psr_pos,
-    ctoa.level + 1,
+) = TOACorrection(
+    toacorr.delay + delay,
+    toacorr.phase + phase,
+    toacorr.efac * efac,
+    toacorr.equad2 + equad2,
+    toacorr.spin_frequency + delta_spin_frequency,
+    toacorr.doppler + doppler,
+    isnothing(ssb_psr_pos) ? toacorr.ssb_psr_pos : ssb_psr_pos,
+    toacorr.level + 1,
 )
 
 const day_to_s = 86400
 show(io::IO, toa::TOA) = print(
     io,
-    "$(is_tzr(toa) ? "TZR" : "")TOA[MJD:$(trunc(Int, toa.value.x/day_to_s)), Freq(MHz):$(trunc(Int, toa.observing_frequency.x/1e6))]",
+    "TOA[MJD:$(trunc(Int, toa.value.x/day_to_s)), Freq(MHz):$(trunc(Int, toa.observing_frequency.x/1e6))]",
 )
 show(io::IO, ::MIME"text/plain", toa::TOABase) = show(io, toa)
 show(io::IO, toas::Vector{TOA}) = print(io, "[Vector containing $(length(toas)) TOAs.]")

@@ -64,8 +64,8 @@ function evaluate_proper_motion(α0, δ0, pmα, pmδ, dt)
 end
 
 """Update the `CorrectedTOA` object with solar system delays and Doppler factor."""
-function correct_toa(ss::SolarSystem, ctoa::CorrectedTOA, params::NamedTuple)
-    if is_barycentered(ctoa)
+function correct_toa(ss::SolarSystem, toa::TOA, toacorr::TOACorrection, params::NamedTuple)
+    if any(is_barycentered, (toa, toacorr))
         return correct_toa(ctoa)
     end
 
@@ -77,10 +77,10 @@ function correct_toa(ss::SolarSystem, ctoa::CorrectedTOA, params::NamedTuple)
     px = params.PX
     posepoch = params.POSEPOCH
 
-    dt = corrected_toa_value(ctoa) - posepoch
+    dt = corrected_toa_value(toa, toacorr) - posepoch
     Lhat = evaluate_proper_motion(long0, lat0, pmlong, pmlat, dt)
 
-    Rvec = ctoa.toa.ephem.ssb_obs_pos
+    Rvec = toa.ephem.ssb_obs_pos
 
     if ss.ecliptic_coordinates
         x, y, z = Lhat
@@ -104,16 +104,16 @@ function correct_toa(ss::SolarSystem, ctoa::CorrectedTOA, params::NamedTuple)
     end
 
     # Sun Shapiro delay
-    delay += solar_system_shapiro_delay(M_SUN, ctoa.toa.ephem.obs_sun_pos, Lhat)
+    delay += solar_system_shapiro_delay(M_SUN, toa.ephem.obs_sun_pos, Lhat)
 
     if ss.planet_shapiro
         masses = (M_JUPITER, M_SATURN, M_VENUS, M_URANUS, M_NEPTUNE)
         positions = (
-            ctoa.toa.ephem.obs_jupiter_pos,
-            ctoa.toa.ephem.obs_saturn_pos,
-            ctoa.toa.ephem.obs_venus_pos,
-            ctoa.toa.ephem.obs_uranus_pos,
-            ctoa.toa.ephem.obs_neptune_pos,
+            toa.ephem.obs_jupiter_pos,
+            toa.ephem.obs_saturn_pos,
+            toa.ephem.obs_venus_pos,
+            toa.ephem.obs_uranus_pos,
+            toa.ephem.obs_neptune_pos,
         )
 
         for (M, obs_obj_pos) in zip(masses, positions)
@@ -122,14 +122,14 @@ function correct_toa(ss::SolarSystem, ctoa::CorrectedTOA, params::NamedTuple)
         end
     end
 
-    vvec = ctoa.toa.ephem.ssb_obs_vel
+    vvec = toa.ephem.ssb_obs_vel
     Lhat_dot_vvec = dot(Lhat, vvec)
     # Doppler factor due to solar system motion
     # doppler = -d_roemerdelay / d_t
     # This applies to the frequency as freq*(1-doppler)
     doppler = Lhat_dot_vvec
 
-    return correct_toa(ctoa; delay = delay, doppler = doppler, ssb_psr_pos = Lhat)
+    return correct_toa(toacorr; delay = delay, doppler = doppler, ssb_psr_pos = Lhat)
 end
 
 function show(io::IO, ss::SolarSystem)

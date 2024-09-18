@@ -13,21 +13,21 @@ struct MeasurementNoise <: WhiteNoiseComponent
 end
 
 """The EFAC corresponding to a TOA (assumes exclusivity)."""
-function efac(wn::MeasurementNoise, ctoa::CorrectedTOA, params::NamedTuple)
-    idx = wn.efac_index_mask[ctoa.toa.index]
+function efac(wn::MeasurementNoise, toa::TOA, params::NamedTuple)
+    idx = wn.efac_index_mask[toa.index]
     return (idx == 0) ? dimensionless(1.0) : params.EFAC[idx]
 end
 
 """The EQUAD corresponding to a TOA (assumes exclusivity)."""
-function equad2(wn::MeasurementNoise, ctoa::CorrectedTOA, params::NamedTuple)
-    idx = wn.equad_index_mask[ctoa.toa.index]
+function equad2(wn::MeasurementNoise, toa::TOA, params::NamedTuple)
+    idx = wn.equad_index_mask[toa.index]
     return (idx == 0) ? GQ{2}(0.0) : params.EQUAD[idx]^Val(2)
 end
 
 """Apply EFAC and EQUAD to a TOA."""
-correct_toa(wn::MeasurementNoise, ctoa::CorrectedTOA, params::NamedTuple) =
-    is_tzr(ctoa.toa) ? correct_toa(ctoa) :
-    correct_toa(ctoa; efac = efac(wn, ctoa, params), equad2 = equad2(wn, ctoa, params))
+correct_toa(wn::MeasurementNoise, toa::TOA, toacorr::TOACorrection, params::NamedTuple) =
+    is_tzr(toa) ? correct_toa(toacorr) :
+    correct_toa(ctoa; efac = efac(wn, toa, params), equad2 = equad2(wn, toa, params))
 
 function show(io::IO, wn::MeasurementNoise)
     num_efacs = length(filter(x -> x > 0, unique(wn.efac_index_mask)))

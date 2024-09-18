@@ -1,10 +1,10 @@
 export DMInfo,
-    CorrectedDMInfo,
+    DMInfoCorrection,
     correct_dminfo,
     dm_residual,
     scaled_dm_error_sqr,
     WidebandTOA,
-    CorrectedWidebandTOA
+    WidebandTOACorrection
 
 """DM information associated with a wideband TOA.
 
@@ -18,34 +18,30 @@ struct DMInfo
 end
 
 """The accumulated timing & noise model corrections applied to wideband DM."""
-struct CorrectedDMInfo
-    dminfo::DMInfo
+struct DMInfoCorrection
     model_dm::GQ{-1,Float64}
     dmefac::GQ{0,Float64}
     dmequad2::GQ{-2,Float64}
 end
 
-CorrectedDMInfo(dminfo::DMInfo) =
-    CorrectedDMInfo(dminfo, GQ{-1}(0.0), dimensionless(1.0), GQ{-2}(0.0))
+DMInfoCorrection() = DMInfoCorrection(GQ{-1}(0.0), dimensionless(1.0), GQ{-2}(0.0))
 
 correct_dminfo(
-    cdminfo::CorrectedDMInfo;
+    dmcorr::DMInfoCorrection;
     delta_dm = GQ{-1}(0.0),
     dmefac = dimensionless(1.0),
     dmequad2 = GQ{-2}(0.0),
 ) = CorrectedDMInfo(
-    cdminfo.dminfo,
-    cdminfo.model_dm + delta_dm,
-    cdminfo.dmefac * dmefac,
-    cdminfo.dmequad2 + dmequad2,
+    dmcorr.dminfo,
+    dmcorr.model_dm + delta_dm,
+    dmcorr.dmefac * dmefac,
+    dmcorr.dmequad2 + dmequad2,
 )
 
-dm_residual(cdminfo::CorrectedDMInfo) = cdminfo.dminfo.value - cdminfo.model_dm
+dm_residual(dminfo::DMInfo, dmcorr::DMInfoCorrection) = dminfo.value - dmcorr.model_dm
 
-scaled_dm_error_sqr(cdminfo::CorrectedDMInfo) =
-    (cdminfo.dminfo.error * cdminfo.dminfo.error + cdminfo.dmequad2) *
-    cdminfo.dmefac *
-    cdminfo.dmefac
+scaled_dm_error_sqr(dminfo::DMInfo, dmcorr::DMInfoCorrection) =
+    (dminfo.error * dminfo.error + dmcorr.dmequad2) * dmcorr.dmefac * dmcorr.dmefac
 
 """A single wideband TOA observation.
 
@@ -70,10 +66,9 @@ show(io::IO, toas::Vector{WidebandTOA}) =
     print(io, "[Vector containing $(length(toas)) wideband TOAs.]")
 
 """The accumulated timing & noise model corrections applied to a wideband TOA."""
-struct CorrectedWidebandTOA <: CorrectedTOABase
-    corrected_toa::CorrectedTOA
-    corrected_dminfo::CorrectedDMInfo
+struct WidebandTOACorrection <: TOACorrectionBase
+    toa_correction::TOACorrection
+    dm_corrtion::DMInfoCorrection
 end
 
-CorrectedWidebandTOA(wtoa::WidebandTOA) =
-    CorrectedWidebandTOA(CorrectedTOA(wtoa.toa), CorrectedDMInfo(wtoa.dminfo))
+WidebandTOACorrection() = WidebandTOACorrection(TOACorrection(), DMInfoCorrection())
