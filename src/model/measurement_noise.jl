@@ -27,7 +27,7 @@ end
 """Apply EFAC and EQUAD to a TOA."""
 correct_toa(wn::MeasurementNoise, toa::TOA, toacorr::TOACorrection, params::NamedTuple) =
     is_tzr(toa) ? correct_toa(toacorr) :
-    correct_toa(ctoa; efac = efac(wn, toa, params), equad2 = equad2(wn, toa, params))
+    correct_toa(toacorr; efac = efac(wn, toa, params), equad2 = equad2(wn, toa, params))
 
 function show(io::IO, wn::MeasurementNoise)
     num_efacs = length(filter(x -> x > 0, unique(wn.efac_index_mask)))

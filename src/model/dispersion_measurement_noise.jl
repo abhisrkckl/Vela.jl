@@ -31,7 +31,7 @@ function correct_toa(
     params::NamedTuple,
 )
     dmcorr = correct_dminfo(
-        wtoacorr.dm_corrtion;
+        wtoacorr.dm_correction;
         dmefac = dmefac(dwn, wtoa, params),
         dmequad2 = dmequad2(dwn, wtoa, params),
     )

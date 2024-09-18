@@ -17,11 +17,11 @@
 
     include("test_phoff.jl")
 
-    # include("test_spindown.jl")
+    include("test_spindown.jl")
 
-    # include("test_jump.jl")
+    include("test_jump.jl")
 
-    # include("test_glitch.jl")
+    include("test_glitch.jl")
 
-    # include("test_white_noise.jl")
+    include("test_white_noise.jl")
 end
