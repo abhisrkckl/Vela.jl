@@ -1,6 +1,6 @@
 @testset "WaveX" begin
     toa = default_toa()
-    ctoa = CorrectedTOA(toa)
+    ctoa = TOACorrection()
 
     params = (
         WXEPOCH = time(53470.0 * day_to_s),
@@ -10,13 +10,13 @@
     )
 
     wx = WaveX()
-    @test isfinite(delay(wx, ctoa, params))
-    @test @ballocated(delay($wx, $ctoa, $params)) == 0
+    @test isfinite(delay(wx, toa, ctoa, params))
+    @test @ballocated(delay($wx, $toa, $ctoa, $params)) == 0
 end
 
 @testset "DMWaveX" begin
     toa = default_toa()
-    ctoa = CorrectedTOA(toa)
+    ctoa = TOACorrection()
 
     params = (
         DMWXEPOCH = time(53470.0 * day_to_s),
@@ -26,13 +26,13 @@ end
     )
 
     dmwx = DMWaveX()
-    @test isfinite(delay(dmwx, ctoa, params))
-    @test @ballocated(delay($dmwx, $ctoa, $params)) == 0
+    @test isfinite(delay(dmwx, toa, ctoa, params))
+    @test @ballocated(delay($dmwx, $toa, $ctoa, $params)) == 0
 end
 
 @testset "CMWaveX" begin
     toa = default_toa()
-    ctoa = CorrectedTOA(toa)
+    ctoa = TOACorrection()
 
     params = (
         CMWXEPOCH = time(53470.0 * day_to_s),
@@ -43,6 +43,6 @@ end
     )
 
     cmwx = CMWaveX()
-    @test isfinite(delay(cmwx, ctoa, params))
-    @test @ballocated(delay($cmwx, $ctoa, $params)) == 0
+    @test isfinite(delay(cmwx, toa, ctoa, params))
+    @test @ballocated(delay($cmwx, $toa, $ctoa, $params)) == 0
 end

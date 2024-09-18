@@ -11,4 +11,4 @@ struct PhaseOffset <: PhaseComponent end
 
 """Phase correction due to the overall phase offset."""
 phase(::PhaseOffset, toa::TOA, ::TOACorrection, params::NamedTuple) =
-    -Int(!is_tzr(ctoa.toa)) * params.PHOFF
+    -Int(!is_tzr(toa)) * params.PHOFF

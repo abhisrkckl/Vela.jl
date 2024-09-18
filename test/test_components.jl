@@ -9,13 +9,13 @@
 
     include("test_fd.jl")
 
-    # include("test_wavex.jl")
+    include("test_wavex.jl")
 
     # include("test_ell1.jl")
 
     # include("test_dd.jl")
 
-    # include("test_phoff.jl")
+    include("test_phoff.jl")
 
     # include("test_spindown.jl")
 
