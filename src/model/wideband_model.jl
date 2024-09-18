@@ -7,7 +7,7 @@ correct_toa(
     params::NamedTuple,
 ) = WidebandTOACorrection(
     correct_toa(component, wtoa.toa, wtoacorr.toa_correction, params),
-    wtoacorr.dm_corrtion,
+    wtoacorr.dm_correction,
 )
 
 """Update a `CorrectedWidebandTOA` object. 
@@ -22,7 +22,7 @@ function correct_toa(
     delay =
         dm / doppler_corrected_observing_frequency(wtoa.toa, wtoacorr.toa_correction)^Val(2)
     toacorr = correct_toa(wtoacorr.toa_correction; delay = delay)
-    dmcorr = correct_dminfo(wtoacorr.dm_corrtion; delta_dm = dm)
+    dmcorr = correct_dminfo(wtoacorr.dm_correction; delta_dm = dm)
     return CorrectedWidebandTOA(toacorr, dmcorr)
 end
 

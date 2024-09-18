@@ -66,7 +66,7 @@ end
 """Update the `CorrectedTOA` object with solar system delays and Doppler factor."""
 function correct_toa(ss::SolarSystem, toa::TOA, toacorr::TOACorrection, params::NamedTuple)
     if any(is_barycentered, (toa, toacorr))
-        return correct_toa(ctoa)
+        return correct_toa(toacorr)
     end
 
     long0, lat0 =
@@ -77,7 +77,7 @@ function correct_toa(ss::SolarSystem, toa::TOA, toacorr::TOACorrection, params::
     px = params.PX
     posepoch = params.POSEPOCH
 
-    dt = corrected_toa_value(toa, toacorr) - posepoch
+    dt = corrected_toa_value(toa, toacorr, Float64) - posepoch
     Lhat = evaluate_proper_motion(long0, lat0, pmlong, pmlat, dt)
 
     Rvec = toa.ephem.ssb_obs_pos

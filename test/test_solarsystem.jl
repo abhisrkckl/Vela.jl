@@ -1,12 +1,12 @@
 @testset "SolarSystem" begin
     toa = default_toa()
-    ctoa = CorrectedTOA(toa)
+    ctoa = TOACorrection()
 
     tzrtoa = default_tzrtoa()
-    ctzrtoa = CorrectedTOA(tzrtoa)
+    ctzrtoa = TOACorrection()
 
     wtoa = default_wbtoa()
-    cwtoa = CorrectedWidebandTOA(wtoa)
+    cwtoa = WidebandTOACorrection()
 
     params_ecl = (
         POSEPOCH = time(53470.0 * day_to_s),
@@ -31,9 +31,9 @@
             ss = SolarSystem(ecl, planet_shapiro)
             @test ss.ecliptic_coordinates == ecl && ss.planet_shapiro == planet_shapiro
 
-            ctoa1 = correct_toa(ss, ctoa, params)
+            ctoa1 = correct_toa(ss, toa, ctoa, params)
 
-            @test @ballocated(correct_toa($ss, $ctoa, $params)) == 0
+            @test @ballocated(correct_toa($ss, $toa, $ctoa, $params)) == 0
 
             @test ctoa1.phase == ctoa.phase
             @test ctoa1.delay != ctoa.delay
@@ -41,13 +41,13 @@
             @test !is_barycentered(ctoa) && is_barycentered(ctoa1)
             @test ctoa1.level == ctoa.level + 1
 
-            ctoa2 = correct_toa(ss, ctoa1, params)
+            ctoa2 = correct_toa(ss, toa, ctoa1, params)
             @test (ctoa2.delay == ctoa1.delay) && (ctoa2.doppler == ctoa1.doppler)
 
-            cwtoa1 = correct_toa(ss, cwtoa, params)
-            @test cwtoa1.corrected_dminfo == cwtoa.corrected_dminfo
+            cwtoa1 = correct_toa(ss, wtoa, cwtoa, params)
+            @test cwtoa1.dm_correction == cwtoa.dm_correction
 
-            @test @ballocated(correct_toa($ss, $cwtoa, $params)) == 0
+            @test @ballocated(correct_toa($ss, $wtoa, $cwtoa, $params)) == 0
 
             display(ss)
         end

@@ -66,9 +66,9 @@ end
 
     include("test_wideband_toa.jl")
 
-    # include("test_param.jl")
+    include("test_param.jl")
 
-    # include("test_components.jl")
+    include("test_components.jl")
 
     # include("test_priors.jl")
 
