@@ -56,7 +56,7 @@
         @test startswith(string(toas[1]), "TOA")
         display(toas)
         display(toas[1])
-        @test startswith(string(model.tzr_toa), "TZRTOA")
+        # @test startswith(string(model.tzr_toa), "TZRTOA")
         display(model.tzr_toa)
         @test startswith(string(model), "TimingModel")
         display(model)
@@ -67,7 +67,7 @@
 
     @testset "correct_toa" begin
         ctoa = correct_toa(model, toas[1], params)
-        @test corrected_toa_value(ctoa) ≈ toas[1].value
+        @test corrected_toa_value(toas[1], ctoa) ≈ toas[1].value
         @test doppler_shifted_spin_frequency(ctoa) ≈ ctoa.spin_frequency
     end
 

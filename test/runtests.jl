@@ -70,11 +70,11 @@ end
 
     include("test_components.jl")
 
-    # include("test_priors.jl")
+    include("test_priors.jl")
 
-    # include("test_timing_model.jl")
+    include("test_timing_model.jl")
 
-    # include("test_pure_rotator.jl")
+    include("test_pure_rotator.jl")
 
     # include("test_NGC6440E.jl")
 
