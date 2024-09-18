@@ -3,6 +3,7 @@ import Base.copy, Base.show
 export TOA,
     make_tzr_toa,
     is_tzr,
+    is_barycentered,
     CorrectedTOA,
     scaled_toa_error_sqr,
     doppler_shifted_spin_frequency,
@@ -29,36 +30,20 @@ struct TOA <: TOABase
     error::GQ{1,Float64}
     observing_frequency::GQ{-1,Float64}
     pulse_number::GQ{0,Double64}
-    barycentered::Bool
     ephem::SolarSystemEphemeris
     index::UInt
 
-    function TOA(
-        value,
-        error,
-        observing_frequency,
-        pulse_number,
-        barycentered,
-        ephem,
-        index,
-    )
-        return new(
-            value,
-            error,
-            observing_frequency,
-            pulse_number,
-            barycentered,
-            ephem,
-            index,
-        )
+    function TOA(value, error, observing_frequency, pulse_number, ephem, index)
+        return new(value, error, observing_frequency, pulse_number, ephem, index)
     end
 end
 
 is_tzr(toa::TOA) = iszero(toa.index)
+is_barycentered(toa::TOA) = all(iszero, toa.ephem.ssb_obs_pos)
 
 """Create a TZR TOA object."""
-make_tzr_toa(tzrtdb, tzrfreq, tzrbary, tzrephem) =
-    TOA(tzrtdb, time(0.0), tzrfreq, dimensionless(Double64(0.0)), tzrbary, tzrephem, 0)
+make_tzr_toa(tzrtdb, tzrfreq, tzrephem) =
+    TOA(tzrtdb, time(0.0), tzrfreq, dimensionless(Double64(0.0)), tzrephem, 0)
 
 abstract type CorrectedTOABase end
 
@@ -71,7 +56,6 @@ struct CorrectedTOA <: CorrectedTOABase
     equad2::GQ{2,Float64}
     spin_frequency::GQ{-1,Float64}
     doppler::GQ{0,Float64}
-    barycentered::Bool
     ssb_psr_pos::NTuple{3,GQ{0,Float64}}
     level::UInt
 
@@ -83,7 +67,6 @@ struct CorrectedTOA <: CorrectedTOABase
         equad2,
         spin_frequency,
         doppler,
-        barycentered,
         ssb_psr_pos,
         level,
     )
@@ -101,12 +84,13 @@ struct CorrectedTOA <: CorrectedTOABase
             equad2,
             spin_frequency,
             doppler,
-            barycentered,
             ssb_psr_pos,
             level,
         )
     end
 end
+
+is_barycentered(ctoa::CorrectedTOA) = !all(iszero, ctoa.ssb_psr_pos)
 
 CorrectedTOA(toa) = CorrectedTOA(
     toa,
@@ -116,7 +100,6 @@ CorrectedTOA(toa) = CorrectedTOA(
     GQ{2}(0.0),
     frequency(0.0),
     dimensionless(0.0),
-    toa.barycentered,
     dimensionless.((0.0, 0.0, 0.0)),
     0,
 )
@@ -155,7 +138,6 @@ correct_toa(
     equad2::GQ = GQ{2}(0.0),
     delta_spin_frequency::GQ = frequency(0.0),
     doppler::GQ = dimensionless(0.0),
-    barycentered::Bool = false,
     ssb_psr_pos::Union{Nothing,NTuple{3,GQ{0,Float64}}} = nothing,
 ) = CorrectedTOA(
     ctoa.toa,
@@ -165,7 +147,6 @@ correct_toa(
     ctoa.equad2 + equad2,
     ctoa.spin_frequency + delta_spin_frequency,
     ctoa.doppler + doppler,
-    ctoa.barycentered || barycentered,
     isnothing(ssb_psr_pos) ? ctoa.ssb_psr_pos : ssb_psr_pos,
     ctoa.level + 1,
 )

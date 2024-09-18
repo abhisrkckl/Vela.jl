@@ -18,7 +18,7 @@
         obs_neptune_pos,
         obs_earth_pos,
     )
-    tzrtoa = make_tzr_toa(toaval, freq, true, ephem)
+    tzrtoa = make_tzr_toa(toaval, freq, ephem)
 
     pepoch = Parameter(:PEPOCH, time(56000.0 * day_to_s), true, "day", float(day_to_s))
     f0 = Parameter(:F0, frequency(100.0), false, "Hz", 1.0)

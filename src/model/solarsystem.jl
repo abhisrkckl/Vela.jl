@@ -65,7 +65,7 @@ end
 
 """Update the `CorrectedTOA` object with solar system delays and Doppler factor."""
 function correct_toa(ss::SolarSystem, ctoa::CorrectedTOA, params::NamedTuple)
-    if ctoa.barycentered
+    if is_barycentered(ctoa)
         return correct_toa(ctoa)
     end
 
@@ -129,13 +129,7 @@ function correct_toa(ss::SolarSystem, ctoa::CorrectedTOA, params::NamedTuple)
     # This applies to the frequency as freq*(1-doppler)
     doppler = Lhat_dot_vvec
 
-    return correct_toa(
-        ctoa;
-        delay = delay,
-        doppler = doppler,
-        barycentered = true,
-        ssb_psr_pos = Lhat,
-    )
+    return correct_toa(ctoa; delay = delay, doppler = doppler, ssb_psr_pos = Lhat)
 end
 
 function show(io::IO, ss::SolarSystem)

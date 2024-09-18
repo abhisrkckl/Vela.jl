@@ -33,7 +33,6 @@
         time(1e-6),
         frequency(2.5e9),
         dimensionless(Double64(0.0)),
-        false,
         default_ephem(),
         3,
     )

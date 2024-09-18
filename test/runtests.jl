@@ -40,7 +40,6 @@ function default_toa()
         time(1e-6),
         frequency(2.5e9),
         dimensionless(Double64(0.0)),
-        false,
         default_ephem(),
         1,
     )
@@ -50,7 +49,6 @@ function default_tzrtoa()
     return make_tzr_toa(
         time(Double64(53475.0 * day_to_s)),
         frequency(2.5e9),
-        false,
         default_ephem(),
     )
 end

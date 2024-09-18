@@ -3,7 +3,6 @@
     toaerr = time(1e-6)
     freq = frequency(1.4e9)
     pulse_number = dimensionless(Double64(1000.0))
-    barycentered = false
 
     ephem = SolarSystemEphemeris(
         ssb_obs_pos,
@@ -17,7 +16,7 @@
         obs_earth_pos,
     )
 
-    toa = TOA(toaval, toaerr, freq, pulse_number, barycentered, ephem, 1)
+    toa = TOA(toaval, toaerr, freq, pulse_number, ephem, 1)
     dminfo = DMInfo(GQ{-1}(1e16), GQ{-1}(1e11))
     wtoa = WidebandTOA(toa, dminfo)
     cwtoa1 = CorrectedWidebandTOA(wtoa)
@@ -43,7 +42,6 @@
     # @test ctoa2.efac == ctoa1.efac
     # @test ctoa2.equad2 == ctoa1.equad2
     # @test ctoa2.doppler == ctoa1.doppler
-    # @test ctoa2.barycentered == ctoa1.barycentered
     # @test ctoa2.level == 1
 
     # dphi = dimensionless(0.3)
@@ -54,7 +52,6 @@
     # @test ctoa3.efac == ctoa2.efac
     # @test ctoa3.equad2 == ctoa2.equad2
     # @test ctoa3.doppler == ctoa2.doppler
-    # @test ctoa3.barycentered == ctoa2.barycentered
     # @test ctoa3.level == 2
 
     # efac = dimensionless(1.1)
@@ -66,13 +63,11 @@
     # @test ctoa4.equad2 == ctoa3.equad2 + equad2
     # @test scaled_toa_error_sqr(ctoa4) ≈ (scaled_toa_error_sqr(ctoa3) + equad2) * efac^2
     # @test ctoa4.doppler == ctoa3.doppler
-    # @test ctoa4.barycentered == ctoa3.barycentered
     # @test ctoa4.level == 3
 
     # @testset "tzr_toa" begin
     #     tzrtoa = make_tzr_toa(toaval, freq, true, ephem)
     #     @test tzrtoa.tzr
-    #     @test tzrtoa.barycentered
     #     @test tzrtoa.error == time(0.0)
     #     @test tzrtoa.index == 0
 

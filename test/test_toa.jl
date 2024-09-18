@@ -3,7 +3,6 @@
     toaerr = time(1e-6)
     freq = frequency(1.4e9)
     pulse_number = dimensionless(Double64(1000.0))
-    barycentered = false
 
     ephem = SolarSystemEphemeris(
         ssb_obs_pos,
@@ -18,15 +17,7 @@
     )
 
     # TOA value should be of type GQ{Double64}.
-    @test_throws MethodError TOA(
-        time(4610197611.8),
-        toaerr,
-        freq,
-        pulse_number,
-        barycentered,
-        ephem,
-        1,
-    )
+    @test_throws MethodError TOA(time(4610197611.8), toaerr, freq, pulse_number, ephem, 1)
 
     # Wrong dimensions for TOA value.
     @test_throws MethodError TOA(
@@ -34,29 +25,20 @@
         toaerr,
         freq,
         pulse_number,
-        barycentered,
         ephem,
         1,
     )
 
     # Wrong dimensions for TOA error.
-    @test_throws MethodError TOA(
-        toaval,
-        dimensionless(1e-6),
-        freq,
-        pulse_number,
-        barycentered,
-        ephem,
-        1,
-    )
+    @test_throws MethodError TOA(toaval, dimensionless(1e-6), freq, pulse_number, ephem, 1)
 
     # Wrong dimensions for TOA observing_frequency.
-    @test_throws MethodError TOA(toaval, toaerr, time(1.4e9), phase, barycentered, ephem, 1)
+    @test_throws MethodError TOA(toaval, toaerr, time(1.4e9), phase, ephem, 1)
 
     # Wrong dimensions for TOA pulse_number.
-    @test_throws MethodError TOA(toaval, toaerr, freq, time(1000.0), barycentered, ephem, 1)
+    @test_throws MethodError TOA(toaval, toaerr, freq, time(1000.0), ephem, 1)
 
-    toa1 = TOA(toaval, toaerr, freq, pulse_number, barycentered, ephem, 1)
+    toa1 = TOA(toaval, toaerr, freq, pulse_number, ephem, 1)
     @test !is_tzr(toa1)
 
     ctoa1 = CorrectedTOA(toa1)
@@ -70,7 +52,7 @@
     @test ctoa2.efac == ctoa1.efac
     @test ctoa2.equad2 == ctoa1.equad2
     @test ctoa2.doppler == ctoa1.doppler
-    @test ctoa2.barycentered == ctoa1.barycentered
+    @test is_barycentered(ctoa2) == is_barycentered(ctoa1)
     @test ctoa2.level == 1
 
     dphi = dimensionless(0.3)
@@ -81,7 +63,7 @@
     @test ctoa3.efac == ctoa2.efac
     @test ctoa3.equad2 == ctoa2.equad2
     @test ctoa3.doppler == ctoa2.doppler
-    @test ctoa3.barycentered == ctoa2.barycentered
+    @test is_barycentered(ctoa3) == is_barycentered(ctoa2)
     @test ctoa3.level == 2
 
     efac = dimensionless(1.1)
@@ -93,13 +75,13 @@
     @test ctoa4.equad2 == ctoa3.equad2 + equad2
     @test scaled_toa_error_sqr(ctoa4) ≈ (scaled_toa_error_sqr(ctoa3) + equad2) * efac^2
     @test ctoa4.doppler == ctoa3.doppler
-    @test ctoa4.barycentered == ctoa3.barycentered
+    @test is_barycentered(ctoa4) == is_barycentered(ctoa3)
     @test ctoa4.level == 3
 
     @testset "tzr_toa" begin
-        tzrtoa = make_tzr_toa(toaval, freq, true, ephem)
+        tzrtoa = make_tzr_toa(toaval, freq, ephem)
         @test is_tzr(tzrtoa)
-        @test tzrtoa.barycentered
+        @test !is_barycentered(tzrtoa)
         @test tzrtoa.error == time(0.0)
         @test tzrtoa.index == 0
 
