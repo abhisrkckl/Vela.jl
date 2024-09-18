@@ -13,7 +13,7 @@
     end
 
     @testset "read_toas" begin
-        @test !any([wtoa.toa.tzr for wtoa in wtoas])
+        @test !any([is_tzr(wtoa.toa) for wtoa in wtoas])
         @test length(wtoas) == 500
         @test all([
             frequency(1.3e9) < wtoa.toa.observing_frequency < frequency(1.5e9) for

@@ -26,6 +26,7 @@ end
 
 """Apply EFAC and EQUAD to a TOA."""
 correct_toa(wn::MeasurementNoise, ctoa::CorrectedTOA, params::NamedTuple) =
+    is_tzr(ctoa.toa) ? correct_toa(ctoa) :
     correct_toa(ctoa; efac = efac(wn, ctoa, params), equad2 = equad2(wn, ctoa, params))
 
 function show(io::IO, wn::MeasurementNoise)
