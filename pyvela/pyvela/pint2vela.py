@@ -123,7 +123,7 @@ def pint_model_to_vela(
 
     tzr_toa = model.get_TZR_toa(toas)
     tzr_toa.compute_pulse_numbers(model)
-    tzr_toa = pint_toa_to_vela(tzr_toa, 0, tzr=True)
+    tzr_toa = pint_toa_to_vela(tzr_toa, -1)
 
     kernel = get_kernel(model, toas, ecorr_toa_ranges, ecorr_indices)
 

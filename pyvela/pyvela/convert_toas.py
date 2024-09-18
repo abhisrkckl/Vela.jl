@@ -7,7 +7,7 @@ from .vela import jl, to_jldd, vl
 day_to_s = 86400
 
 
-def pint_toa_to_vela(toas: TOAs, idx: int, tzr: bool = False):
+def pint_toa_to_vela(toas: TOAs, idx: int):
     """Construct a `Vela.TOA` object from a `PINT` `TOAs` object and an index."""
 
     assert toas.planets
@@ -78,7 +78,7 @@ def pint_toa_to_vela(toas: TOAs, idx: int, tzr: bool = False):
         obs_earth_pos,
     )
 
-    return vl.TOA(tdb, err, freq, phase, False, tzr, ephem, idx + 1)
+    return vl.TOA(tdb, err, freq, phase, ephem, idx + 1)
 
 
 def pint_wbtoa_to_vela(toas: TOAs, idx: int):
