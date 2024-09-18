@@ -152,7 +152,7 @@ function correct_toa(dd::BinaryDDBase, toa::TOA, toacorr::TOACorrection, params:
     # Is this accurate enough?
     doppler = ΔREp * nhat
 
-    return correct_toa(ctoa; delay = delay, doppler = doppler)
+    return correct_toa(toacorr; delay = delay, doppler = doppler)
 end
 
 function show(io::IO, binary::BinaryComponent)

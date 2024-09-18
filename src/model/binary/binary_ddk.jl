@@ -36,8 +36,8 @@ function DDState(ddk::BinaryDDK, toa::TOA, toacorr::TOACorrection, params::Named
     μα, μδ = proper_motion(params, ddk.ecliptic_coordinates)
     px = params.PX
 
-    ssb_obs_pos = ctoa.toa.ephem.ssb_obs_pos
-    ssb_psr_pos = ctoa.ssb_psr_pos
+    ssb_obs_pos = toa.ephem.ssb_obs_pos
+    ssb_psr_pos = toacorr.ssb_psr_pos
 
     a1 = params.A1 + Δt * params.A1DOT
 

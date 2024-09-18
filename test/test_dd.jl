@@ -18,7 +18,7 @@
         default_ephem(),
         1,
     )
-    ctoa1 = CorrectedTOA(toa1)
+    ctoa1 = TOACorrection()
 
     params = (
         T0 = time(53470.0 * day_to_s),
@@ -41,9 +41,9 @@
 
     for use_fbx in [true, false]
         dd = BinaryDD(use_fbx)
-        ctoa_1 = correct_toa(dd, ctoa1, params)
+        ctoa_1 = correct_toa(dd, toa1, ctoa1, params)
         @test isfinite(ctoa_1.delay) && isfinite(ctoa_1.doppler)
-        @test @ballocated(correct_toa($dd, $ctoa1, $params)) == 0
+        @test @ballocated(correct_toa($dd, $toa1, $ctoa1, $params)) == 0
         display(dd)
     end
 end
@@ -57,7 +57,7 @@ end
         default_ephem(),
         1,
     )
-    ctoa1 = CorrectedTOA(toa1)
+    ctoa1 = TOACorrection()
 
     params = (
         T0 = time(53470.0 * day_to_s),
@@ -80,9 +80,9 @@ end
 
     for use_fbx in [true, false]
         ddh = BinaryDDH(use_fbx)
-        ctoa_1 = correct_toa(ddh, ctoa1, params)
+        ctoa_1 = correct_toa(ddh, toa1, ctoa1, params)
         @test isfinite(ctoa_1.delay) && isfinite(ctoa_1.doppler)
-        @test @ballocated(correct_toa($ddh, $ctoa1, $params)) == 0
+        @test @ballocated(correct_toa($ddh, $toa1, $ctoa1, $params)) == 0
         display(ddh)
     end
 end
@@ -96,7 +96,7 @@ end
         default_ephem(),
         1,
     )
-    ctoa1 = CorrectedTOA(toa1)
+    ctoa1 = TOACorrection()
 
     params = (
         T0 = time(53470.0 * day_to_s),
@@ -119,9 +119,9 @@ end
 
     for use_fbx in [true, false]
         dds = BinaryDDS(use_fbx)
-        ctoa_1 = correct_toa(dds, ctoa1, params)
+        ctoa_1 = correct_toa(dds, toa1, ctoa1, params)
         @test isfinite(ctoa_1.delay) && isfinite(ctoa_1.doppler)
-        @test @ballocated(correct_toa($dds, $ctoa1, $params)) == 0
+        @test @ballocated(correct_toa($dds, $toa1, $ctoa1, $params)) == 0
         display(dds)
     end
 end
@@ -135,7 +135,7 @@ end
         default_ephem(),
         1,
     )
-    ctoa1 = CorrectedTOA(toa1)
+    ctoa1 = TOACorrection()
 
     params_binary = (
         T0 = time(53470.0 * day_to_s),
@@ -179,12 +179,12 @@ end
         params = merge(params_binary, (ecl ? params_ecl : params_eql))
         for use_fbx in [true, false]
             ss = SolarSystem(ecl, false)
-            ctoa2 = correct_toa(ss, ctoa1, params)
+            ctoa2 = correct_toa(ss, toa1, ctoa1, params)
 
             ddk = BinaryDDK(use_fbx, ecl)
-            ctoa3 = correct_toa(ddk, ctoa2, params)
+            ctoa3 = correct_toa(ddk, toa1, ctoa2, params)
             @test isfinite(ctoa3.delay) && isfinite(ctoa3.doppler)
-            @test @ballocated(correct_toa($ddk, $ctoa2, $params)) == 0
+            @test @ballocated(correct_toa($ddk, $toa1, $ctoa2, $params)) == 0
             display(ddk)
         end
     end

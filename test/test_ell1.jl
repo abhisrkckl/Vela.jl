@@ -1,9 +1,9 @@
 @testset "BinaryELL1" begin
     toa = default_toa()
-    ctoa = CorrectedTOA(toa)
+    ctoa = TOACorrection()
 
     tzrtoa = default_tzrtoa()
-    ctzrtoa = CorrectedTOA(tzrtoa)
+    ctzrtoa = TOACorrection()
 
     params = (
         TASC = time(53470.0 * day_to_s),
@@ -24,18 +24,18 @@
     for use_fbx in [true, false]
         ell1 = BinaryELL1(use_fbx)
         display(ell1)
-        ctoa_1 = correct_toa(ell1, ctoa, params)
+        ctoa_1 = correct_toa(ell1, toa, ctoa, params)
         @test isfinite(ctoa_1.delay) && isfinite(ctoa_1.doppler)
-        @test @ballocated(correct_toa($ell1, $ctoa, $params)) == 0
+        @test @ballocated(correct_toa($ell1, $toa, $ctoa, $params)) == 0
     end
 end
 
 @testset "BinaryELL1H" begin
     toa = default_toa()
-    ctoa = CorrectedTOA(toa)
+    ctoa = TOACorrection()
 
     tzrtoa = default_tzrtoa()
-    ctzrtoa = CorrectedTOA(tzrtoa)
+    ctzrtoa = TOACorrection()
 
     params = (
         TASC = time(53470.0 * day_to_s),
@@ -56,8 +56,8 @@ end
     for use_fbx in [true, false]
         ell1h = BinaryELL1H(use_fbx)
         display(ell1h)
-        ctoa_1 = correct_toa(ell1h, ctoa, params)
+        ctoa_1 = correct_toa(ell1h, toa, ctoa, params)
         @test isfinite(ctoa_1.delay) && isfinite(ctoa_1.doppler)
-        @test @ballocated(correct_toa($ell1h, $ctoa, $params)) == 0
+        @test @ballocated(correct_toa($ell1h, $toa, $ctoa, $params)) == 0
     end
 end

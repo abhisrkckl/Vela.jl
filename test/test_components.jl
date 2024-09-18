@@ -11,9 +11,9 @@
 
     include("test_wavex.jl")
 
-    # include("test_ell1.jl")
+    include("test_ell1.jl")
 
-    # include("test_dd.jl")
+    include("test_dd.jl")
 
     include("test_phoff.jl")
 
