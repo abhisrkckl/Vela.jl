@@ -49,7 +49,7 @@ function delay(
     ν = doppler_corrected_observing_frequency(toa, toacorr)
     νref = frequency(1e9)
 
-    mask = @view(fdj.jump_mask[:, ctoa.toa.index])
+    mask = @view(fdj.jump_mask[:, toa.index])
 
     λ = log(ν / νref)
 

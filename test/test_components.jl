@@ -5,9 +5,9 @@
 
     include("test_dispersion.jl")
 
-    # include("test_chromatic.jl")
+    include("test_chromatic.jl")
 
-    # include("test_fd.jl")
+    include("test_fd.jl")
 
     # include("test_wavex.jl")
 
