@@ -1,12 +1,12 @@
 @testset "SolarWindDispersion" begin
     toa = default_toa()
-    ctoa = CorrectedTOA(toa)
+    ctoa = TOACorrection()
 
     tzrtoa = default_tzrtoa()
-    ctzrtoa = CorrectedTOA(tzrtoa)
+    ctzrtoa = TOACorrection()
 
     wtoa = default_wbtoa()
-    cwtoa = CorrectedWidebandTOA(wtoa)
+    cwtoa = WidebandTOACorrection()
 
     params = (
         POSEPOCH = time(53470.0 * day_to_s),
@@ -19,19 +19,19 @@
     )
 
     swd = SolarWindDispersion()
-    @test_throws AssertionError dispersion_slope(swd, ctoa, params)
+    @test_throws AssertionError dispersion_slope(swd, toa, ctoa, params)
 
     ss = SolarSystem(true, true)
-    ctoa1 = correct_toa(ss, ctoa, params)
-    @test dispersion_slope(swd, ctoa1, params) != GQ{-1}(0.0)
+    ctoa1 = correct_toa(ss, toa, ctoa, params)
+    @test dispersion_slope(swd, toa, ctoa1, params) != GQ{-1}(0.0)
 
-    @test @ballocated(delay($swd, $ctoa1, $params)) == 0
+    @test @ballocated(delay($swd, $toa, $ctoa1, $params)) == 0
 
-    cwtoa1 = correct_toa(ss, cwtoa, params)
-    cwtoa2 = correct_toa(swd, cwtoa1, params)
-    @test cwtoa2.corrected_dminfo != cwtoa.corrected_dminfo
+    cwtoa1 = correct_toa(ss, wtoa, cwtoa, params)
+    cwtoa2 = correct_toa(swd, wtoa, cwtoa1, params)
+    @test cwtoa2.dm_correction != cwtoa.dm_correction
 
-    @test @ballocated(correct_toa($swd, $cwtoa1, $params)) == 0
+    @test @ballocated(correct_toa($swd, $wtoa, $cwtoa1, $params)) == 0
 
     display(swd)
 end

@@ -23,7 +23,7 @@ function correct_toa(
         dm / doppler_corrected_observing_frequency(wtoa.toa, wtoacorr.toa_correction)^Val(2)
     toacorr = correct_toa(wtoacorr.toa_correction; delay = delay)
     dmcorr = correct_dminfo(wtoacorr.dm_correction; delta_dm = dm)
-    return CorrectedWidebandTOA(toacorr, dmcorr)
+    return WidebandTOACorrection(toacorr, dmcorr)
 end
 
 """Update a `WidebandTOA` object using a timing model."""

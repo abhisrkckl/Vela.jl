@@ -1,7 +1,7 @@
 @testset "components" begin
     include("test_solarsystem.jl")
 
-    # include("test_solarwind.jl")
+    include("test_solarwind.jl")
 
     # include("test_dispersion.jl")
 
