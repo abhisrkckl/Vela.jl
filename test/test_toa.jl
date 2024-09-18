@@ -57,7 +57,7 @@
     @test_throws MethodError TOA(toaval, toaerr, freq, time(1000.0), barycentered, ephem, 1)
 
     toa1 = TOA(toaval, toaerr, freq, pulse_number, barycentered, ephem, 1)
-    @test !toa1.tzr
+    @test !is_tzr(toa1)
 
     ctoa1 = CorrectedTOA(toa1)
     @test ctoa1.level == 0
@@ -98,7 +98,7 @@
 
     @testset "tzr_toa" begin
         tzrtoa = make_tzr_toa(toaval, freq, true, ephem)
-        @test tzrtoa.tzr
+        @test is_tzr(tzrtoa)
         @test tzrtoa.barycentered
         @test tzrtoa.error == time(0.0)
         @test tzrtoa.index == 0

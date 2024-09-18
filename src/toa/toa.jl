@@ -2,6 +2,7 @@ import Base.copy, Base.show
 
 export TOA,
     make_tzr_toa,
+    is_tzr,
     CorrectedTOA,
     scaled_toa_error_sqr,
     doppler_shifted_spin_frequency,
@@ -29,7 +30,6 @@ struct TOA <: TOABase
     observing_frequency::GQ{-1,Float64}
     pulse_number::GQ{0,Double64}
     barycentered::Bool
-    tzr::Bool
     ephem::SolarSystemEphemeris
     index::UInt
 
@@ -39,39 +39,26 @@ struct TOA <: TOABase
         observing_frequency,
         pulse_number,
         barycentered,
-        tzr,
         ephem,
         index,
     )
-        @assert tzr || index > 0 "The index can be 0 only for the TZR TOA."
-
         return new(
             value,
             error,
             observing_frequency,
             pulse_number,
             barycentered,
-            tzr,
             ephem,
             index,
         )
     end
 end
 
-TOA(value, error, observing_frequency, pulse_number, barycentered, ephem, index) =
-    TOA(value, error, observing_frequency, pulse_number, barycentered, false, ephem, index)
+is_tzr(toa::TOA) = iszero(toa.index)
 
 """Create a TZR TOA object."""
-make_tzr_toa(tzrtdb, tzrfreq, tzrbary, tzrephem) = TOA(
-    tzrtdb,
-    time(0.0),
-    tzrfreq,
-    dimensionless(Double64(0.0)),
-    tzrbary,
-    true,
-    tzrephem,
-    0,
-)
+make_tzr_toa(tzrtdb, tzrfreq, tzrbary, tzrephem) =
+    TOA(tzrtdb, time(0.0), tzrfreq, dimensionless(Double64(0.0)), tzrbary, tzrephem, 0)
 
 abstract type CorrectedTOABase end
 

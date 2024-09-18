@@ -33,7 +33,7 @@ struct TimingModel{ComponentsTuple<:Tuple,KernelType<:Kernel,PriorsTuple<:Tuple}
         tzr_toa::TOA,
         priors::Tuple,
     )
-        @assert tzr_toa.tzr "Invalid TZR TOA."
+        @assert is_tzr(tzr_toa) "Invalid TZR TOA."
         @assert all(map(c -> isa(c, Component), components)) "components must be a tuple containing Component objects."
         @assert all(map(p -> isa(p, Prior), priors)) "priors must be a tuple containing Prior objects."
         @assert length(priors) == length(get_free_param_names(param_handler)) "The number of prior distributions must match the number of free parameters."

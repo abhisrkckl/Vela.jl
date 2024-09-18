@@ -18,7 +18,7 @@ function dispersion_slope(
 )::GQ
     @assert length(params.FDJUMPDM) == size(dmoff.jump_mask)[1]
     @assert ctoa.toa.index <= size(dmoff.jump_mask)[2]
-    if ctoa.toa.tzr
+    if is_tzr(ctoa.toa)
         return GQ{-1}(0.0)
     else
         return -dot(params.FDJUMPDM, @view(dmoff.jump_mask[:, ctoa.toa.index]))
@@ -40,7 +40,7 @@ function dispersion_slope(
     ctoa::CorrectedTOA,
     params::NamedTuple,
 )::GQ
-    return if (ctoa.toa.index == 0 || ctoa.toa.tzr)
+    return if is_tzr(ctoa.toa)
         GQ{-1}(0.0)
     else
         idx = dmoff.jump_mask[ctoa.toa.index]

@@ -31,7 +31,7 @@ struct FrequencyDependentJump <: DelayComponent
 end
 
 function delay(fdj::FrequencyDependentJump, ctoa::CorrectedTOA, params::NamedTuple)::GQ
-    if ctoa.toa.tzr
+    if is_tzr(ctoa.toa)
         return time(0.0)
     end
 

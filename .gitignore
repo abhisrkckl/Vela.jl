@@ -185,3 +185,5 @@ cython_debug/
 
 *chain*.png
 *chain*.txt
+
+profile.pb.gz

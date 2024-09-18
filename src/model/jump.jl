@@ -12,7 +12,7 @@ struct PhaseJump <: PhaseJumpBase
 end
 
 phase(pjmp::PhaseJump, ctoa::CorrectedTOA, params::NamedTuple)::GQ =
-    ctoa.toa.tzr ? dimensionless(0.0) :
+    is_tzr(ctoa.toa) ? dimensionless(0.0) :
     (basis_dot(pjmp.jump_mask, params.JUMP, ctoa.toa.index) * (params.F_ + params.F[1]))
 
 function show(io::IO, jmp::PhaseJump)
@@ -26,7 +26,7 @@ struct ExclusivePhaseJump <: PhaseJumpBase
 end
 
 function phase(pjmp::ExclusivePhaseJump, ctoa::CorrectedTOA, params::NamedTuple)::GQ
-    return if (ctoa.toa.index == 0 || ctoa.toa.tzr)
+    return if is_tzr(ctoa.toa)
         dimensionless(0.0)
     else
         idx = pjmp.jump_mask[ctoa.toa.index]

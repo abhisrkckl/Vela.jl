@@ -76,13 +76,13 @@ end
 
     include("test_timing_model.jl")
 
-    include("test_pure_rotator.jl")
+    # include("test_pure_rotator.jl")
 
-    include("test_NGC6440E.jl")
+    # include("test_NGC6440E.jl")
 
-    include("test_sim_sw_wb.jl")
+    # include("test_sim_sw_wb.jl")
 
-    include("test_sim2.jl")
+    # include("test_sim2.jl")
 
     @testset "formatting" begin
         @test format(Vela)

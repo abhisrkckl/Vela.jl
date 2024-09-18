@@ -21,7 +21,7 @@
     end
 
     @testset "read_toas" begin
-        @test !any([toa.tzr for toa in toas])
+        @test !any([is_tzr(toa) for toa in toas])
         @test length(toas) == 62
         @test all([
             frequency(1e9) < toa.observing_frequency < frequency(2.5e9) for toa in toas
@@ -35,7 +35,7 @@
 
     @testset "tzr_toa" begin
         tzrtoa = model.tzr_toa
-        @test tzrtoa.tzr
+        @test is_tzr(tzrtoa)
         @test tzrtoa.error > time(0.0)
         @test tzrtoa.pulse_number == dimensionless(0.0)
         @test frequency(1e9) < tzrtoa.observing_frequency < frequency(2.5e9)
