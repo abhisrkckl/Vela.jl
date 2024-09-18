@@ -10,8 +10,8 @@ function correct_toa(
     wtoacorr::WidebandTOACorrection,
     params::NamedTuple,
 )
-    dm = dispersion_slope(dmjump, wtoa, wtoacorr.toa_correction, params)
-    dmcorr = correct_dminfo(wtoacorr.dm_corrtion; delta_dm = dm)
+    dm = dispersion_slope(dmjump, wtoa.toa, wtoacorr.toa_correction, params)
+    dmcorr = correct_dminfo(wtoacorr.dm_correction; delta_dm = dm)
     return WidebandTOACorrection(wtoacorr.toa_correction, dmcorr)
 end
 

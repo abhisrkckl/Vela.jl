@@ -3,7 +3,7 @@
 
     include("test_solarwind.jl")
 
-    # include("test_dispersion.jl")
+    include("test_dispersion.jl")
 
     # include("test_chromatic.jl")
 
