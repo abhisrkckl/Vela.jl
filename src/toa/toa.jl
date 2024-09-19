@@ -10,7 +10,10 @@ export TOA,
     doppler_corrected_observing_frequency,
     corrected_toa_value,
     phase_residual,
-    correct_toa
+    correct_toa,
+    correct_toa_delay,
+    correct_toa_phase,
+    correct_toa_error
 
 
 """Abstract base type of all TOAs."""
@@ -106,23 +109,48 @@ corrected_toa_value(toa::TOA, toacorr::TOACorrection, ::Type{Float64}) =
 phase_residual(toa::TOA, toacorr::TOACorrection) = toacorr.phase - toa.pulse_number
 
 """Apply a correction to a CorrectedTOA object."""
-correct_toa(
+correct_toa_delay(
     toacorr::TOACorrection;
-    delay::GQ = time(0.0),
-    phase::GQ = dimensionless(0.0),
-    efac::GQ = dimensionless(1.0),
-    equad2::GQ = GQ{2}(0.0),
-    delta_spin_frequency::GQ = frequency(0.0),
-    doppler::GQ = dimensionless(0.0),
+    delay::GQ{1,Float64} = time(0.0),
+    doppler::GQ{0,Float64} = dimensionless(0.0),
     ssb_psr_pos::Union{Nothing,NTuple{3,GQ{0,Float64}}} = nothing,
 ) = TOACorrection(
     toacorr.delay + delay,
-    toacorr.phase + phase,
-    toacorr.efac * efac,
-    toacorr.equad2 + equad2,
-    toacorr.spin_frequency + delta_spin_frequency,
+    toacorr.phase,
+    toacorr.efac,
+    toacorr.equad2,
+    toacorr.spin_frequency,
     toacorr.doppler + doppler,
     isnothing(ssb_psr_pos) ? toacorr.ssb_psr_pos : ssb_psr_pos,
+)
+
+correct_toa_phase(
+    toacorr::TOACorrection;
+    phase::GQ{0,X} = dimensionless(0.0),
+    delta_spin_frequency::GQ{-1,Float64} = frequency(0.0),
+) where {X<:AbstractFloat} = TOACorrection(
+    toacorr.delay,
+    toacorr.phase + phase,
+    toacorr.efac,
+    toacorr.equad2,
+    toacorr.spin_frequency + delta_spin_frequency,
+    toacorr.doppler,
+    toacorr.ssb_psr_pos,
+)
+
+"""Apply a correction to a CorrectedTOA object."""
+correct_toa_error(
+    toacorr::TOACorrection;
+    efac::GQ{0,Float64} = dimensionless(1.0),
+    equad2::GQ{2,Float64} = GQ{2}(0.0),
+) = TOACorrection(
+    toacorr.delay,
+    toacorr.phase,
+    toacorr.efac * efac,
+    toacorr.equad2 + equad2,
+    toacorr.spin_frequency,
+    toacorr.doppler,
+    toacorr.ssb_psr_pos,
 )
 
 const day_to_s = 86400

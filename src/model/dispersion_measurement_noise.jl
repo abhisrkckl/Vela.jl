@@ -39,7 +39,7 @@ function correct_toa(
 end
 
 correct_toa(::DispersionMeasurementNoise, ::TOA, toacorr::TOACorrection, ::NamedTuple) =
-    correct_toa(toacorr)
+    toacorr
 
 function show(io::IO, dwn::DispersionMeasurementNoise)
     num_dmefacs = length(filter(x -> x > 0, unique(dwn.dmefac_index_mask)))

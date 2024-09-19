@@ -12,7 +12,7 @@ correct_toa(
     toa::TOABase,
     toacorr::TOACorrection,
     params::NamedTuple,
-) = correct_toa(toacorr; phase = phase(component, toa, toacorr, params))
+) = correct_toa_phase(toacorr; phase = phase(component, toa, toacorr, params))
 
 """Abstract base type of all timing model components which contribute a time delay correction to a TOA."""
 abstract type DelayComponent <: Component end
@@ -23,7 +23,7 @@ correct_toa(
     toa::TOA,
     toacorr::TOACorrection,
     params::NamedTuple,
-) = correct_toa(toacorr; delay = delay(component, toa, toacorr, params))
+) = correct_toa_delay(toacorr; delay = delay(component, toa, toacorr, params))
 
 """Abstrct base type of all timing model components which provide a dispersion measure correction."""
 abstract type DispersionComponent <: DelayComponent end

@@ -33,8 +33,7 @@ end
 
     @ballocated(correct_toa($dmwn, $wtoa, $cwtoa, $params)) == 0
 
-    @test correct_toa(dmwn, wtoa.toa, cwtoa.toa_correction, params) ==
-          correct_toa(cwtoa.toa_correction)
+    @test correct_toa(dmwn, wtoa.toa, cwtoa.toa_correction, params) == cwtoa.toa_correction
 
     @test cwtoa1.toa_correction.delay == cwtoa.toa_correction.delay
     @test cwtoa1.toa_correction.phase == cwtoa.toa_correction.phase

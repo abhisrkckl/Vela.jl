@@ -170,5 +170,5 @@ function correct_toa(
 
     doppler = -ΔRp * nhat
 
-    return correct_toa(toacorr; delay = delay, doppler = doppler)
+    return correct_toa_delay(toacorr; delay = delay, doppler = doppler)
 end

@@ -44,7 +44,7 @@
     toacorr1 = TOACorrection()
 
     dt = time(1.0)
-    toacorr2 = correct_toa(toacorr1; delay = dt)
+    toacorr2 = correct_toa_delay(toacorr1; delay = dt)
     @test toacorr2.delay == toacorr1.delay + dt
     @test corrected_toa_value(toa1, toacorr2) == corrected_toa_value(toa1, toacorr1) - dt
     @test toacorr2.phase == toacorr1.phase
@@ -54,7 +54,7 @@
     @test is_barycentered(toacorr2) == is_barycentered(toacorr1)
 
     dphi = dimensionless(0.3)
-    toacorr3 = correct_toa(toacorr2; phase = dphi)
+    toacorr3 = correct_toa_phase(toacorr2; phase = dphi)
     @test toacorr3.delay == toacorr2.delay
     @test toacorr3.phase == toacorr2.phase + dphi
     @test phase_residual(toa1, toacorr3) == phase_residual(toa1, toacorr2) + dphi
@@ -65,7 +65,7 @@
 
     efac = dimensionless(1.1)
     equad2 = time(1e-6)^Val(2)
-    toacorr4 = correct_toa(toacorr3; efac = efac, equad2 = equad2)
+    toacorr4 = correct_toa_error(toacorr3; efac = efac, equad2 = equad2)
     @test toacorr4.delay == toacorr3.delay
     @test toacorr4.phase == toacorr3.phase
     @test toacorr4.efac == toacorr3.efac * efac

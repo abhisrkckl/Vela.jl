@@ -48,6 +48,7 @@
 - Removed the `TOA` from `TOACorrection` (it's passed separately to functions). This reduces copy overhead. 
 - Avoid unnecessary repeated computations in `Spindown` 
 - Specialized methods of `taylor_horner` and `taylor_horner_integral` for faster execution
+- `correct_toa` to more specialized methods `correct_toa_delay`, `correct_toa_phase`, and `correct_toa_error`
 ## Fixed
 - Tests now handle par files without `PHOFF` properly.
 - Proper motion computation
@@ -61,6 +62,7 @@
 - Don't apply `MeasurementNoise` to TZR TOAs
 - Unnecessary repetition of `sin` and `cos` in ecliptic coordinate conversion
 ## Removed
+- `level` attribute from `TOACorrection`
 
 # [0.0.3] - 2024-08-22
 ## Added
