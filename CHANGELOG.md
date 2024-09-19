@@ -10,6 +10,7 @@
 - Avoid unnecessary repeated computations in `Spindown` 
 - Specialized methods of `taylor_horner` and `taylor_horner_integral` for faster execution
 - Split `correct_toa` into more specialized methods `correct_toa_delay`, `correct_toa_phase`, and `correct_toa_error`
+- Multiplication instead of power in dispersion delay
 ## Fixed
 - Unnecessary repetition of `sin` and `cos` in ecliptic coordinate conversion
 ## Removed
