@@ -29,14 +29,16 @@ correct_toa(
 abstract type DispersionComponent <: DelayComponent end
 
 """Compute a dispersion delay."""
-delay(
+function delay(
     component::DispersionComponent,
     toa::TOA,
     toacorr::TOACorrection,
     params::NamedTuple,
-) =
-    dispersion_slope(component, toa, toacorr, params) /
-    doppler_corrected_observing_frequency(toa, toacorr)^Val(2)
+)
+    dm = dispersion_slope(component, toa, toacorr, params)
+    ν = doppler_corrected_observing_frequency(toa, toacorr)
+    return dm / (ν * ν)
+end
 
 """Abstract base type of all binary components."""
 abstract type BinaryComponent <: DelayComponent end
