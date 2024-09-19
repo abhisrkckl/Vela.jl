@@ -46,6 +46,7 @@
 - Infer `is_barycentered(toa)` from `toa.ephem.ssb_obs_pos`
 - Renamed `CorrectedTOA`, `CorrectedWidebandTOA`, and `CorrectedDMInfo` respectively to `TOACorrection`, `WidebandTOACorrection`, and `DMInfoCorrection`
 - Removed the `TOA` from `TOACorrection` (it's passed separately to functions). This reduces copy overhead. 
+- Avoid unnecessary repeated computations in `Spindown` 
 ## Fixed
 - Tests now handle par files without `PHOFF` properly.
 - Proper motion computation
