@@ -85,8 +85,9 @@ function correct_toa(ss::SolarSystem, toa::TOA, toacorr::TOACorrection, params::
     if ss.ecliptic_coordinates
         x, y, z = Lhat
         x1 = x
-        y1 = cos(OBL) * y - sin(OBL) * z
-        z1 = sin(OBL) * y + cos(OBL) * z
+        sinϵ, cosϵ = sincos(OBL)
+        y1 = cosϵ * y - sinϵ * z
+        z1 = sinϵ * y + cosϵ * z
         Lhat = (x1, y1, z1)
     end
 
