@@ -39,7 +39,6 @@
             @test ctoa1.delay != ctoa.delay
             @test ctoa.doppler == 0 && ctoa1.doppler != 0
             @test !is_barycentered(ctoa) && is_barycentered(ctoa1)
-            @test ctoa1.level == ctoa.level + 1
 
             ctoa2 = correct_toa(ss, toa, ctoa1, params)
             @test (ctoa2.delay == ctoa1.delay) && (ctoa2.doppler == ctoa1.doppler)

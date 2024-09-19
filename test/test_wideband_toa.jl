@@ -11,8 +11,6 @@
     wtoa = WidebandTOA(toa, dminfo)
     cwtoa1 = WidebandTOACorrection()
 
-    @test cwtoa1.toa_correction.level == 0
-
     @test dm_residual(wtoa.dminfo, cwtoa1.dm_correction) == dminfo.value
     @test scaled_dm_error_sqr(wtoa.dminfo, cwtoa1.dm_correction) == dminfo.error^Val(2)
 
@@ -27,41 +25,4 @@
     @test cdminfo2.model_dm == cdminfo.model_dm + ddm
     @test cdminfo2.dmefac == dimensionless(1.1)
     @test cdminfo2.dmequad2 == GQ{-2}(1e-12)
-    # @test corrected_toa_value(ctoa2) == corrected_toa_value(ctoa1) - dt
-    # @test ctoa2.phase == ctoa1.phase
-    # @test ctoa2.efac == ctoa1.efac
-    # @test ctoa2.equad2 == ctoa1.equad2
-    # @test ctoa2.doppler == ctoa1.doppler
-    # @test ctoa2.level == 1
-
-    # dphi = dimensionless(0.3)
-    # ctoa3 = correct_toa(ctoa2; phase = dphi)
-    # @test ctoa3.delay == ctoa2.delay
-    # @test ctoa3.phase == ctoa2.phase + dphi
-    # @test phase_residual(ctoa3) == phase_residual(ctoa2) + dphi
-    # @test ctoa3.efac == ctoa2.efac
-    # @test ctoa3.equad2 == ctoa2.equad2
-    # @test ctoa3.doppler == ctoa2.doppler
-    # @test ctoa3.level == 2
-
-    # efac = dimensionless(1.1)
-    # equad2 = time(1e-6)^Val(2)
-    # ctoa4 = correct_toa(ctoa3; efac = efac, equad2 = equad2)
-    # @test ctoa4.delay == ctoa3.delay
-    # @test ctoa4.phase == ctoa3.phase
-    # @test ctoa4.efac == ctoa3.efac * efac
-    # @test ctoa4.equad2 == ctoa3.equad2 + equad2
-    # @test scaled_toa_error_sqr(ctoa4) ≈ (scaled_toa_error_sqr(ctoa3) + equad2) * efac^2
-    # @test ctoa4.doppler == ctoa3.doppler
-    # @test ctoa4.level == 3
-
-    # @testset "tzr_toa" begin
-    #     tzrtoa = make_tzr_toa(toaval, freq, true, ephem)
-    #     @test tzrtoa.tzr
-    #     @test tzrtoa.error == time(0.0)
-    #     @test tzrtoa.index == 0
-
-    #     ctzrtoa = CorrectedTOA(tzrtoa)
-    #     @test ctzrtoa.level == 0
-    # end
 end

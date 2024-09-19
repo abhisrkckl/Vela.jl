@@ -42,7 +42,6 @@
     @test !is_tzr(toa1)
 
     toacorr1 = TOACorrection()
-    @test toacorr1.level == 0
 
     dt = time(1.0)
     toacorr2 = correct_toa(toacorr1; delay = dt)
@@ -53,7 +52,6 @@
     @test toacorr2.equad2 == toacorr1.equad2
     @test toacorr2.doppler == toacorr1.doppler
     @test is_barycentered(toacorr2) == is_barycentered(toacorr1)
-    @test toacorr2.level == 1
 
     dphi = dimensionless(0.3)
     toacorr3 = correct_toa(toacorr2; phase = dphi)
@@ -64,7 +62,6 @@
     @test toacorr3.equad2 == toacorr2.equad2
     @test toacorr3.doppler == toacorr2.doppler
     @test is_barycentered(toacorr3) == is_barycentered(toacorr2)
-    @test toacorr3.level == 2
 
     efac = dimensionless(1.1)
     equad2 = time(1e-6)^Val(2)
@@ -77,7 +74,6 @@
           (scaled_toa_error_sqr(toa1, toacorr3) + equad2) * efac^2
     @test toacorr4.doppler == toacorr3.doppler
     @test is_barycentered(toacorr4) == is_barycentered(toacorr3)
-    @test toacorr4.level == 3
 
     @testset "tzr_toa" begin
         tzrtoa = make_tzr_toa(toaval, freq, ephem)
