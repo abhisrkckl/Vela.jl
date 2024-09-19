@@ -47,6 +47,7 @@
 - Renamed `CorrectedTOA`, `CorrectedWidebandTOA`, and `CorrectedDMInfo` respectively to `TOACorrection`, `WidebandTOACorrection`, and `DMInfoCorrection`
 - Removed the `TOA` from `TOACorrection` (it's passed separately to functions). This reduces copy overhead. 
 - Avoid unnecessary repeated computations in `Spindown` 
+- Specialized methods of `taylor_horner` and `taylor_horner_integral` for faster execution
 ## Fixed
 - Tests now handle par files without `PHOFF` properly.
 - Proper motion computation
