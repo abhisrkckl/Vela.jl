@@ -59,6 +59,7 @@
 - `black` failure now shows up as a CI failure.
 - Handling of `prefixParameters` with `Time` quantities
 - Don't apply `MeasurementNoise` to TZR TOAs
+- Unnecessary repetition of `sin` and `cos` in ecliptic coordinate conversion
 ## Removed
 
 # [0.0.3] - 2024-08-22
