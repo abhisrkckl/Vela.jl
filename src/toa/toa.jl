@@ -100,7 +100,7 @@ doppler_corrected_observing_frequency(toa::TOA, toacorr::TOACorrection) =
 corrected_toa_value(toa::TOA, toacorr::TOACorrection)::GQ{1,Double64} =
     toa.value - toacorr.delay
 corrected_toa_value(toa::TOA, toacorr::TOACorrection, ::Type{Float64}) =
-    GQ{Float64}(corrected_toa_value(toa, toacorr))
+    GQ{Float64}(toa.value) - toacorr.delay
 
 """TOA phase residual"""
 phase_residual(toa::TOA, toacorr::TOACorrection) = toacorr.phase - toa.pulse_number

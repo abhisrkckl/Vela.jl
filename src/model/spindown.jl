@@ -29,3 +29,16 @@ function correct_toa(::Spindown, toa::TOA, toacorr::TOACorrection, params::Named
         delta_spin_frequency = spindown_frequency(GQ{Float64}(Δt), f_, fs),
     )
 end
+
+GeometricUnits.taylor_horner(::GQ, cs::Tuple{X}) where {X<:GQ} = cs[1]
+GeometricUnits.taylor_horner(x::GQ, cs::Tuple{X1,X2}) where {X1<:GQ,X2<:GQ} =
+    cs[1] + x * cs[2]
+GeometricUnits.taylor_horner(x::GQ, cs::Tuple{X1,X2,X3}) where {X1<:GQ,X2<:GQ,X3<:GQ} =
+    cs[1] + x * (cs[2] + 0.5 * x * cs[3])
+GeometricUnits.taylor_horner_integral(::GQ, cs::Tuple{X}, c0::GQ) where {X<:GQ} =
+    c0 + x * cs[1]
+GeometricUnits.taylor_horner_integral(
+    x::GQ,
+    cs::Tuple{X1,X2},
+    c0::GQ,
+) where {X1<:GQ,X2<:GQ} = c0 + x * (cs[1] + 0.5 * x * cs[2])
