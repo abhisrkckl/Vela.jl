@@ -3,8 +3,17 @@
 - Check for `ECORR` exclusivity
 ## Changed
 - Renamed `pint2vela` -> `pyvela`
+- Infer `is_tzr(toa)` from `toa.index`
+- Infer `is_barycentered(toa)` from `toa.ephem.ssb_obs_pos`
+- Renamed `CorrectedTOA`, `CorrectedWidebandTOA`, and `CorrectedDMInfo` respectively to `TOACorrection`, `WidebandTOACorrection`, and `DMInfoCorrection`
+- Removed the `TOA` from `TOACorrection` (it's passed separately to functions). This reduces copy overhead. 
+- Avoid unnecessary repeated computations in `Spindown` 
+- Specialized methods of `taylor_horner` and `taylor_horner_integral` for faster execution
+- `correct_toa` to more specialized methods `correct_toa_delay`, `correct_toa_phase`, and `correct_toa_error`
 ## Fixed
+- Unnecessary repetition of `sin` and `cos` in ecliptic coordinate conversion
 ## Removed
+- `level` attribute from `TOACorrection`
 
 # [0.0.4]
 ## Added
@@ -42,13 +51,6 @@
 - Use the github version of `PINT` for testing
 - Split `test_components.jl` into multiple files.
 - Simplify the type hierarchy of `Component`s. Now all `Component`s are `TOA`-uncorrelated by definition.
-- Infer `is_tzr(toa)` from `toa.index`
-- Infer `is_barycentered(toa)` from `toa.ephem.ssb_obs_pos`
-- Renamed `CorrectedTOA`, `CorrectedWidebandTOA`, and `CorrectedDMInfo` respectively to `TOACorrection`, `WidebandTOACorrection`, and `DMInfoCorrection`
-- Removed the `TOA` from `TOACorrection` (it's passed separately to functions). This reduces copy overhead. 
-- Avoid unnecessary repeated computations in `Spindown` 
-- Specialized methods of `taylor_horner` and `taylor_horner_integral` for faster execution
-- `correct_toa` to more specialized methods `correct_toa_delay`, `correct_toa_phase`, and `correct_toa_error`
 ## Fixed
 - Tests now handle par files without `PHOFF` properly.
 - Proper motion computation
@@ -60,9 +62,7 @@
 - `black` failure now shows up as a CI failure.
 - Handling of `prefixParameters` with `Time` quantities
 - Don't apply `MeasurementNoise` to TZR TOAs
-- Unnecessary repetition of `sin` and `cos` in ecliptic coordinate conversion
 ## Removed
-- `level` attribute from `TOACorrection`
 
 # [0.0.3] - 2024-08-22
 ## Added
