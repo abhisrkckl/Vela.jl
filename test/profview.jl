@@ -1,5 +1,6 @@
 using Vela
 using ProfileView
+using BenchmarkTools
 
 const m, t = Vela.load_pulsar_data("datafiles/NGC6440E.jlso")
 const lnlike = get_lnlike_serial_func(m, t)
@@ -13,5 +14,8 @@ end
 
 # compilation
 @profview profile_test(1)
+
+@btime lnlike(params)
+
 # pure runtime
 @profview profile_test(10000)

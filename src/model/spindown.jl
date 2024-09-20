@@ -28,4 +28,3 @@ function correct_toa(::Spindown, toa::TOA, toacorr::TOACorrection, params::Named
         delta_spin_frequency = spindown_frequency(GQ{Float64}(Δt), f_, fs),
     )
 end
-
