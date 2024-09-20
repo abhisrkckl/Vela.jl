@@ -1,4 +1,5 @@
 from io import StringIO
+import os
 
 import numpy as np
 import pytest
@@ -8,11 +9,12 @@ from pyvela import read_model_and_toas
 from pyvela.ecorr import ecorr_sort
 from pyvela.pint2vela import get_kernel
 
+datadir = os.path.dirname(os.path.realpath(__file__)) + "/datafiles"
 
 @pytest.fixture(scope="module")
 def data_B1855p09():
-    parfile = "datafiles/B1855+09_NANOGrav_9yv1.par"
-    timfile = "datafiles/B1855+09_NANOGrav_9yv1.tim"
+    parfile = f"{datadir}/B1855+09_NANOGrav_9yv1.par"
+    timfile = f"{datadir}/B1855+09_NANOGrav_9yv1.tim"
     mp, tp = get_model_and_toas(parfile, timfile)
     mv, tv = read_model_and_toas(parfile, timfile)
 
