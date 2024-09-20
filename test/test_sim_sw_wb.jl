@@ -1,6 +1,8 @@
 @testset "sim_sw.wb" begin
     model, wtoas = Vela.load_pulsar_data("datafiles/sim_sw.wb.jlso")
 
+    pepoch_mjd = value(model.epoch) / day_to_s
+
     @testset "file save" begin
         Vela.save_pulsar_data("__test_wb.jlso", model, wtoas)
         @test isfile("__test_wb.jlso")
@@ -20,8 +22,9 @@
             wtoa in wtoas
         ])
         @test all([
-            time(53999.0 * day_to_s) < wtoa.toa.value < time(56001.0 * day_to_s) for
-            wtoa in wtoas
+            time((53999.0 - pepoch_mjd) * day_to_s) <
+            wtoa.toa.value <
+            time((56001.0 - pepoch_mjd) * day_to_s) for wtoa in wtoas
         ])
         @test all([modf(wtoa.toa.pulse_number.x)[1] == 0 for wtoa in wtoas])
         @test all([wtoa.toa.error > time(0.0) for wtoa in wtoas])

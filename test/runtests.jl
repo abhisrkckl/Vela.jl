@@ -34,9 +34,11 @@ function default_ephem()
     )
 end
 
+const epoch_mjd = 53470.0
+
 function default_toa()
     return TOA(
-        time(Double64(53470.0 * day_to_s)),
+        time(Double64((53470.0 - epoch_mjd) * day_to_s)),
         time(1e-6),
         frequency(2.5e9),
         dimensionless(Double64(0.0)),
@@ -47,7 +49,7 @@ end
 
 function default_tzrtoa()
     return make_tzr_toa(
-        time(Double64(53475.0 * day_to_s)),
+        time(Double64((53475.0 - epoch_mjd) * day_to_s)),
         frequency(2.5e9),
         default_ephem(),
     )

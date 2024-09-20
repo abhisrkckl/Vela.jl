@@ -1,6 +1,8 @@
 @testset "NGC6440E" begin
     model, toas = Vela.load_pulsar_data("datafiles/NGC6440E.jlso")
 
+    pepoch_mjd = value(model.epoch) / day_to_s
+
     @testset "file save" begin
         Vela.save_pulsar_data("__test.jlso", model, toas)
         @test isfile("__test.jlso")
@@ -12,6 +14,7 @@
             model.ephem,
             model.clock,
             model.units,
+            model.epoch,
             model.components,
             model.kernel,
             model.param_handler,
@@ -27,7 +30,9 @@
             frequency(1e9) < toa.observing_frequency < frequency(2.5e9) for toa in toas
         ])
         @test all([
-            time(53470.0 * day_to_s) < toa.value < time(54200.0 * day_to_s) for toa in toas
+            time((53470.0 - pepoch_mjd) * day_to_s) <
+            toa.value <
+            time((54200.0 - pepoch_mjd) * day_to_s) for toa in toas
         ])
         @test all([modf(toa.pulse_number.x)[1] == 0 for toa in toas])
         @test all([toa.error > time(0.0) for toa in toas])
@@ -39,7 +44,9 @@
         @test tzrtoa.error > time(0.0)
         @test tzrtoa.pulse_number == dimensionless(0.0)
         @test frequency(1e9) < tzrtoa.observing_frequency < frequency(2.5e9)
-        @test time(53470.0 * day_to_s) < tzrtoa.value < time(54200.0 * day_to_s)
+        @test time((53470.0 - pepoch_mjd) * day_to_s) <
+              tzrtoa.value <
+              time((54200.0 - pepoch_mjd) * day_to_s)
     end
 
     @testset "param_handler" begin

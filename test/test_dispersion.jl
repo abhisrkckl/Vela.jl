@@ -8,7 +8,10 @@
     wtoa = default_wbtoa()
     cwtoa = WidebandTOACorrection()
 
-    params = (DMEPOCH = time(53470.0 * day_to_s), DM = (GQ{-1}(4e16), GQ{-2}(1e11)))
+    params = (
+        DMEPOCH = time((53470.0 - epoch_mjd) * day_to_s),
+        DM = (GQ{-1}(4e16), GQ{-2}(1e11)),
+    )
 
     dmt = DispersionTaylor()
     @test dispersion_slope(dmt, toa, ctoa, params) == params.DM[1]
@@ -52,7 +55,7 @@ end
     @test dispersion_slope(dmoff_ex, toa, ctoa, params) == -params.FDJUMPDM[1]
 
     toa1 = TOA(
-        time(Double64(53470.0 * day_to_s)),
+        time(Double64((53470.0 - epoch_mjd) * day_to_s)),
         time(1e-6),
         frequency(2.5e9),
         dimensionless(Double64(0.0)),
@@ -99,7 +102,7 @@ end
     @test dispersion_slope(dmjump_ex, toa, ctoa, params) == -params.DMJUMP[1]
 
     toa1 = TOA(
-        time(Double64(53470.0 * day_to_s)),
+        time(Double64((53470.0 - epoch_mjd) * day_to_s)),
         time(1e-6),
         frequency(2.5e9),
         dimensionless(Double64(0.0)),

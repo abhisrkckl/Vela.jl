@@ -5,11 +5,7 @@
     tzrtoa = default_tzrtoa()
     ctzrtoa = TOACorrection()
 
-    params = (
-        PEPOCH = time(53470.0 * day_to_s),
-        F_ = frequency(100.0),
-        F = (frequency(0.0), GQ{-2}(-1e-14)),
-    )
+    params = (F_ = frequency(100.0), F = (frequency(0.0), GQ{-2}(-1e-14)))
 
     spn = Spindown()
     # @test phase(spn, toa, ctoa, params) == dimensionless(0.0)

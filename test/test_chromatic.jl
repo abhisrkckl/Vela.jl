@@ -4,9 +4,9 @@
 
     params = (
         TNCHROMIDX = dimensionless(2.0),
-        CMEPOCH = time(53470.0 * day_to_s),
+        CMEPOCH = time((53470.0 - epoch_mjd) * day_to_s),
         CM = (GQ{1}(4e4), GQ{0}(1e-1)),
-        DMEPOCH = time(53470.0 * day_to_s),
+        DMEPOCH = time((53470.0 - epoch_mjd) * day_to_s),
         DM = (GQ{-1}(4e16), GQ{-2}(1e11)),
     )
 
