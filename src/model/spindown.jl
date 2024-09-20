@@ -17,9 +17,10 @@ spindown_frequency(Δt, f_, fs)::GQ{-1,Float64} = f_ + taylor_horner(Δt, fs)
 
 """Update the `CorrectedTOA` object with the rotational phase and spin frequency"""
 function correct_toa(::Spindown, toa::TOA, toacorr::TOACorrection, params::NamedTuple)
-    t0 = params.PEPOCH
-    t = corrected_toa_value(toa, toacorr)
-    Δt = t - t0
+    # t0 = params.PEPOCH
+    # t = corrected_toa_value(toa, toacorr)
+    # Δt = t - t0
+    Δt = corrected_toa_value(toa, toacorr)
     fs = params.F
     f_ = params.F_
     return correct_toa_phase(

@@ -16,6 +16,7 @@ struct TimingModel{ComponentsTuple<:Tuple,KernelType<:Kernel,PriorsTuple<:Tuple}
     ephem::String
     clock::String
     units::String
+    epoch::GQ{1,Float64}
     components::ComponentsTuple
     kernel::KernelType
     param_handler::ParamHandler
@@ -27,6 +28,7 @@ struct TimingModel{ComponentsTuple<:Tuple,KernelType<:Kernel,PriorsTuple<:Tuple}
         ephem::String,
         clock::String,
         units::String,
+        epoch::GQ{1,Float64},
         components::Tuple,
         kernel::Kernel,
         param_handler::ParamHandler,
@@ -43,6 +45,7 @@ struct TimingModel{ComponentsTuple<:Tuple,KernelType<:Kernel,PriorsTuple<:Tuple}
             ephem,
             clock,
             units,
+            epoch,
             components,
             kernel,
             param_handler,
