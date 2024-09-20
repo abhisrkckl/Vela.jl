@@ -17,7 +17,7 @@ struct SolarSystemEphemeris
     obs_venus_pos::NTuple{3,GQ{1,Float64}}
     obs_uranus_pos::NTuple{3,GQ{1,Float64}}
     obs_neptune_pos::NTuple{3,GQ{1,Float64}}
-    obs_earth_pos::NTuple{3,GQ{1,Float64}}
+    # obs_earth_pos::NTuple{3,GQ{1,Float64}}
 
     function SolarSystemEphemeris(
         ssb_obs_pos,
@@ -28,7 +28,7 @@ struct SolarSystemEphemeris
         obs_venus_pos,
         obs_uranus_pos,
         obs_neptune_pos,
-        obs_earth_pos,
+        # obs_earth_pos,
     )
         @assert dot(ssb_obs_vel, ssb_obs_vel) < 1 "Magnitude of ssb_obs_vel should be less than 1."
 
@@ -41,7 +41,7 @@ struct SolarSystemEphemeris
             obs_venus_pos,
             obs_uranus_pos,
             obs_neptune_pos,
-            obs_earth_pos,
+            # obs_earth_pos,
         )
     end
 end

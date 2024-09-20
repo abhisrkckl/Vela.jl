@@ -9,7 +9,7 @@
         obs_venus_pos,
         obs_uranus_pos,
         obs_neptune_pos,
-        obs_earth_pos,
+        # obs_earth_pos,
     )
 
     # Wrong dimensions
@@ -22,7 +22,7 @@
         obs_venus_pos,
         obs_uranus_pos,
         obs_neptune_pos,
-        obs_earth_pos,
+        # obs_earth_pos,
     )
 
     # Wrong dimensions
@@ -35,7 +35,7 @@
         obs_venus_pos,
         obs_uranus_pos,
         obs_neptune_pos,
-        obs_earth_pos,
+        # obs_earth_pos,
     )
 
     # ssb_obs_vel is too large.
@@ -48,7 +48,7 @@
         obs_venus_pos,
         obs_uranus_pos,
         obs_neptune_pos,
-        obs_earth_pos,
+        # obs_earth_pos,
     )
 
     ephem_vecs = SolarSystemEphemeris(
@@ -60,7 +60,7 @@
         obs_venus_pos,
         obs_uranus_pos,
         obs_neptune_pos,
-        obs_earth_pos,
+        # obs_earth_pos,
     )
 
     # ssb_obs_pos and obs_sun_pos should be less than the Aphelion distance
@@ -78,5 +78,5 @@
     # |ssb_obs_vel| should be less than the speed of light
     @test dot(ephem_vecs.ssb_obs_vel, ephem_vecs.ssb_obs_vel) < 1
 
-    @test sizeof(ephem_vecs) == 9 * 3 * sizeof(GQ{0,Float64})
+    @test sizeof(ephem_vecs) == 8 * 3 * sizeof(GQ{0,Float64})
 end
