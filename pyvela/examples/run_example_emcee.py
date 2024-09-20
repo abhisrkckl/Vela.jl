@@ -44,10 +44,15 @@ print(timeit("lnpost(maxlike_params_v)", globals=globals(), number=1000))
 
 # %%
 ndim = len(param_names)
-nwalkers = 100
+nwalkers = ndim * 5
 p0 = np.array([prior_transform(cube) for cube in np.random.rand(nwalkers, ndim)])
 
-sampler = emcee.EnsembleSampler(nwalkers, ndim, lnpost)
+sampler = emcee.EnsembleSampler(
+    nwalkers,
+    ndim,
+    lnpost,
+    moves=[emcee.moves.StretchMove(), emcee.moves.DESnookerMove()],
+)
 sampler.run_mcmc(p0, 5000, progress=True)
 
 # %%
