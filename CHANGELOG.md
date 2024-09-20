@@ -16,6 +16,7 @@
 - Unnecessary repetition of `sin` and `cos` in ecliptic coordinate conversion
 ## Removed
 - `level` attribute from `TOACorrection`
+- `obs_earth_pos` from `SolarSystemEphemeris`
 
 # [0.0.4]
 ## Added

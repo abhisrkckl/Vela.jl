@@ -9,7 +9,6 @@
         obs_venus_pos,
         obs_uranus_pos,
         obs_neptune_pos,
-        # obs_earth_pos,
     )
 
     # Wrong dimensions
@@ -22,7 +21,6 @@
         obs_venus_pos,
         obs_uranus_pos,
         obs_neptune_pos,
-        # obs_earth_pos,
     )
 
     # Wrong dimensions
@@ -35,7 +33,6 @@
         obs_venus_pos,
         obs_uranus_pos,
         obs_neptune_pos,
-        # obs_earth_pos,
     )
 
     # ssb_obs_vel is too large.
@@ -48,7 +45,6 @@
         obs_venus_pos,
         obs_uranus_pos,
         obs_neptune_pos,
-        # obs_earth_pos,
     )
 
     ephem_vecs = SolarSystemEphemeris(
@@ -60,7 +56,6 @@
         obs_venus_pos,
         obs_uranus_pos,
         obs_neptune_pos,
-        # obs_earth_pos,
     )
 
     # ssb_obs_pos and obs_sun_pos should be less than the Aphelion distance

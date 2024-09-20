@@ -61,10 +61,6 @@ def pint_toa_to_vela(toas: TOAs, idx: int, epoch_mjd: float):
         vl.distance,
         jl.Tuple(toas.table["obs_neptune_pos"].quantity[idx].to_value("lightsecond")),
     )
-    # obs_earth_pos = jl.map(
-    #     vl.distance,
-    #     jl.Tuple(toas.table["obs_earth_pos"].quantity[idx].to_value("lightsecond")),
-    # )
 
     ephem = vl.SolarSystemEphemeris(
         ssb_obs_pos,
@@ -75,7 +71,6 @@ def pint_toa_to_vela(toas: TOAs, idx: int, epoch_mjd: float):
         obs_venus_pos,
         obs_uranus_pos,
         obs_neptune_pos,
-        # obs_earth_pos,
     )
 
     return vl.TOA(tdb, err, freq, phase, ephem, idx + 1)
