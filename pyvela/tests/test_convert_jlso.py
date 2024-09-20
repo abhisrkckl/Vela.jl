@@ -5,6 +5,7 @@ from pyvela.vela import vl
 
 datadir = os.path.dirname(os.path.realpath(__file__)) + "/datafiles"
 
+
 def test_convert_jlso():
     par_tim_to_jlso(
         f"{datadir}/NGC6440E.par", f"{datadir}/NGC6440E.tim", "__NGC6440E.jlso"

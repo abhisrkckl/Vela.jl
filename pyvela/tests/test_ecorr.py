@@ -11,6 +11,7 @@ from pyvela.pint2vela import get_kernel
 
 datadir = os.path.dirname(os.path.realpath(__file__)) + "/datafiles"
 
+
 @pytest.fixture(scope="module")
 def data_B1855p09():
     parfile = f"{datadir}/B1855+09_NANOGrav_9yv1.par"
