@@ -14,4 +14,4 @@ end
 # compilation
 @profview profile_test(1)
 # pure runtime
-@profview profile_test(1000000)
+@profview profile_test(10000)
