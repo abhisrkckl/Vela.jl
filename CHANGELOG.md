@@ -14,6 +14,7 @@
 - Subtract `PEPOCH` from all TOA and `MJDParameter` values; add `epoch` attribute to `TimingModel`
 ## Fixed
 - Unnecessary repetition of `sin` and `cos` in ecliptic coordinate conversion
+- Bug in `_ecorr_lnlike_group`
 ## Removed
 - `level` attribute from `TOACorrection`
 - `obs_earth_pos` from `SolarSystemEphemeris`
