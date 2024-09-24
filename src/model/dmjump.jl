@@ -2,16 +2,17 @@ export DispersionJump, ExclusiveDispersionJump
 
 abstract type DispersionJumpBase <: DispersionComponent end
 
-delay(::DispersionJumpBase, ::CorrectedTOA, ::NamedTuple) = time(0.0)
+delay(::DispersionJumpBase, ::TOA, ::TOACorrection, ::NamedTuple) = time(0.0)
 
 function correct_toa(
     dmjump::DispersionJumpBase,
-    cwtoa::CorrectedWidebandTOA,
+    wtoa::WidebandTOA,
+    wtoacorr::WidebandTOACorrection,
     params::NamedTuple,
 )
-    dm = dispersion_slope(dmjump, cwtoa.corrected_toa, params)
-    cdminfo = correct_dminfo(cwtoa.corrected_dminfo; delta_dm = dm)
-    return CorrectedWidebandTOA(cwtoa.corrected_toa, cdminfo)
+    dm = dispersion_slope(dmjump, wtoa.toa, wtoacorr.toa_correction, params)
+    dmcorr = correct_dminfo(wtoacorr.dm_correction; delta_dm = dm)
+    return WidebandTOACorrection(wtoacorr.toa_correction, dmcorr)
 end
 
 """System-dependent wideband DM offsets (`DMJUMP`) with non-exclusive selection masks.
@@ -27,15 +28,16 @@ end
 
 function dispersion_slope(
     dmjump::DispersionJump,
-    ctoa::CorrectedTOA,
+    toa::TOA,
+    ::TOACorrection,
     params::NamedTuple,
 )::GQ
     @assert length(params.DMJUMP) == size(dmjump.jump_mask)[1]
-    @assert ctoa.toa.index <= size(dmjump.jump_mask)[2]
-    if ctoa.toa.tzr
+    @assert toa.index <= size(dmjump.jump_mask)[2]
+    if is_tzr(toa)
         return GQ{-1}(0.0)
     else
-        return -dot(params.DMJUMP, @view(dmjump.jump_mask[:, ctoa.toa.index]))
+        return -dot(params.DMJUMP, @view(dmjump.jump_mask[:, toa.index]))
     end
 end
 
@@ -52,13 +54,14 @@ end
 
 function dispersion_slope(
     dmjump::ExclusiveDispersionJump,
-    ctoa::CorrectedTOA,
+    toa::TOA,
+    ::TOACorrection,
     params::NamedTuple,
 )::GQ
-    return if (ctoa.toa.index == 0 || ctoa.toa.tzr)
+    return if (is_tzr(toa))
         GQ{-1}(0.0)
     else
-        idx = dmjump.jump_mask[ctoa.toa.index]
+        idx = dmjump.jump_mask[toa.index]
         if idx == 0
             GQ{-1}(0.0)
         else

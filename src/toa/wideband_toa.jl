@@ -1,10 +1,10 @@
 export DMInfo,
-    CorrectedDMInfo,
+    DMInfoCorrection,
     correct_dminfo,
     dm_residual,
     scaled_dm_error_sqr,
     WidebandTOA,
-    CorrectedWidebandTOA
+    WidebandTOACorrection
 
 """
     DMInfo
@@ -20,19 +20,14 @@ struct DMInfo
     error::GQ{-1,Float64}
 end
 
-"""
-    CorrectedDMInfo
-The accumulated timing & noise model corrections applied to wideband DM.
-"""
-struct CorrectedDMInfo
-    dminfo::DMInfo
+"""The accumulated timing & noise model corrections applied to wideband DM."""
+struct DMInfoCorrection
     model_dm::GQ{-1,Float64}
     dmefac::GQ{0,Float64}
     dmequad2::GQ{-2,Float64}
 end
 
-CorrectedDMInfo(dminfo::DMInfo) =
-    CorrectedDMInfo(dminfo, GQ{-1}(0.0), dimensionless(1.0), GQ{-2}(0.0))
+DMInfoCorrection() = DMInfoCorrection(GQ{-1}(0.0), dimensionless(1.0), GQ{-2}(0.0))
 
 """
     correct_dminfo(
@@ -45,33 +40,20 @@ CorrectedDMInfo(dminfo::DMInfo) =
 Apply a correction to a `DMInfo`.
 """
 correct_dminfo(
-    cdminfo::CorrectedDMInfo;
+    dmcorr::DMInfoCorrection;
     delta_dm = GQ{-1}(0.0),
     dmefac = dimensionless(1.0),
     dmequad2 = GQ{-2}(0.0),
-) = CorrectedDMInfo(
-    cdminfo.dminfo,
-    cdminfo.model_dm + delta_dm,
-    cdminfo.dmefac * dmefac,
-    cdminfo.dmequad2 + dmequad2,
+) = DMInfoCorrection(
+    dmcorr.model_dm + delta_dm,
+    dmcorr.dmefac * dmefac,
+    dmcorr.dmequad2 + dmequad2,
 )
 
-"""
-    dm_residual(cdminfo::CorrectedDMInfo)
+dm_residual(dminfo::DMInfo, dmcorr::DMInfoCorrection) = dminfo.value - dmcorr.model_dm
 
-Compute the DM residual.
-"""
-dm_residual(cdminfo::CorrectedDMInfo) = cdminfo.dminfo.value - cdminfo.model_dm
-
-"""
-    scaled_dm_error_sqr(cdminfo::CorrectedDMInfo)
-
-Compute the scaled DM uncertainty incorporating the DMEFAC and the DMEQUAD.
-"""
-scaled_dm_error_sqr(cdminfo::CorrectedDMInfo) =
-    (cdminfo.dminfo.error * cdminfo.dminfo.error + cdminfo.dmequad2) *
-    cdminfo.dmefac *
-    cdminfo.dmefac
+scaled_dm_error_sqr(dminfo::DMInfo, dmcorr::DMInfoCorrection) =
+    (dminfo.error * dminfo.error + dmcorr.dmequad2) * dmcorr.dmefac * dmcorr.dmefac
 
 """
     WidebandTOA
@@ -99,15 +81,10 @@ show(io::IO, wtoa::WidebandTOA) = print(
 show(io::IO, toas::Vector{WidebandTOA}) =
     print(io, "[Vector containing $(length(toas)) wideband TOAs.]")
 
-"""
-    CorrectedWidebandTOA
-
-The accumulated timing & noise model corrections applied to a wideband TOA.
-"""
-struct CorrectedWidebandTOA <: CorrectedTOABase
-    corrected_toa::CorrectedTOA
-    corrected_dminfo::CorrectedDMInfo
+"""The accumulated timing & noise model corrections applied to a wideband TOA."""
+struct WidebandTOACorrection <: TOACorrectionBase
+    toa_correction::TOACorrection
+    dm_correction::DMInfoCorrection
 end
 
-CorrectedWidebandTOA(wtoa::WidebandTOA) =
-    CorrectedWidebandTOA(CorrectedTOA(wtoa.toa), CorrectedDMInfo(wtoa.dminfo))
+WidebandTOACorrection() = WidebandTOACorrection(TOACorrection(), DMInfoCorrection())

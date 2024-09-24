@@ -63,12 +63,12 @@ def get_scale_factor(param: Parameter):
         raise ValueError(f"Unable to estimate scale factor for {param.name}.")
 
 
-def pint_parameter_to_vela(param: Parameter):
+def pint_parameter_to_vela(param: Parameter, epoch_mjd: float):
     """Construct a `Vela.Parameter` object from a `PINT` `Parameter` object."""
 
     scale_factor = get_scale_factor(param)
     default_value = (
-        param.value * day_to_s
+        (param.value - epoch_mjd) * day_to_s
         if isinstance(param.quantity, Time)
         else (param.quantity * scale_factor).si.value
     )
@@ -114,7 +114,7 @@ def _get_multiparam_elements(model: TimingModel, multi_param_names: List[str]):
         if pxparam.value is None:
             break
 
-        elements.append(pint_parameter_to_vela(pxparam))
+        elements.append(pint_parameter_to_vela(pxparam, float(model.PEPOCH.value)))
 
     return jl.Vector[vl.Parameter](elements)
 
@@ -146,6 +146,7 @@ def pint_parameters_to_vela(model: TimingModel):
         "SWM",
         "H4",  # Handled separately; converted to STIG.
         "DMX",  # The actual DMX parameters are "DMX_".
+        "PEPOCH",  # Included separately. We subtract PEPOCH from all TOAs and MJDParameters.
     ]
 
     assert all(psp not in ignore_params for psp in pseudo_single_params)
@@ -177,7 +178,7 @@ def pint_parameters_to_vela(model: TimingModel):
         ):
             continue
 
-        single_params.append(pint_parameter_to_vela(param))
+        single_params.append(pint_parameter_to_vela(param, float(model.PEPOCH.value)))
 
     single_params.append(
         vl.Parameter(

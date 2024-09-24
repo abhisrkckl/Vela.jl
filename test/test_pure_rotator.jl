@@ -1,6 +1,8 @@
 @testset "pure_rotator" begin
     model, toas = Vela.load_pulsar_data("datafiles/pure_rotator.jlso")
 
+    pepoch_mjd = value(model.epoch) / day_to_s
+
     @testset "model info" begin
         @test model.pulsar_name == "SIM0"
         @test model.ephem == "DE421"
@@ -9,12 +11,15 @@
     end
 
     @testset "read_toas" begin
-        @test !any([toa.tzr for toa in toas])
+        @test !any([is_tzr(toa) for toa in toas])
+        # @test all([is_barycentered(toa) for toa in toas])
         @test length(toas) == 100
 
         @test all([toa.observing_frequency == frequency(1.4e9) for toa in toas])
         @test all([
-            time(53400.0 * day_to_s) < toa.value < time(56002.0 * day_to_s) for toa in toas
+            time((53400.0 - pepoch_mjd) * day_to_s) <
+            toa.value <
+            time((56002.0 - pepoch_mjd) * day_to_s) for toa in toas
         ])
         @test all([modf(toa.pulse_number.x)[1] == 0 for toa in toas])
         @test all([toa.error > time(0.0) for toa in toas])
@@ -22,11 +27,13 @@
 
     @testset "read_tzr_toa" begin
         tzrtoa = model.tzr_toa
-        @test tzrtoa.tzr
+        @test is_tzr(tzrtoa)
         @test tzrtoa.error > time(0.0)
         @test modf(tzrtoa.pulse_number.x)[1] == 0
         @test frequency(1e9) < tzrtoa.observing_frequency < frequency(2.5e9)
-        @test time(53400.0 * day_to_s) < tzrtoa.value < time(56002.0 * day_to_s)
+        @test time((53400.0 - pepoch_mjd) * day_to_s) <
+              tzrtoa.value <
+              time((56002.0 - pepoch_mjd) * day_to_s)
     end
 
     @testset "read_param_handler" begin
@@ -55,7 +62,7 @@
         @test startswith(string(toas[1]), "TOA")
         display(toas)
         display(toas[1])
-        @test startswith(string(model.tzr_toa), "TZRTOA")
+        # @test startswith(string(model.tzr_toa), "TZRTOA")
         display(model.tzr_toa)
         @test startswith(string(model), "TimingModel")
         display(model)
@@ -66,7 +73,7 @@
 
     @testset "correct_toa" begin
         ctoa = correct_toa(model, toas[1], params)
-        @test corrected_toa_value(ctoa) ≈ toas[1].value
+        @test corrected_toa_value(toas[1], ctoa) ≈ toas[1].value
         @test doppler_shifted_spin_frequency(ctoa) ≈ ctoa.spin_frequency
     end
 

@@ -8,7 +8,7 @@ from pint.toa import TOAs
 
 from .convert_components import is_exclusive_mask, pint_components_to_vela, read_mask
 from .convert_parameters import pint_parameters_to_vela
-from .convert_toas import pint_toa_to_vela, pint_toas_to_vela
+from .convert_toas import pint_toa_to_vela, pint_toas_to_vela, day_to_s
 from .ecorr import ecorr_sort
 from .priors import get_default_priors
 from .vela import vl
@@ -105,6 +105,8 @@ def pint_model_to_vela(
 ):
     """Construct a `Vela.TimingModel` from a `PINT` `TimingModel`."""
 
+    epoch_mjd = float(model.PEPOCH.value)
+
     toas.compute_pulse_numbers(model)
     fix_params(model)
 
@@ -118,12 +120,12 @@ def pint_model_to_vela(
     free_params = vl.get_free_param_names(param_handler)
 
     priors = get_default_priors(
-        model, free_params, cheat_prior_scale, custom_prior_dists
+        model, free_params, epoch_mjd, cheat_prior_scale, custom_prior_dists
     )
 
     tzr_toa = model.get_TZR_toa(toas)
     tzr_toa.compute_pulse_numbers(model)
-    tzr_toa = pint_toa_to_vela(tzr_toa, 0, tzr=True)
+    tzr_toa = pint_toa_to_vela(tzr_toa, -1, epoch_mjd)
 
     kernel = get_kernel(model, toas, ecorr_toa_ranges, ecorr_indices)
 
@@ -132,6 +134,7 @@ def pint_model_to_vela(
         model.EPHEM.value,
         model.CLOCK.value,
         model.UNITS.value,
+        vl.time(epoch_mjd * day_to_s),
         components,
         kernel,
         param_handler,
@@ -173,7 +176,7 @@ def read_model_and_toas(
         ecorr_toa_ranges=ecorr_toa_ranges,
         ecorr_indices=ecorr_indices,
     )
-    toas = pint_toas_to_vela(tp)
+    toas = pint_toas_to_vela(tp, float(mp.PEPOCH.value))
 
     return model, toas
 

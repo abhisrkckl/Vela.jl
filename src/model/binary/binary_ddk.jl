@@ -14,8 +14,8 @@ struct BinaryDDK <: BinaryDDBase
     ecliptic_coordinates::Bool
 end
 
-function DDState(ddk::BinaryDDK, ctoa::CorrectedTOA, params::NamedTuple)
-    Δt = corrected_toa_value(ctoa) - params.T0
+function DDState(ddk::BinaryDDK, toa::TOA, toacorr::TOACorrection, params::NamedTuple)
+    Δt = corrected_toa_value(toa, toacorr, Float64) - params.T0
     n = mean_motion(Δt, params, ddk.use_fbx)
     l = mean_anomaly(Δt, params, ddk.use_fbx)
 
@@ -36,8 +36,8 @@ function DDState(ddk::BinaryDDK, ctoa::CorrectedTOA, params::NamedTuple)
     μα, μδ = proper_motion(params, ddk.ecliptic_coordinates)
     px = params.PX
 
-    ssb_obs_pos = ctoa.toa.ephem.ssb_obs_pos
-    ssb_psr_pos = ctoa.ssb_psr_pos
+    ssb_obs_pos = toa.ephem.ssb_obs_pos
+    ssb_psr_pos = toacorr.ssb_psr_pos
 
     a1 = params.A1 + Δt * params.A1DOT
 

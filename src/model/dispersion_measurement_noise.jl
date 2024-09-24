@@ -12,40 +12,34 @@ struct DispersionMeasurementNoise <: WhiteNoiseComponent
 end
 
 """The DMEFAC corresponding to a TOA (assumes exclusivity)."""
-function dmefac(
-    dwn::DispersionMeasurementNoise,
-    cwtoa::CorrectedWidebandTOA,
-    params::NamedTuple,
-)
-    idx = dwn.dmefac_index_mask[cwtoa.corrected_toa.toa.index]
+function dmefac(dwn::DispersionMeasurementNoise, wtoa::WidebandTOA, params::NamedTuple)
+    idx = dwn.dmefac_index_mask[wtoa.toa.index]
     return (idx == 0) ? dimensionless(1.0) : params.DMEFAC[idx]
 end
 
 """The DMEQUAD corresponding to a TOA (assumes exclusivity)."""
-function dmequad2(
-    dwn::DispersionMeasurementNoise,
-    cwtoa::CorrectedWidebandTOA,
-    params::NamedTuple,
-)
-    idx = dwn.dmequad_index_mask[cwtoa.corrected_toa.toa.index]
+function dmequad2(dwn::DispersionMeasurementNoise, wtoa::WidebandTOA, params::NamedTuple)
+    idx = dwn.dmequad_index_mask[wtoa.toa.index]
     return (idx == 0) ? GQ{-2}(0.0) : params.DMEQUAD[idx]^Val(2)
 end
 
 """Apply DMEFAC and DMEQUAD to a TOA."""
 function correct_toa(
     dwn::DispersionMeasurementNoise,
-    cwtoa::CorrectedWidebandTOA,
+    wtoa::WidebandTOA,
+    wtoacorr::WidebandTOACorrection,
     params::NamedTuple,
 )
-    cdminfo = correct_dminfo(
-        cwtoa.corrected_dminfo;
-        dmefac = dmefac(dwn, cwtoa, params),
-        dmequad2 = dmequad2(dwn, cwtoa, params),
+    dmcorr = correct_dminfo(
+        wtoacorr.dm_correction;
+        dmefac = dmefac(dwn, wtoa, params),
+        dmequad2 = dmequad2(dwn, wtoa, params),
     )
-    return CorrectedWidebandTOA(cwtoa.corrected_toa, cdminfo)
+    return WidebandTOACorrection(wtoacorr.toa_correction, dmcorr)
 end
 
-correct_toa(::DispersionMeasurementNoise, ctoa::CorrectedTOA, ::NamedTuple) = ctoa
+correct_toa(::DispersionMeasurementNoise, ::TOA, toacorr::TOACorrection, ::NamedTuple) =
+    toacorr
 
 function show(io::IO, dwn::DispersionMeasurementNoise)
     num_dmefacs = length(filter(x -> x > 0, unique(dwn.dmefac_index_mask)))

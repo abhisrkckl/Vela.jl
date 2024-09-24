@@ -27,8 +27,13 @@ struct ELL1State
     sini::GQ{0,Float64}
 end
 
-function ELL1State(ell1::BinaryELL1Base, ctoa::CorrectedTOA, params::NamedTuple)
-    Δt = corrected_toa_value(ctoa) - params.TASC
+function ELL1State(
+    ell1::BinaryELL1Base,
+    toa::TOA,
+    toacorr::TOACorrection,
+    params::NamedTuple,
+)
+    Δt = corrected_toa_value(toa, toacorr, Float64) - params.TASC
     a1 = params.A1 + Δt * params.A1DOT
     ϵ1 = params.EPS1 + Δt * params.EPS1DOT
     ϵ2 = params.EPS2 + Δt * params.EPS2DOT
@@ -145,8 +150,13 @@ circular binary.
 Reference:
     [Lange+ 2001](http://doi.org/10.1046/j.1365-8711.2001.04606.x)
 """
-function correct_toa(ell1::BinaryELL1Base, ctoa::CorrectedTOA, params::NamedTuple)
-    state = ELL1State(ell1, ctoa, params)
+function correct_toa(
+    ell1::BinaryELL1Base,
+    toa::TOA,
+    toacorr::TOACorrection,
+    params::NamedTuple,
+)
+    state = ELL1State(ell1, toa, toacorr, params)
 
     ΔR = rømer_delay(ell1, state)
     ΔRp = d_rømer_delay_d_Φ(ell1, state)
@@ -160,5 +170,5 @@ function correct_toa(ell1::BinaryELL1Base, ctoa::CorrectedTOA, params::NamedTupl
 
     doppler = -ΔRp * nhat
 
-    return correct_toa(ctoa; delay = delay, doppler = doppler)
+    return correct_toa_delay(toacorr; delay = delay, doppler = doppler)
 end

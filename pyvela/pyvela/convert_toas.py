@@ -7,13 +7,13 @@ from .vela import jl, to_jldd, vl
 day_to_s = 86400
 
 
-def pint_toa_to_vela(toas: TOAs, idx: int, tzr: bool = False):
+def pint_toa_to_vela(toas: TOAs, idx: int, epoch_mjd: float):
     """Construct a `Vela.TOA` object from a `PINT` `TOAs` object and an index."""
 
     assert toas.planets
     assert toas.get_pulse_numbers() is not None
 
-    tdb_ld = toas.table["tdbld"].value[idx] * day_to_s
+    tdb_ld = (toas.table["tdbld"].value[idx] - epoch_mjd) * day_to_s
     # tdb_ld1, tdb_ld2 = np.modf(tdb_ld)
     # tdb = vl.time(vl.Double64(tdb_ld2, tdb_ld1))
     tdb = vl.time(to_jldd(tdb_ld))
@@ -61,10 +61,6 @@ def pint_toa_to_vela(toas: TOAs, idx: int, tzr: bool = False):
         vl.distance,
         jl.Tuple(toas.table["obs_neptune_pos"].quantity[idx].to_value("lightsecond")),
     )
-    obs_earth_pos = jl.map(
-        vl.distance,
-        jl.Tuple(toas.table["obs_earth_pos"].quantity[idx].to_value("lightsecond")),
-    )
 
     ephem = vl.SolarSystemEphemeris(
         ssb_obs_pos,
@@ -75,19 +71,18 @@ def pint_toa_to_vela(toas: TOAs, idx: int, tzr: bool = False):
         obs_venus_pos,
         obs_uranus_pos,
         obs_neptune_pos,
-        obs_earth_pos,
     )
 
-    return vl.TOA(tdb, err, freq, phase, False, tzr, ephem, idx + 1)
+    return vl.TOA(tdb, err, freq, phase, ephem, idx + 1)
 
 
-def pint_wbtoa_to_vela(toas: TOAs, idx: int):
+def pint_wbtoa_to_vela(toas: TOAs, idx: int, epoch_mjd: float):
     """Construct a `Vela.WidebandTOA`s from a `PINT` `TOAs` object containing
     wideband data and an index."""
 
     assert toas.is_wideband()
 
-    vtoa = pint_toa_to_vela(toas, idx)
+    vtoa = pint_toa_to_vela(toas, idx, epoch_mjd)
 
     dm = vl.GQ[-1]((DMconst * toas.get_dms()[idx]).si.value)
     dmerr = vl.GQ[-1]((DMconst * toas.get_dm_errors()[idx]).si.value)
@@ -96,10 +91,12 @@ def pint_wbtoa_to_vela(toas: TOAs, idx: int):
     return vl.WidebandTOA(vtoa, dminfo)
 
 
-def pint_toas_to_vela(toas: TOAs):
+def pint_toas_to_vela(toas: TOAs, epoch_mjd: float):
     """Construct a Julia `Vector` of `Vela.TOA` or `Vela.WidebandTOA` objects from a
     `PINT` TOAs object."""
 
     p2v_toas = pint_wbtoa_to_vela if toas.is_wideband() else pint_toa_to_vela
     TOAType = vl.WidebandTOA if toas.is_wideband() else vl.TOA
-    return jl.Vector[TOAType]([p2v_toas(toas, idx) for idx in range(len(toas))])
+    return jl.Vector[TOAType](
+        [p2v_toas(toas, idx, epoch_mjd) for idx in range(len(toas))]
+    )

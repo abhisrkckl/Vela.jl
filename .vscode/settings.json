@@ -1,0 +1,7 @@
+{
+    "python.testing.pytestArgs": [
+        "pyvela", "-n12", "--verbose"
+    ],
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true
+}

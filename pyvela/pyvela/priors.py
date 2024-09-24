@@ -22,6 +22,7 @@ DEFAULT_PRIOR_DISTS = {
 def get_default_prior(
     model: TimingModel,
     param_name: str,
+    epoch_mjd: float,
     cheat_prior_scale: float,
     custom_prior_dists: dict,
 ):
@@ -49,7 +50,7 @@ def get_default_prior(
     else:
         val = (
             (
-                param.value * day_to_s
+                (param.value - epoch_mjd) * day_to_s
                 if isinstance(param.quantity, Time)
                 else (param.quantity * scale_factor).si.value
             )
@@ -103,11 +104,14 @@ def get_default_prior(
 def get_default_priors(
     model: TimingModel,
     free_params: List[str],
+    epoch_mjd: float,
     cheat_prior_scale: float,
     custom_prior_dists: dict,
 ) -> tuple:
     """Returns a tuple of `Vela.Prior` objects corresponding to each free parameter."""
     return tuple(
-        get_default_prior(model, param_name, cheat_prior_scale, custom_prior_dists)
+        get_default_prior(
+            model, param_name, epoch_mjd, cheat_prior_scale, custom_prior_dists
+        )
         for param_name in free_params
     )

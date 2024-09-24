@@ -1,3 +1,4 @@
+import os
 import numpy as np
 import pytest
 from juliacall import Main as jl
@@ -9,6 +10,8 @@ from pyvela.convert_parameters import fdjump_rx
 
 jl.seval("using BenchmarkTools")
 jl.seval("get_alloc(func, args...) = @ballocated(($func)(($args)...))")
+
+datadir = os.path.dirname(os.path.realpath(__file__)) + "/datafiles"
 
 datasets = [
     "NGC6440E",
@@ -47,8 +50,8 @@ datasets = [
 def model_and_toas(request):
     dataset = request.param
     mv, tv = read_model_and_toas(
-        f"datafiles/{dataset}.par",
-        f"datafiles/{dataset}.tim",
+        f"{datadir}/{dataset}.par",
+        f"{datadir}/{dataset}.tim",
         custom_prior_dicts={
             "PHOFF": jl.Uniform(-0.5, 0.5),
             "EFAC": jl.Uniform(0.5, 2.5),
@@ -58,7 +61,7 @@ def model_and_toas(request):
         mv.param_handler, mv.param_handler._default_params_tuple
     )
 
-    m, t = get_model_and_toas(f"datafiles/{dataset}.par", f"datafiles/{dataset}.tim")
+    m, t = get_model_and_toas(f"{datadir}/{dataset}.par", f"{datadir}/{dataset}.tim")
 
     return mv, tv, params, m, t
 

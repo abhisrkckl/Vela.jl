@@ -16,6 +16,7 @@ struct TimingModel{ComponentsTuple<:Tuple,KernelType<:Kernel,PriorsTuple<:Tuple}
     ephem::String
     clock::String
     units::String
+    epoch::GQ{1,Float64}
     components::ComponentsTuple
     kernel::KernelType
     param_handler::ParamHandler
@@ -27,13 +28,14 @@ struct TimingModel{ComponentsTuple<:Tuple,KernelType<:Kernel,PriorsTuple<:Tuple}
         ephem::String,
         clock::String,
         units::String,
+        epoch::GQ{1,Float64},
         components::Tuple,
         kernel::Kernel,
         param_handler::ParamHandler,
         tzr_toa::TOA,
         priors::Tuple,
     )
-        @assert tzr_toa.tzr "Invalid TZR TOA."
+        @assert is_tzr(tzr_toa) "Invalid TZR TOA."
         @assert all(map(c -> isa(c, Component), components)) "components must be a tuple containing Component objects."
         @assert all(map(p -> isa(p, Prior), priors)) "priors must be a tuple containing Prior objects."
         @assert length(priors) == length(get_free_param_names(param_handler)) "The number of prior distributions must match the number of free parameters."
@@ -43,6 +45,7 @@ struct TimingModel{ComponentsTuple<:Tuple,KernelType<:Kernel,PriorsTuple<:Tuple}
             ephem,
             clock,
             units,
+            epoch,
             components,
             kernel,
             param_handler,
@@ -66,24 +69,29 @@ get_scale_factors(model::TimingModel) = get_scale_factors(model.param_handler)
 
 @unroll function correct_toa(
     components::Tuple,
-    ctoa::CorrectedTOABase,
+    toa::TOABase,
+    toacorr::TOACorrectionBase,
     params::NamedTuple,
-)::CorrectedTOA
-    ctoa1 = ctoa
+)::TOACorrectionBase
+    toacorr1 = toacorr
     @unroll for component in components
-        ctoa1 = correct_toa(component, ctoa1, params)
+        toacorr1 = correct_toa(component, toa, toacorr1, params)
     end
-    return ctoa1
+    return toacorr1
 end
 
 """Update a `CorrectedTOA` object using a timing model.
 This involves applying the correction from each component in succession."""
-correct_toa(model::TimingModel, ctoa::CorrectedTOABase, params::NamedTuple) =
-    correct_toa(model.components, ctoa, params)
+correct_toa(
+    model::TimingModel,
+    toa::TOABase,
+    toacorr::TOACorrectionBase,
+    params::NamedTuple,
+) = correct_toa(model.components, toa, toacorr, params)
 
 """Update a `TOA` object using a timing model."""
 correct_toa(model::TimingModel, toa::TOA, params::NamedTuple) =
-    correct_toa(model, CorrectedTOA(toa), params)
+    correct_toa(model, toa, TOACorrection(), params)
 
 show(io::IO, model::TimingModel) =
     print(io, "TimingModel[$(string(model.components)); $(string(model.kernel))]")

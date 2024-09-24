@@ -13,15 +13,16 @@ end
 
 function dispersion_slope(
     dmoff::DispersionOffset,
-    ctoa::CorrectedTOA,
+    toa::TOA,
+    ::TOACorrection,
     params::NamedTuple,
 )::GQ
     @assert length(params.FDJUMPDM) == size(dmoff.jump_mask)[1]
-    @assert ctoa.toa.index <= size(dmoff.jump_mask)[2]
-    if ctoa.toa.tzr
+    @assert toa.index <= size(dmoff.jump_mask)[2]
+    if is_tzr(toa)
         return GQ{-1}(0.0)
     else
-        return -dot(params.FDJUMPDM, @view(dmoff.jump_mask[:, ctoa.toa.index]))
+        return -dot(params.FDJUMPDM, @view(dmoff.jump_mask[:, toa.index]))
     end
 end
 
@@ -37,13 +38,14 @@ end
 
 function dispersion_slope(
     dmoff::ExclusiveDispersionOffset,
-    ctoa::CorrectedTOA,
+    toa::TOA,
+    ::TOACorrection,
     params::NamedTuple,
 )::GQ
-    return if (ctoa.toa.index == 0 || ctoa.toa.tzr)
+    return if is_tzr(toa)
         GQ{-1}(0.0)
     else
-        idx = dmoff.jump_mask[ctoa.toa.index]
+        idx = dmoff.jump_mask[toa.index]
         if idx == 0
             GQ{-1}(0.0)
         else

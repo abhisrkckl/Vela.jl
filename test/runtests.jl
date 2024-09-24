@@ -18,7 +18,6 @@ const obs_saturn_pos = distance.((-2392.85651431, 3109.13626083, 1405.71912274))
 const obs_venus_pos = distance.((140.85922773, -217.65571843, -74.64804201))
 const obs_uranus_pos = distance.((9936.62957939, -3089.07377113, -1486.17339104))
 const obs_neptune_pos = distance.((11518.60924426, -9405.0693235, -4126.91030657))
-const obs_earth_pos = distance.((0.01199435, 0.01159591, -0.01316261))
 
 function default_ephem()
     return SolarSystemEphemeris(
@@ -30,17 +29,17 @@ function default_ephem()
         obs_venus_pos,
         obs_uranus_pos,
         obs_neptune_pos,
-        obs_earth_pos,
     )
 end
 
+const epoch_mjd = 53470.0
+
 function default_toa()
     return TOA(
-        time(Double64(53470.0 * day_to_s)),
+        time(Double64((53470.0 - epoch_mjd) * day_to_s)),
         time(1e-6),
         frequency(2.5e9),
         dimensionless(Double64(0.0)),
-        false,
         default_ephem(),
         1,
     )
@@ -48,9 +47,8 @@ end
 
 function default_tzrtoa()
     return make_tzr_toa(
-        time(Double64(53475.0 * day_to_s)),
+        time(Double64((53475.0 - epoch_mjd) * day_to_s)),
         frequency(2.5e9),
-        false,
         default_ephem(),
     )
 end

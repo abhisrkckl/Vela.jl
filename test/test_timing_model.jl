@@ -7,18 +7,8 @@
 
     toaval = time(parse(Double64, "4610197611.8464445127"))
     freq = frequency(1.4e9)
-    ephem = SolarSystemEphemeris(
-        ssb_obs_pos,
-        ssb_obs_vel,
-        obs_sun_pos,
-        obs_jupiter_pos,
-        obs_saturn_pos,
-        obs_venus_pos,
-        obs_uranus_pos,
-        obs_neptune_pos,
-        obs_earth_pos,
-    )
-    tzrtoa = make_tzr_toa(toaval, freq, true, ephem)
+    ephem = default_ephem()
+    tzrtoa = make_tzr_toa(toaval, freq, ephem)
 
     pepoch = Parameter(:PEPOCH, time(56000.0 * day_to_s), true, "day", float(day_to_s))
     f0 = Parameter(:F0, frequency(100.0), false, "Hz", 1.0)
@@ -42,6 +32,7 @@
             ephem_name,
             clock,
             units,
+            time(epoch_mjd * day_to_s),
             components,
             wn_kernel,
             ph,
@@ -77,6 +68,7 @@
             ephem_name,
             clock,
             units,
+            time(epoch_mjd * day_to_s),
             components,
             ecorr_kernel,
             ph,

@@ -3,8 +3,21 @@
 - Check for `ECORR` exclusivity
 ## Changed
 - Renamed `pint2vela` -> `pyvela`
+- Infer `is_tzr(toa)` from `toa.index`
+- Infer `is_barycentered(toa)` from `toa.ephem.ssb_obs_pos`
+- Renamed `CorrectedTOA`, `CorrectedWidebandTOA`, and `CorrectedDMInfo` respectively to `TOACorrection`, `WidebandTOACorrection`, and `DMInfoCorrection`
+- Removed the `TOA` from `TOACorrection` (it's passed separately to functions). This reduces copy overhead. 
+- Avoid unnecessary repeated computations in `Spindown` 
+- Specialized methods of `taylor_horner` and `taylor_horner_integral` for faster execution
+- Split `correct_toa` into more specialized methods `correct_toa_delay`, `correct_toa_phase`, and `correct_toa_error`
+- Multiplication instead of power in dispersion delay
+- Subtract `PEPOCH` from all TOA and `MJDParameter` values; add `epoch` attribute to `TimingModel`
 ## Fixed
+- Unnecessary repetition of `sin` and `cos` in ecliptic coordinate conversion
+- Bug in `_ecorr_lnlike_group`
 ## Removed
+- `level` attribute from `TOACorrection`
+- `obs_earth_pos` from `SolarSystemEphemeris`
 
 # [0.0.4]
 ## Added
@@ -52,6 +65,7 @@
 - Bug in `correct_toa()` (`ssb_psr_pos` was being set incorrectly)
 - `black` failure now shows up as a CI failure.
 - Handling of `prefixParameters` with `Time` quantities
+- Don't apply `MeasurementNoise` to TZR TOAs
 ## Removed
 
 # [0.0.3] - 2024-08-22

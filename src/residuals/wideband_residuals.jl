@@ -6,9 +6,9 @@ function form_residual(
     tzrphase::GQ,
 )
     cwtoa = correct_toa(model, wtoa, params)
-    dphase = GQ{Float64}(phase_residual(cwtoa.corrected_toa) - tzrphase)
-    tres = dphase / doppler_shifted_spin_frequency(cwtoa.corrected_toa)
-    dmres = dm_residual(cwtoa.corrected_dminfo)
+    dphase = GQ{Float64}(phase_residual(wtoa.toa, cwtoa.toa_correction) - tzrphase)
+    tres = dphase / doppler_shifted_spin_frequency(cwtoa.toa_correction)
+    dmres = dm_residual(wtoa.dminfo, cwtoa.dm_correction)
     return tres, dmres
 end
 

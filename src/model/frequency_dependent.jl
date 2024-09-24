@@ -7,9 +7,14 @@ Reference:
 """
 struct FrequencyDependent <: DelayComponent end
 
-function delay(::FrequencyDependent, ctoa::CorrectedTOA, params::NamedTuple)::GQ
+function delay(
+    ::FrequencyDependent,
+    toa::TOA,
+    toacorr::TOACorrection,
+    params::NamedTuple,
+)::GQ
     fds = params.FD
-    ν = doppler_corrected_observing_frequency(ctoa)
+    ν = doppler_corrected_observing_frequency(toa, toacorr)
     νref = frequency(1e9) # 1 GHz
     λ = log(ν / νref)
     return sum(fd * λ^p for (p, fd) in enumerate(fds))
@@ -30,16 +35,21 @@ struct FrequencyDependentJump <: DelayComponent
     end
 end
 
-function delay(fdj::FrequencyDependentJump, ctoa::CorrectedTOA, params::NamedTuple)::GQ
-    if ctoa.toa.tzr
+function delay(
+    fdj::FrequencyDependentJump,
+    toa::TOA,
+    toacorr::TOACorrection,
+    params::NamedTuple,
+)::GQ
+    if is_tzr(toa)
         return time(0.0)
     end
 
     fdjumps = params.FDJUMP
-    ν = doppler_corrected_observing_frequency(ctoa)
+    ν = doppler_corrected_observing_frequency(toa, toacorr)
     νref = frequency(1e9)
 
-    mask = @view(fdj.jump_mask[:, ctoa.toa.index])
+    mask = @view(fdj.jump_mask[:, toa.index])
 
     λ = log(ν / νref)
 
