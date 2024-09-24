@@ -136,12 +136,22 @@
         @test isfinite(calc_lnprior(model.param_handler._default_params_tuple))
         @test calc_lnprior(params) == calc_lnprior(parv)
 
-        calc_lnpost = get_lnpost_func(model, toas)
-        @test isfinite(calc_lnpost(params))
-
         prior_transform = get_prior_transform_func(model)
         halfs = fill(0.5, length(parv))
         @test all(isfinite.(prior_transform(halfs)))
         # @test all(prior_transform(halfs) .≈ parv)
+    end
+
+    @testset "posterior" begin
+        params = model.param_handler._default_params_tuple
+        parv = read_param_values_to_vector(model.param_handler, params)
+
+        calc_lnpost = get_lnpost_func(model, toas)
+        @test isfinite(calc_lnpost(params))
+
+        calc_lnpost_vec = get_lnpost_func(model, toas, true)
+        paramss = transpose([parv parv parv])
+        @test allequal(calc_lnpost_vec(paramss))
+        @test calc_lnpost_vec(paramss)[1] ≈ calc_lnpost(params)
     end
 end
