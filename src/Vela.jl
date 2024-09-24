@@ -4,7 +4,7 @@ module Vela
 using GeometricUnits
 using DoubleFloats: Double64
 using LinearAlgebra: dot
-using .Threads: @spawn, fetch, nthreads
+using .Threads: @threads, @spawn, fetch, nthreads
 using Unrolled: @unroll
 using Distributions: Distribution, logpdf, quantile
 import JLSO
