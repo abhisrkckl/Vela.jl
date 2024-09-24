@@ -81,28 +81,6 @@ fig = corner.corner(
     hist_kwargs={"density": True},
 )
 
-# for ii, prior in enumerate(mv.priors):
-#     a = min(samples_v[:, ii])
-#     b = max(samples_v[:, ii])
-#     xs = np.linspace(a, b, 100)
-#     distr = vl.distr(prior, mv.param_handler._default_params_tuple)
-#     ys = np.array([vl.logpdf(distr, x) for x in xs])
-
-#     plt_num = 1 + ii * (ndim + 1)
-#     plt.subplot(ndim, ndim, plt_num)
-#     plt.plot(xs, 100 * ys)
-
-# if os.path.isfile(f"{m.PSR.value}_chain_emcee_jl.txt"):
-#     samples_v1 = np.genfromtxt(f"{m.PSR.value}_chain_emcee_jl.txt", skip_header=1)
-#     corner.corner(
-#         samples_v1,
-#         range=[0.999999] * ndim,
-#         plot_datapoints=False,
-#         fig=fig,
-#         color="blue",
-#         hist_kwargs={"density": True},
-#     )
-
 plt.suptitle(m.PSR.value)
 plt.tight_layout()
 plt.show()
