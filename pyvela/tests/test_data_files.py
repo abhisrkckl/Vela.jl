@@ -116,3 +116,19 @@ def test_alloc(model_and_toas):
     params = mv.param_handler._default_params_tuple
     calc_lnlike = vl.get_lnlike_serial_func(mv, tv)
     assert jl.get_alloc(calc_lnlike, params) == 0
+
+
+def test_posterior(model_and_toas):
+    mv, tv, _, _, _ = model_and_toas
+    parv = np.array(
+        vl.read_param_values_to_vector(
+            mv.param_handler, mv.param_handler._default_params_tuple
+        )
+    )
+    maxlike_params_v = np.array([parv, parv, parv, parv])
+
+    lnpost = vl.get_lnpost_func(mv, tv, True)
+
+    lnpvals = lnpost(maxlike_params_v)
+
+    assert np.allclose(lnpvals, lnpvals[0])

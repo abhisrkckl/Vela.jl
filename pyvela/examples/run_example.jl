@@ -13,7 +13,11 @@ const plt = pyimport("matplotlib.pyplot")
 function main()
     parfile, timfile = ARGS
 
-    m, t = map(pyconvert, (TimingModel, Vector{TOA}), p2v.read_model_and_toas(parfile, timfile))
+    m, t = map(
+        pyconvert,
+        (TimingModel, Vector{TOA}),
+        p2v.read_model_and_toas(parfile, timfile),
+    )
 
     lnpost = get_lnpost_func(m, t)
     prior_transform = get_prior_transform_func(m)
@@ -35,15 +39,14 @@ function main()
     print("Running actual MCMC...")
     chain, lnpost_vals =
         @time AffineInvariantMCMC.sample(lnpost, nwalker, x1, nsamples_perwalker, thin)
-    flat_chain, flat_lnpost_vals =
-        AffineInvariantMCMC.flattenmcmcarray(chain, lnpost_vals)
+    flat_chain, flat_lnpost_vals = AffineInvariantMCMC.flattenmcmcarray(chain, lnpost_vals)
 
     print("Plotting...")
     scale_factors = get_scale_factors(m)
     chain_df = DataFrame((flat_chain ./ scale_factors)', param_names)
     fig = pairplot(chain_df)
     save("$(m.pulsar_name)_chain_emcee_jl.png", fig)
-    
+
     print("Saving chain...")
     CSV.write("$(m.pulsar_name)_chain_emcee_jl.txt", chain_df; delim = "    ")
 end

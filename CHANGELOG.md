@@ -1,6 +1,7 @@
 # Unreleased
 ## Added
 - Check for `ECORR` exclusivity
+- Vectorized option in `get_lnpost_func`
 ## Changed
 - Renamed `pint2vela` -> `pyvela`
 - Infer `is_tzr(toa)` from `toa.index`

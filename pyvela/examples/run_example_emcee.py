@@ -23,7 +23,7 @@ m, t = get_model_and_toas(parfile, timfile)
 
 # %%
 mv, tv = read_model_and_toas(parfile, timfile, cheat_prior_scale=10)
-lnpost = vl.get_lnpost_func(mv, tv)
+lnpost = vl.get_lnpost_func(mv, tv, True)
 prior_transform = vl.get_prior_transform_func(mv)
 
 # %%
@@ -33,9 +33,11 @@ shifts = [(float(m.F0.value) if pname == "F0" else 0) for pname in param_names]
 
 # %%
 maxlike_params_v = np.array(
-    vl.read_param_values_to_vector(
-        mv.param_handler, mv.param_handler._default_params_tuple
-    )
+    [
+        vl.read_param_values_to_vector(
+            mv.param_handler, mv.param_handler._default_params_tuple
+        )
+    ]
 )
 
 # %%
@@ -52,6 +54,7 @@ sampler = emcee.EnsembleSampler(
     ndim,
     lnpost,
     moves=[emcee.moves.StretchMove(), emcee.moves.DESnookerMove()],
+    vectorize=True,
 )
 sampler.run_mcmc(p0, 5000, progress=True)
 
@@ -67,38 +70,16 @@ for pname, mean, std in zip(param_names, means, stds):
 
 # %%
 # param_labels = [f"\n\n{pname}\n({m[pname].units})\n" for pname in param_names]
-param_labels = [f"\n\n{label}\n" for label in vl.get_free_param_labels(mv)]
+param_labels = [f"\n\n\n\n{label}\n\n\n\n" for label in vl.get_free_param_labels(mv)]
 fig = corner.corner(
     samples_v,
     labels=param_labels,
     label_kwargs={"fontsize": 11},
     range=[0.999] * ndim,
-    truths=maxlike_params_v / scale_factors,
+    truths=maxlike_params_v[0] / scale_factors,
     plot_datapoints=False,
     hist_kwargs={"density": True},
 )
-
-# for ii, prior in enumerate(mv.priors):
-#     a = min(samples_v[:, ii])
-#     b = max(samples_v[:, ii])
-#     xs = np.linspace(a, b, 100)
-#     distr = vl.distr(prior, mv.param_handler._default_params_tuple)
-#     ys = np.array([vl.logpdf(distr, x) for x in xs])
-
-#     plt_num = 1 + ii * (ndim + 1)
-#     plt.subplot(ndim, ndim, plt_num)
-#     plt.plot(xs, 100 * ys)
-
-# if os.path.isfile(f"{m.PSR.value}_chain_emcee_jl.txt"):
-#     samples_v1 = np.genfromtxt(f"{m.PSR.value}_chain_emcee_jl.txt", skip_header=1)
-#     corner.corner(
-#         samples_v1,
-#         range=[0.999999] * ndim,
-#         plot_datapoints=False,
-#         fig=fig,
-#         color="blue",
-#         hist_kwargs={"density": True},
-#     )
 
 plt.suptitle(m.PSR.value)
 plt.tight_layout()
