@@ -4,17 +4,7 @@
     freq = frequency(1.4e9)
     pulse_number = dimensionless(Double64(1000.0))
 
-    ephem = SolarSystemEphemeris(
-        ssb_obs_pos,
-        ssb_obs_vel,
-        obs_sun_pos,
-        obs_jupiter_pos,
-        obs_saturn_pos,
-        obs_venus_pos,
-        obs_uranus_pos,
-        obs_neptune_pos,
-        obs_earth_pos,
-    )
+    ephem = default_ephem()
 
     # TOA value should be of type GQ{Double64}.
     @test_throws MethodError TOA(time(4610197611.8), toaerr, freq, pulse_number, ephem, 1)

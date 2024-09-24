@@ -12,7 +12,8 @@ function _ecorr_lnlike_group(
     tzrphase::GQ,
     group::EcorrGroup,
 )
-    w = (group.index == 0) ? time(0.0) : params.ECORR[group.index]^Val(2)
+    ecorr = (group.index == 0) ? time(0.0) : params.ECORR[group.index]
+    w = ecorr * ecorr
 
     r_r = dimensionless(0.0)
     r_u = GQ{-1}(0.0)
