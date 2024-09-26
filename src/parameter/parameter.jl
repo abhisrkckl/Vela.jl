@@ -8,7 +8,10 @@ export Parameter,
     read_param_values_to_vector,
     get_scale_factors
 
-"""A single model parameter.
+"""
+    Parameter
+
+A single model parameter.
 
 Corresponds to `floatParameter`, `AngleParameter`, or `MJDParameter` in `PINT`.
 """
@@ -36,7 +39,10 @@ Parameter(
     unit_conversion_factor,
 )
 
-"""A set of model parameters that are characterized by a common name and a varying index.
+"""
+    MultiParameter
+
+A set of model parameters that are characterized by a common name and a varying index.
 
 Corresponds to `maskParameter` or `prefixParameter` in `PINT`.
 """
@@ -60,7 +66,11 @@ end
 _get_params_tuple(single_params, multi_params) =
     merge(_get_single_params_tuple(single_params), _get_multi_params_tuple(multi_params))
 
-"""Handles the creation of a parameter tuple from a collection of free parameter values."""
+"""
+    ParamHandler{PT<:NamedTuple}
+
+Handles the creation of a parameter tuple from a collection of free parameter values.
+"""
 struct ParamHandler{ParamsType<:NamedTuple}
     single_params::Vector{Parameter}
     multi_params::Vector{MultiParameter}
@@ -90,7 +100,10 @@ function ParamHandler(single_params, multi_params)
     )
 end
 
-"""Create a parameter tuple from a collection of free parameter values.
+"""
+    read_params(ph::ParamHandler{PT}, free_values)::PT where {PT<:NamedTuple}
+
+Create a parameter tuple from a collection of free parameter values.
 
 Reverse of `read_param_values_to_vector()`.
 """

@@ -6,10 +6,13 @@ export DMInfo,
     WidebandTOA,
     WidebandTOACorrection
 
-"""DM information associated with a wideband TOA.
+"""
+    DMInfo
+
+DM information associated with a wideband TOA.
 
 References:
-    [Pennucci+ 2014](http://doi.org/10.1088/0004-637X/790/2/93)
+    [Pennucci+ 2014](http://doi.org/10.1088/0004-637X/790/2/93),
     [Pennucci 2019](http://doi.org/10.3847/1538-4357/aaf6ef)
 """
 struct DMInfo
@@ -26,6 +29,16 @@ end
 
 DMInfoCorrection() = DMInfoCorrection(GQ{-1}(0.0), dimensionless(1.0), GQ{-2}(0.0))
 
+"""
+    correct_dminfo(
+        cdminfo::CorrectedDMInfo;
+        delta_dm = GQ{-1}(0.0),
+        dmefac = dimensionless(1.0),
+        dmequad2 = GQ{-2}(0.0),
+    )
+    
+Apply a correction to a `DMInfo`.
+"""
 correct_dminfo(
     dmcorr::DMInfoCorrection;
     delta_dm = GQ{-1}(0.0),
@@ -42,14 +55,18 @@ dm_residual(dminfo::DMInfo, dmcorr::DMInfoCorrection) = dminfo.value - dmcorr.mo
 scaled_dm_error_sqr(dminfo::DMInfo, dmcorr::DMInfoCorrection) =
     (dminfo.error * dminfo.error + dmcorr.dmequad2) * dmcorr.dmefac * dmcorr.dmefac
 
-"""A single wideband TOA observation.
+"""
+    WidebandTOA
 
-`toa.value` incorporates the clock corrections and `toa.ephem` contains the 
-solar system ephemerides. These are computed using `PINT`.
+A single wideband TOA observation.
+
+`toa.value` is the wideband TOA measurement in the TDB frame incorporating the clock 
+corrections. `toa.ephem` contains the solar system ephemerides. These are computed using 
+`PINT`.
 
 References:
-    [Pennucci+ 2014](http://doi.org/10.1088/0004-637X/790/2/93)
-    [Pennucci 2019](http://doi.org/10.3847/1538-4357/aaf6ef)
+    [Pennucci+ 2014](http://doi.org/10.1088/0004-637X/790/2/93),
+    [Pennucci 2019](http://doi.org/10.3847/1538-4357/aaf6ef),
     [Luo+ 2021](http://doi.org/10.3847/1538-4357/abe62f)
 """
 struct WidebandTOA <: TOABase
