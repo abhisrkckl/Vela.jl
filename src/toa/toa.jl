@@ -50,13 +50,21 @@ end
 is_tzr(toa::TOA) = iszero(toa.index)
 is_barycentered(toa::TOA) = all(iszero, toa.ephem.ssb_obs_pos)
 
-"""Create a TZR TOA object."""
+"""
+    make_tzr_toa(tzrtdb, tzrfreq, tzrephem)
+
+Create a TZR TOA object.
+"""
 make_tzr_toa(tzrtdb, tzrfreq, tzrephem) =
     TOA(tzrtdb, time(0.0), tzrfreq, dimensionless(Double64(0.0)), tzrephem, 0)
 
 abstract type TOACorrectionBase end
 
-"""The accumulated timing & noise model corrections applied to a narrowband TOA."""
+"""
+    TOACorrection
+
+The accumulated timing & noise model corrections applied to a narrowband TOA.
+"""
 struct TOACorrection <: TOACorrectionBase
     delay::GQ{1,Float64}
     phase::GQ{0,Double64}
@@ -89,7 +97,11 @@ TOACorrection() = TOACorrection(
     dimensionless.((0.0, 0.0, 0.0)),
 )
 
-"""Squared TOA uncertainty after applying EFAC and EQUAD."""
+"""
+    scaled_toa_error_sqr(toa::TOA, toacorr::TOACorrection)
+    
+Squared TOA uncertainty after applying EFAC and EQUAD.
+"""
 scaled_toa_error_sqr(toa::TOA, toacorr::TOACorrection) =
     (toa.error * toa.error + toacorr.equad2) * toacorr.efac * toacorr.efac
 
@@ -144,7 +156,6 @@ correct_toa_phase(
     toacorr.ssb_psr_pos,
 )
 
-"""Apply a correction to a CorrectedTOA object."""
 correct_toa_error(
     toacorr::TOACorrection;
     efac::GQ{0,Float64} = dimensionless(1.0),
