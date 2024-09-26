@@ -15,7 +15,6 @@ include("toa/wideband_toa.jl")
 include("parameter/parameter.jl")
 include("model/component.jl")
 include("model/kernel.jl")
-include("model/basis.jl")
 include("model/spindown.jl")
 include("model/phase_offset.jl")
 include("model/glitch.jl")
@@ -54,4 +53,5 @@ include("likelihood/ecorr_likelihood.jl")
 include("likelihood/wideband_wls_likelihood.jl")
 include("likelihood/posterior.jl")
 include("readwrite/readwrite.jl")
+
 end
