@@ -1,3 +1,5 @@
+export PowerlawRedNoiseGP
+
 struct PowerlawRedNoiseGP <: DelayComponent end
 
 function powerlaw(A, γ, f, f1)
@@ -6,7 +8,7 @@ function powerlaw(A, γ, f, f1)
     return A * A / denom * (fyr/f)^γ * f1
 end
 
-function delay(::PLRedNoise, toa::TOA, toacorr::TOACorrection, params::NamedTuple)
+function delay(::PowerlawRedNoiseGP, toa::TOA, toacorr::TOACorrection, params::NamedTuple)
     αs = params.PLREDSIN_
     βs = params.PLREDCOS_
     f1 = params.PLREDFREQ

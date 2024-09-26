@@ -5,11 +5,14 @@ from pint.models.parameter import floatParameter, prefixParameter, MJDParameter
 from astropy import units as u
 from astropy.time import Time
 
+
 class PLRedNoiseGP(DelayComponent):
     """A dummy PINT component that is used to translate `PLRedNoise` to a form
     `Vela.jl` can handle."""
 
     def __init__(self, plrednoise: PLRedNoise, f1: u.Quantity, epoch: Time):
+        super().__init__()
+
         self.add_param(plrednoise.TNREDAMP)
         self.add_param(plrednoise.TNREDGAM)
 
@@ -35,7 +38,7 @@ class PLRedNoiseGP(DelayComponent):
             )
         )
 
-        for ii in range(1, self.TNREDC.value + 1):
+        for ii in range(1, int(plrednoise.TNREDC.value) + 1):
             self.add_param(
                 prefixParameter(
                     parameter_type="float",
@@ -61,6 +64,8 @@ class PLRedNoiseGP(DelayComponent):
             )
 
         self.delay_funcs_component += [self.dummy_delay]
-    
+
     def dummy_delay(self, toas, delays):
-        raise NotImplementedError("This is a dummy component for dealing with `Vela.jl` only and cannot be evaluated.")
+        raise NotImplementedError(
+            "This is a dummy component for dealing with `Vela.jl` only and cannot be evaluated."
+        )

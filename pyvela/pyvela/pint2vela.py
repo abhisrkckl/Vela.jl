@@ -11,6 +11,7 @@ from .convert_parameters import pint_parameters_to_vela
 from .convert_toas import pint_toa_to_vela, pint_toas_to_vela, day_to_s
 from .ecorr import ecorr_sort
 from .priors import get_default_priors
+from .gp_noise import PLRedNoiseGP
 from .vela import vl
 
 
@@ -95,6 +96,15 @@ def get_kernel(
     raise NotImplementedError("Time-correlated noise kernels are not yet implemented.")
 
 
+def fix_red_noise_components(model: TimingModel, toas: TOAs):
+    if "PLRedNoise" in model.components:
+        f1 = 1 / toas.get_Tspan()
+        epoch = model.PEPOCH.quantity
+        plred_gp = PLRedNoiseGP(model.components["PLRedNoise"], f1, epoch)
+        model.remove_component("PLRedNoise")
+        model.add_component(plred_gp)
+
+
 def pint_model_to_vela(
     model: TimingModel,
     toas: TOAs,
@@ -108,7 +118,10 @@ def pint_model_to_vela(
     epoch_mjd = float(model.PEPOCH.value)
 
     toas.compute_pulse_numbers(model)
+
     fix_params(model)
+
+    fix_red_noise_components(model, toas)
 
     pulsar_name = model.PSR.value if model.PSR.value is not None else ""
 
