@@ -3,10 +3,10 @@ export KINPriorDistribution,
 
 abstract type CustomPriorDistribution <: ContinuousUnivariateDistribution end
 
-pdf(d::CustomPriorDistribution, x) = insupport(d, x) ? pdf_expr(d, x) : 0.0
-logpdf(d::CustomPriorDistribution, x) = log(pdf(d, x))
+pdf(d::CustomPriorDistribution, x::Real) = insupport(d, x) ? pdf_expr(d, x) : 0.0
+logpdf(d::CustomPriorDistribution, x::Real) = log(pdf(d, x))
 
-function cdf(d::CustomPriorDistribution, x)
+function cdf(d::CustomPriorDistribution, x::Real)
     return if x <= minimum(d)
         0.0
     elseif x >= maximum(d)
@@ -15,7 +15,7 @@ function cdf(d::CustomPriorDistribution, x)
         cdf_expr(d, x)
     end
 end
-logcdf(d::CustomPriorDistribution, x) = log(cdf(d, x))
+logcdf(d::CustomPriorDistribution, x::Real) = log(cdf(d, x))
 
 minimum(d::CustomPriorDistribution) = support(d).lb
 maximum(d::CustomPriorDistribution) = support(d).ub

@@ -16,7 +16,9 @@ import Distributions:
     quantile,
     support,
     minimum,
-    maximum
+    maximum,
+    insupport,
+    RealInterval
 import JLSO
 
 include("toa/ephemeris.jl")
