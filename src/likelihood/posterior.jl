@@ -20,7 +20,7 @@ function get_lnpost_func(
             @assert size(paramss)[2] == nfree
             nparamss = size(paramss)[1]
             result = Vector{Float64}(undef, nparamss)
-            @threads for ii = 1:nparamss
+            @threads :static for ii = 1:nparamss
                 result[ii] = lnpost(paramss[ii, :])
             end
             return result

@@ -11,6 +11,8 @@ struct PhaseJump <: PhaseJumpBase
     jump_mask::BitMatrix
 end
 
+basis_dot(basis, amplitudes, index) = dot(amplitudes, @view(basis[:, index]))
+
 phase(pjmp::PhaseJump, toa::TOA, ::TOACorrection, params::NamedTuple)::GQ =
     is_tzr(toa) ? dimensionless(0.0) :
     (basis_dot(pjmp.jump_mask, params.JUMP, toa.index) * (params.F_ + params.F[1]))
