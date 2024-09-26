@@ -14,6 +14,7 @@
 - Multiplication instead of power in dispersion delay
 - Subtract `PEPOCH` from all TOA and `MJDParameter` values; add `epoch` attribute to `TimingModel`
 - Moved `basis_dot` to `jump.jl`
+- Better priors for `KOM`, `SINI`, `KIN`, `STIGMA`, `SHAPMAX`, `EFAC`, etc.
 ## Fixed
 - Unnecessary repetition of `sin` and `cos` in ecliptic coordinate conversion
 - Bug in `_ecorr_lnlike_group`

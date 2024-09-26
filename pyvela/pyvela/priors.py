@@ -10,12 +10,15 @@ from .vela import jl, vl
 
 DEFAULT_PRIOR_DISTS = {
     "PHOFF": jl.Uniform(-0.5, 0.5),
-    "EFAC": jl.Uniform(0.1, 5.0),
+    "EFAC": jl.LogNormal(0.0, 0.25),
     "EQUAD": jl.Uniform(0.0, 1e-4),
-    "ECORR": jl.Uniform(0.0, 1e-4),
-    "SINI": jl.Uniform(0.0, 1.0),
-    "STIGMA": jl.Uniform(0.0, 1.0),
-    "DMEFAC": jl.Uniform(0.1, 5.0),
+    "ECORR": jl.Uniform(0.0, 1e-5),
+    "KOM": jl.Uniform(0.0, 2 * jl.pi),
+    "KIN": vl.KINPriorDistribution(),
+    "SINI": vl.SINIPriorDistribution(),
+    "STIGMA": vl.STIGMAPriorDistribution(),
+    "SHAPMAX": vl.SHAPMAXPriorDistribution(),
+    "DMEFAC": jl.LogNormal(0.0, 0.25),
 }
 
 
