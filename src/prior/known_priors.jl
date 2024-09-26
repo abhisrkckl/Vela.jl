@@ -20,6 +20,7 @@ logcdf(d::CustomPriorDistribution, x::Real) = log(cdf(d, x))
 minimum(d::CustomPriorDistribution) = support(d).lb
 maximum(d::CustomPriorDistribution) = support(d).ub
 
+
 """
     KINPriorDistribution
 
