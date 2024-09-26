@@ -64,5 +64,5 @@ Distribution of SHAPMAX = -ln(1 - sin(ι)) when cos(ι) is uniformly distributed
 struct SHAPMAXPriorDistribution <: CustomPriorDistribution end
 support(::SHAPMAXPriorDistribution) = RealInterval(0.0, Inf)
 pdf_expr(::SHAPMAXPriorDistribution, S) = (1 - exp(-S)) / (sqrt(2 * exp(S) - 1))
-cdf_expr(::SHAPMAXPriorDistribution, s) = 1 - exp(-S) * sqrt(2 * exp(S) - 1)
+cdf_expr(::SHAPMAXPriorDistribution, S) = 1 - exp(-S) * sqrt(2 * exp(S) - 1)
 quantile(::SHAPMAXPriorDistribution, q) = log((sqrt(2q - q^2) + 1) / (q - 1)^2)
