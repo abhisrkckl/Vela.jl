@@ -16,6 +16,8 @@ DEFAULT_PRIOR_DISTS = {
     "SINI": jl.Uniform(0.0, 1.0),
     "STIGMA": jl.Uniform(0.0, 1.0),
     "DMEFAC": jl.Uniform(0.1, 5.0),
+    "PLREDCOS_": jl.Normal(),
+    "PLREDSIN_": jl.Normal(),
 }
 
 
