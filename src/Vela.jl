@@ -6,7 +6,19 @@ using DoubleFloats: Double64
 using LinearAlgebra: dot
 using .Threads: @threads, @spawn, fetch, nthreads
 using Unrolled: @unroll
-using Distributions: Distribution, logpdf, quantile
+import Distributions:
+    Distribution,
+    ContinuousUnivariateDistribution,
+    pdf,
+    logpdf,
+    cdf,
+    logcdf,
+    quantile,
+    support,
+    minimum,
+    maximum,
+    insupport,
+    RealInterval
 import JLSO
 
 include("toa/ephemeris.jl")
@@ -44,6 +56,7 @@ include("model/timing_model.jl")
 include("model/wideband_model.jl")
 include("prior/prior.jl")
 include("prior/simple_prior.jl")
+include("prior/known_priors.jl")
 include("residuals/residuals.jl")
 include("residuals/wideband_residuals.jl")
 include("likelihood/wls_chi2.jl")

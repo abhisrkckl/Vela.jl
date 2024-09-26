@@ -32,4 +32,38 @@
         @test !isfinite(lnprior(priors, bad_params))
         @test prior_transform(priors, [0.5, 0.5, 0.0]) ≈ [0.0, 100.0, -1.01e-14]
     end
+
+    @testset "custom priors" begin
+        Dists = [
+            KINPriorDistribution,
+            SINIPriorDistribution,
+            STIGMAPriorDistribution,
+            SHAPMAXPriorDistribution,
+        ]
+        for Dist in Dists
+            d = Dist()
+
+            xl = minimum(d) - 1
+            if isfinite(xl)
+                @test pdf(d, xl) == 0
+                @test cdf(d, xl) == 0
+            end
+
+            xh = maximum(d) + 1
+            if isfinite(xh)
+                @test pdf(d, xh) == 0
+                @test cdf(d, xh) == 1
+            end
+
+            xin = 0.5
+            @test pdf(d, xin) > 0
+            @test 0 < cdf(d, xin) < 1
+            @test isfinite(logpdf(d, xin))
+            @test isfinite(logcdf(d, xin))
+
+            @test quantile(d, 0.0) == minimum(d)
+            @test quantile(d, 1.0) == maximum(d)
+            @test isfinite(quantile(d, 0.5))
+        end
+    end
 end
