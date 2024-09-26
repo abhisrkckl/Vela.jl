@@ -1,8 +1,11 @@
 export SolarSystemEphemeris
 
-"""Struct containing solar system ephemeris vectors corresponding to a TOA.
+"""
+    SolarSystemEphemeris
 
-These are computed using PINT.
+Struct containing solar system ephemeris vectors corresponding to a TOA.
+
+These are computed using `PINT`, which uses the JPL ephemerides internally.
 
 References:
     [Hobbs+ 2006](http://doi.org/10.1111/j.1365-2966.2006.10302.x)
