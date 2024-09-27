@@ -3,8 +3,8 @@ export PowerlawRedNoiseGP
 struct PowerlawRedNoiseGP <: DelayComponent end
 
 function powerlaw(A, γ, f, f1)
-    fyr = 1 / 3600 / 24 / 365.25
-    denom = 12 * π^2 * fyr^3
+    fyr = frequency(1 / 3600 / 24 / 365.25)
+    denom = 12 * π^2 * fyr * fyr * fyr
     return A * A / denom * (fyr/f)^γ * f1
 end
 
