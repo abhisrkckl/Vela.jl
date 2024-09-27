@@ -1,32 +1,30 @@
 export PowerlawRedNoiseGP
 
-struct PowerlawRedNoiseGP <: DelayComponent end
-
 function powerlaw(A, γ, f, f1)
     fyr = frequency(1 / 3600 / 24 / 365.25)
     denom = 12 * π^2 * fyr * fyr * fyr
-    return A * A / denom * (fyr/f)^γ * f1
+    return A * A / denom * (fyr / f)^γ * f1
 end
 
-function delay(::PowerlawRedNoiseGP, toa::TOA, toacorr::TOACorrection, params::NamedTuple)
-    αs = params.PLREDSIN_
-    βs = params.PLREDCOS_
-    f1 = params.PLREDFREQ
-    t0 = params.PLREDEPOCH
-
+function evaluate_powerlaw_red_noise_gp(
+    log10_A,
+    γ,
+    αs,
+    βs,
+    f1,
+    Δt,
+    unit_conversion_factor = 1,
+)
     @assert length(αs) == length(βs)
 
-    A = 10^params.TNREDAMP
-    γ = params.TNREDGAM
-
-    Δt = corrected_toa_value(toa, toacorr, Float64) - t0
+    A = 10^log10_A
 
     result = time(0.0)
     for (ii, (α, β)) in enumerate(zip(αs, βs))
         f = ii * f1
         σ = sqrt(powerlaw(A, γ, f, f1))
-        a = σ * α
-        b = σ * β
+        a = σ * α * unit_conversion_factor
+        b = σ * β * unit_conversion_factor
         ϕ = 2π * f * Δt
         result += dot((a, b), sincos(ϕ))
     end
@@ -34,3 +32,54 @@ function delay(::PowerlawRedNoiseGP, toa::TOA, toacorr::TOACorrection, params::N
     return result
 end
 
+struct PowerlawRedNoiseGP <: DelayComponent end
+
+delay(::PowerlawRedNoiseGP, toa::TOA, toacorr::TOACorrection, params::NamedTuple) =
+    evaluate_powerlaw_red_noise_gp(
+        params.TNREDAMP,
+        params.TNREDGAM,
+        params.PLREDSIN_,
+        params.PLREDCOS_,
+        params.PLREDFREQ,
+        corrected_toa_value(toa, toacorr, Float64) - t0,
+    )
+
+struct PowerlawDispersionNoiseGP <: DispersionComponent end
+
+function dispersion_slope(
+    ::PowerlawDispersionNoiseGP,
+    toa::TOA,
+    toacorr::TOACorrection,
+    params::NamedTuple,
+)
+    νref = frequency(1.4e9)
+    return evaluate_powerlaw_red_noise_gp(
+        params.TNDMAMP,
+        params.TNDMGAM,
+        params.PLDMSIN_,
+        params.PLDMCOS_,
+        params.PLDMFREQ,
+        corrected_toa_value(toa, toacorr, Float64) - t0,
+        νref * νref,
+    )
+end
+
+struct PowerlawChromaticNoiseGP <: ChromaticComponent end
+
+function chromatic_slope(
+    ::PowerlawChromaticNoiseGP,
+    toa::TOA,
+    toacorr::TOACorrection,
+    params::NamedTuple,
+)
+    νref_val = 1400.0
+    return evaluate_powerlaw_red_noise_gp(
+        params.TNCHROMAMP,
+        params.TNCHROMGAM,
+        params.PLCHROMSIN_,
+        params.PLCHROMCOS_,
+        params.PLCHROMFREQ,
+        corrected_toa_value(toa, toacorr, Float64) - t0,
+        νref_val^params.TNCHROMIDX,
+    )
+end
