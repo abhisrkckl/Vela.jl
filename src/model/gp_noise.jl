@@ -22,12 +22,13 @@ function delay(::PowerlawRedNoiseGP, toa::TOA, toacorr::TOACorrection, params::N
     Δt = corrected_toa_value(toa, toacorr, Float64) - t0
 
     result = time(0.0)
-    for (ii, α_β) in enumerate(zip(αs, βs))
+    for (ii, (α, β)) in enumerate(zip(αs, βs))
         f = ii * f1
         σ = sqrt(powerlaw(A, γ, f, f1))
-        a_b = σ .* α_β
+        a = σ * α
+        b = σ * β
         ϕ = 2π * f * Δt
-        result += dot(a_b, sincos(ϕ))
+        result += dot((a, b), sincos(ϕ))
     end
 
     return result
