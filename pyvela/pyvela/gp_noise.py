@@ -16,6 +16,9 @@ class PLRedNoiseGP(DelayComponent):
         self.add_param(plrednoise.TNREDAMP)
         self.add_param(plrednoise.TNREDGAM)
 
+        self.TNREDAMP.tcb2tdb_scale_factor = 1
+        self.TNREDGAM.tcb2tdb_scale_factor = 1
+
         self.add_param(
             MJDParameter(
                 name="PLREDEPOCH",
@@ -66,6 +69,4 @@ class PLRedNoiseGP(DelayComponent):
         self.delay_funcs_component += [self.dummy_delay]
 
     def dummy_delay(self, toas, delays):
-        raise NotImplementedError(
-            "This is a dummy component for dealing with `Vela.jl` only and cannot be evaluated."
-        )
+        return 0 * u.s
