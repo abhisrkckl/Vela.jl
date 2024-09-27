@@ -59,24 +59,38 @@ sampler = emcee.EnsembleSampler(
 sampler.run_mcmc(p0, 5000, progress=True)
 
 # %%
-samples_v_0 = sampler.get_chain(flat=True, discard=1500, thin=10)
+samples_v_0 = sampler.get_chain(flat=True, discard=2000, thin=10)
 samples_v = samples_v_0 / scale_factors
+
+# %%
+params_no_plot = ["PLREDSIN_", "PLREDCOS_"]
+param_plot_mask = [
+    idx
+    for idx, par in enumerate(param_names)
+    if all(not par.startswith(pnp) for pnp in params_no_plot)
+]
 
 # %%
 means = (np.mean(samples_v_0, axis=0) + shifts) / scale_factors
 stds = np.std(samples_v, axis=0)
-for pname, mean, std in zip(param_names, means, stds):
-    print(f"{pname}\t\t{mean}\t\t{std}")
+for idx, (pname, mean, std) in enumerate(zip(param_names, means, stds)):
+    if idx in param_plot_mask:
+        print(f"{pname}\t\t{mean}\t\t{std}")
 
 # %%
 # param_labels = [f"\n\n{pname}\n({m[pname].units})\n" for pname in param_names]
-param_labels = [f"\n\n\n\n{label}\n\n\n\n" for label in vl.get_free_param_labels(mv)]
+param_labels = [
+    f"\n\n{label}\n\n"
+    for idx, label in enumerate(vl.get_free_param_labels(mv))
+    if idx in param_plot_mask
+]
+samples_for_plot = samples_v[:, param_plot_mask]
 fig = corner.corner(
-    samples_v,
+    samples_for_plot,
     labels=param_labels,
     label_kwargs={"fontsize": 11},
-    range=[0.999] * ndim,
-    truths=maxlike_params_v[0] / scale_factors,
+    range=[0.99] * len(param_labels),
+    truths=(maxlike_params_v[0] / scale_factors)[param_plot_mask],
     plot_datapoints=False,
     hist_kwargs={"density": True},
 )

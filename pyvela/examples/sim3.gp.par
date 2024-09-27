@@ -1,0 +1,31 @@
+# Created: 2023-12-18T09:39:54.233557
+# PINT_version: 0.9.6+671.gc3491199.dirty
+# User: Abhimanyu Susobhanan (abhimanyu)
+# Host: abhimanyu-HP-Envy-x360-2-in-1-Laptop-15-fh0xxx
+# OS: Linux-6.2.0-37-generic-x86_64-with-glibc2.35
+# Python: 3.10.13 (main, Sep 11 2023, 13:44:35) [GCC 11.2.0]
+# Format: pint
+PSR                                  SIM3
+EPHEM                               DE440
+CLOCK                        TT(BIPM2019)
+UNITS                                 TDB
+DILATEFREQ                              N
+DMDATA                                  N
+NTOA                                    0
+RAJ                      5:00:00.00000000 1 0.00011139189982090423
+DECJ                    15:00:00.00000000 1 0.01183671859058959761
+PMRA                                  0.0
+PMDEC                                 0.0
+PX                                    0.0
+F0                                  100.0 1 5.209279943996578139e-13
+F1                                 -1e-15 1 1.8319011303334914528e-19
+PEPOCH             55000.0000000000000000
+TNREDAMP                            -13.0 1 
+TNREDGAM                              3.5 1
+TNREDC                               30.0
+PLANET_SHAPIRO                          N
+DM                                   15.0 1 4.840545653196885163e-06
+TZRMJD             55000.0000000000000000
+TZRSITE                               gbt
+TZRFRQ                             1400.0
+PHOFF                                 0.0 1 0.0009155529574259425
