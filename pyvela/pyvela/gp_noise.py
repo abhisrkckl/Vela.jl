@@ -1,5 +1,5 @@
 from pint.models.timing_model import DelayComponent
-from pint.models.noise_model import PLRedNoise
+from pint.models.noise_model import PLRedNoise, PLDMNoise, PLChromNoise
 from pint.models.parameter import floatParameter, prefixParameter, MJDParameter
 
 from astropy import units as u
@@ -59,6 +59,138 @@ class PLRedNoiseGP(DelayComponent):
                     parameter_type="float",
                     name=f"PLREDCOS_{ii:04d}",
                     description="Cosine amplitude of the Powerlaw Fourier GP representation of the achromatic red noise",
+                    units=u.dimensionless_unscaled,
+                    value=0.0,
+                    frozen=False,
+                    tcb2tdb_scale_factor=u.Quantity(1),
+                )
+            )
+
+        self.delay_funcs_component += [self.dummy_delay]
+
+    def dummy_delay(self, toas, delays):
+        return 0 * u.s
+
+
+class PLDMNoiseGP(DelayComponent):
+    """A dummy PINT component that is used to translate `PLDMNoise` to a form
+    `Vela.jl` can handle."""
+
+    def __init__(self, pldmnoise: PLDMNoise, f1: u.Quantity, epoch: Time):
+        super().__init__()
+
+        self.add_param(pldmnoise.TNDMAMP)
+        self.add_param(pldmnoise.TNDMGAM)
+
+        self.TNDMAMP.tcb2tdb_scale_factor = 1
+        self.TNDMGAM.tcb2tdb_scale_factor = 1
+
+        self.add_param(
+            MJDParameter(
+                name="PLDMEPOCH",
+                description="Epoch of the Powerlaw Fourier GP representation of the DM noise",
+                value=epoch.mjd,
+                time_scale="tdb",
+                tcb2tdb_scale_factor=u.Quantity(1),
+                frozen=True,
+            )
+        )
+
+        self.add_param(
+            floatParameter(
+                name="PLDMFREQ",
+                description="Fundamental frequency of the Powerlaw Fourier GP representation of the DM noise",
+                units="1/year",
+                value=f1.to_value("1/year"),
+                tcb2tdb_scale_factor=u.Quantity(1),
+                frozen=True,
+            )
+        )
+
+        for ii in range(1, int(pldmnoise.TNDMC.value) + 1):
+            self.add_param(
+                prefixParameter(
+                    parameter_type="float",
+                    name=f"PLDMSIN_{ii:04d}",
+                    description="Sine amplitude of the Powerlaw Fourier GP representation of the DM noise",
+                    units=u.dimensionless_unscaled,
+                    value=0.0,
+                    frozen=False,
+                    tcb2tdb_scale_factor=u.Quantity(1),
+                )
+            )
+
+            self.add_param(
+                prefixParameter(
+                    parameter_type="float",
+                    name=f"PLDMCOS_{ii:04d}",
+                    description="Cosine amplitude of the Powerlaw Fourier GP representation of the DM noise",
+                    units=u.dimensionless_unscaled,
+                    value=0.0,
+                    frozen=False,
+                    tcb2tdb_scale_factor=u.Quantity(1),
+                )
+            )
+
+        self.delay_funcs_component += [self.dummy_delay]
+
+    def dummy_delay(self, toas, delays):
+        return 0 * u.s
+
+
+class PLChromNoiseGP(DelayComponent):
+    """A dummy PINT component that is used to translate `PLDMNoise` to a form
+    `Vela.jl` can handle."""
+
+    def __init__(self, pldmnoise: PLChromNoise, f1: u.Quantity, epoch: Time):
+        super().__init__()
+
+        self.add_param(pldmnoise.TNCHROMAMP)
+        self.add_param(pldmnoise.TNCHROMGAM)
+
+        self.TNCHROMAMP.tcb2tdb_scale_factor = 1
+        self.TNCHROMGAM.tcb2tdb_scale_factor = 1
+
+        self.add_param(
+            MJDParameter(
+                name="PLCHROMEPOCH",
+                description="Epoch of the Powerlaw Fourier GP representation of the chromatic noise",
+                value=epoch.mjd,
+                time_scale="tdb",
+                tcb2tdb_scale_factor=u.Quantity(1),
+                frozen=True,
+            )
+        )
+
+        self.add_param(
+            floatParameter(
+                name="PLCHROMFREQ",
+                description="Fundamental frequency of the Powerlaw Fourier GP representation of the chromatic noise",
+                units="1/year",
+                value=f1.to_value("1/year"),
+                tcb2tdb_scale_factor=u.Quantity(1),
+                frozen=True,
+            )
+        )
+
+        for ii in range(1, int(pldmnoise.TNDMC.value) + 1):
+            self.add_param(
+                prefixParameter(
+                    parameter_type="float",
+                    name=f"PLCHROMSIN_{ii:04d}",
+                    description="Sine amplitude of the Powerlaw Fourier GP representation of the chromatic noise",
+                    units=u.dimensionless_unscaled,
+                    value=0.0,
+                    frozen=False,
+                    tcb2tdb_scale_factor=u.Quantity(1),
+                )
+            )
+
+            self.add_param(
+                prefixParameter(
+                    parameter_type="float",
+                    name=f"PLCHROMCOS_{ii:04d}",
+                    description="Cosine amplitude of the Powerlaw Fourier GP representation of the chromatic noise",
                     units=u.dimensionless_unscaled,
                     value=0.0,
                     frozen=False,

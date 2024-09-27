@@ -23,6 +23,10 @@ DEFAULT_PRIOR_DISTS = {
     "PLREDSIN_": jl.Normal(),
     "TNREDAMP": jl.Uniform(-20.0, -9.0),
     "TNREDGAM": jl.Uniform(0.0, 7.0),
+    "PLDMCOS_": jl.Normal(),
+    "PLDMSIN_": jl.Normal(),
+    "TNDMAMP": jl.Uniform(-20.0, -9.0),
+    "TNDMGAM": jl.Uniform(0.0, 7.0),
 }
 
 
@@ -117,7 +121,7 @@ def get_default_priors(
 ) -> tuple:
     """Returns a tuple of `Vela.Prior` objects corresponding to each free parameter."""
 
-    params_disallow_custom_priors = {"PLREDCOS_", "PLREDSIN_"}
+    params_disallow_custom_priors = {"PLREDCOS_", "PLREDSIN_", "PLDMCOS_", "PLDMSIN_"}
     assert (
         len(params_disallow_custom_priors.intersection(custom_prior_dists.keys())) == 0
     ), f"Custom priors cannot be set for the following parameters: {params_disallow_custom_priors.intersection(custom_prior_dists.keys())}"

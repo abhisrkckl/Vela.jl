@@ -11,7 +11,7 @@ from .convert_parameters import pint_parameters_to_vela
 from .convert_toas import pint_toa_to_vela, pint_toas_to_vela, day_to_s
 from .ecorr import ecorr_sort
 from .priors import get_default_priors
-from .gp_noise import PLRedNoiseGP
+from .gp_noise import PLChromNoiseGP, PLDMNoiseGP, PLRedNoiseGP
 from .vela import vl
 
 
@@ -97,12 +97,23 @@ def get_kernel(
 
 
 def fix_red_noise_components(model: TimingModel, toas: TOAs):
+    f1 = 1 / toas.get_Tspan()
+    epoch = model.PEPOCH.quantity
+
     if "PLRedNoise" in model.components:
-        f1 = 1 / toas.get_Tspan()
-        epoch = model.PEPOCH.quantity
         plred_gp = PLRedNoiseGP(model.components["PLRedNoise"], f1, epoch)
         model.remove_component("PLRedNoise")
         model.add_component(plred_gp)
+
+    if "PLDMNoise" in model.components:
+        pldm_gp = PLDMNoiseGP(model.components["PLDMNoise"], f1, epoch)
+        model.remove_component("PLDMNoise")
+        model.add_component(pldm_gp)
+
+    if "PLChromNoise" in model.components:
+        pldm_chrom = PLChromNoiseGP(model.components["PLChromNoise"], f1, epoch)
+        model.remove_component("PLChromNoise")
+        model.add_component(pldm_chrom)
 
 
 def pint_model_to_vela(

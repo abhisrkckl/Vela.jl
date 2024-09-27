@@ -1,4 +1,4 @@
-export PowerlawRedNoiseGP
+export PowerlawRedNoiseGP, PowerlawDispersionNoiseGP, PowerlawChromaticNoiseGP
 
 function powerlaw(A, γ, f, f1)
     fyr = frequency(1 / 3600 / 24 / 365.25)
