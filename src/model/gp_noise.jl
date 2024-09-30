@@ -13,6 +13,7 @@ function evaluate_powerlaw_red_noise_gp(
     βs,
     f1,
     Δt,
+    ln_js,
     unit_conversion_factor = 1,
 )
     @assert length(αs) == length(βs)
@@ -22,11 +23,13 @@ function evaluate_powerlaw_red_noise_gp(
     ϕ1 = 2π * f1 * Δt
     exp_im_ϕ1 = exp(im * value(ϕ1))
 
+    σ1 = sqrt(powerlaw(A, γ, f1, f1))
+
     exp_im_ϕi = exp_im_ϕ1
     result = time(0.0)
-    for (ii, (α, β)) in enumerate(zip(αs, βs))
-        f = ii * f1
-        σ = sqrt(powerlaw(A, γ, f, f1))
+    for (α, β, ln_j) in zip(αs, βs, ln_js)
+        σ = σ1 * exp(-(γ / 2) * ln_j)
+
         a = σ * α * unit_conversion_factor
         b = σ * β * unit_conversion_factor
 
@@ -39,9 +42,13 @@ function evaluate_powerlaw_red_noise_gp(
     return result
 end
 
-struct PowerlawRedNoiseGP <: DelayComponent end
+struct PowerlawRedNoiseGP{N} <: DelayComponent
+    ln_js::NTuple{N,Float64}
 
-delay(::PowerlawRedNoiseGP, toa::TOA, toacorr::TOACorrection, params::NamedTuple) =
+    PowerlawRedNoiseGP(N::Int) = new{N}(Tuple(map(log, 1:N)))
+end
+
+delay(arn::PowerlawRedNoiseGP, toa::TOA, toacorr::TOACorrection, params::NamedTuple) =
     evaluate_powerlaw_red_noise_gp(
         params.TNREDAMP,
         params.TNREDGAM,
@@ -49,12 +56,17 @@ delay(::PowerlawRedNoiseGP, toa::TOA, toacorr::TOACorrection, params::NamedTuple
         params.PLREDCOS_,
         params.PLREDFREQ,
         corrected_toa_value(toa, toacorr, Float64) - params.PLREDEPOCH,
+        arn.ln_js,
     )
 
-struct PowerlawDispersionNoiseGP <: DispersionComponent end
+struct PowerlawDispersionNoiseGP{N} <: DispersionComponent
+    ln_js::NTuple{N,Float64}
+
+    PowerlawDispersionNoiseGP(N::Int) = new{N}(Tuple(map(log, 1:N)))
+end
 
 function dispersion_slope(
-    ::PowerlawDispersionNoiseGP,
+    dmn::PowerlawDispersionNoiseGP,
     toa::TOA,
     toacorr::TOACorrection,
     params::NamedTuple,
@@ -67,14 +79,19 @@ function dispersion_slope(
         params.PLDMCOS_,
         params.PLDMFREQ,
         corrected_toa_value(toa, toacorr, Float64) - params.PLDMEPOCH,
+        dmn.ln_js,
         νref * νref,
     )
 end
 
-struct PowerlawChromaticNoiseGP <: ChromaticComponent end
+struct PowerlawChromaticNoiseGP{N} <: ChromaticComponent
+    ln_js::NTuple{N,Float64}
+
+    PowerlawChromaticNoiseGP(N::Int) = new{N}(Tuple(map(log, 1:N)))
+end
 
 function chromatic_slope(
-    ::PowerlawChromaticNoiseGP,
+    crn::PowerlawChromaticNoiseGP,
     toa::TOA,
     toacorr::TOACorrection,
     params::NamedTuple,
@@ -87,6 +104,7 @@ function chromatic_slope(
         params.PLCHROMCOS_,
         params.PLCHROMFREQ,
         corrected_toa_value(toa, toacorr, Float64) - params.PLCHROMEPOCH,
+        crn.ln_js,
         νref_val^params.TNCHROMIDX,
     )
 end

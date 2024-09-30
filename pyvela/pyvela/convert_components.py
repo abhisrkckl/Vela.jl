@@ -92,7 +92,7 @@ def pint_components_to_vela(model: TimingModel, toas: TOAs):
     if "DMWaveX" in component_names:
         components.append(vl.DMWaveX())
     elif "PLDMNoise" in component_names:
-        components.append(vl.PowerlawDispersionNoiseGP())
+        components.append(vl.PowerlawDispersionNoiseGP(int(model.TNDMC.value)))
 
     if "FDJumpDM" in component_names:
         fdjumpdms = list(
@@ -124,7 +124,7 @@ def pint_components_to_vela(model: TimingModel, toas: TOAs):
     if "CMWaveX" in component_names:
         components.append(vl.CMWaveX())
     elif "PLChromNoise" in component_names:
-        components.append(vl.PowerlawChromaticNoiseGP())
+        components.append(vl.PowerlawChromaticNoiseGP(int(model.TNCHROMC.value)))
 
     if model.BINARY.value is not None:
         assert (model["PB"].quantity is not None) != (model["FB0"].quantity is not None)
@@ -175,7 +175,7 @@ def pint_components_to_vela(model: TimingModel, toas: TOAs):
     if "WaveX" in component_names:
         components.append(vl.WaveX())
     elif "PLRedNoiseGP" in component_names:
-        components.append(vl.PowerlawRedNoiseGP())
+        components.append(vl.PowerlawRedNoiseGP(int(model.TNREDC.value)))
 
     if "Spindown" in component_names:
         components.append(vl.Spindown())

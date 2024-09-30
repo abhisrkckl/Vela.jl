@@ -15,6 +15,7 @@ class PLRedNoiseGP(DelayComponent):
 
         self.add_param(plrednoise.TNREDAMP)
         self.add_param(plrednoise.TNREDGAM)
+        self.add_param(plrednoise.TNREDC)
 
         self.TNREDAMP.tcb2tdb_scale_factor = 1
         self.TNREDGAM.tcb2tdb_scale_factor = 1
@@ -81,6 +82,7 @@ class PLDMNoiseGP(DelayComponent):
 
         self.add_param(pldmnoise.TNDMAMP)
         self.add_param(pldmnoise.TNDMGAM)
+        self.add_param(pldmnoise.TNDMC)
 
         self.TNDMAMP.tcb2tdb_scale_factor = 1
         self.TNDMGAM.tcb2tdb_scale_factor = 1
@@ -142,11 +144,12 @@ class PLChromNoiseGP(DelayComponent):
     """A dummy PINT component that is used to translate `PLDMNoise` to a form
     `Vela.jl` can handle."""
 
-    def __init__(self, pldmnoise: PLChromNoise, f1: u.Quantity, epoch: Time):
+    def __init__(self, plchromnoise: PLChromNoise, f1: u.Quantity, epoch: Time):
         super().__init__()
 
-        self.add_param(pldmnoise.TNCHROMAMP)
-        self.add_param(pldmnoise.TNCHROMGAM)
+        self.add_param(plchromnoise.TNCHROMAMP)
+        self.add_param(plchromnoise.TNCHROMGAM)
+        self.add_param(plchromnoise.TNCHROMC)
 
         self.TNCHROMAMP.tcb2tdb_scale_factor = 1
         self.TNCHROMGAM.tcb2tdb_scale_factor = 1
@@ -173,7 +176,7 @@ class PLChromNoiseGP(DelayComponent):
             )
         )
 
-        for ii in range(1, int(pldmnoise.TNDMC.value) + 1):
+        for ii in range(1, int(plchromnoise.TNCHROMC.value) + 1):
             self.add_param(
                 prefixParameter(
                     parameter_type="float",
