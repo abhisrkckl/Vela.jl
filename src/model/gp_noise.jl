@@ -19,14 +19,21 @@ function evaluate_powerlaw_red_noise_gp(
 
     A = 10^log10_A
 
+    ϕ1 = 2π * f1 * Δt
+    exp_im_ϕ1 = exp(im * value(ϕ1))
+
+    exp_im_ϕi = exp_im_ϕ1
     result = time(0.0)
     for (ii, (α, β)) in enumerate(zip(αs, βs))
         f = ii * f1
         σ = sqrt(powerlaw(A, γ, f, f1))
         a = σ * α * unit_conversion_factor
         b = σ * β * unit_conversion_factor
-        ϕ = 2π * f * Δt
-        result += dot((a, b), sincos(ϕ))
+
+        sincosϕ = imag(exp_im_ϕi), real(exp_im_ϕi)
+        result += dot((a, b), sincosϕ)
+
+        exp_im_ϕi *= exp_im_ϕ1
     end
 
     return result
@@ -41,7 +48,7 @@ delay(::PowerlawRedNoiseGP, toa::TOA, toacorr::TOACorrection, params::NamedTuple
         params.PLREDSIN_,
         params.PLREDCOS_,
         params.PLREDFREQ,
-        corrected_toa_value(toa, toacorr, Float64) - t0,
+        corrected_toa_value(toa, toacorr, Float64) - params.PLREDEPOCH,
     )
 
 struct PowerlawDispersionNoiseGP <: DispersionComponent end
@@ -59,7 +66,7 @@ function dispersion_slope(
         params.PLDMSIN_,
         params.PLDMCOS_,
         params.PLDMFREQ,
-        corrected_toa_value(toa, toacorr, Float64) - t0,
+        corrected_toa_value(toa, toacorr, Float64) - params.PLDMEPOCH,
         νref * νref,
     )
 end
@@ -79,7 +86,7 @@ function chromatic_slope(
         params.PLCHROMSIN_,
         params.PLCHROMCOS_,
         params.PLCHROMFREQ,
-        corrected_toa_value(toa, toacorr, Float64) - t0,
+        corrected_toa_value(toa, toacorr, Float64) - params.PLCHROMEPOCH,
         νref_val^params.TNCHROMIDX,
     )
 end

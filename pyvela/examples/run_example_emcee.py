@@ -22,7 +22,7 @@ parfile, timfile = sys.argv[1], sys.argv[2]
 m, t = get_model_and_toas(parfile, timfile)
 
 # %%
-mv, tv = read_model_and_toas(parfile, timfile, cheat_prior_scale=10)
+mv, tv = read_model_and_toas(parfile, timfile, cheat_prior_scale=5)
 lnpost = vl.get_lnpost_func(mv, tv, True)
 prior_transform = vl.get_prior_transform_func(mv)
 

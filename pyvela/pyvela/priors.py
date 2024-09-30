@@ -21,11 +21,11 @@ DEFAULT_PRIOR_DISTS = {
     "DMEFAC": jl.LogNormal(0.0, 0.25),
     "PLREDCOS_": jl.Normal(),
     "PLREDSIN_": jl.Normal(),
-    "TNREDAMP": jl.Uniform(-20.0, -9.0),
+    "TNREDAMP": jl.Uniform(-16.0, -9.0),
     "TNREDGAM": jl.Uniform(0.0, 7.0),
     "PLDMCOS_": jl.Normal(),
     "PLDMSIN_": jl.Normal(),
-    "TNDMAMP": jl.Uniform(-20.0, -9.0),
+    "TNDMAMP": jl.Uniform(-16.0, -9.0),
     "TNDMGAM": jl.Uniform(0.0, 7.0),
 }
 
