@@ -5,6 +5,7 @@ using GeometricUnits
 using DoubleFloats: Double64
 using LinearAlgebra: dot
 using .Threads: @threads, @spawn, fetch, nthreads
+using Base.SimdLoop: @simd
 using Unrolled: @unroll
 import Distributions:
     Distribution,

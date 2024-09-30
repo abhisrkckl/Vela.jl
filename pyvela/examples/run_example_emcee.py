@@ -56,10 +56,10 @@ sampler = emcee.EnsembleSampler(
     moves=[emcee.moves.StretchMove(), emcee.moves.DESnookerMove()],
     vectorize=True,
 )
-sampler.run_mcmc(p0, 5000, progress=True)
+sampler.run_mcmc(p0, 6000, progress=True, progress_kwargs={"mininterval": 1})
 
 # %%
-samples_v_0 = sampler.get_chain(flat=True, discard=2000, thin=10)
+samples_v_0 = sampler.get_chain(flat=True, discard=2500, thin=20)
 samples_v = samples_v_0 / scale_factors
 
 # %%

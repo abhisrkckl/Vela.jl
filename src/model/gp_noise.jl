@@ -16,46 +16,46 @@ function evaluate_powerlaw_red_noise_gp(
     ln_js,
     unit_conversion_factor = 1,
 )
-    @assert length(αs) == length(βs)
+    @assert length(αs) == length(βs) == length(ln_js)
 
-    A = 10^log10_A
+    Nharms = length(ln_js)
 
-    ϕ1 = 2π * f1 * Δt
+    A = 10f0^log10_A
+
+    ϕ1 = 2f0 * π * f1 * Δt
     exp_im_ϕ1 = exp(im * value(ϕ1))
+    exp_im_ϕjs = cumprod(map(x -> exp_im_ϕ1, ln_js))
 
     σ1 = sqrt(powerlaw(A, γ, f1, f1))
 
-    exp_im_ϕi = exp_im_ϕ1
-    result = time(0.0)
-    for (α, β, ln_j) in zip(αs, βs, ln_js)
-        σ = σ1 * exp(-(γ / 2) * ln_j)
+    result = time(0.0f0)
+    @simd for ii in 1:Nharms
+        σ = σ1 * exp(-(γ / 2) * ln_js[ii])
 
-        a = σ * α * unit_conversion_factor
-        b = σ * β * unit_conversion_factor
+        a = σ * αs[ii]
+        b = σ * βs[ii]
 
-        sincosϕ = imag(exp_im_ϕi), real(exp_im_ϕi)
-        result += dot((a, b), sincosϕ)
-
-        exp_im_ϕi *= exp_im_ϕ1
+        sincosϕ = imag(exp_im_ϕjs[ii]), real(exp_im_ϕjs[ii])
+        result += dot((a, b), sincosϕ) * unit_conversion_factor
     end
 
-    return result
+    return GQ{Float64}(result)
 end
 
 struct PowerlawRedNoiseGP{N} <: DelayComponent
-    ln_js::NTuple{N,Float64}
+    ln_js::NTuple{N,Float32}
 
-    PowerlawRedNoiseGP(N::Int) = new{N}(Tuple(map(log, 1:N)))
+    PowerlawRedNoiseGP(N::Int) = new{N}(Tuple(map(Float32 ∘ log, 1:N)))
 end
 
 delay(arn::PowerlawRedNoiseGP, toa::TOA, toacorr::TOACorrection, params::NamedTuple) =
     evaluate_powerlaw_red_noise_gp(
-        params.TNREDAMP,
-        params.TNREDGAM,
-        params.PLREDSIN_,
-        params.PLREDCOS_,
-        params.PLREDFREQ,
-        corrected_toa_value(toa, toacorr, Float64) - params.PLREDEPOCH,
+        GQ{Float32}(params.TNREDAMP),
+        GQ{Float32}(params.TNREDGAM),
+        map(GQ{Float32}, params.PLREDSIN_),
+        map(GQ{Float32}, params.PLREDCOS_),
+        GQ{Float32}(params.PLREDFREQ),
+        GQ{Float32}(corrected_toa_value(toa, toacorr, Float64) - params.PLREDEPOCH),
         arn.ln_js,
     )
 
