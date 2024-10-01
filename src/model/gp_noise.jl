@@ -28,7 +28,7 @@ function evaluate_powerlaw_red_noise_gp(
 
     σ1 = sqrt(powerlaw(A, γ, f1, f1))
 
-    result = time(0.0)
+    result = time(0.0) * oneunit(unit_conversion_factor)
     @inbounds for ii = 1:Nharms
         σ = σ1 * exp(-(γ / 2) * ln_js[ii])
 
