@@ -30,6 +30,7 @@ datasets = [
     "sim3",
     "sim3.gp",
     "sim4",
+    "sim4.gp",
     "sim_fd",
     "sim_fdjump",
     "sim6",
