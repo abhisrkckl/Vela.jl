@@ -22,7 +22,7 @@ F1                                 -1e-15 1 1.8319011303334914528e-19
 PEPOCH             55000.0000000000000000
 TNREDAMP                            -13.0 1 
 TNREDGAM                              3.5 1
-TNREDC                               30.0
+TNREDC                                 30
 PLANET_SHAPIRO                          N
 DM                                   15.0 1 4.840545653196885163e-06
 TZRMJD             55000.0000000000000000

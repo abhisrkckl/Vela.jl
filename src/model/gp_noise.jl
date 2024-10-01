@@ -6,21 +6,10 @@ function powerlaw(A, γ, f, f1)
     return A * A / denom * (fyr / f)^γ * f1
 end
 
-function evaluate_powerlaw_red_noise_gp(
-    log10_A,
-    γ,
-    αs,
-    βs,
-    f1,
-    Δt,
-    ln_js,
-    unit_conversion_factor = 1,
-)
+function evaluate_powerlaw_red_noise_gp(log10_A, γ, αs, βs, f1, Δt, ln_js)
     @assert length(αs) == length(βs) == length(ln_js)
 
-    Nharms = length(ln_js)
-
-    A = 10^log10_A
+    A = exp10(log10_A)
 
     ϕ1 = 2π * f1 * Δt
     exp_im_ϕ1 = exp(im * value(ϕ1))
@@ -28,18 +17,14 @@ function evaluate_powerlaw_red_noise_gp(
 
     σ1 = sqrt(powerlaw(A, γ, f1, f1))
 
-    result = time(0.0) * oneunit(unit_conversion_factor)
-    @inbounds for ii = 1:Nharms
-        σ = σ1 * exp(-(γ / 2) * ln_js[ii])
-
-        a = σ * αs[ii]
-        b = σ * βs[ii]
-
-        sincosϕ = imag(exp_im_ϕjs[ii]), real(exp_im_ϕjs[ii])
-        result += dot((a, b), sincosϕ) * unit_conversion_factor
+    result = dimensionless(0.0)
+    for (α, β, ln_j, exp_im_ϕj) in zip(αs, βs, ln_js, exp_im_ϕjs)
+        jfac = exp(-(γ / 2) * ln_j)
+        sincosϕ = imag(exp_im_ϕj), real(exp_im_ϕj)
+        result += jfac * dot((α, β), sincosϕ)
     end
 
-    return result
+    return σ1 * result
 end
 
 struct PowerlawRedNoiseGP{N} <: DelayComponent
@@ -72,7 +57,7 @@ function dispersion_slope(
     params::NamedTuple,
 )
     νref = frequency(1.4e9)
-    return evaluate_powerlaw_red_noise_gp(
+    return (νref * νref) * evaluate_powerlaw_red_noise_gp(
         params.TNDMAMP,
         params.TNDMGAM,
         params.PLDMSIN_,
@@ -80,7 +65,6 @@ function dispersion_slope(
         params.PLDMFREQ,
         corrected_toa_value(toa, toacorr, Float64) - params.PLDMEPOCH,
         dmn.ln_js,
-        νref * νref,
     )
 end
 
@@ -97,7 +81,7 @@ function chromatic_slope(
     params::NamedTuple,
 )
     νref_val = 1400.0
-    return evaluate_powerlaw_red_noise_gp(
+    return (νref_val^params.TNCHROMIDX) * evaluate_powerlaw_red_noise_gp(
         params.TNCHROMAMP,
         params.TNCHROMGAM,
         params.PLCHROMSIN_,
@@ -105,6 +89,5 @@ function chromatic_slope(
         params.PLCHROMFREQ,
         corrected_toa_value(toa, toacorr, Float64) - params.PLCHROMEPOCH,
         crn.ln_js,
-        νref_val^params.TNCHROMIDX,
     )
 end
