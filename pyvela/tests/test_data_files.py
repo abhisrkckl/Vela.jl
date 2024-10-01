@@ -5,6 +5,7 @@ from juliacall import Main as jl
 from pint.models import get_model_and_toas
 
 from pyvela import read_model_and_toas
+from pyvela.pint2vela import fix_red_noise_components
 from pyvela.vela import vl
 from pyvela.convert_parameters import fdjump_rx
 
@@ -27,6 +28,7 @@ datasets = [
     "sim_cm",
     "sim2",
     "sim3",
+    "sim3.gp",
     "sim4",
     "sim_fd",
     "sim_fdjump",
@@ -63,6 +65,16 @@ def model_and_toas(request):
 
     m, t = get_model_and_toas(f"{datadir}/{dataset}.par", f"{datadir}/{dataset}.tim")
 
+    if (
+        len(
+            {"PLRedNoise", "PLDMNoise", "PLChromNoise"}.intersection(
+                m.components.keys()
+            )
+        )
+        > 0
+    ):
+        fix_red_noise_components(m, t)
+
     return mv, tv, params, m, t
 
 
@@ -93,9 +105,18 @@ def test_data(model_and_toas):
 def test_chi2(model_and_toas):
     mv, tv, params, m, t = model_and_toas
     calc_chi2 = vl.get_chi2_func(mv, tv)
-    assert ("PHOFF" not in m) or (
-        calc_chi2(params) / len(tv) / (1 + int(t.is_wideband())) < 1.2
-    )
+
+    if (
+        len(
+            {"PLRedNoiseGP", "PLDMNoiseGP", "PLChromNoiseGP"}.intersection(
+                m.components.keys()
+            )
+        )
+        == 0
+    ):
+        assert ("PHOFF" not in m) or (
+            calc_chi2(params) / len(tv) / (1 + int(t.is_wideband())) < 1.2
+        )
 
 
 def test_likelihood(model_and_toas):
