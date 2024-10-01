@@ -9,7 +9,7 @@
     cwtoa = WidebandTOACorrection()
 
     params_ecl = (
-        POSEPOCH = time(53470.0 * day_to_s),
+        POSEPOCH = time((53470.0 - epoch_mjd) * day_to_s),
         ELAT = dimensionless(1.2),
         ELONG = dimensionless(1.25),
         PX = GQ{-1}(3e-12),
@@ -18,7 +18,7 @@
     )
 
     params_eql = (
-        POSEPOCH = time(53470.0 * day_to_s),
+        POSEPOCH = time((53470.0 - epoch_mjd) * day_to_s),
         RAJ = dimensionless(1.2),
         DECJ = dimensionless(1.25),
         PX = GQ{-1}(3e-12),

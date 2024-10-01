@@ -29,7 +29,7 @@ function evaluate_powerlaw_red_noise_gp(
     σ1 = sqrt(powerlaw(A, γ, f1, f1))
 
     result = time(0.0)
-    for ii = 1:Nharms
+    @inbounds for ii = 1:Nharms
         σ = σ1 * exp(-(γ / 2) * ln_js[ii])
 
         a = σ * αs[ii]
@@ -50,12 +50,12 @@ end
 
 delay(arn::PowerlawRedNoiseGP, toa::TOA, toacorr::TOACorrection, params::NamedTuple) =
     evaluate_powerlaw_red_noise_gp(
-        GQ{Float32}(params.TNREDAMP),
-        GQ{Float32}(params.TNREDGAM),
-        map(GQ{Float32}, params.PLREDSIN_),
-        map(GQ{Float32}, params.PLREDCOS_),
-        GQ{Float32}(params.PLREDFREQ),
-        GQ{Float32}(corrected_toa_value(toa, toacorr, Float64) - params.PLREDEPOCH),
+        params.TNREDAMP,
+        params.TNREDGAM,
+        params.PLREDSIN_,
+        params.PLREDCOS_,
+        params.PLREDFREQ,
+        corrected_toa_value(toa, toacorr, Float64) - params.PLREDEPOCH,
         arn.ln_js,
     )
 

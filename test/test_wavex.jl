@@ -3,7 +3,7 @@
     ctoa = TOACorrection()
 
     params = (
-        WXEPOCH = time(53470.0 * day_to_s),
+        WXEPOCH = time((53470.0 - epoch_mjd) * day_to_s),
         WXFREQ_ = (frequency(1e-9), frequency(2e-9), frequency(3e-9)),
         WXSIN_ = (time(1.2e-6), time(5.1e-7), time(2.5e-7)),
         WXCOS_ = (time(-1.3e-6), time(5.2e-7), time(2.6e-7)),
@@ -19,7 +19,7 @@ end
     ctoa = TOACorrection()
 
     params = (
-        DMWXEPOCH = time(53470.0 * day_to_s),
+        DMWXEPOCH = time((53470.0 - epoch_mjd) * day_to_s),
         DMWXFREQ_ = (frequency(1e-9), frequency(2e-9), frequency(3e-9)),
         DMWXSIN_ = (GQ{-1}(1.2e+4), GQ{-1}(5.1e+3), GQ{-1}(2.5e+2)),
         DMWXCOS_ = (GQ{-1}(-1.3e+4), GQ{-1}(5.2e+3), GQ{-1}(2.6e+3)),
@@ -35,7 +35,7 @@ end
     ctoa = TOACorrection()
 
     params = (
-        CMWXEPOCH = time(53470.0 * day_to_s),
+        CMWXEPOCH = time((53470.0 - epoch_mjd) * day_to_s),
         CMWXFREQ_ = (frequency(1e-9), frequency(2e-9), frequency(3e-9)),
         CMWXSIN_ = (GQ{1}(1.2e+4), GQ{1}(5.1e+3), GQ{1}(2.5e+2)),
         CMWXCOS_ = (GQ{1}(-1.3e+4), GQ{1}(5.2e+3), GQ{1}(2.6e+3)),

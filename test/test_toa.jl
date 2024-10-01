@@ -7,7 +7,7 @@
     ephem = default_ephem()
 
     # TOA value should be of type GQ{Double64}.
-    @test_throws MethodError TOA(time(4610197611.8), toaerr, freq, pulse_number, ephem, 1)
+    @test_throws MethodError TOA(time(610197611.8), toaerr, freq, pulse_number, ephem, 1)
 
     # Wrong dimensions for TOA value.
     @test_throws MethodError TOA(

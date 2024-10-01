@@ -6,7 +6,7 @@
     ctzrtoa = TOACorrection()
 
     params = (
-        TASC = time(53470.0 * day_to_s),
+        TASC = time((53470.0 - epoch_mjd) * day_to_s),
         PB = time(8e4),
         PBDOT = dimensionless(1e-10),
         XPBDOT = dimensionless(0.0),
@@ -38,7 +38,7 @@ end
     ctzrtoa = TOACorrection()
 
     params = (
-        TASC = time(53470.0 * day_to_s),
+        TASC = time((53470.0 - epoch_mjd) * day_to_s),
         PB = time(8e4),
         PBDOT = dimensionless(1e-10),
         XPBDOT = dimensionless(0.0),

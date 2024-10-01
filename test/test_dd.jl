@@ -11,7 +11,7 @@
     end
 
     toa1 = TOA(
-        time(Double64(53471.0 * day_to_s)),
+        time(Double64((53471.0 - epoch_mjd) * day_to_s)),
         time(1e-6),
         frequency(2.5e9),
         dimensionless(Double64(0.0)),
@@ -21,7 +21,7 @@
     ctoa1 = TOACorrection()
 
     params = (
-        T0 = time(53470.0 * day_to_s),
+        T0 = time((53470.0 - epoch_mjd) * day_to_s),
         PB = time(8e4),
         PBDOT = dimensionless(1e-10),
         XPBDOT = dimensionless(0.0),
@@ -50,7 +50,7 @@ end
 
 @testset "BinaryDDH" begin
     toa1 = TOA(
-        time(Double64(53471.0 * day_to_s)),
+        time(Double64((53471.0 - epoch_mjd) * day_to_s)),
         time(1e-6),
         frequency(2.5e9),
         dimensionless(Double64(0.0)),
@@ -60,7 +60,7 @@ end
     ctoa1 = TOACorrection()
 
     params = (
-        T0 = time(53470.0 * day_to_s),
+        T0 = time((53470.0 - epoch_mjd) * day_to_s),
         PB = time(8e4),
         PBDOT = dimensionless(1e-10),
         XPBDOT = dimensionless(0.0),
@@ -89,7 +89,7 @@ end
 
 @testset "BinaryDDS" begin
     toa1 = TOA(
-        time(Double64(53471.0 * day_to_s)),
+        time(Double64((53471.0 - epoch_mjd) * day_to_s)),
         time(1e-6),
         frequency(2.5e9),
         dimensionless(Double64(0.0)),
@@ -99,7 +99,7 @@ end
     ctoa1 = TOACorrection()
 
     params = (
-        T0 = time(53470.0 * day_to_s),
+        T0 = time((53470.0 - epoch_mjd) * day_to_s),
         PB = time(8e4),
         PBDOT = dimensionless(1e-10),
         XPBDOT = dimensionless(0.0),
@@ -128,7 +128,7 @@ end
 
 @testset "BinaryDDK" begin
     toa1 = TOA(
-        time(Double64(53471.0 * day_to_s)),
+        time(Double64((53471.0 - epoch_mjd) * day_to_s)),
         time(1e-6),
         frequency(2.5e9),
         dimensionless(Double64(0.0)),
@@ -138,7 +138,7 @@ end
     ctoa1 = TOACorrection()
 
     params_binary = (
-        T0 = time(53470.0 * day_to_s),
+        T0 = time((53470.0 - epoch_mjd) * day_to_s),
         PB = time(8e4),
         PBDOT = dimensionless(1e-10),
         XPBDOT = dimensionless(0.0),
@@ -158,7 +158,7 @@ end
     )
 
     params_ecl = (
-        POSEPOCH = time(53470.0 * day_to_s),
+        POSEPOCH = time((53470.0 - epoch_mjd) * day_to_s),
         ELAT = dimensionless(1.2),
         ELONG = dimensionless(1.25),
         PX = GQ{-1}(3e-12),
@@ -167,7 +167,7 @@ end
     )
 
     params_eql = (
-        POSEPOCH = time(53470.0 * day_to_s),
+        POSEPOCH = time((53470.0 - epoch_mjd) * day_to_s),
         RAJ = dimensionless(1.2),
         DECJ = dimensionless(1.25),
         PX = GQ{-1}(3e-12),

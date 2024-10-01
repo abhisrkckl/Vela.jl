@@ -1,5 +1,11 @@
 @testset "parameter & param handler" begin
-    pepoch = Parameter(:PEPOCH, time(56000.0 * day_to_s), true, "day", float(day_to_s))
+    pepoch = Parameter(
+        :PEPOCH,
+        time((56000.0 - epoch_mjd) * day_to_s),
+        true,
+        "day",
+        float(day_to_s),
+    )
     @test pepoch.name == :PEPOCH
 
     f0 = Parameter(:F0, frequency(100.0), false, "Hz", 1.0)

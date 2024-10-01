@@ -1,5 +1,5 @@
 @testset "wideband toa" begin
-    toaval = time(parse(Double64, "4610197611.8464445127"))
+    toaval = time(parse(Double64, "610197611.8464445127"))
     toaerr = time(1e-6)
     freq = frequency(1.4e9)
     pulse_number = dimensionless(Double64(1000.0))
