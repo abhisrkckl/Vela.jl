@@ -20,16 +20,16 @@ function evaluate_powerlaw_red_noise_gp(
 
     Nharms = length(ln_js)
 
-    A = 10f0^log10_A
+    A = 10^log10_A
 
-    ϕ1 = 2f0 * π * f1 * Δt
+    ϕ1 = 2π * f1 * Δt
     exp_im_ϕ1 = exp(im * value(ϕ1))
     exp_im_ϕjs = cumprod(map(x -> exp_im_ϕ1, ln_js))
 
     σ1 = sqrt(powerlaw(A, γ, f1, f1))
 
-    result = time(0.0f0)
-    @simd for ii in 1:Nharms
+    result = time(0.0)
+    for ii = 1:Nharms
         σ = σ1 * exp(-(γ / 2) * ln_js[ii])
 
         a = σ * αs[ii]
@@ -39,7 +39,7 @@ function evaluate_powerlaw_red_noise_gp(
         result += dot((a, b), sincosϕ) * unit_conversion_factor
     end
 
-    return GQ{Float64}(result)
+    return result
 end
 
 struct PowerlawRedNoiseGP{N} <: DelayComponent
