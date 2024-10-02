@@ -56,31 +56,80 @@ sampler = emcee.EnsembleSampler(
     moves=[emcee.moves.StretchMove(), emcee.moves.DESnookerMove()],
     vectorize=True,
 )
-sampler.run_mcmc(p0, 5000, progress=True)
+sampler.run_mcmc(p0, 6000, progress=True, progress_kwargs={"mininterval": 1})
 
 # %%
-samples_v_0 = sampler.get_chain(flat=True, discard=1500, thin=10)
+samples_v_0 = sampler.get_chain(flat=True, discard=2500, thin=40)
 samples_v = samples_v_0 / scale_factors
+
+# %%
+params_no_plot = [
+    "PLREDSIN_",
+    "PLREDCOS_",
+    "PLDMSIN_",
+    "PLDMCOS_",
+    "PLCHROMSIN_",
+    "PLCHROMCOS_",
+]
+param_plot_mask = [
+    idx
+    for idx, par in enumerate(param_names)
+    if all(not par.startswith(pnp) for pnp in params_no_plot)
+]
 
 # %%
 means = (np.mean(samples_v_0, axis=0) + shifts) / scale_factors
 stds = np.std(samples_v, axis=0)
-for pname, mean, std in zip(param_names, means, stds):
-    print(f"{pname}\t\t{mean}\t\t{std}")
+for idx, (pname, mean, std) in enumerate(zip(param_names, means, stds)):
+    if idx in param_plot_mask:
+        print(f"{pname}\t\t{mean}\t\t{std}")
 
 # %%
 # param_labels = [f"\n\n{pname}\n({m[pname].units})\n" for pname in param_names]
-param_labels = [f"\n\n\n\n{label}\n\n\n\n" for label in vl.get_free_param_labels(mv)]
+param_labels = [
+    f"\n\n{label}\n\n"
+    for idx, label in enumerate(vl.get_free_param_labels(mv))
+    if idx in param_plot_mask
+]
+samples_for_plot = samples_v[:, param_plot_mask]
 fig = corner.corner(
-    samples_v,
+    samples_for_plot,
     labels=param_labels,
     label_kwargs={"fontsize": 11},
-    range=[0.999] * ndim,
-    truths=maxlike_params_v[0] / scale_factors,
+    range=[0.999] * len(param_labels),
+    truths=(maxlike_params_v[0] / scale_factors)[param_plot_mask],
     plot_datapoints=False,
     hist_kwargs={"density": True},
 )
 
+plt.suptitle(m.PSR.value)
+plt.tight_layout()
+plt.show()
+
+# %%
+params_median = vl.read_params(mv, np.median(samples_v_0, axis=0))
+rv = (
+    list(map(vl.value, vl.form_residuals(mv, tv, params_median)))
+    if not t.is_wideband()
+    else [vl.value(wr[0]) for wr in vl.form_residuals(mv, tv, params_median)]
+)
+
+ctoas = [vl.correct_toa(mv, tvi, params_median) for tvi in tv]
+errs = np.sqrt(
+    [vl.value(vl.scaled_toa_error_sqr(tvi, ctoa)) for (tvi, ctoa) in zip(tv, ctoas)]
+)
+
+plt.errorbar(
+    t.get_mjds(),
+    rv,
+    errs,
+    ls="",
+    marker="+",
+    color="blue",
+)
+plt.axhline(0, color="grey", ls="dotted")
+plt.xlabel("MJD")
+plt.ylabel("Residuals (s)")
 plt.suptitle(m.PSR.value)
 plt.tight_layout()
 plt.show()

@@ -38,8 +38,16 @@ plt.errorbar(
     ls="",
     marker="+",
     color="red",
+    label="PINT",
 )
 plt.errorbar(
-    t.get_mjds(), rv, res.get_data_error().si.value, ls="", marker="+", color="blue"
+    t.get_mjds(),
+    rv,
+    res.get_data_error().si.value,
+    ls="",
+    marker="+",
+    color="blue",
+    label="Vela",
 )
+plt.legend()
 plt.show()

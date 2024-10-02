@@ -147,6 +147,9 @@ def pint_parameters_to_vela(model: TimingModel):
         "H4",  # Handled separately; converted to STIG.
         "DMX",  # The actual DMX parameters are "DMX_".
         "PEPOCH",  # Included separately. We subtract PEPOCH from all TOAs and MJDParameters.
+        "TNREDC",  # Included separately in the component
+        "TNDMC",
+        "TNCHROMC",
     ]
 
     assert all(psp not in ignore_params for psp in pseudo_single_params)

@@ -24,4 +24,6 @@
     include("test_glitch.jl")
 
     include("test_white_noise.jl")
+
+    include("test_gp_noise.jl")
 end

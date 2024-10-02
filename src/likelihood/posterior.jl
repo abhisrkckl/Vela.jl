@@ -17,7 +17,7 @@ function get_lnpost_func(
 
     if vectorize
         function _lnpost_vector(paramss)
-            @assert size(paramss)[2] == nfree
+            @assert (length(size(paramss)) == 2 && size(paramss)[2] == nfree) "Please pass a 2D array to this function for vectorized evaluation, where each row has `Nfree` elements."
             nparamss = size(paramss)[1]
             result = Vector{Float64}(undef, nparamss)
             @threads :static for ii = 1:nparamss
