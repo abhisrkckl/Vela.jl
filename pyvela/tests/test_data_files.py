@@ -34,6 +34,7 @@ datasets = [
     "sim_fd",
     "sim_fdjump",
     "sim6",
+    "sim6.gp",
     "sim_dd",
     "sim_ddk",
     "sim_glitch",
