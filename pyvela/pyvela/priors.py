@@ -27,6 +27,10 @@ DEFAULT_PRIOR_DISTS = {
     "PLDMSIN_": jl.Normal(),
     "TNDMAMP": jl.Uniform(-16.0, -9.0),
     "TNDMGAM": jl.Uniform(0.0, 7.0),
+    "PLCHROMCOS_": jl.Normal(),
+    "PLCHROMSIN_": jl.Normal(),
+    "TNCHROMAMP": jl.Uniform(-16.0, -9.0),
+    "TNCHROMGAM": jl.Uniform(0.0, 7.0),
 }
 
 

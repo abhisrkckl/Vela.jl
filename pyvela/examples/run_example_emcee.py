@@ -63,7 +63,14 @@ samples_v_0 = sampler.get_chain(flat=True, discard=2500, thin=40)
 samples_v = samples_v_0 / scale_factors
 
 # %%
-params_no_plot = ["PLREDSIN_", "PLREDCOS_", "PLDMSIN_", "PLDMCOS_"]
+params_no_plot = [
+    "PLREDSIN_",
+    "PLREDCOS_",
+    "PLDMSIN_",
+    "PLDMCOS_",
+    "PLCHROMSIN_",
+    "PLCHROMCOS_",
+]
 param_plot_mask = [
     idx
     for idx, par in enumerate(param_names)
