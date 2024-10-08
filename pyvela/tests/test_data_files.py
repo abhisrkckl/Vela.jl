@@ -5,7 +5,7 @@ from juliacall import Main as jl
 from pint.models import get_model_and_toas
 
 from pyvela import read_model_and_toas
-from pyvela.pint2vela import fix_red_noise_components
+from pyvela.convert_model import fix_red_noise_components
 from pyvela.vela import vl
 from pyvela.convert_parameters import fdjump_rx
 
