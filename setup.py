@@ -7,8 +7,8 @@ setup(
     author="Abhimanyu Susobhanan",
     author_email="abhimanyu.susobhanan@nanograv.org",
     url="https://github.com/abhisrkckl/Vela.jl/",
-    install_requires=["numpy", "astropy", "pint-pulsar", "juliacall"],
+    install_requires=["numpy", "astropy", "pint-pulsar", "juliacall", "emcee"],
     package_dir={"": "pyvela"},
     packages=["pyvela"],
-    scripts=["pyvela/scripts/par_tim-to-jlso.py"],
+    scripts=["pyvela/scripts/par_tim-to-jlso.py", "pyvela/scripts/pyvela"],
 )

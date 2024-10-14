@@ -70,6 +70,12 @@ params_no_plot = [
     "PLDMCOS_",
     "PLCHROMSIN_",
     "PLCHROMCOS_",
+    "WXSIN_",
+    "WXCOS_",
+    "DMWXSIN_",
+    "DMWXCOS_",
+    "CMWXSIN_",
+    "CMWXCOS_",
 ]
 param_plot_mask = [
     idx
