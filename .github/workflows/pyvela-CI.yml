@@ -42,11 +42,12 @@ jobs:
           localregistry: https://github.com/abhisrkckl/julia_registry.git
       - name: Install dependencies
         run: |
-          pip install setuptools pytest pytest-xdist pytest-cov coverage black
-          pip install git+https://github.com/nanograv/PINT/
+          python -m pip install --upgrade pip --break-system-packages
+          pip install setuptools pytest pytest-xdist pytest-cov coverage black --break-system-packages
+          pip install git+https://github.com/nanograv/PINT/ --break-system-packages
           julia -e 'import Pkg; Pkg.develop(path=".")'
           julia -e 'import Pkg; Pkg.add(["Distributions", "DoubleFloats", "BenchmarkTools"])'
-          pip install .
+          pip install . --break-system-packages
       - name: Test with pytest
         run: |
           cd pyvela/tests
