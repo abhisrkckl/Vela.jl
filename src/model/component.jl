@@ -1,12 +1,23 @@
-export Component, PhaseComponent, DelayComponent, WhiteNoiseComponent, correct_toa
+export Component, PhaseComponent, DelayComponent, WhiteNoiseComponent, BinaryComponent, DispersionComponent, correct_toa
 
-"""Abstract base type of all timing & noise model components which affect one TOA at a time."""
+"""
+    Component
+
+Abstract base type of all timing & noise model components which affect one TOA at a time."""
 abstract type Component end
 
-"""Abstract base type of all timing model components which contribute a phase correction to a TOA."""
+"""
+    correct_toa(::Component, ::TOABase, ::TOACorrectionBase, ::NamedTuple)
+
+Correct the TOA using a delay, phase, observing frequency shift, uncertainty scaling, doppler factor, etc."""
+function correct_toa end
+
+"""
+    PhaseComponent
+
+Abstract base type of all timing model components which contribute a phase correction to a TOA."""
 abstract type PhaseComponent <: Component end
 
-"""Correct the phase of a `TOA`."""
 correct_toa(
     component::PhaseComponent,
     toa::TOABase,
@@ -14,10 +25,12 @@ correct_toa(
     params::NamedTuple,
 ) = correct_toa_phase(toacorr; phase = phase(component, toa, toacorr, params))
 
-"""Abstract base type of all timing model components which contribute a time delay correction to a TOA."""
+"""
+    DelayComponent
+
+Abstract base type of all timing model components which contribute a time delay correction to a TOA."""
 abstract type DelayComponent <: Component end
 
-"""Correct the value of a `TOA` using a delay."""
 correct_toa(
     component::DelayComponent,
     toa::TOA,
@@ -25,8 +38,18 @@ correct_toa(
     params::NamedTuple,
 ) = correct_toa_delay(toacorr; delay = delay(component, toa, toacorr, params))
 
-"""Abstrct base type of all timing model components which provide a dispersion measure correction."""
+"""
+    DispersionComponent
+
+Abstrct base type of all timing model components which provide a dispersion measure correction."""
 abstract type DispersionComponent <: DelayComponent end
+
+"""
+    dispersion_slope(::DispersionComponent, ::TOA, ::TOACorrection, ::NamedTuple)
+
+Compute the dispersion slope corresponding to a TOA. 
+"""
+function dispersion_slope end
 
 """Compute a dispersion delay."""
 function delay(
@@ -40,10 +63,16 @@ function delay(
     return dm / (ν * ν)
 end
 
-"""Abstract base type of all binary components."""
+"""
+    BinaryComponent
+
+Abstract base type of all binary components."""
 abstract type BinaryComponent <: DelayComponent end
 
-"""Abstract base type of all uncorrelated (white) noise components."""
+"""
+    WhiteNoiseComponent
+
+Abstract base type of all uncorrelated (white) noise components."""
 abstract type WhiteNoiseComponent <: Component end
 
 show(io::IO, ::MIME"text/plain", comp::Component) = show(io, comp)

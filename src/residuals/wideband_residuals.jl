@@ -1,4 +1,3 @@
-"""Compute the timing residual corresponding to a single TOA."""
 function form_residual(
     model::TimingModel,
     wtoa::WidebandTOA,

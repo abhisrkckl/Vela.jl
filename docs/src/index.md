@@ -21,7 +21,6 @@ Pages = [
     "getting-started.md",
     "tutorial.md",
     "explanation.md",
-    "api-reference.md",
 ]
 Depth = 2
 ```

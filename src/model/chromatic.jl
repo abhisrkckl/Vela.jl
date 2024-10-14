@@ -1,6 +1,9 @@
 export ChromaticComponent, ChromaticTaylor, chromatic_slope
 
-"""Abstrct base type of all timing model components which provide a chromatic measure correction."""
+"""
+    ChromaticComponent
+
+Abstract base type of all timing model components which provide a chromatic measure correction."""
 abstract type ChromaticComponent <: DelayComponent end
 
 """Compute a chromatic delay."""

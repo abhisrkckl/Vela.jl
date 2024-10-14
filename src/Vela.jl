@@ -21,6 +21,8 @@ import Distributions:
     RealInterval
 import JLSO
 
+export GQ
+
 include("toa/ephemeris.jl")
 include("toa/toa.jl")
 include("toa/wideband_toa.jl")

@@ -44,7 +44,6 @@ Reference:
 """
 struct DMWaveX <: DispersionComponent end
 
-"""Dispersion slope due to DM noise (Fourier series representation)."""
 dispersion_slope(::DMWaveX, toa::TOA, toacorr::TOACorrection, params::NamedTuple)::GQ =
     evaluate_xwavex(
         toa,

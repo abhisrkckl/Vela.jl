@@ -22,6 +22,10 @@ i.e., `GQ` types can be used just like `Number`s in most places through the magi
 It also defines iterators and such for the `GQ` type so that we can use it with packages like
 `LinearAlgebra.jl`
 
+```@docs
+GQ
+```
+
 Note that the dimensionality `p` is a type parameter, which means that the dimensional correctness will
 be enforced by the Julia language at "compile time", and it will refuse to execute dimensionally 
 incorrect expressions. This provides strong assurances for code correctness. Further, since `p` is 
@@ -73,6 +77,13 @@ represented using the `TOA` type and wideband TOAs are represented by the `Wideb
 The latter is a composition of a `TOA` object and a `DMInfo` object that represents a wideband
 DM measurement.
 
+```@docs
+TOABase
+TOA
+DMInfo
+WidebandTOA
+```
+
 A `TOA` object contains the clock-corrected TOA value in the TDB timescale, uncertainty, and 
 observing frequency, along with the solar system ephemeris evaluated at that instance.
 The clock corrections from the observatory timescale to TBD and the solar system ephemeris
@@ -95,19 +106,48 @@ The timing residuals are the differences between measured TOAs and the TOAs pred
 The physical and instrumental effects that affect one `TOA` at a time are represented as `Component`s, and
 the effects that are correlated across multiple `TOA`s are modeled as a `Kernel`.
 
+### Components
+
 There are three types of `Component`s. `DelayComponent`s correct the measured TOA by subtracting certain 
 delays. `PhaseComponent`s compute the various contributions to the rotational phase of the pulsar using
 delay-corrected TOAs. `WhiteNoiseComponent`s modify the measurement uncertainties in various ways. 
 
-A `TOA` with the various corrections mentioned above is represented as a `CorrectedTOA` (or as a 
-`CorrectedWidebandTOA` in the case of a `WidebandTOA`). Each `Component` provides a `correct_toa` method 
+```@docs
+Component
+DelayComponent
+PhaseComponent
+WhiteNoiseComponent
+```
+
+`DelayComponent` has further subtypes which represent different physical processes producing delays.
+```@docs
+DispersionComponent
+ChromaticComponent
+BinaryComponent
+FrequencyDependentBase
+```
+
+`DispersionComponent`s are special in that they affect the DM part of the wideband likelihood.
+This happens via the `dispersion_slope` method.
+
+```@docs
+dispersion_slope
+```
+
+A `TOA` with the various corrections mentioned above is represented as a `TOACorrection` (or as a 
+`WidebandTOACorrection` in the case of a `WidebandTOA`). Each `Component` provides a `correct_toa` method 
 which acts on a `CorrectedTOA` / `CorrectedWidebandTOA` using model parameters (represented as 
-`NamedTuple{Symbol,GQ}`s) and produces a new object of the same type.
+a `NamedTuple` of `GQ`s) and produces a new object of the same type.
+
+```@docs
+TOACorrectionBase
+TOACorrection
+WidebandTOACorrection
+correct_toa
+```
 
 It should be noted that the action of different `Components` do not commute. Therefore, they must be 
-applied in the correct order to get sensible results.
-
-The order followed by `Vela.jl` is roughly as follows:
+applied in the correct order to get sensible results. This order is roughly as follows:
 
     1. Delay corrections
         a. Solar system effects
@@ -122,9 +162,18 @@ These operations finally result in the pulse phase being computed, which is gene
 (implemented in the `phase_residual` method). The phase residual is the pulse phase minus the expected 
 pulse number (usually taken to be the integer closest to the pulse phase). The time residual is the 
 phase residual divided by the instantaneous topocentric frequency (implemented in the `doppler_shifted_spin_frequency`
-method). 
+method). The timing residuals can be computed using the `form_residual` method.
+
+```@docs
+phase_residual
+doppler_shifted_spin_frequency
+form_residual
+```
 
 The DM residuals can be similarly computed for `WidebandTOA`s.
+```@docs
+dm_residual
+```
 
 A type hierarchy of all available `Component`s is shown below:
 
