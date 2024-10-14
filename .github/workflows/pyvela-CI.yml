@@ -42,7 +42,6 @@ jobs:
           localregistry: https://github.com/abhisrkckl/julia_registry.git
       - name: Install dependencies
         run: |
-          # python -m pip install --upgrade --break-system-packages pip 
           pip install setuptools pytest pytest-xdist pytest-cov coverage black
           pip install git+https://github.com/nanograv/PINT/
           julia -e 'import Pkg; Pkg.develop(path=".")'
