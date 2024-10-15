@@ -1,11 +1,18 @@
-export WaveX, DMWaveX, CMWaveX
+export RedNoiseBase, WaveX, DispersionNoiseBase, DMWaveX, CMWaveX
 
-"""A Fourier series representation of the achromatic red noise.
+"""
+    RedNoiseBase
+
+Abstract base type for achromatic red noise components.
+"""
+abstract type RedNoiseBase <: DelayComponent end
+
+"""An unconstrained Fourier series representation of the achromatic red noise.
 
 Reference:
     [Susobhanan+ 2024](http://doi.org/10.3847/1538-4357/ad59f7)
 """
-struct WaveX <: DelayComponent end
+struct WaveX <: RedNoiseBase end
 
 """A single term in the Fourier series appearing in the implementation of `WaveX`,
 `DMWaveX`, and `CMWaveX`."""
@@ -37,12 +44,22 @@ delay(::WaveX, toa::TOA, toacorr::TOACorrection, params::NamedTuple)::GQ = evalu
     params.WXFREQ_,
 )
 
-"""A Fourier series representation of the achromatic red noise.
+"""
+    RedNoiseBase
+
+Abstract base type for dispersion noise components.
+"""
+abstract type DispersionNoiseBase <: DispersionComponent end
+
+"""
+    DMWaveX
+
+An unconstrained Fourier series representation of the dispersion noise.
 
 Reference:
     [Susobhanan+ 2024](http://doi.org/10.3847/1538-4357/ad59f7)
 """
-struct DMWaveX <: DispersionComponent end
+struct DMWaveX <: DispersionNoiseBase end
 
 dispersion_slope(::DMWaveX, toa::TOA, toacorr::TOACorrection, params::NamedTuple)::GQ =
     evaluate_xwavex(

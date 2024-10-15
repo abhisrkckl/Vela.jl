@@ -1,4 +1,11 @@
-export Component, PhaseComponent, DelayComponent, WhiteNoiseComponent, BinaryComponent, DispersionComponent, correct_toa
+export Component,
+    PhaseComponent,
+    DelayComponent,
+    WhiteNoiseComponent,
+    BinaryComponent,
+    DispersionComponent,
+    correct_toa,
+    delay
 
 """
     Component

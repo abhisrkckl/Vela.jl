@@ -27,7 +27,13 @@ function evaluate_powerlaw_red_noise_gp(log10_A, γ, αs, βs, f1, Δt, ln_js)
     return σ1 * result
 end
 
-struct PowerlawRedNoiseGP{N} <: DelayComponent
+"""
+    PowerlawRedNoiseGP
+
+A Fourier series Gaussian process representation of the achromatic red noise where the 
+power spectral density is assumed to be a power law.
+"""
+struct PowerlawRedNoiseGP{N} <: RedNoiseBase
     ln_js::NTuple{N,Float32}
 
     PowerlawRedNoiseGP(N::Int) = new{N}(Tuple(map(Float32 ∘ log, 1:N)))
@@ -44,7 +50,13 @@ delay(arn::PowerlawRedNoiseGP, toa::TOA, toacorr::TOACorrection, params::NamedTu
         arn.ln_js,
     )
 
-struct PowerlawDispersionNoiseGP{N} <: DispersionComponent
+"""
+    PowerlawDispersionNoiseGP
+
+A Fourier series Gaussian process representation of the dispersion noise where the 
+power spectral density is assumed to be a power law.
+"""
+struct PowerlawDispersionNoiseGP{N} <: DispersionNoiseBase
     ln_js::NTuple{N,Float64}
 
     PowerlawDispersionNoiseGP(N::Int) = new{N}(Tuple(map(log, 1:N)))
