@@ -13,14 +13,3 @@ Also, Vēḻa (വേള, वेळ, ...) is a word meaning occasion, time, etc.
 languages.
 
 It is under active development.
-
-## Table of contents
-
-```@contents
-Pages = [
-    "getting-started.md",
-    "tutorial.md",
-    "explanation.md",
-]
-Depth = 2
-```
