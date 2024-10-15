@@ -115,7 +115,8 @@ scaled_toa_error_sqr(toa::TOA, toacorr::TOACorrection) =
     doppler_shifted_spin_frequency(::TOACorrection)
 
 Spin frequency in topocentric or barycentric frame, depending on the correction level.
-The spin_frequency is originally in the pulsar frame."""
+The spin_frequency is originally in the pulsar frame.
+"""
 function doppler_shifted_spin_frequency(toacorr::TOACorrection)
     @assert !iszero(toacorr.spin_frequency) "The spin_frequency has not been set."
     return toacorr.spin_frequency * (1 + toacorr.doppler)

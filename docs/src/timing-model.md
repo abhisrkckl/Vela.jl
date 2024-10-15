@@ -20,12 +20,12 @@ correct_toa
 ```
 
 Such a correction can be one or more of the following:
-1. A delay that modifies the TOA value
-2. A phase correction that modifies the TOA phase
-3. A Doppler correction that modifies the observing frequency and the pulsar spin frequency
-4. An EFAC or EQUAD that modifies the TOA uncertainty
-5. A DM correction that modifies the wideband DM measurement
-6. A DMEFAC or DMEQUAD that modifies the wideband DM uncertainty
+    1. A delay that modifies the TOA value
+    2. A phase correction that modifies the TOA phase
+    3. A Doppler correction that modifies the observing frequency and the pulsar spin frequency
+    4. An EFAC or EQUAD that modifies the TOA uncertainty
+    5. A DM correction that modifies the wideband DM measurement
+    6. A DMEFAC or DMEQUAD that modifies the wideband DM uncertainty
 
 The accumlated TOA corrections are represented by the `TOACorrection` and `WidebandTOACorrection`
 types, which are derived from `TOACorrectionBase`.
@@ -33,6 +33,15 @@ types, which are derived from `TOACorrectionBase`.
 TOACorrectionBase
 TOACorrection
 WidebandTOACorrection
+```
+
+The following methods extract some of the intermediate -corrected quantities of interest.
+```@docs
+corrected_toa_value
+doppler_corrected_observing_frequency
+doppler_shifted_spin_frequency
+scaled_toa_error_sqr
+scaled_dm_error_sqr
 ```
 
 There are three types of `Component`s as shown below based on what type of corrections they

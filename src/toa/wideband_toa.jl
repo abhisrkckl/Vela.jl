@@ -60,6 +60,11 @@ Compute DM residual corresponding to a wideband TOA.
 """
 dm_residual(dminfo::DMInfo, dmcorr::DMInfoCorrection) = dminfo.value - dmcorr.model_dm
 
+"""
+    scaled_dm_error_sqr(::DMInfo, ::DMInfoCorrection)
+    
+Squared DM uncertainty after applying DMEFAC and DMEQUAD.
+"""
 scaled_dm_error_sqr(dminfo::DMInfo, dmcorr::DMInfoCorrection) =
     (dminfo.error * dminfo.error + dmcorr.dmequad2) * dmcorr.dmefac * dmcorr.dmefac
 
