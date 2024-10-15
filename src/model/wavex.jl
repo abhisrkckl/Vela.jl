@@ -45,7 +45,7 @@ delay(::WaveX, toa::TOA, toacorr::TOACorrection, params::NamedTuple)::GQ = evalu
 )
 
 """
-    RedNoiseBase
+    DispersionNoiseBase
 
 Abstract base type for dispersion noise components.
 """
@@ -71,12 +71,22 @@ dispersion_slope(::DMWaveX, toa::TOA, toacorr::TOACorrection, params::NamedTuple
         params.DMWXFREQ_,
     )
 
-"""A Fourier series representation of the variable-index chromatic red noise.
+"""
+    ChromaticNoiseBase
+
+Abstract base type for chromatic noise components.
+"""
+abstract type ChromaticNoiseBase <: ChromaticComponent end
+
+"""
+    CMWaveX
+    
+A Fourier series representation of the variable-index chromatic red noise.
 
 Reference:
     [Susobhanan+ 2024](http://doi.org/10.3847/1538-4357/ad59f7)
 """
-struct CMWaveX <: ChromaticComponent end
+struct CMWaveX <: ChromaticNoiseBase end
 
 """Chromatic slope due to variable-index chromatic red noise (Fourier series representation)."""
 chromatic_slope(::CMWaveX, toa::TOA, toacorr::TOACorrection, params::NamedTuple)::GQ =

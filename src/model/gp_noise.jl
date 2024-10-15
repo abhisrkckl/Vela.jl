@@ -80,7 +80,13 @@ function dispersion_slope(
     )
 end
 
-struct PowerlawChromaticNoiseGP{N} <: ChromaticComponent
+"""
+    PowerlawDispersionNoiseGP
+
+A Fourier series Gaussian process representation of the chromatic noise where the 
+power spectral density is assumed to be a power law.
+"""
+struct PowerlawChromaticNoiseGP{N} <: ChromaticNoiseBase
     ln_js::NTuple{N,Float64}
 
     PowerlawChromaticNoiseGP(N::Int) = new{N}(Tuple(map(log, 1:N)))
