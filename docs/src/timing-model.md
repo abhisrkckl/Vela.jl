@@ -264,3 +264,18 @@ whether a TOA is a TZR TOA.
 make_tzr_toa
 is_tzr
 ```
+
+## The `TimingModel` type
+A timing & noise model is represented by the `TimingModel` type. 
+```@docs
+TimingModel
+```
+
+It has the following contents:
+    1. Pulsar name (PSR), solar system ephemeris name (EPHEM), name of the TT timescale realization (CLOCK), etc.
+    2. An ordered collection of `Components`
+    3. A `Kernel`
+    4. A `ParamHandler` containing information about model parameters.
+    5. An ordered collection of `Prior`s for each free parameter
+
+Some of these are explained in the following sections.

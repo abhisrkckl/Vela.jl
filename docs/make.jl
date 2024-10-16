@@ -14,6 +14,7 @@ makedocs(
             "timing-model.md",
             "residuals.md",
             "likelihood.md",
+            "parameters.md",
         ],
         # "api-reference.md",
     ],

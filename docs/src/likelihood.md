@@ -48,5 +48,5 @@ WhiteNoiseKernel
 EcorrKernel
 ```
 
-More complex `Kernel`s supporting more general forms of ``C`` will be implemented in
-the future.
+More complex `Kernel`s supporting more general forms of ``C`` (including time-correlated noise) will be 
+implemented in the future. Currently such processes are treated as `Components`, e.g., `PLRedNoiseGP`.
