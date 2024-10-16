@@ -9,7 +9,6 @@ See [Hobbs+ 2006](https://doi.org/10.1111/j.1365-2966.2006.10302.x) and
 The physical and instrumental effects that affect one `TOA` at a time are represented as `Component`s, and
 the effects that are correlated across multiple `TOA`s are modeled as a `Kernel`.
 
-## Components
 ```@docs
 Component
 ```
@@ -18,6 +17,10 @@ Each component has a `correct_toa` method which produces a TOA correction.
 ```@docs
 correct_toa
 ```
+
+`Kernel`s will be discussed in its own section.
+
+## TOA corrections
 
 Such a correction can be one or more of the following:
     1. A delay that modifies the TOA value
@@ -35,13 +38,15 @@ TOACorrection
 WidebandTOACorrection
 ```
 
-The following methods extract some of the intermediate -corrected quantities of interest.
+The following methods extract some of the intermediate-corrected quantities of interest.
 ```@docs
 corrected_toa_value
 doppler_corrected_observing_frequency
 doppler_shifted_spin_frequency
 scaled_toa_error_sqr
 scaled_dm_error_sqr
+phase_residual
+dm_residual
 ```
 
 There are three types of `Component`s as shown below based on what type of corrections they
@@ -56,7 +61,7 @@ AbstractTrees.children(d::DataType) = subtypes(d)
 Markdown.MD(Markdown.Code(repr_tree(Component, maxdepth=1)))
 ```
 
-### Delay components
+## Delay components
 
 `DelayComponent`s correct the measured TOA by subtracting certain delays.
 
@@ -75,15 +80,22 @@ AbstractTrees.children(d::DataType) = subtypes(d)
 Markdown.MD(Markdown.Code(repr_tree(DelayComponent, maxdepth=1)))
 ```
 
-#### Solar system delays
+### Solar system delays
 ```@docs
 SolarSystem
 ```
 
 In addition to a delay, `SolarSystem` also producess a Doppler correction which applies to the
-observing frequency and the pulsar spin frequency.
+observing frequency and the pulsar spin frequency. 
 
-#### Dispersion delays
+This component barycenters the TOA. It will skip TOAs that are already barycentered, e.g., TOAs
+measured using space-based telescopes. The `is_barycentered` function checks whether a TOA has been
+barycentered.
+```@docs
+is_barycentered
+```
+
+### Dispersion delays
 `DispersionComponent`s represent the dispersion of the radio waves due to the free electrons present
 along the line of sight to the pulsar. This may include the ionized interstellar medium as well as 
 solar wind.
@@ -134,7 +146,7 @@ DispersionJump
 DispersionOffset
 ```
 
-#### Chromatic delays
+### Chromatic delays
 Chromatic delays are similar to dispersion delays, but have a different powerlaw dependence 
 on the observing frequency. Such delays can occur due to interstellar scattering or 
 frequency-dependent dispersion. A chromatic delay is given by ``\Delta_{\text{CM}} = K * \text{CM} / \nu^\alpha``
@@ -157,7 +169,7 @@ CMWaveX
 PowerlawChromaticNoiseGP
 ```
 
-#### Binary delays
+### Binary delays
 Similar to solar system delays, the binary motion of the pulsar also introduces various 
 delays to the TOAs, including Rømer delay, Shapiro delay, and Einstein delay. 
 ```@docs
@@ -187,7 +199,7 @@ BinaryELL1
 BinaryELL1H
 ```
 
-### Phase components
+## Phase components
 A `PhaseComponent` contributes to the phase computation from a delay-corrected TOA.
 ```@docs
 PhaseComponent
@@ -211,7 +223,7 @@ PhaseOffset
 PhaseJump
 ```
 
-### White noise components
+## White noise components
 These components modify the TOA or DM uncertainty in some manner.
 
 ```@eval
@@ -229,7 +241,7 @@ MeasurementNoise
 DispersionMeasurementNoise
 ```
 
-### Order of components
+## Order of components
 It should be noted that the action of different `Components` do not commute in general. Therefore, 
 they must be applied in the correct order to get sensible results. The order followed by `Vela.jl` 
 is roughly as follows:
@@ -242,3 +254,13 @@ is roughly as follows:
         a. Pulsar rotational effects
     3. Uncertainty corrections
         a. Measurement noise corrections
+
+## The TZR TOA
+The pulse phases are measured with respect to a fictitious fiducial TOA called the TZR TOA.
+This is represented using the `TOA` class, but is distinguished from physical TOAs using the 
+`tzr` attribute. The `make_tzr_toa` function creates a TZR TOA and the `is_tzr` function checks 
+whether a TOA is a TZR TOA.
+```@docs
+make_tzr_toa
+is_tzr
+```
