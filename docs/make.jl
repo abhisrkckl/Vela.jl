@@ -7,13 +7,8 @@ makedocs(
         "Home" => "index.md",
         "getting-started.md",
         "tutorial.md",
-        "Explanation" => [
-            "precision.md",
-            "quantities.md",
-            "toas.md",
-            "timing-model.md",
-            "residuals.md",
-        ],
+        "Explanation" =>
+            ["precision.md", "quantities.md", "toas.md", "timing-model.md", "residuals.md"],
         # "api-reference.md",
     ],
     # format = Documenter.LaTeX(platform = "none")

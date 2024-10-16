@@ -49,11 +49,22 @@ struct TOA <: TOABase
     end
 end
 
+"""
+    is_tzr(::TOA)::Bool
+
+Checks if a TOA is a TZR TOA.
+"""
 is_tzr(toa::TOA) = iszero(toa.index)
+
+"""
+    is_barycentered(::TOA)::Bool
+
+Checks if a TOA has been barycentered.
+"""
 is_barycentered(toa::TOA) = all(iszero, toa.ephem.ssb_obs_pos)
 
 """
-    make_tzr_toa(tzrtdb, tzrfreq, tzrephem)
+    make_tzr_toa(tzrtdb::GQ{Double64}, tzrfreq::GQ{Float64}, tzrephem::SolarSystemEphemeris)::TOA
 
 Create a TZR TOA object.
 """
