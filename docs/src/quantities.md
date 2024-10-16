@@ -25,3 +25,18 @@ Note that the dimensionality `p` is a type parameter, which means that the dimen
 be enforced by the Julia language at "compile time", and it will refuse to execute dimensionally 
 incorrect expressions. This provides strong assurances for code correctness. Further, since `p` is 
 a type parameter, there is no run time penalty for ensuring dimensional correctness.
+
+`GeometricUnits.jl` also implements the following operations.
+
+    1. Unary `+` and `-` operators for all `GQ` types
+    2. Binary `+` and `-` operators for `GQ` types with like dimensions
+    3. `*`, `/` operators for all `GQ` types
+    4. `^` operator for various cases where the output is a valid `GQ`
+    5. `sqrt` `cbrt`, `root` functions for cases where the output is a valid `GQ`
+    6. `==`, `!=`, `<`, `<=`, `>`, `>=`, `≈` operators for `GQ` types with like dimensions
+    7. Trigonometric functions (`sin`, `cos`, `tan`, `csc`, `sec`, `cot`) for dimensionless inputs
+    8. Inverse trigonometric functions (`asin`, `acos`, `atan`, `acsc`, `asec`, `acot`) for dimensionless inputs 
+    9. `atan` function for a pair of  `GQ`s types with like dimensions
+    10. `exp`, `exp2`, `exp10`, `log`, `log2`, `log10` functions for dimensionless inputs
+    11. `abs`, `sign`, `floor`, `ceil` functions for all `GQ` types
+    12. `isfinite` and `isnan` functions for all `GQ` types
