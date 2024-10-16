@@ -7,7 +7,7 @@ makedocs(
         "Home" => "index.md",
         "getting-started.md",
         "tutorial.md",
-        "Explanation" =>
+        "Explanation & API Reference" =>
             ["precision.md", "quantities.md", "toas.md", "timing-model.md", "residuals.md"],
         # "api-reference.md",
     ],

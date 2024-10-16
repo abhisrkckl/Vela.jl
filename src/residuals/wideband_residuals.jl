@@ -1,3 +1,8 @@
+"""
+    form_residual(::TimingModel, ::WidebandTOA, params::NamedTuple, tzrphase::GQ)::Tuple{GQ, GQ}
+    
+Compute the timing and DM residuals corresponding to a single wideband TOA.
+"""
 function form_residual(
     model::TimingModel,
     wtoa::WidebandTOA,
@@ -11,6 +16,11 @@ function form_residual(
     return tres, dmres
 end
 
+"""
+    form_residuals(::TimingModel, ::Vector{WidebandTOA}, params::NamedTuple)::Vector{Tuple{GQ, GQ}}
+    
+Compute the timing and DM residuals corresponding to a collection of wideband TOAs.
+"""
 function form_residuals(model::TimingModel, wtoas::Vector{WidebandTOA}, params::NamedTuple)
     tzrphase = calc_tzr_phase(model, params)
     return map(wtoa -> form_residual(model, wtoa, params, tzrphase), wtoas)
