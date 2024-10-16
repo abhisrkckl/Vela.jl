@@ -1,4 +1,7 @@
-"""The abstract base type for all binary models representing nearly circular orbits.
+"""
+    BinaryELL1Base
+    
+The abstract base type for all binary models representing nearly circular orbits.
 
 Reference:
     [Lange+ 2001](http://doi.org/10.1046/j.1365-8711.2001.04606.x)

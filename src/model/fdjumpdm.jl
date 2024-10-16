@@ -2,7 +2,10 @@ export DispersionOffset, ExclusiveDispersionOffset
 
 abstract type DispersionOffsetBase <: DispersionComponent end
 
-"""System-dependent DM offsets (`FDJUMPDM`) with non-exclusive selection masks.
+"""
+    DispersionOffset
+
+System-dependent DM offsets (`FDJUMPDM`) with non-exclusive selection masks.
 
 Reference:
     [Susobhanan+ 2024](http://doi.org/10.3847/1538-4357/ad59f7)

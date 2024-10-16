@@ -1,4 +1,7 @@
-"""The abstract base type for all binary models representing eccentric orbits.
+"""
+    BinaryDDBase
+    
+The abstract base type for all binary models representing eccentric orbits.
 
 Reference:
     [Damour & Deruelle 1985](https://ui.adsabs.harvard.edu/abs/1985AIHPA..43..107D/abstract)

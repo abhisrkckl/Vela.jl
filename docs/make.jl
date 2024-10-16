@@ -5,10 +5,19 @@ makedocs(
     authors = "Abhimanyu Susobhanan",
     pages = [
         "Home" => "index.md",
-        "getting-started.md",
-        "tutorial.md",
-        "explanation.md",
-        "api-reference.md",
+        "installation.md",
+        # "tutorial.md",
+        "Explanation & API Reference" => [
+            "precision.md",
+            "quantities.md",
+            "toas.md",
+            "timing-model.md",
+            "residuals.md",
+            "likelihood.md",
+            "parameters.md",
+            "priors.md",
+        ],
+        "pyvela.md",
     ],
     # format = Documenter.LaTeX(platform = "none")
 )

@@ -1,5 +1,13 @@
 export get_lnpost_func
 
+
+"""
+    get_lnpost_func(::TimingModel, toas::Vector{T}, vectorize::Bool = false) where {T<:TOABase}
+
+Returns a callable that evaluates the log-posterior given a collection of parameter values.
+If `vectorize` is `true`, then the function supports parallel evaluation on different points
+in the parameter space. 
+"""
 function get_lnpost_func(
     model::TimingModel,
     toas::Vector{T},

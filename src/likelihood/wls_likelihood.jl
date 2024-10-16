@@ -1,4 +1,5 @@
-export get_lnlike_serial_func, get_lnlike_parallel_func, get_lnlike_func
+export calc_lnlike,
+    calc_lnlike_serial, get_lnlike_serial_func, get_lnlike_parallel_func, get_lnlike_func
 
 """A single term in the pulsar timing log-likelihood expression (white noise-only).
 
@@ -20,12 +21,6 @@ _wls_lnlike_chunk(
     chunk,
 ) where {T<:TOABase} = sum(ii -> _wls_lnlike_term(model, toas[ii], params, tzrphase), chunk)
 
-"""Compute the log-likelihood value for a given timing model and collection of TOAs 
-(parallel execution).
-
-Reference:
-    [Lentati+ 2014](https://doi.org/10.1093/mnras/stt2122)
-"""
 function calc_lnlike(
     model::TimingModel{ComponentsTuple,WhiteNoiseKernel,PriorsTuple},
     toas::Vector{T},
@@ -39,15 +34,18 @@ function calc_lnlike(
     return -result / 2
 end
 
-calc_lnlike(model::TimingModel, toas::Vector{T}, params) where {T<:TOABase} =
-    calc_lnlike(model, toas, read_params(model, params))
+"""
+    calc_lnlike(::TimingModel, ::Vector{T}, params)::Float64 where {T<:TOABase}
 
-"""Compute the log-likelihood value for a given timing model and collection of TOAs 
-(serial execution).
+Compute the log-likelihood value for a given timing model and collection of TOAs 
+(parallel execution).
 
 Reference:
     [Lentati+ 2014](https://doi.org/10.1093/mnras/stt2122)
 """
+calc_lnlike(model::TimingModel, toas::Vector{T}, params) where {T<:TOABase} =
+    calc_lnlike(model, toas, read_params(model, params))
+
 function calc_lnlike_serial(
     model::TimingModel{ComponentsTuple,WhiteNoiseKernel,PriorsTuple},
     toas::Vector{T},
@@ -57,9 +55,23 @@ function calc_lnlike_serial(
     return -sum(toa -> _wls_lnlike_term(model, toa, params, tzrphase), toas) / 2
 end
 
+"""
+    calc_lnlike_serial(::TimingModel, ::Vector{T}, params)::Float64 where {T<:TOABase}
+
+Compute the log-likelihood value for a given timing model and collection of TOAs 
+(serial execution).
+
+Reference:
+    [Lentati+ 2014](https://doi.org/10.1093/mnras/stt2122)
+"""
 calc_lnlike_serial(model::TimingModel, toas::Vector{T}, params) where {T<:TOABase} =
     calc_lnlike_serial(model, toas, read_params(model, params))
 
+"""
+    get_lnlike_serial_func(model, toas)::Function
+
+Version of `get_lnlike_func` that always does serial execution.
+"""
 function get_lnlike_serial_func(model::TimingModel, toas::Vector{T}) where {T<:TOABase}
     toas_ = copy(toas)
     params -> calc_lnlike_serial(model, toas_, params)
@@ -70,7 +82,10 @@ function get_lnlike_parallel_func(model::TimingModel, toas::Vector{T}) where {T<
     params -> calc_lnlike(model, toas_, params)
 end
 
-"""Get the log_likelihood(params) function for a given timing model and collection of TOAs.
+"""
+    get_lnlike_func(model, toas)::Function
+
+Get the log_likelihood(params) function for a given timing model and collection of TOAs.
 Serial or parallel execution is decided based on the number of available threads.
 
 Supports both narrowband and wideband TOAs.

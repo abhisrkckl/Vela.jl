@@ -1,6 +1,9 @@
-export WhiteNoiseKernel, EcorrKernel, EcorrGroup
+export Kernel, WhiteNoiseKernel, EcorrKernel, EcorrGroup
 
-"""Abstract base class of all likelihood kernels"""
+"""
+    Kernel
+    
+Abstract base class of all likelihood kernels"""
 abstract type Kernel end
 
 """A kernel representing only uncorrelated noise.
