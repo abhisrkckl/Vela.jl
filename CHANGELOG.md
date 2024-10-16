@@ -1,5 +1,11 @@
 # Unreleased
 ## Added
+## Changed
+## Fixed
+## Removed
+
+# [0.0.5]
+## Added
 - Check for `ECORR` exclusivity
 - Vectorize option in `get_lnpost_func`
 - GP noise models - `PowerlawRedNoiseGP`, `PowerlawDispersionNoiseGP`, `PowerlawChromaticNoiseGP`
