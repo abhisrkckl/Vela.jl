@@ -7,6 +7,11 @@ prior_transform(prior::SimplePriorBase, q) = quantile(prior.distribution, q)
 
 lnprior(prior::SimplePriorBase, param::Float64) = logpdf(prior.distribution, param)
 
+"""
+    SimplePrior{name,D<:Distribution}
+
+A univariate prior for a single `Parameter`.
+"""
 struct SimplePrior{name,D<:Distribution} <: SimplePriorBase
     distribution::D
 end
@@ -20,6 +25,11 @@ param_name(::SimplePrior{name,D}) where {name,D<:Distribution} = name
 param_value(::SimplePrior{name,D}, params::NamedTuple) where {name,D<:Distribution} =
     value(params[name])
 
+"""
+    SimplePriorMulti{name,index,D<:Distribution}
+
+A univariate prior for a single parameter belonging to a `MultiParameter`.
+"""
 struct SimplePriorMulti{name,index,D<:Distribution} <: SimplePriorBase
     distribution::D
 end

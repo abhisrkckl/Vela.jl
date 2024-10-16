@@ -15,6 +15,7 @@ makedocs(
             "residuals.md",
             "likelihood.md",
             "parameters.md",
+            "priors.md",
         ],
         # "api-reference.md",
     ],
