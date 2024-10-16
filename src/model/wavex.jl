@@ -1,11 +1,18 @@
-export WaveX, DMWaveX, CMWaveX
+export RedNoiseBase, WaveX, DispersionNoiseBase, DMWaveX, CMWaveX
 
-"""A Fourier series representation of the achromatic red noise.
+"""
+    RedNoiseBase
+
+Abstract base type for achromatic red noise components.
+"""
+abstract type RedNoiseBase <: DelayComponent end
+
+"""An unconstrained Fourier series representation of the achromatic red noise.
 
 Reference:
     [Susobhanan+ 2024](http://doi.org/10.3847/1538-4357/ad59f7)
 """
-struct WaveX <: DelayComponent end
+struct WaveX <: RedNoiseBase end
 
 """A single term in the Fourier series appearing in the implementation of `WaveX`,
 `DMWaveX`, and `CMWaveX`."""
@@ -37,14 +44,23 @@ delay(::WaveX, toa::TOA, toacorr::TOACorrection, params::NamedTuple)::GQ = evalu
     params.WXFREQ_,
 )
 
-"""A Fourier series representation of the achromatic red noise.
+"""
+    DispersionNoiseBase
+
+Abstract base type for dispersion noise components.
+"""
+abstract type DispersionNoiseBase <: DispersionComponent end
+
+"""
+    DMWaveX
+
+An unconstrained Fourier series representation of the dispersion noise.
 
 Reference:
     [Susobhanan+ 2024](http://doi.org/10.3847/1538-4357/ad59f7)
 """
-struct DMWaveX <: DispersionComponent end
+struct DMWaveX <: DispersionNoiseBase end
 
-"""Dispersion slope due to DM noise (Fourier series representation)."""
 dispersion_slope(::DMWaveX, toa::TOA, toacorr::TOACorrection, params::NamedTuple)::GQ =
     evaluate_xwavex(
         toa,
@@ -55,12 +71,22 @@ dispersion_slope(::DMWaveX, toa::TOA, toacorr::TOACorrection, params::NamedTuple
         params.DMWXFREQ_,
     )
 
-"""A Fourier series representation of the variable-index chromatic red noise.
+"""
+    ChromaticNoiseBase
+
+Abstract base type for chromatic noise components.
+"""
+abstract type ChromaticNoiseBase <: ChromaticComponent end
+
+"""
+    CMWaveX
+    
+A Fourier series representation of the variable-index chromatic red noise.
 
 Reference:
     [Susobhanan+ 2024](http://doi.org/10.3847/1538-4357/ad59f7)
 """
-struct CMWaveX <: ChromaticComponent end
+struct CMWaveX <: ChromaticNoiseBase end
 
 """Chromatic slope due to variable-index chromatic red noise (Fourier series representation)."""
 chromatic_slope(::CMWaveX, toa::TOA, toacorr::TOACorrection, params::NamedTuple)::GQ =

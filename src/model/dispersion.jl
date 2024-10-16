@@ -9,7 +9,6 @@ Reference:
 """
 struct DispersionTaylor <: DispersionComponent end
 
-"""Compute the dispersion slope corresponding to a TOA using a Taylor series representation."""
 function dispersion_slope(
     ::DispersionTaylor,
     toa::TOA,

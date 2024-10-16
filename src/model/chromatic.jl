@@ -1,6 +1,9 @@
 export ChromaticComponent, ChromaticTaylor, chromatic_slope
 
-"""Abstrct base type of all timing model components which provide a chromatic measure correction."""
+"""
+    ChromaticComponent
+
+Abstract base type of all timing model components which provide a chromatic measure correction."""
 abstract type ChromaticComponent <: DelayComponent end
 
 """Compute a chromatic delay."""
@@ -8,7 +11,10 @@ delay(component::ChromaticComponent, toa::TOA, toacorr::TOACorrection, params::N
     chromatic_slope(component, toa, toacorr, params) *
     (frequency(1e6) / doppler_corrected_observing_frequency(toa, toacorr))^params.TNCHROMIDX
 
-"""Taylor series representation of the chromatic measure.
+"""
+    ChromaticTaylor
+    
+Taylor series representation of the chromatic measure.
 
 Corresponds to `ChromaticCM` in `PINT`."""
 struct ChromaticTaylor <: ChromaticComponent end

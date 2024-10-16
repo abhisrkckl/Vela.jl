@@ -21,6 +21,8 @@ import Distributions:
     RealInterval
 import JLSO
 
+export GQ
+
 include("toa/ephemeris.jl")
 include("toa/toa.jl")
 include("toa/wideband_toa.jl")
@@ -32,7 +34,7 @@ include("model/phase_offset.jl")
 include("model/glitch.jl")
 include("model/jump.jl")
 include("model/solarsystem.jl")
-include("model/troposphere.jl")
+# include("model/troposphere.jl")
 include("model/dispersion.jl")
 include("model/fdjumpdm.jl")
 include("model/dmjump.jl")

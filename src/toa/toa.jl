@@ -1,9 +1,11 @@
 import Base.copy, Base.show
 
-export TOA,
+export TOABase,
+    TOA,
     make_tzr_toa,
     is_tzr,
     is_barycentered,
+    TOACorrectionBase,
     TOACorrection,
     scaled_toa_error_sqr,
     doppler_shifted_spin_frequency,
@@ -47,17 +49,32 @@ struct TOA <: TOABase
     end
 end
 
+"""
+    is_tzr(::TOA)::Bool
+
+Checks if a TOA is a TZR TOA.
+"""
 is_tzr(toa::TOA) = iszero(toa.index)
+
+"""
+    is_barycentered(::TOA)::Bool
+
+Checks if a TOA has been barycentered.
+"""
 is_barycentered(toa::TOA) = all(iszero, toa.ephem.ssb_obs_pos)
 
 """
-    make_tzr_toa(tzrtdb, tzrfreq, tzrephem)
+    make_tzr_toa(tzrtdb::GQ{Double64}, tzrfreq::GQ{Float64}, tzrephem::SolarSystemEphemeris)::TOA
 
 Create a TZR TOA object.
 """
 make_tzr_toa(tzrtdb, tzrfreq, tzrephem) =
     TOA(tzrtdb, time(0.0), tzrfreq, dimensionless(Double64(0.0)), tzrephem, 0)
 
+"""
+    TOACorrectionBase
+
+An abstract base class representing accumulated timing & noise model corrections applied to a TOA."""
 abstract type TOACorrectionBase end
 
 """
@@ -105,8 +122,12 @@ Squared TOA uncertainty after applying EFAC and EQUAD.
 scaled_toa_error_sqr(toa::TOA, toacorr::TOACorrection) =
     (toa.error * toa.error + toacorr.equad2) * toacorr.efac * toacorr.efac
 
-"""Spin frequency in topocentric or barycentric frame, depending on the correction level.
-The spin_frequency is originally in the pulsar frame."""
+"""
+    doppler_shifted_spin_frequency(::TOACorrection)
+
+Spin frequency in topocentric or barycentric frame, depending on the correction level.
+The spin_frequency is originally in the pulsar frame.
+"""
 function doppler_shifted_spin_frequency(toacorr::TOACorrection)
     @assert !iszero(toacorr.spin_frequency) "The spin_frequency has not been set."
     return toacorr.spin_frequency * (1 + toacorr.doppler)
@@ -123,7 +144,10 @@ corrected_toa_value(toa::TOA, toacorr::TOACorrection)::GQ{1,Double64} =
 corrected_toa_value(toa::TOA, toacorr::TOACorrection, ::Type{Float64}) =
     GQ{Float64}(toa.value) - toacorr.delay
 
-"""TOA phase residual"""
+"""
+    phase_residual(::TOA, ::TOACorrection)
+
+TOA phase residual"""
 phase_residual(toa::TOA, toacorr::TOACorrection) = toacorr.phase - toa.pulse_number
 
 """Apply a correction to a CorrectedTOA object."""

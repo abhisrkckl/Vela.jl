@@ -1,15 +1,21 @@
 export calc_tzr_phase, form_residual, form_residuals
 
-"""Compute the timing residual corresponding to a single TOA."""
+"""
+    form_residual(::TimingModel, ::TOA, params::NamedTuple, tzrphase::GQ)::GQ
+    
+Compute the timing residual corresponding to a single narrowband TOA.
+"""
 function form_residual(model::TimingModel, toa::TOA, params::NamedTuple, tzrphase::GQ)::GQ
     ctoa = correct_toa(model, toa, params)
     dphase = GQ{Float64}(phase_residual(toa, ctoa) - tzrphase)
     return dphase / doppler_shifted_spin_frequency(ctoa)
 end
 
-"""Compute the timing residuals corresponding to a collection of TOAs.
+"""
+    form_residuals(::TimingModel, ::Vector{TOA}, params::NamedTuple)::Vector{GQ}
 
-Roughly corresponds to `Residuals.calc_time_resids` in `PINT`."""
+Compute the timing residuals corresponding to a collection of narrowband TOAs.
+"""
 function form_residuals(
     model::TimingModel,
     toas::Vector{TOA},
