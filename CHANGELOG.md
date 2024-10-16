@@ -4,6 +4,8 @@
 - Vectorize option in `get_lnpost_func`
 - GP noise models - `PowerlawRedNoiseGP`, `PowerlawDispersionNoiseGP`, `PowerlawChromaticNoiseGP`
 - Examples - `sim3.gp`, `sim4.gp`, `sim6.gp`
+- Detailed documentation
+- Abstract base classes `RedNoiseBase`, `DispersionNoiseBase`, `ChromaticNoiseBase`, `FrequencyDependentBase`
 ## Changed
 - Renamed `pint2vela` -> `pyvela`
 - Infer `is_tzr(toa)` from `toa.index`
