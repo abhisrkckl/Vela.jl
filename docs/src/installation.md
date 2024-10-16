@@ -1,4 +1,4 @@
-# Getting started
+# Installation
 
 `Vela.jl` can be installed directly from GitHub. We recommend installing it within a dedicated 
 `conda` environment.
@@ -36,5 +36,3 @@ A basic example (using the Python wrapper) can be run like this:
 ```
 (vela) $ ./run_example_emcee.py NGC6440E.par NGC6440E.tim
 ```
-It produces a `corner` plot like this:
-![NGC6440E_posterior](NGC6440E_posterior.png)

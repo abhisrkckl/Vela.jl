@@ -72,3 +72,5 @@ SHAPMAXPriorDistribution
 
 The preference for the prior distributions is user defined distribution > default distribution > "cheat" distribution.
 **Please take care to ensure that the wrong parameter doesn't end up with a "cheat" distribution.**
+
+See the documentation for `Distrubutions.jl` to see what distributions are available.
