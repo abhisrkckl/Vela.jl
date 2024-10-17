@@ -12,8 +12,7 @@ import numpy as np
 from juliacall import Main as jl
 from matplotlib import pyplot as plt
 from pint.logging import setup as setup_log
-from pyvela import Vela as vl
-from pyvela import read_model_and_toas
+from pyvela import SPNTA, Vela as vl
 
 
 def parse_args(argv):
@@ -65,13 +64,13 @@ def parse_args(argv):
         "--no_plot_params",
         help="Exclude these parameters from plotting",
         nargs="*",
-        default=[]
+        default=[],
     )
     parser.add_argument(
         "--plot_params",
         help="Include these parameters from plotting (supersedes --no_plot_params)",
         nargs="*",
-        default=[]
+        default=[],
     )
 
     args = parser.parse_args(argv)
@@ -92,8 +91,6 @@ def prepare_outdir(outdir: str, parfile: str, timfile: str):
 
 
 def check_lnpost(lnpost, maxlike_params_v):
-    print("Checking the log-posterior function...")
-    print("lnpost(maxlike_params_v) = ", lnpost(maxlike_params_v))
     print(
         "Time per log-posterior call = ",
         timeit(
@@ -142,7 +139,10 @@ def run_emcee(
     return chain, lnprobs
 
 
-def plot_corner(samples, scale_factors, shifts, param_names, param_labels, pulsar_name, no_plot_params, plot_params, outdir):
+def print_results(scaled_samples, shifts, param_names, no_plot_params, plot_params):
+    means = np.mean(scaled_samples + shifts, axis=0)
+    stds = np.std(scaled_samples, axis=0)
+
     param_plot_mask = [
         idx
         for idx, par in enumerate(param_names)
@@ -152,26 +152,40 @@ def plot_corner(samples, scale_factors, shifts, param_names, param_labels, pulsa
         )
     ]
 
-    samples_v = samples / scale_factors
-
-    means = (np.mean(samples, axis=0) + shifts) / scale_factors
-    stds = np.std(samples_v, axis=0)
     for idx, (pname, mean, std) in enumerate(zip(param_names, means, stds)):
         if idx in param_plot_mask:
             print(f"{pname}\t\t{mean}\t\t{std}")
+
+
+def plot_corner(
+    scaled_samples,
+    param_names,
+    param_labels,
+    pulsar_name,
+    no_plot_params,
+    plot_params,
+    outdir,
+):
+    param_plot_mask = [
+        idx
+        for idx, par in enumerate(param_names)
+        if (
+            all(not par.startswith(pnp) for pnp in no_plot_params)
+            or any(par.startswith(pnp) for pnp in plot_params)
+        )
+    ]
 
     param_labels = [
         f"\n\n{label}\n\n"
         for idx, label in enumerate(param_labels)
         if idx in param_plot_mask
     ]
-    samples_for_plot = samples_v[:, param_plot_mask]
+    samples_for_plot = scaled_samples[:, param_plot_mask]
     fig = corner.corner(
         samples_for_plot,
         labels=param_labels,
         label_kwargs={"fontsize": 11},
-        range=[0.95] * len(param_labels),
-        # truths=(maxlike_params_v[0] / scale_factors)[param_plot_mask],
+        range=[0.999] * len(param_labels),
         plot_datapoints=False,
         hist_kwargs={"density": True},
     )
@@ -221,32 +235,14 @@ def main(argv):
 
     prepare_outdir(args.outdir, args.parfile, args.timfile)
 
-    mv, tv = read_model_and_toas(
-        args.parfile, args.timfile, cheat_prior_scale=args.cheat_prior_scale
-    )
+    spnta = SPNTA(args.parfile, args.timfile, cheat_prior_scale=args.cheat_prior_scale)
 
-    vectorize = True
-
-    lnpost = vl.get_lnpost_func(mv, tv, vectorize)
-    prior_transform = vl.get_prior_transform_func(mv)
-
-    param_names = vl.get_free_param_names(mv.param_handler)
-    param_labels = vl.get_free_param_labels(mv)
-    scale_factors = vl.get_scale_factors(mv.param_handler)
-
-    maxlike_params_v = np.array([vl.read_param_values_to_vector(mv.param_handler)])
-
-    shifts = [
-        (float(mv.param_handler._default_params_tuple.F_.x) if pname == "F0" else 0)
-        for pname in param_names
-    ]
-
-    check_lnpost(lnpost, maxlike_params_v)
+    check_lnpost(spnta.lnpost_vectorized, spnta.maxlike_params)
 
     samples, lnprs = run_emcee(
-        lnpost,
-        prior_transform,
-        list(param_names),
+        spnta.lnpost_vectorized,
+        spnta.prior_transform,
+        spnta.param_names,
         args.nsteps,
         args.burnin,
         args.thin,
@@ -255,11 +251,30 @@ def main(argv):
         args.plot_only,
     )
 
-    plot_corner(
-        samples, scale_factors, shifts, param_names, param_labels, mv.pulsar_name, args.no_plot_params, args.plot_params, args.outdir
+    scaled_samples = spnta.rescale_samples(samples)
+    shifts = [
+        (
+            float(spnta.model.param_handler._default_params_tuple.F_.x)
+            if pname == "F0"
+            else 0
+        )
+        for pname in spnta.param_names
+    ]
+    print_results(
+        scaled_samples, shifts, spnta.param_names, args.no_plot_params, args.plot_params
     )
 
-    plot_postfit_resids(mv, tv, samples, args.outdir)
+    plot_corner(
+        scaled_samples,
+        spnta.param_names,
+        spnta.param_labels,
+        spnta.model.pulsar_name,
+        args.no_plot_params,
+        args.plot_params,
+        args.outdir,
+    )
+
+    plot_postfit_resids(spnta.model, spnta.toas, samples, args.outdir)
 
 
 if __name__ == "__main__":

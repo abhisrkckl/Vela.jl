@@ -1,6 +1,6 @@
 import os
 
-from pyvela.pint2vela import par_tim_to_jlso
+from pyvela.spnta import par_tim_to_jlso
 from pyvela.vela import vl
 
 datadir = os.path.dirname(os.path.realpath(__file__)) + "/datafiles"

@@ -5,8 +5,8 @@ from pint.models import TimingModel
 from pint.models.parameter import maskParameter, MJDParameter
 from pint.toa import TOAs
 from pint.models import PhaseOffset, TimingModel
-from pyvela.convert_parameters import pint_parameters_to_vela
-from pyvela.convert_toas import pint_toa_to_vela, day_to_s
+from pyvela.parameters import pint_parameters_to_vela
+from pyvela.toas import pint_toa_to_vela, day_to_s
 from pyvela.gp_noise import PLChromNoiseGP, PLDMNoiseGP, PLRedNoiseGP
 from pyvela.priors import get_default_priors
 
