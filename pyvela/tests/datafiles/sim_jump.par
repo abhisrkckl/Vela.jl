@@ -1,1 +1,38 @@
-../../examples/sim_jump.par
+# Created: 2024-08-15T13:58:55.764716
+# PINT_version: 1.0.1
+# User: abhimanyu
+# Host: abhimanyu-HP-Envy-x360-2-in-1-Laptop-15-fh0xxx
+# OS: Linux-6.8.0-40-generic-x86_64-with-glibc2.39
+# Python: 3.10.13 | packaged by conda-forge | (main, Dec 23 2023, 15:36:39) [GCC 12.3.0]
+# Format: pint
+PSR                              SIM_JUMP
+EPHEM                               DE440
+CLOCK                        TT(BIPM2019)
+UNITS                                 TDB
+START              50000.0999999593972107
+FINISH             51999.9999999470993519
+DILATEFREQ                              N
+DMDATA                                  N
+NTOA                                  999
+CHI2                    945.5708429066613
+CHI2R                  0.9560878088034998
+TRES                   0.9728912376217927
+RAJ                      4:59:59.99999608 1 0.00000166540727609000
+DECJ                    15:00:00.00024016 1 0.00014011625000872937
+PMRA                                  0.0
+PMDEC                                 0.0
+PX                                    0.0
+F0                   99.99999999999817068 1 1.1328975821499389492e-12
+F1              -1.0000036219406681871e-15 1 3.1954169587412673388e-21
+F2                                    0.0
+PEPOCH             55000.0000000000000000
+TZRMJD             55000.0000000000000000
+TZRSITE                               gbt
+TZRFRQ                             1400.0
+JUMP            mjd 50000.0 51000.0        0.0999999908843271 1 1.3064297093458872e-07
+JUMP            freq 300.0 500.0      -0.19999994896688209 1 1.1632250266097382e-07
+JUMP            -gui_jump 4    3.4212582221371173e-06 1 2.0008235923026234e-07
+PHOFF               0.0006787645779706594 1 0.00019823442774751776
+PLANET_SHAPIRO                          N
+DM                   14.99999416246211695 1 4.299966353825437566e-06
+DM1                                   0.0
