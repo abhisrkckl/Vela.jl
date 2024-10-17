@@ -11,8 +11,8 @@ from .vela import jl, vl
 DEFAULT_PRIOR_DISTS = {
     "PHOFF": jl.Uniform(-0.5, 0.5),
     "EFAC": jl.LogNormal(0.0, 0.25),
-    "EQUAD": jl.Uniform(0.0, 1e-5),
-    "ECORR": jl.Uniform(0.0, 1e-5),
+    "EQUAD": jl.Uniform(0.0, 2e-5),
+    "ECORR": jl.Uniform(0.0, 2e-5),
     "KOM": jl.Uniform(0.0, 2 * jl.pi),
     "KIN": vl.KINPriorDistribution(),
     "SINI": vl.SINIPriorDistribution(),
