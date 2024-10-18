@@ -4,7 +4,6 @@ import pytest
 from juliacall import Main as jl
 from pint.models import get_model_and_toas
 
-from pyvela import read_model_and_toas
 from pyvela.model import fix_red_noise_components
 from pyvela.spnta import SPNTA
 from pyvela.vela import vl
