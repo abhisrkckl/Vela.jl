@@ -20,7 +20,7 @@ function _ecorr_lnlike_group(
     u_u = GQ{-2}(0.0)
     norm = 0.0
 
-    for ii = group.start:group.stop
+    for ii in group.start:group.stop
         toa = toas[ii]
         ctoa = correct_toa(model, toa, params)
         dphase = GQ{Float64}(phase_residual(toa, ctoa) - tzrphase)

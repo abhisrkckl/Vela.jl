@@ -16,7 +16,7 @@ function _ecorr_chi2_group(
     r_u = GQ{-1}(0.0)
     u_u = GQ{-2}(0.0)
 
-    for ii = group.start:group.stop
+    for ii in group.start:group.stop
         toa = toas[ii]
         ctoa = correct_toa(model, toa, params)
         dphase = GQ{Float64}(phase_residual(toa, ctoa) - tzrphase)
