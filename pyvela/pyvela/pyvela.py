@@ -4,7 +4,7 @@ import os
 import shutil
 from argparse import ArgumentParser
 import sys
-from timeit import timeit
+from typing import Optional
 
 import corner
 import emcee
@@ -12,7 +12,7 @@ import numpy as np
 from juliacall import Main as jl
 from matplotlib import pyplot as plt
 from pint.logging import setup as setup_log
-from pyvela import SPNTA, Vela as vl
+from . import SPNTA, Vela as vl
 
 
 def parse_args(argv):
@@ -91,9 +91,7 @@ def prepare_outdir(outdir: str, parfile: str, timfile: str):
 
 
 def run_emcee(
-    lnpost,
-    prior_transform,
-    param_names,
+    spnta: SPNTA,
     nsteps,
     burnin,
     thin,
@@ -101,18 +99,17 @@ def run_emcee(
     resume,
     plot_only,
 ):
-    ndim = len(param_names)
-    nwalkers = ndim * 5
+    nwalkers = spnta.ndim * 5
     p0 = (
-        np.array([prior_transform(cube) for cube in np.random.rand(nwalkers, ndim)])
+        np.array([spnta.prior_transform(cube) for cube in np.random.rand(nwalkers, spnta.ndim)])
         if not resume
         else None
     )
 
     sampler = emcee.EnsembleSampler(
         nwalkers,
-        ndim,
-        lnpost,
+        spnta.ndim,
+        spnta.lnpost,
         moves=[emcee.moves.StretchMove(), emcee.moves.DESnookerMove()],
         vectorize=True,
         # parameter_names=param_names,
@@ -217,7 +214,7 @@ def plot_postfit_resids(mv, tv, samples, outdir):
     plt.show()
 
 
-def main(argv):
+def main(argv: Optional[list] = None):
     setup_log(level="WARNING")
 
     args = parse_args(argv)
@@ -227,9 +224,7 @@ def main(argv):
     spnta = SPNTA(args.parfile, args.timfile, cheat_prior_scale=args.cheat_prior_scale)
 
     samples, lnprs = run_emcee(
-        spnta.lnpost_vectorized,
-        spnta.prior_transform,
-        spnta.param_names,
+        spnta,
         args.nsteps,
         args.burnin,
         args.thin,
@@ -264,5 +259,5 @@ def main(argv):
     plot_postfit_resids(spnta.model, spnta.toas, samples, args.outdir)
 
 
-if __name__ == "__main__":
-    main(sys.argv[1:])
+# if __name__ == "__main__":
+#     main(sys.argv[1:])
