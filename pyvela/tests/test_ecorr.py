@@ -7,7 +7,7 @@ from pint.models import get_model, get_model_and_toas
 
 from pyvela import read_model_and_toas
 from pyvela.ecorr import ecorr_sort
-from pyvela.pint2vela import get_kernel
+from pyvela.model import get_kernel
 
 datadir = os.path.dirname(os.path.realpath(__file__)) + "/datafiles"
 

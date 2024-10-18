@@ -14,7 +14,7 @@ from pint.models.parameter import (
     funcParameter,
 )
 
-from .convert_toas import day_to_s
+from .toas import day_to_s
 from .vela import jl, to_jldd, vl
 
 
