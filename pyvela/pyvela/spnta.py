@@ -83,7 +83,7 @@ class SPNTA:
         self.scale_factors = np.array(vl.get_scale_factors(self.model))
         self.ndim = len(self.param_names)
 
-        self.maxlike_params = np.array([vl.read_param_values_to_vector(self.model)])
+        self.maxlike_params = np.array(vl.read_param_values_to_vector(self.model))
 
         if check:
             self.check()
