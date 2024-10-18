@@ -8,14 +8,28 @@ import corner
 import emcee
 import numpy as np
 from matplotlib import pyplot as plt
+from argparse import ArgumentParser
 
 from pyvela import SPNTA, Vela as vl
+from pyvela.priors import parse_custom_prior_file
+
+
+parser = ArgumentParser()
+parser.add_argument("par_file")
+parser.add_argument("tim_file")
+parser.add_argument("-P", "--prior_file")
+args = parser.parse_args()
+
 
 # %%
-parfile, timfile = sys.argv[1], sys.argv[2]
+prior_dict = (
+    parse_custom_prior_file(args.prior_file) if args.prior_file is not None else {}
+)
 
 # %%
-spnta = SPNTA(parfile, timfile, cheat_prior_scale=10)
+spnta = SPNTA(
+    args.par_file, args.tim_file, cheat_prior_scale=10, custom_priors=prior_dict
+)
 
 # %%
 shifts = [

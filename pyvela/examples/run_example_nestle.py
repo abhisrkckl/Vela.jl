@@ -62,20 +62,12 @@ prior_transform = vl.get_prior_transform_func(mv)
 param_names = vl.get_free_param_names(mv.param_handler)
 param_idxs = [bt.param_labels.index(p) for p in param_names]
 scale_factors = vl.get_scale_factors(mv.param_handler)
-shifts = [(float(m.F0.value) if pname == "F0" else 0) for pname in param_names]
-
 # %%
 maxlike_params_p = np.array([param.value for param in bt.params], dtype=float)
 maxlike_params_v = np.array(
     vl.read_param_values_to_vector(
         mv.param_handler, mv.param_handler._default_params_tuple
     )
-)
-
-# %%
-# Make sure that the parameter order is OK.
-assert np.allclose(
-    maxlike_params_p[param_idxs] * scale_factors - shifts, maxlike_params_v
 )
 
 # %%
@@ -116,10 +108,14 @@ samples_p = result_nestle_p.samples[:, param_idxs]
 
 # %%
 means, cov = nestle.mean_and_cov(result_nestle_v.samples, result_nestle_v.weights)
-means = (means + shifts) / scale_factors
+means /= scale_factors
 stds = np.sqrt(np.diag(cov)) / scale_factors
 for pname, mean, std in zip(param_names, means, stds):
-    print(f"{pname}\t\t{mean}\t\t{std}")
+    if pname == "F0":
+        F0_ = np.longdouble(m.F0.value)
+        print(f"{pname}\t\t{(F0_ + mean):.18f}\t\t{std}")
+    else:
+        print(f"{pname}\t\t{mean}\t\t{std}")
 
 # %%
 fig = corner.corner(

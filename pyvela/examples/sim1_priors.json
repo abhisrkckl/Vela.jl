@@ -1,0 +1,6 @@
+{
+    "ECORR": {
+        "distribution": "LogUniform",
+        "args": [1e-8, 2e-6]
+    }
+}
