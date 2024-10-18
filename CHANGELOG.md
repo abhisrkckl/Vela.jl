@@ -1,5 +1,6 @@
 # Unreleased
 ## Added
+- `pyvela.SPNTA` class
 ## Changed
 - Reorganized `pyvela` code
 ## Fixed
