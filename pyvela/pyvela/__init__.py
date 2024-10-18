@@ -1,2 +1,2 @@
-from .pint2vela import read_model_and_toas
+from .spnta import read_model_and_toas, SPNTA
 from .vela import vl as Vela

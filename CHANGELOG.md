@@ -1,6 +1,7 @@
 # Unreleased
 ## Added
 ## Changed
+- Reorganized `pyvela` code
 ## Fixed
 ## Removed
 
