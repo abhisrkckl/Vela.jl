@@ -105,6 +105,8 @@ def test_data(model_and_toas):
         [pn.startswith(prn) or fdjump_rx.match(pn) for pn, prn in zip(pnames, prnames)]
     )
 
+    assert all(np.isfinite(spnta.rescale_samples(spnta.maxlike_params)))
+
 
 def test_chi2(model_and_toas):
     spnta: SPNTA
