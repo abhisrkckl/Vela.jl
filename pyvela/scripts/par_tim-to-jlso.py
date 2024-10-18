@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 
 import sys
+from pyvela.spnta import SPNTA
 
-from pyvela.spnta import par_tim_to_jlso
-
-parfile, timfile, jlsofile = sys.argv[1], sys.argv[2], sys.argv[3]
-
-par_tim_to_jlso(parfile, timfile, jlsofile)
+if __name__ == "__main__":
+    parfile, timfile, jlsofile = sys.argv[1], sys.argv[2], sys.argv[3]
+    SPNTA(parfile, timfile).save_jlso(jlsofile)
