@@ -5,9 +5,9 @@ import numpy as np
 import pytest
 from pint.models import get_model, get_model_and_toas
 
-from pyvela import read_model_and_toas
 from pyvela.ecorr import ecorr_sort
-from pyvela.pint2vela import get_kernel
+from pyvela.model import get_kernel
+from pyvela.spnta import SPNTA
 
 datadir = os.path.dirname(os.path.realpath(__file__)) + "/datafiles"
 
@@ -17,13 +17,13 @@ def data_B1855p09():
     parfile = f"{datadir}/B1855+09_NANOGrav_9yv1.par"
     timfile = f"{datadir}/B1855+09_NANOGrav_9yv1.tim"
     mp, tp = get_model_and_toas(parfile, timfile)
-    mv, tv = read_model_and_toas(parfile, timfile)
+    spnta = SPNTA(parfile, timfile)
 
-    return mp, tp, mv, tv
+    return mp, tp, spnta
 
 
 def test_ecorr_sort(data_B1855p09):
-    m, t, _, _ = data_B1855p09
+    m, t, _ = data_B1855p09
 
     t_sorted, ranges, indices = ecorr_sort(m, t)
 
@@ -42,13 +42,14 @@ def test_ecorr_sort(data_B1855p09):
 
 
 def test_read_data(data_B1855p09):
-    mp, tp, mv, tv = data_B1855p09
+    spnta: SPNTA
+    mp, tp, spnta = data_B1855p09
 
     t_sorted, ranges, indices = ecorr_sort(mp, tp)
 
-    assert len(t_sorted) == len(tv)
-    assert len(mv.kernel.ecorr_groups) == len(indices)
-    assert mv.kernel.ecorr_groups[0].index == 0
+    assert len(t_sorted) == len(spnta.toas)
+    assert len(spnta.model.kernel.ecorr_groups) == len(indices)
+    assert spnta.model.kernel.ecorr_groups[0].index == 0
 
 
 def test_plrednoise_error():

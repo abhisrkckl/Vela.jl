@@ -5,9 +5,10 @@ from juliacall import Main as jl
 from pint.models import get_model_and_toas
 
 from pyvela import read_model_and_toas
-from pyvela.pint2vela import fix_red_noise_components
+from pyvela.model import fix_red_noise_components
+from pyvela.spnta import SPNTA
 from pyvela.vela import vl
-from pyvela.convert_parameters import fdjump_rx
+from pyvela.parameters import fdjump_rx
 
 jl.seval("using BenchmarkTools")
 jl.seval("get_alloc(func, args...) = @ballocated(($func)(($args)...))")
@@ -53,16 +54,16 @@ datasets = [
 @pytest.fixture(params=datasets, scope="module")
 def model_and_toas(request):
     dataset = request.param
-    mv, tv = read_model_and_toas(
-        f"{datadir}/{dataset}.par",
-        f"{datadir}/{dataset}.tim",
-        custom_prior_dicts={
+
+    parfile, timfile = f"{datadir}/{dataset}.par", f"{datadir}/{dataset}.tim"
+
+    spnta = SPNTA(
+        parfile,
+        timfile,
+        custom_priors={
             "PHOFF": jl.Uniform(-0.5, 0.5),
             "EFAC": jl.Uniform(0.5, 2.5),
         },
-    )
-    params = vl.read_param_values_to_vector(
-        mv.param_handler, mv.param_handler._default_params_tuple
     )
 
     m, t = get_model_and_toas(f"{datadir}/{dataset}.par", f"{datadir}/{dataset}.tim")
@@ -77,17 +78,18 @@ def model_and_toas(request):
     ):
         fix_red_noise_components(m, t)
 
-    return mv, tv, params, m, t
+    return spnta, m, t
 
 
 def test_data(model_and_toas):
-    mv, tv, params, m, t = model_and_toas
+    spnta: SPNTA
+    spnta, m, t = model_and_toas
 
-    assert len(tv) == len(t)
+    assert len(spnta.toas) == len(t)
 
-    assert len(mv.components) <= len(m.components)
+    assert len(spnta.model.components) <= len(m.components)
 
-    pnames = vl.get_free_param_names(mv.param_handler)
+    pnames = vl.get_free_param_names(spnta.model.param_handler)
     if "H4" not in m.free_params:
         assert set(pnames) == set(m.free_params).union({"PHOFF"})
     else:
@@ -95,18 +97,21 @@ def test_data(model_and_toas):
             {"H4"}
         )
 
-    assert len(params) == len(pnames)
+    assert len(spnta.maxlike_params) == len(pnames)
 
-    prnames = [str(vl.param_name(pr)) for pr in mv.priors]
-    assert len(mv.priors) == len(pnames)
+    prnames = [str(vl.param_name(pr)) for pr in spnta.model.priors]
+    assert len(spnta.model.priors) == len(pnames)
     assert all(
         [pn.startswith(prn) or fdjump_rx.match(pn) for pn, prn in zip(pnames, prnames)]
     )
 
+    assert all(np.isfinite(spnta.rescale_samples(spnta.maxlike_params)))
+
 
 def test_chi2(model_and_toas):
-    mv, tv, params, m, t = model_and_toas
-    calc_chi2 = vl.get_chi2_func(mv, tv)
+    spnta: SPNTA
+    spnta, m, t = model_and_toas
+    calc_chi2 = vl.get_chi2_func(spnta.model, spnta.toas)
 
     if (
         len(
@@ -117,41 +122,62 @@ def test_chi2(model_and_toas):
         == 0
     ):
         assert ("PHOFF" not in m) or (
-            calc_chi2(params) / len(tv) / (1 + int(t.is_wideband())) < 1.2
+            calc_chi2(spnta.maxlike_params)
+            / len(spnta.toas)
+            / (1 + int(t.is_wideband()))
+            < 1.2
         )
 
 
 def test_likelihood(model_and_toas):
-    mv, tv, params, _, _ = model_and_toas
-    calc_lnlike = vl.get_lnlike_func(mv, tv)
-    assert np.isfinite(calc_lnlike(params))
+    spnta: SPNTA
+    spnta, _, _ = model_and_toas
+    calc_lnlike = vl.get_lnlike_func(spnta.model, spnta.toas)
+    assert np.isfinite(calc_lnlike(spnta.maxlike_params))
 
 
 def test_prior(model_and_toas):
-    mv, _, params, _, _ = model_and_toas
-    calc_lnprior = vl.get_lnprior_func(mv)
-    assert np.isfinite(calc_lnprior(mv.param_handler._default_params_tuple))
-    assert calc_lnprior(params) == calc_lnprior(mv.param_handler._default_params_tuple)
+    spnta: SPNTA
+    spnta, _, _ = model_and_toas
+    calc_lnprior = vl.get_lnprior_func(spnta.model)
+    assert np.isfinite(calc_lnprior(spnta.model.param_handler._default_params_tuple))
+    assert calc_lnprior(spnta.maxlike_params) == calc_lnprior(
+        spnta.model.param_handler._default_params_tuple
+    )
 
 
 def test_alloc(model_and_toas):
-    mv, tv, _, _, _ = model_and_toas
-    params = mv.param_handler._default_params_tuple
-    calc_lnlike = vl.get_lnlike_serial_func(mv, tv)
+    spnta: SPNTA
+    spnta, _, _ = model_and_toas
+    params = spnta.model.param_handler._default_params_tuple
+    calc_lnlike = vl.get_lnlike_serial_func(spnta.model, spnta.toas)
     assert jl.get_alloc(calc_lnlike, params) == 0
 
 
 def test_posterior(model_and_toas):
-    mv, tv, _, _, _ = model_and_toas
-    parv = np.array(
-        vl.read_param_values_to_vector(
-            mv.param_handler, mv.param_handler._default_params_tuple
-        )
-    )
+    spnta: SPNTA
+    spnta, _, _ = model_and_toas
+    parv = spnta.maxlike_params
     maxlike_params_v = np.array([parv, parv, parv, parv])
 
-    lnpost = vl.get_lnpost_func(mv, tv, True)
+    lnpost = vl.get_lnpost_func(spnta.model, spnta.toas, True)
 
     lnpvals = lnpost(maxlike_params_v)
 
     assert np.allclose(lnpvals, lnpvals[0])
+
+
+def test_readwrite_jlso(model_and_toas):
+    spnta: SPNTA
+    spnta, _, _ = model_and_toas
+
+    jlsoname = f"__{spnta.model.pulsar_name}.jlso"
+
+    spnta.save_jlso(jlsoname)
+    assert os.path.isfile(jlsoname)
+
+    spnta2 = SPNTA.load_jlso(jlsoname)
+    assert len(spnta2.toas) == len(spnta.toas)
+    assert set(spnta2.param_names) == set(spnta.param_names)
+
+    os.unlink(jlsoname)
