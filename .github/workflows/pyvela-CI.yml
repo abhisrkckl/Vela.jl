@@ -51,7 +51,7 @@ jobs:
       - name: Test with pytest
         run: |
           cd pyvela/tests
-          pytest --verbose -n 6 --cov=pyvela --reruns 5 .
+          pytest --verbose -n auto --cov=pyvela --reruns 5 .
       - name: Test formatting with black
         run: |
           black --check ..

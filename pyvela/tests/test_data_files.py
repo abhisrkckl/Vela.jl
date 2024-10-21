@@ -50,22 +50,21 @@ datasets = [
 ]
 
 
-@pytest.fixture(params=datasets)
+@pytest.fixture(params=datasets, scope="module")
 def model_and_toas(request):
     dataset = request.param
 
     parfile, timfile = f"{datadir}/{dataset}.par", f"{datadir}/{dataset}.tim"
 
+    m, t = get_model_and_toas(f"{datadir}/{dataset}.par", f"{datadir}/{dataset}.tim")
+
+    custom_priors = f"{datadir}/custom_priors.json" if "EFAC1" in m.free_params else {}
+
     spnta = SPNTA(
         parfile,
         timfile,
-        custom_priors={
-            "PHOFF": jl.Uniform(-0.5, 0.5),
-            "EFAC": jl.Uniform(0.5, 2.5),
-        },
+        custom_priors=custom_priors,
     )
-
-    m, t = get_model_and_toas(f"{datadir}/{dataset}.par", f"{datadir}/{dataset}.tim")
 
     if (
         len(
