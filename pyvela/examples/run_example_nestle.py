@@ -1,141 +1,111 @@
 #!/usr/bin/env python
 
 # %%
-import sys
+from argparse import ArgumentParser
 import time
-from timeit import timeit
 
 import corner
 import nestle
 import numpy as np
+import wquantiles as wq
 from matplotlib import pyplot as plt
-from pint.bayesian import BayesianTiming
-from pint.logging import setup as setup_log
-from pint.models import get_model_and_toas
-from pint.models.priors import Prior
-from scipy.stats import uniform
 
-from pyvela import Vela as vl
-from pyvela import read_model_and_toas
+from pyvela import SPNTA, Vela as vl
 
 np.product = np.prod
 
-# %%
-setup_log(level="WARNING")
 
-# %%
-parfile, timfile = sys.argv[1], sys.argv[2]
-
-m, t = get_model_and_toas(parfile, timfile)
-t.compute_pulse_numbers(m)
-
-# %%
-for par in m.free_params:
-    param = getattr(m, par)
-    param_min = float(
-        param.value - 20 * param.uncertainty_value
-        if param.name != "F0"
-        else -20 * param.uncertainty_value
-    )
-    param_span = float(40 * param.uncertainty_value)
-    param.prior = Prior(uniform(param_min, param_span))
-
-# %%
-bt = BayesianTiming(m, t, use_pulse_numbers=True)
-
-F0_ = float(m.F0.value)
-F0_idx = m.free_params.index("F0")
+parser = ArgumentParser()
+parser.add_argument("par_file")
+parser.add_argument("tim_file")
+parser.add_argument("-P", "--priors", default={})
+args = parser.parse_args()
 
 
-def lnlike_pint(params):
-    params = list(params)
-    params[F0_idx] = np.longdouble(F0_) + params[F0_idx]
-    return bt.lnlikelihood(params)
-
-
-# %%
-mv, tv = read_model_and_toas(parfile, timfile)
-lnlike = vl.get_lnlike_func(mv, tv)
-prior_transform = vl.get_prior_transform_func(mv)
-
-# %%
-param_names = vl.get_free_param_names(mv.param_handler)
-param_idxs = [bt.param_labels.index(p) for p in param_names]
-scale_factors = vl.get_scale_factors(mv.param_handler)
-# %%
-maxlike_params_p = np.array([param.value for param in bt.params], dtype=float)
-maxlike_params_v = np.array(
-    vl.read_param_values_to_vector(
-        mv.param_handler, mv.param_handler._default_params_tuple
-    )
+spnta = SPNTA(
+    args.par_file, args.tim_file, cheat_prior_scale=10, custom_priors=args.priors
 )
 
-# %%
-print(lnlike(maxlike_params_v), bt.lnlikelihood(maxlike_params_p))
-print(timeit("lnlike(maxlike_params_v)", globals=globals(), number=1000))
-print(timeit("bt.lnlikelihood(maxlike_params_p)", globals=globals(), number=50))
 
-# %%
+# shifts = [
+#     (spnta.model.param_handler._default_params_tuple.F_.x if pname == "F0" else 0)
+#     for pname in spnta.param_names
+# ]
+
+
 begin = time.time()
 result_nestle_v = nestle.sample(
-    lnlike,
-    prior_transform,
-    bt.nparams,
+    spnta.lnlike,
+    spnta.prior_transform,
+    spnta.ndim,
     method="multi",
-    npoints=150,
+    npoints=500,
     dlogz=0.001,
     callback=nestle.print_progress,
 )
 end = time.time()
 print(f"\nTime elapsed = {end-begin} s")
 
-# %%
-begin = time.time()
-result_nestle_p = nestle.sample(
-    lnlike_pint,
-    bt.prior_transform,
-    bt.nparams,
-    method="multi",
-    npoints=150,
-    dlogz=0.001,
-    callback=nestle.print_progress,
-)
-end = time.time()
-print(f"\nTime elapsed = {end-begin} s")
 
-samples_v = result_nestle_v.samples / scale_factors
-samples_p = result_nestle_p.samples[:, param_idxs]
+samples_v = spnta.rescale_samples(result_nestle_v.samples)
 
-# %%
+
 means, cov = nestle.mean_and_cov(result_nestle_v.samples, result_nestle_v.weights)
-means /= scale_factors
-stds = np.sqrt(np.diag(cov)) / scale_factors
-for pname, mean, std in zip(param_names, means, stds):
+means /= spnta.scale_factors
+stds = np.sqrt(np.diag(cov)) / spnta.scale_factors
+for pname, mean, std in zip(spnta.param_names, means, stds):
     if pname == "F0":
-        F0_ = np.longdouble(m.F0.value)
+        F0_ = np.longdouble(spnta.model.param_handler._default_params_tuple.F_.x)
         print(f"{pname}\t\t{(F0_ + mean):.18f}\t\t{std}")
     else:
         print(f"{pname}\t\t{mean}\t\t{std}")
 
-# %%
-fig = corner.corner(
-    samples_p,
-    weights=result_nestle_p.weights,
-    labels=param_names,
-    label_kwargs={"fontsize": 15},
-    range=[0.999999] * bt.nparams,
-    hist_kwargs={"density": True},
-)
+
 corner.corner(
     samples_v,
     weights=result_nestle_v.weights,
-    labels=param_names,
+    labels=spnta.param_names,
     label_kwargs={"fontsize": 15},
-    range=[0.999999] * bt.nparams,
-    fig=fig,
+    range=[0.999999] * spnta.ndim,
     color="red",
     hist_kwargs={"density": True},
 )
-plt.suptitle(m.PSR.value)
+plt.suptitle(spnta.model.pulsar_name)
+plt.tight_layout()
+plt.show()
+
+
+params_median = vl.read_params(
+    spnta.model, wq.median(result_nestle_v.samples.T, weights=result_nestle_v.weights)
+)
+rv = (
+    list(map(vl.value, vl.form_residuals(spnta.model, spnta.toas, params_median)))
+    if not spnta.is_wideband()
+    else [
+        vl.value(wr[0])
+        for wr in vl.form_residuals(spnta.model, spnta.toas, params_median)
+    ]
+)
+
+ctoas = [vl.correct_toa(spnta.model, tvi, params_median) for tvi in spnta.toas]
+errs = np.sqrt(
+    [
+        vl.value(vl.scaled_toa_error_sqr(tvi, ctoa))
+        for (tvi, ctoa) in zip(spnta.toas, ctoas)
+    ]
+)
+
+plt.errorbar(
+    spnta.get_mjds(),
+    rv,
+    errs,
+    ls="",
+    marker="+",
+    color="blue",
+)
+plt.axhline(0, color="grey", ls="dotted")
+plt.xlabel("MJD")
+plt.ylabel("Residuals (s)")
+plt.suptitle(spnta.model.pulsar_name)
 plt.tight_layout()
 plt.show()
