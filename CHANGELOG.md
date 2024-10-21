@@ -3,6 +3,7 @@
 - `pyvela.SPNTA` class
 ## Changed
 - Reorganized `pyvela` code
+- Rerun failures in `pyvela` CI tests.
 ## Fixed
 ## Removed
 

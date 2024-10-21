@@ -50,7 +50,7 @@ datasets = [
 ]
 
 
-@pytest.fixture(params=datasets, scope="module")
+@pytest.fixture(params=datasets)
 def model_and_toas(request):
     dataset = request.param
 
