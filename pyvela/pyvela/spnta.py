@@ -1,3 +1,4 @@
+from typing import IO
 import numpy as np
 from pint.binaryconvert import convert_binary
 from pint.logging import setup as setup_log
@@ -5,6 +6,7 @@ from pint.models import get_model_and_toas
 
 from .model import pint_model_to_vela
 from .toas import pint_toas_to_vela, day_to_s
+from .priors import parse_custom_prior_file
 from .ecorr import ecorr_sort
 from .vela import vl, jl
 
@@ -53,10 +55,13 @@ class SPNTA:
         parfile: str,
         timfile: str,
         cheat_prior_scale: float = 20,
-        custom_priors: dict = {},
+        custom_priors: str | IO | dict = {},
     ):
         self.parfile = parfile
         self.timfile = timfile
+
+        if not isinstance(custom_priors, dict):
+            custom_priors = parse_custom_prior_file(custom_priors)
 
         model, toas = read_model_and_toas(
             parfile,

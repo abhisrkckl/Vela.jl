@@ -137,8 +137,11 @@ def get_default_priors(
     )
 
 
-def parse_custom_prior_file(filename: IO):
-    with open(filename) as prior_file:
+def parse_custom_prior_file(prior_file: str | IO):
+    if isinstance(prior_file, str):
+        with open(prior_file) as prior_file_:
+            input_dict = json.load(prior_file_)
+    else:
         input_dict = json.load(prior_file)
 
     output_dict = dict()
