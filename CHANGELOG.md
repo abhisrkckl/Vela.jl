@@ -4,6 +4,7 @@
 ## Changed
 - Reorganized `pyvela` code
 - Rerun failures in `pyvela` CI tests.
+- Example scripts to use `pyvela.SPNTA`
 ## Fixed
 ## Removed
 
