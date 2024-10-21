@@ -16,18 +16,12 @@ from pyvela.priors import parse_custom_prior_file
 parser = ArgumentParser()
 parser.add_argument("par_file")
 parser.add_argument("tim_file")
-parser.add_argument("-P", "--prior_file")
+parser.add_argument("-P", "--priors", default={})
 args = parser.parse_args()
-
-
-# %%
-prior_dict = (
-    parse_custom_prior_file(args.prior_file) if args.prior_file is not None else {}
-)
 
 # %%
 spnta = SPNTA(
-    args.par_file, args.tim_file, cheat_prior_scale=10, custom_priors=prior_dict
+    args.par_file, args.tim_file, cheat_prior_scale=10, custom_priors=args.priors
 )
 
 # %%
@@ -84,7 +78,7 @@ means = (np.mean(samples_v_0, axis=0) + shifts) / spnta.scale_factors
 stds = np.std(samples_v, axis=0)
 for idx, (pname, mean, std) in enumerate(zip(spnta.param_names, means, stds)):
     if idx in param_plot_mask:
-        print(f"{pname}\t\t{mean}\t\t{std}")
+        print(f"{pname}\t\t{mean:.18e}\t\t{std:.4e}")
 
 # %%
 # param_labels = [f"\n\n{pname}\n({m[pname].units})\n" for pname in param_names]
