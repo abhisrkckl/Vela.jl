@@ -1,4 +1,5 @@
-from typing import List
+import json
+from typing import IO, List
 
 from astropy.time import Time
 from pint.models import TimingModel
@@ -11,8 +12,6 @@ from .vela import jl, vl
 DEFAULT_PRIOR_DISTS = {
     "PHOFF": jl.Uniform(-0.5, 0.5),
     "EFAC": jl.LogNormal(0.0, 0.25),
-    "EQUAD": jl.Uniform(0.0, 1e-4),
-    "ECORR": jl.Uniform(0.0, 1e-5),
     "KOM": jl.Uniform(0.0, 2 * jl.pi),
     "KIN": vl.KINPriorDistribution(),
     "SINI": vl.SINIPriorDistribution(),
@@ -136,3 +135,30 @@ def get_default_priors(
         )
         for param_name in free_params
     )
+
+
+def parse_custom_prior_file(filename: IO):
+    with open(filename) as prior_file:
+        input_dict = json.load(prior_file)
+
+    output_dict = dict()
+    for pname, pdict in input_dict.items():
+        pdict: dict
+        distr_type = getattr(jl.Distributions, pdict["distribution"])
+        distr_args = pdict["args"]
+        if "upper" in pdict and "lower" in pdict:
+            output_dict[pname] = jl.Distributions.truncated(
+                distr_type(*distr_args), lower=pdict["lower"], upper=pdict["upper"]
+            )
+        elif "upper" in pdict:
+            output_dict[pname] = jl.Distributions.truncated(
+                distr_type(*distr_args), upper=pdict["upper"]
+            )
+        elif "lower" in pdict:
+            output_dict[pname] = jl.Distributions.truncated(
+                distr_type(*distr_args), lower=pdict["lower"]
+            )
+        else:
+            output_dict[pname] = distr_type(*distr_args)
+
+    return output_dict

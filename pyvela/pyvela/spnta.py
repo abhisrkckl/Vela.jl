@@ -4,9 +4,9 @@ from pint.logging import setup as setup_log
 from pint.models import get_model_and_toas
 
 from .model import pint_model_to_vela
-from .toas import pint_toas_to_vela
+from .toas import pint_toas_to_vela, day_to_s
 from .ecorr import ecorr_sort
-from .vela import vl
+from .vela import vl, jl
 
 
 def read_model_and_toas(
@@ -100,6 +100,12 @@ class SPNTA:
 
     def save_jlso(self, filename: str):
         vl.save_pulsar_data(filename, self.model, self.toas)
+
+    def is_wideband(self):
+        return jl.isa(self.toas[0], vl.WidebandTOA)
+
+    def get_mjds(self):
+        return [jl.Float64(vl.value(toa.value)) / day_to_s for toa in self.toas]
 
     @classmethod
     def load_jlso(cls, filename: str):
