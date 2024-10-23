@@ -1,48 +1,25 @@
 name: docs-CI
-
 on:
-  push:
-    branches:
-      - main
-    tags: ['*']
-  pull_request:
-  workflow_dispatch:
-
-concurrency:
-  # Skip intermediate builds: always.
-  # Cancel intermediate builds: only if it is a pull request build.
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: ${{ startsWith(github.ref, 'refs/pull/') }}
-
+  - push
+  - pull_request
+env:
+  JULIA_NUM_THREADS: 2
 jobs:
-  test:
-    name: Julia ${{ matrix.version }} - ${{ matrix.os }} - ${{ matrix.arch }} - ${{ github.event_name }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        version:
-          - '1.11'
-        os:
-          - ubuntu-latest
-        arch:
-          - x64
+  docs:
+    name: Documentation
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: julia-actions/setup-julia@v2
+      - uses: actions/checkout@v3
+      - uses: julia-actions/setup-julia@v1
         with:
-          version: ${{ matrix.version }}
-          arch: ${{ matrix.arch }}
-      - uses: julia-actions/cache@v2
-      - uses: julia-actions/julia-buildpkg@v1
-        with:
-          localregistry: https://github.com/abhisrkckl/julia_registry.git
-      - name: Install dependencies
-        run: |
-          julia -e 'import Pkg; Pkg.develop(path=".")'
-          julia -e 'import Pkg; Pkg.add(["Documenter", "AbstractTrees"])'
-      - name: Build documentation
-        run: |
-          julia --color=yes --project docs/make.jl
-          ls docs/build/index.html
-      
+          version: '1'
+      - run: |
+          julia --project=docs -e '
+            import Pkg; Pkg.add("Documenter")
+            using Pkg
+            Pkg.develop(PackageSpec(path=pwd()))
+            Pkg.instantiate()'
+      - run: julia --project=docs docs/make.jl
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}
