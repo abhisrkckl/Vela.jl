@@ -133,6 +133,7 @@ dispersion noise / stochastic DM variations.
 DMWaveX
 PowerlawDispersionNoiseGP
 ```
+See also [Red noise models](@ref).
 
 `SolarWind` is a simple model for solar wind dispersion.
 ```@docs
@@ -169,6 +170,8 @@ CMWaveX
 PowerlawChromaticNoiseGP
 ```
 
+See also [Red noise models](@ref).
+
 ### Binary delays
 Similar to solar system delays, the binary motion of the pulsar also introduces various 
 delays to the TOAs, including Rømer delay, Shapiro delay, and Einstein delay. 
@@ -198,6 +201,17 @@ BinaryDDS
 BinaryELL1
 BinaryELL1H
 ```
+
+## Spin noise
+Rotational irregularities of the pulsar causes stochastic modulations on the TOAs.
+We represent these modulations as a Fourier series in time.
+
+```@docs
+WaveX
+PowerlawRedNoiseGP    
+```
+
+See also [Red noise models](@ref).
 
 ## Phase components
 A `PhaseComponent` contributes to the phase computation from a delay-corrected TOA.

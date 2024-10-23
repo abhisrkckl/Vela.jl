@@ -7,7 +7,6 @@ makedocs(
         "Home" => "index.md",
         "installation.md",
         "pyvela.md",
-        # "tutorial.md",
         "Explanation & API Reference" => [
             "precision.md",
             "quantities.md",
@@ -17,6 +16,7 @@ makedocs(
             "likelihood.md",
             "parameters.md",
             "priors.md",
+            "red-noise.md",
         ],
     ],
     # format = Documenter.LaTeX(platform = "none")
