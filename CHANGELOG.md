@@ -5,7 +5,7 @@
 - Reorganized `pyvela` code
 - Rerun failures in `pyvela` CI tests.
 - Example scripts now use `pyvela.SPNTA`
-- Updated documentation to use `pyvela.SPNTA`
+- Updated documentation to use `pyvela.SPNTA` and installation instructions
 - Made the repository public, deployed the documentation website.
 ## Fixed
 ## Removed
