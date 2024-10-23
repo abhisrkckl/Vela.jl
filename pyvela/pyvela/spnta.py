@@ -1,8 +1,9 @@
+from copy import deepcopy
 from typing import IO
 import numpy as np
 from pint.binaryconvert import convert_binary
 from pint.logging import setup as setup_log
-from pint.models import get_model_and_toas
+from pint.models import get_model_and_toas, TimingModel
 
 from .model import pint_model_to_vela
 from .toas import pint_toas_to_vela, day_to_s
@@ -46,7 +47,7 @@ def read_model_and_toas(
     )
     toas = pint_toas_to_vela(tp, float(mp.PEPOCH.value))
 
-    return model, toas
+    return model, toas, mp
 
 
 class SPNTA:
@@ -63,12 +64,14 @@ class SPNTA:
         if not isinstance(custom_priors, dict):
             custom_priors = parse_custom_prior_file(custom_priors)
 
-        model, toas = read_model_and_toas(
+        model, toas, model_pint = read_model_and_toas(
             parfile,
             timfile,
             cheat_prior_scale=cheat_prior_scale,
             custom_priors=custom_priors,
         )
+
+        self.model_pint = model_pint
 
         self._setup(model, toas)
 
@@ -119,3 +122,17 @@ class SPNTA:
         spnta.jlsofile = filename
         spnta._setup(model, toas)
         return spnta
+
+    def update_pint_model(self, samples):
+        mp: TimingModel = deepcopy(self.model_pint)
+
+        scaled_samples = self.rescale_samples(samples)
+
+        for ii, pname in enumerate(self.param_names):
+            if pname in mp.free_params:
+                param_val = np.mean(scaled_samples[:,ii])
+                param_err = np.std(scaled_samples[:,ii])
+                mp[pname].value = param_val
+                mp[pname].uncertainty_value = param_err
+        
+        return mp
