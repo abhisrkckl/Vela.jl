@@ -35,8 +35,6 @@ datasets = [
     "sim6.gp",
     "sim_ddk",
     "sim_glitch",
-    "J0613-0200.InPTA.NB",
-    "J1857+0943.InPTA.NB",
     "J0613-0200.sim",
     "J1856-3754.sim",
     "J1802-2124.sim",
