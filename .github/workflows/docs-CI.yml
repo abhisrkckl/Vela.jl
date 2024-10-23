@@ -1,7 +1,11 @@
 name: docs-CI
 on:
-  - push
-  - pull_request
+    push:
+      branches:
+        - main
+      tags: ['*']
+    pull_request:
+    workflow_dispatch:
 env:
   JULIA_NUM_THREADS: 2
 jobs:
