@@ -6,8 +6,10 @@
 - Rerun failures in `pyvela` CI tests.
 - Example scripts now use `pyvela.SPNTA`
 - Updated documentation to use `pyvela.SPNTA`
+- Made the repository public, deployed the documentation website.
 ## Fixed
 ## Removed
+- Some unnecessary test datasets
 
 # [0.0.5]
 ## Added

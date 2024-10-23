@@ -17,7 +17,6 @@ from pint.models.parameter import (
 from .toas import day_to_s
 from .vela import jl, to_jldd, vl
 
-
 fdjump_rx = re.compile("^FD(\\d+)JUMP(\\d+)")
 
 

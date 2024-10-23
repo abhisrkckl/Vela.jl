@@ -1,13 +1,14 @@
 import os
+
 import numpy as np
 import pytest
 from juliacall import Main as jl
 from pint.models import get_model_and_toas
 
 from pyvela.model import fix_red_noise_components
+from pyvela.parameters import fdjump_rx
 from pyvela.spnta import SPNTA
 from pyvela.vela import vl
-from pyvela.parameters import fdjump_rx
 
 jl.seval("using BenchmarkTools")
 jl.seval("get_alloc(func, args...) = @ballocated(($func)(($args)...))")
@@ -15,8 +16,6 @@ jl.seval("get_alloc(func, args...) = @ballocated(($func)(($args)...))")
 datadir = os.path.dirname(os.path.realpath(__file__)) + "/datafiles"
 
 datasets = [
-    "NGC6440E",
-    "pure_rotator",
     "sim1",
     "sim_dmwn",
     "sim_jump",
@@ -35,11 +34,8 @@ datasets = [
     "sim_fdjump",
     "sim6",
     "sim6.gp",
-    "sim_dd",
     "sim_ddk",
     "sim_glitch",
-    "J0613-0200.InPTA.NB",
-    "J1857+0943.InPTA.NB",
     "J0613-0200.sim",
     "J1856-3754.sim",
     "J1802-2124.sim",

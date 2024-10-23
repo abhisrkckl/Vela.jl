@@ -1,14 +1,16 @@
+from copy import deepcopy
 from typing import IO
+
 import numpy as np
 from pint.binaryconvert import convert_binary
 from pint.logging import setup as setup_log
-from pint.models import get_model_and_toas
+from pint.models import TimingModel, get_model_and_toas
 
-from .model import pint_model_to_vela
-from .toas import pint_toas_to_vela, day_to_s
-from .priors import parse_custom_prior_file
 from .ecorr import ecorr_sort
-from .vela import vl, jl
+from .model import pint_model_to_vela
+from .priors import parse_custom_prior_file
+from .toas import day_to_s, pint_toas_to_vela
+from .vela import jl, vl
 
 
 def read_model_and_toas(
@@ -46,10 +48,49 @@ def read_model_and_toas(
     )
     toas = pint_toas_to_vela(tp, float(mp.PEPOCH.value))
 
-    return model, toas
+    return model, toas, mp
 
 
 class SPNTA:
+    """
+    A Python class that wraps the Julia objects representing the timing & noise model (`Vela.TimingModel`)
+    and a collection of TOAs (`Vector{Vela.TOA}`). It provides various callable objects that can be used
+    to run Bayesian inference.
+
+    Parameters & Attributes
+    -----------------------
+    parfile: str
+        Name of the par file from which the model was constructed.
+    timfile: str
+        Name of the tim file from which the TOAs were constructed.
+    model_pint: pint.models.TimingModel
+        A PINT `TimingModel` object
+    model: Vela.TimingModel
+        A Vela `TimingModel` object
+    toas: Vector[Vela.TOA]
+        A collection of Vela TOAs.
+    lnlike: Callable
+        Computes the log-likelihood
+    lnprior: Callable
+        Computes the log-prior
+    prior_transform: Callable
+        Computes the prior transform
+    lnpost: Callable
+        Computes the log-posterior
+    lnpost_vectorized: Callable
+        Computes the log-posterior for a collection of parameters
+    param_names: List[str]
+        Free parameter names
+    param_labels: List[str]
+        Free parameter labels (for plotting)
+    scale_factors: numpy.ndarray
+        Scale factors for converting between Vela's internal units and the commonly used units.
+    maxlike_params: numpy.ndarray
+        Free parameter values taken from the par file in internal units
+    ndim: int
+        Number of free parameters
+    """
+
     def __init__(
         self,
         parfile: str,
@@ -63,12 +104,14 @@ class SPNTA:
         if not isinstance(custom_priors, dict):
             custom_priors = parse_custom_prior_file(custom_priors)
 
-        model, toas = read_model_and_toas(
+        model, toas, model_pint = read_model_and_toas(
             parfile,
             timfile,
             cheat_prior_scale=cheat_prior_scale,
             custom_priors=custom_priors,
         )
+
+        self.model_pint = model_pint
 
         self._setup(model, toas)
 
@@ -100,22 +143,44 @@ class SPNTA:
         assert all(np.isfinite([lnpr, lnl, lnp]))
         assert np.isclose(lnp, lnpv)
 
-    def rescale_samples(self, samples: np.ndarray):
+    def rescale_samples(self, samples: np.ndarray) -> np.ndarray:
+        """Rescale the samples from Vela's internal units to common units"""
         return samples / self.scale_factors
 
-    def save_jlso(self, filename: str):
+    def save_jlso(self, filename: str) -> None:
+        """Write the model and TOAs as a JLSO file"""
         vl.save_pulsar_data(filename, self.model, self.toas)
 
-    def is_wideband(self):
+    def is_wideband(self) -> bool:
+        """Whether the TOAs are wideband."""
         return jl.isa(self.toas[0], vl.WidebandTOA)
 
-    def get_mjds(self):
-        return [jl.Float64(vl.value(toa.value)) / day_to_s for toa in self.toas]
+    def get_mjds(self) -> np.ndarray:
+        """Get the MJDs of each TOA."""
+        return np.ndarray(
+            [jl.Float64(vl.value(toa.value)) / day_to_s for toa in self.toas]
+        )
 
     @classmethod
     def load_jlso(cls, filename: str):
+        """Construct an `SPNTA` object from a JLSO file"""
         spnta = cls.__new__(cls)
         model, toas = vl.load_pulsar_data(filename)
         spnta.jlsofile = filename
         spnta._setup(model, toas)
         return spnta
+
+    def update_pint_model(self, samples: np.ndarray) -> TimingModel:
+        """Return an updataed PINT `TimingModel` based on posterior samples."""
+        mp: TimingModel = deepcopy(self.model_pint)
+
+        scaled_samples = self.rescale_samples(samples)
+
+        for ii, pname in enumerate(self.param_names):
+            if pname in mp.free_params:
+                param_val = np.mean(scaled_samples[:, ii])
+                param_err = np.std(scaled_samples[:, ii])
+                mp[pname].value = param_val
+                mp[pname].uncertainty_value = param_err
+
+        return mp
