@@ -15,7 +15,6 @@ jl.seval("get_alloc(func, args...) = @ballocated(($func)(($args)...))")
 datadir = os.path.dirname(os.path.realpath(__file__)) + "/datafiles"
 
 datasets = [
-    "NGC6440E",
     "sim1",
     "sim_dmwn",
     "sim_jump",
