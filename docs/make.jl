@@ -21,3 +21,5 @@ makedocs(
     ],
     # format = Documenter.LaTeX(platform = "none")
 )
+
+deploydocs(repo = "github.com/abhisrkckl/Vela.jl.git")
