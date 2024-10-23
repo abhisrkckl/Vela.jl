@@ -40,7 +40,7 @@ The number of threads available to `Vela.jl` for parallel processing can be cont
 using the environment variables `JULIA_NUM_THREADS` (for direct use from Julia) or 
 `PYTHON_JULIACALL_THREADS` (for use from within Python).
 
-The `pint2vela/examples` directory provides several example datasets and scripts.
+The `pyvela/examples` directory provides several example datasets and scripts.
 A basic example (using the Python wrapper) can be run like this:
 ```
 (vela) $ ./run_example_emcee.py NGC6440E.par NGC6440E.tim
