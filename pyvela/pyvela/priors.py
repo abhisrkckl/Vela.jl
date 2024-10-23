@@ -5,7 +5,7 @@ from astropy.time import Time
 from pint.models import TimingModel
 from pint.models.parameter import AngleParameter, MJDParameter, floatParameter
 
-from .parameters import get_scale_factor, pseudo_single_params, fdjump_rx
+from .parameters import fdjump_rx, get_scale_factor, pseudo_single_params
 from .toas import day_to_s
 from .vela import jl, vl
 

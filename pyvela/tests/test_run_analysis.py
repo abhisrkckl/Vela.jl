@@ -1,7 +1,9 @@
 import os
-import numpy as np
-from pyvela.spnta import SPNTA
+
 import emcee
+import numpy as np
+
+from pyvela.spnta import SPNTA
 
 
 def test_analysis_NGC6440E_emcee():

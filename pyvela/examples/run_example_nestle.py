@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
 # %%
-from argparse import ArgumentParser
 import time
+from argparse import ArgumentParser
 
 import corner
 import nestle
@@ -10,7 +10,8 @@ import numpy as np
 import wquantiles as wq
 from matplotlib import pyplot as plt
 
-from pyvela import SPNTA, Vela as vl
+from pyvela import SPNTA
+from pyvela import Vela as vl
 
 np.product = np.prod
 

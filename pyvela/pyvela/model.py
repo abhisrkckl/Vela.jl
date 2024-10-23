@@ -1,13 +1,14 @@
 from typing import List, Optional, Tuple
 
 import numpy as np
-from pint.models import TimingModel, PhaseOffset
-from pint.models.parameter import maskParameter, MJDParameter
+from pint.models import PhaseOffset, TimingModel
+from pint.models.parameter import MJDParameter, maskParameter
 from pint.toa import TOAs
+
 from pyvela.gp_noise import PLChromNoiseGP, PLDMNoiseGP, PLRedNoiseGP
 from pyvela.parameters import pint_parameters_to_vela
 from pyvela.priors import get_default_priors
-from pyvela.toas import pint_toa_to_vela, day_to_s
+from pyvela.toas import day_to_s, pint_toa_to_vela
 
 from .vela import jl, vl
 

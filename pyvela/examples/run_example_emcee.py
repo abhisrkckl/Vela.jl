@@ -1,16 +1,16 @@
 #!/usr/bin/env python
 
 # %%
+from argparse import ArgumentParser
 from timeit import timeit
 
 import corner
 import emcee
 import numpy as np
 from matplotlib import pyplot as plt
-from argparse import ArgumentParser
 
-from pyvela import SPNTA, Vela as vl
-
+from pyvela import SPNTA
+from pyvela import Vela as vl
 
 parser = ArgumentParser()
 parser.add_argument("par_file")

@@ -1,13 +1,14 @@
 import os
+
 import numpy as np
 import pytest
 from juliacall import Main as jl
 from pint.models import get_model_and_toas
 
 from pyvela.model import fix_red_noise_components
+from pyvela.parameters import fdjump_rx
 from pyvela.spnta import SPNTA
 from pyvela.vela import vl
-from pyvela.parameters import fdjump_rx
 
 jl.seval("using BenchmarkTools")
 jl.seval("get_alloc(func, args...) = @ballocated(($func)(($args)...))")
