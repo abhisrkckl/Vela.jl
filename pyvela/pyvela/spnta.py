@@ -130,9 +130,9 @@ class SPNTA:
 
         for ii, pname in enumerate(self.param_names):
             if pname in mp.free_params:
-                param_val = np.mean(scaled_samples[:,ii])
-                param_err = np.std(scaled_samples[:,ii])
+                param_val = np.mean(scaled_samples[:, ii])
+                param_err = np.std(scaled_samples[:, ii])
                 mp[pname].value = param_val
                 mp[pname].uncertainty_value = param_err
-        
+
         return mp

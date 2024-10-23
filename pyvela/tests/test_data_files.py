@@ -16,7 +16,6 @@ datadir = os.path.dirname(os.path.realpath(__file__)) + "/datafiles"
 
 datasets = [
     "NGC6440E",
-    "pure_rotator",
     "sim1",
     "sim_dmwn",
     "sim_jump",
@@ -35,7 +34,6 @@ datasets = [
     "sim_fdjump",
     "sim6",
     "sim6.gp",
-    "sim_dd",
     "sim_ddk",
     "sim_glitch",
     "J0613-0200.InPTA.NB",
