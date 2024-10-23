@@ -74,3 +74,30 @@ The preference for the prior distributions is user defined distribution > defaul
 **Please take care to ensure that the wrong parameter doesn't end up with a "cheat" distribution.**
 
 See the documentation for `Distrubutions.jl` to see what distributions are available.
+
+## Representing priors in a `JSON` file
+Prior distributions available in `Distributions.jl` can be represented as a `JSON` file like so:
+```
+{
+    "EFAC": {
+        "distribution": "LogNormal",
+        "args": [0.0, 0.5]
+    },
+    "EQUAD": {
+        "distribution": "LogUniform",
+        "args": [1e-8, 1e-6]
+    }
+    "M2": {
+        "distribution": "Normal",
+        "args": [492.7, 98.5],
+        "lower": 0.0
+    }
+}
+```
+The `distribution` attribute for each parameter corresponds to a `UnivariateDistribution` available in `Distributions.jl`
+(see [here](https://juliastats.org/Distributions.jl/stable/univariate/)). `args` are arguments to the 
+`UnivariateDistribution` type's constructor. The `lower` and `upper` attributes represent the lower and 
+upper bounds for truncating the distribution (see [`truncated`](https://juliastats.org/Distributions.jl/stable/truncate/)).
+
+Note that the values above should be given `Vela.jl`'s internal units. Specifically, the prior on M2 corresponds 
+to 0.1 ± 0.02 Msun, where the normal distribution is truncated at a lower bound 0.

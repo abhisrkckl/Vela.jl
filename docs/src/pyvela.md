@@ -1,4 +1,4 @@
-# The `pyvela` interface
+# Getting started: The `pyvela` interface
 
 `Vela.jl` must interact with Python for three reasons: (1) most pulsar astronomers are more 
 familiar with Python than Julia (2) Python has many samplers that have no counterpart in 
@@ -47,7 +47,7 @@ EFAC parameters. If "EFAC1" is present, it will set the prior for EFAC1 specific
 "EFAC1" are present, the latter sets the prior for EFAC1, whereas the former sets the priors for all other EFACs. 
 In the above example, the priors for all parameters except "PHOFF" are set using "cheat" priors.
 
-The `custom_prior` argument also accepts a filename (`str`) or an `IO` object containing a `JSON` representation of 
+The `custom_priors` argument also accepts a filename (`str`) or an `IO` object containing a `JSON` representation of 
 the priors. See [Representing priors in a `JSON` file](@ref) for more details.
 
 Everything defined in `Vela.jl` will be available through the `vl` namespace above, e.g., `vl.TimingModel` 
@@ -93,7 +93,7 @@ p0 = np.array([spnta.prior_transform(cube) for cube in np.random.rand(nwalkers, 
 sampler = emcee.EnsembleSampler(
     nwalkers,
     spnta.ndim,
-    lnpost_vectorized,
+    spnta.lnpost_vectorized,
     moves=[emcee.moves.StretchMove(), emcee.moves.DESnookerMove()],
     vectorize=True,
 )
@@ -105,13 +105,13 @@ In practice, the `moves` should be optimized based on the problem at hand.
  
 ## Running MCMC
 ```
-sampler.run_mcmc(p0, 6000, progress=True, progress_kwargs={"mininterval": 1})
+sampler.run_mcmc(p0, 6000, progress=True)
 ```
 This will only take a few seconds because the dataset is very small. Larger datasets may take
 minutes or hours depending on the size and the computing power available.
 
 ```
-samples_v_0 = sampler.get_chain(flat=True, discard=1000, thin=40)
+samples_v_0 = sampler.get_chain(flat=True, discard=1000, thin=50)
 ```
 This flattens the multiple chains `emcee` was running. Also note the burn-in (`discard`) 
 and the thinning.
@@ -140,17 +140,14 @@ block combines these parts back together.
 import corner
 import matplotlib.pyplot as plt
 
-param_labels = [
-    f"\n\n{label}\n\n"
-    for idx, label in enumerate(spnta.param_labels)
-]
 fig = corner.corner(
     samples_v,
-    labels=param_labels,
+    labels=spnta.param_labels,
     label_kwargs={"fontsize": 11},
-    range=[0.999] * len(param_labels),
+    range=[0.999] * spnta.ndim,
     plot_datapoints=False,
     hist_kwargs={"density": True},
+    labelpad=0.3,
 )
 plt.suptitle(spnta.model.pulsar_name)
 plt.tight_layout()
@@ -160,29 +157,7 @@ plt.show()
 The output looks something like this:
 ![NGC6440E_posterior](NGC6440E_posterior.png)
 
-## Representing priors in a `JSON` file
-Prior distributions available in `Distributions.jl` can be represented as a `JSON` file like so:
-```
-{
-    "EFAC": {
-        "distribution": "LogNormal",
-        "args": [0.0, 0.5]
-    },
-    "EQUAD": {
-        "distribution": "LogUniform",
-        "args": [1e-8, 1e-6]
-    }
-    "M2": {
-        "distribution": "Normal",
-        "args": [492.7, 98.5],
-        "lower": 0.0
-    }
-}
-```
-The `distribution` attribute for each parameter corresponds to a `UnivariateDistribution` available in `Distributions.jl`
-(see [here](https://juliastats.org/Distributions.jl/stable/univariate/)). `args` are arguments to the 
-`UnivariateDistribution` type's constructor. The `lower` and `upper` attributes represent the lower and 
-upper bounds for truncating the distribution (see [`truncated`](https://juliastats.org/Distributions.jl/stable/truncate/)).
-
-Note that the values above should be given `Vela.jl`'s internal units. Specifically, the prior on M2 corresponds 
-to 0.1 ± 0.02 Msun, where the normal distribution is truncated at a lower bound 0.
+Note that the F0 plot is centered around 0. This is because F0 is split into 
+the sum of a large number and a small number to have more numerical precision, 
+and only the smaller part is treated as a free parameter. See [Quantities](@ref)
+for more details.
