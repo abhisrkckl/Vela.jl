@@ -12,7 +12,7 @@ Vela
    :target: https://codecov.io/gh/abhisrkckl/Vela.jl
    :alt: Coverage
 
-.. image:: https://img.shields.io/badge/License-MIT-yellow.svg
+.. image:: https://img.shields.io/badge/License-GPL3-yellow.svg
    :target: LICENCE
    :alt: License: MIT
 
