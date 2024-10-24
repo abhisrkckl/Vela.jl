@@ -12,9 +12,9 @@ Vela
    :target: https://codecov.io/gh/abhisrkckl/Vela.jl
    :alt: Coverage
 
-.. image:: https://img.shields.io/badge/License-GPL3-yellow.svg
-   :target: LICENCE
-   :alt: License: MIT
+.. image:: https://img.shields.io/badge/License-GPLv3-yellow.svg
+   :target: LICENSE
+   :alt: License: GPLv3
 
 A Bayesian pulsar timing and noise analysis package.
 
