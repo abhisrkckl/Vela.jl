@@ -202,6 +202,16 @@ BinaryELL1
 BinaryELL1H
 ```
 
+## Frequency-dependent delays
+Unmodeled frequency-dependent profile evolution can manifest as frequency-dependent
+delays in narrowband TOAs. These are taken care during timing using certain phenomenological 
+models listed below.
+
+```@docs
+FrequencyDependent
+FrequencyDependentJump
+```
+
 ## Spin noise
 Rotational irregularities of the pulsar causes stochastic modulations on the TOAs.
 We represent these modulations as a Fourier series in time.
