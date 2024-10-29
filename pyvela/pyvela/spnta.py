@@ -157,7 +157,7 @@ class SPNTA:
 
     def get_mjds(self) -> np.ndarray:
         """Get the MJDs of each TOA."""
-        return np.ndarray(
+        return np.array(
             [jl.Float64(vl.value(toa.value)) / day_to_s for toa in self.toas]
         )
 
