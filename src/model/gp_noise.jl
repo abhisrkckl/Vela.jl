@@ -13,15 +13,16 @@ function evaluate_powerlaw_red_noise_gp(log10_A, γ, αs, βs, f1, Δt, ln_js)
 
     ϕ1 = 2π * f1 * Δt
     exp_im_ϕ1 = exp(im * value(ϕ1))
-    exp_im_ϕjs = cumprod(map(x -> exp_im_ϕ1, ln_js))
 
     σ1 = sqrt(powerlaw(A, γ, f1, f1))
 
+    exp_im_ϕj = exp_im_ϕ1
     result = dimensionless(0.0)
-    for (α, β, ln_j, exp_im_ϕj) in zip(αs, βs, ln_js, exp_im_ϕjs)
+    for (α, β, ln_j) in zip(αs, βs, ln_js)
         jfac = exp(-(γ / 2) * ln_j)
         sincosϕ = imag(exp_im_ϕj), real(exp_im_ϕj)
         result += jfac * dot((α, β), sincosϕ)
+        exp_im_ϕj *= exp_im_ϕ1
     end
 
     return σ1 * result
