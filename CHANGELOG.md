@@ -8,6 +8,7 @@
 - Updated documentation to use `pyvela.SPNTA` and installation instructions
 - Made the repository public, deployed the documentation website.
 ## Fixed
+- Memory allocation in GP components
 ## Removed
 - Some unnecessary test datasets
 
