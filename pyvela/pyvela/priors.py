@@ -138,7 +138,7 @@ def get_default_priors(
     )
 
 
-def parse_custom_prior_file(prior_file: str | IO):
+def parse_custom_prior_file(prior_file: str | IO, model: TimingModel):
     if isinstance(prior_file, str):
         with open(prior_file) as prior_file_:
             input_dict = json.load(prior_file_)
@@ -151,10 +151,10 @@ def parse_custom_prior_file(prior_file: str | IO):
         distr_type = getattr(jl.Distributions, pdict["distribution"])
         distr_args = np.array(pdict["args"])
 
-        scale_units_ = pdict["scale_units"]
+        scale_units_ = pdict["scale_units"] if "scale_units" in pdict else 1
         scale_unitss = np.repeat(scale_units_, len(distr_args)) if np.isscalar(scale_units_) else scale_units_
 
-        scales = np.array([get_scale(pname) if ds else 1 for ds in scale_units_])
+        scales = np.array([get_scale(pname) if ds else 1 for ds in scale_unitss])
 
         if "upper" in pdict and "lower" in pdict:
             output_dict[pname] = jl.Distributions.truncated(
