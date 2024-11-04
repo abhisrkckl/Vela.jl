@@ -101,6 +101,10 @@ def test_data(model_and_toas):
 
     assert all(np.isfinite(spnta.rescale_samples(spnta.maxlike_params)))
 
+    assert spnta.is_wideband() == t.is_wideband()
+
+    assert all(np.isfinite(spnta.get_mjds())) and len(spnta.get_mjds()) == len(t)
+
 
 def test_chi2(model_and_toas):
     spnta: SPNTA
