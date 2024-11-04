@@ -13,6 +13,7 @@
 - Memory allocation in GP components
 ## Removed
 - Some unnecessary test datasets
+- Installation instructions from README file
 
 # [0.0.5]
 ## Added
