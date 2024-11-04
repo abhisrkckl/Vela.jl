@@ -6,19 +6,9 @@ using DoubleFloats: Double64
 using LinearAlgebra: dot
 using .Threads: @threads, @spawn, fetch, nthreads
 using Unrolled: @unroll
+using Distributions
 import Distributions:
-    Distribution,
-    ContinuousUnivariateDistribution,
-    pdf,
-    logpdf,
-    cdf,
-    logcdf,
-    quantile,
-    support,
-    minimum,
-    maximum,
-    insupport,
-    RealInterval
+    pdf, logpdf, cdf, logcdf, quantile, support, minimum, maximum, insupport
 import JLSO
 
 export GQ
