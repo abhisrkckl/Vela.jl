@@ -58,5 +58,4 @@ jobs:
       - name: Coveralls GitHub Action
         uses: coverallsapp/github-action@v2.3.4
         with:
-          file: coverage.xml
           flag-name: Python
