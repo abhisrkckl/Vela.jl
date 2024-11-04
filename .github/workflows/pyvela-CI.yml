@@ -55,10 +55,7 @@ jobs:
       - name: Test formatting with black
         run: |
           black --check ..
-      - name: Upload coverage to codecov
-        uses: codecov/codecov-action@v4
+      - name: Coveralls GitHub Action
+        uses: coverallsapp/github-action@v2.3.4
         with:
-          files: coverage.xml
-          flags: python
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+          flag-name: Python
