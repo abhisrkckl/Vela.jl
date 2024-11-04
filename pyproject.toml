@@ -1,0 +1,61 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pyvela"
+version = "0.0.5"
+description = "Python interface for Vela.jl, a Bayesian pulsar timing and noise analysis package."
+keywords = ["astronomy", "astrophysics", "pulsar"]
+
+authors = [
+    {name = "Abhimanyu Susobhanan", email = "abhisrkckl@gmail.com"}
+]
+maintainers = [
+    {name = "Abhimanyu Susobhanan", email = "abhisrkckl@gmail.com"}
+]
+
+
+requires-python = ">=3.12"
+dependencies = [
+    "numpy",
+    "astropy",
+    "pint-pulsar",
+    "juliacall"
+]
+
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Astronomy",
+    "License :: OSI Approved :: GNU General Public License Version 3",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
+
+[project.readme]
+file = "README.rst"
+content-type = "text/x-rst"
+
+[project.urls]
+Homepage = "https://github.com/abhisrkckl/Vela.jl"
+Documentation = "https://abhisrkckl.github.io/Vela.jl/"
+
+[tool.setuptools]
+zip-safe = false
+package-dir = {"" = "pyvela"}
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["pyvela"]
+namespaces = false
+
+[tool.setuptools.package-data]
+"*" = ["*.*"]
+
+[tool.distutils.bdist_wheel]
+universal = 0
+
+[tool.aliases]
+test = "pytest"
