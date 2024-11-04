@@ -157,9 +157,14 @@ class SPNTA:
 
     def get_mjds(self) -> np.ndarray:
         """Get the MJDs of each TOA."""
-        return np.array(
-            [jl.Float64(vl.value(toa.value)) / day_to_s for toa in self.toas]
-        )
+        if self.is_wideband():
+            return np.array(
+                [jl.Float64(vl.value(wtoa.toa.value)) / day_to_s for wtoa in self.toas]
+            )
+        else:
+            return np.array(
+                [jl.Float64(vl.value(toa.value)) / day_to_s for toa in self.toas]
+            )
 
     @classmethod
     def load_jlso(cls, filename: str):
