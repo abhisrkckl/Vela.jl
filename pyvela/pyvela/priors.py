@@ -1,6 +1,7 @@
 import json
 from typing import IO, List
 
+import numpy as np
 from astropy.time import Time
 from pint.models import TimingModel
 from pint.models.parameter import AngleParameter, MJDParameter, floatParameter
@@ -148,7 +149,13 @@ def parse_custom_prior_file(prior_file: str | IO):
     for pname, pdict in input_dict.items():
         pdict: dict
         distr_type = getattr(jl.Distributions, pdict["distribution"])
-        distr_args = pdict["args"]
+        distr_args = np.array(pdict["args"])
+
+        scale_units_ = pdict["scale_units"]
+        scale_unitss = np.repeat(scale_units_, len(distr_args)) if np.isscalar(scale_units_) else scale_units_
+
+        scales = np.array([get_scale(pname) if ds else 1 for ds in scale_units_])
+
         if "upper" in pdict and "lower" in pdict:
             output_dict[pname] = jl.Distributions.truncated(
                 distr_type(*distr_args), lower=pdict["lower"], upper=pdict["upper"]
