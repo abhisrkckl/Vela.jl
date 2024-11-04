@@ -8,8 +8,8 @@ Vela
    :target: https://github.com/abhisrkckl/Vela.jl/actions
    :alt: CI Status
 
-.. image:: https://codecov.io/gh/abhisrkckl/Vela.jl/graph/badge.svg?token=Y6ES2WTYEV 
-   :target: https://codecov.io/gh/abhisrkckl/Vela.jl
+.. image:: https://coveralls.io/repos/github/badges/shields/badge.svg?branch=master
+   :target: https://coveralls.io/github/badges/shields?branch=master
    :alt: Coverage
 
 .. image:: https://img.shields.io/badge/License-GPLv3-yellow.svg
