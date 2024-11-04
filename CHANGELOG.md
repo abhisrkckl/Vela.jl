@@ -6,11 +6,14 @@
 - Rerun failures in `pyvela` CI tests.
 - Example scripts now use `pyvela.SPNTA`
 - Updated documentation to use `pyvela.SPNTA` and installation instructions
-- Made the repository public, deployed the documentation website.
+- Made the repository public and deployed the documentation website.
+- Migrated Python package settings from `setup.py` to `pyproject.toml`
+- Migrated from `Codecov` to `Coveralls` for code coverage
 ## Fixed
 - Memory allocation in GP components
 ## Removed
 - Some unnecessary test datasets
+- Installation instructions from README file
 
 # [0.0.5]
 ## Added
