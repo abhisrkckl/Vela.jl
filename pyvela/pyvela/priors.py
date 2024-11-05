@@ -164,16 +164,18 @@ def process_custom_priors(custom_priors_raw: dict, model: TimingModel) -> dict:
         if "upper" in prior_info and "lower" in prior_info:
             output_dict[par] = jl.Distributions.truncated(
                 distr_type(*scaled_args),
-                lower=prior_info["lower"],
-                upper=prior_info["upper"],
+                lower=(prior_info["lower"] * unit_conversion_factor),
+                upper=(prior_info["upper"] * unit_conversion_factor),
             )
         elif "upper" in prior_info:
             output_dict[par] = jl.Distributions.truncated(
-                distr_type(*scaled_args), upper=prior_info["upper"]
+                distr_type(*scaled_args),
+                upper=(prior_info["upper"] * unit_conversion_factor),
             )
         elif "lower" in prior_info:
             output_dict[par] = jl.Distributions.truncated(
-                distr_type(*scaled_args), lower=prior_info["lower"]
+                distr_type(*scaled_args),
+                lower=(prior_info["lower"] * unit_conversion_factor),
             )
         else:
             output_dict[par] = distr_type(*scaled_args)

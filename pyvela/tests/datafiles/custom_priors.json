@@ -6,17 +6,16 @@
     "EFAC": {
         "distribution": "Normal",
         "args": [0.0, 0.25],
-        "lower": 0.0
+        "lower": 0.0,
+        "upper": 5.0
     },
     "EQUAD": {
         "distribution": "LogUniform",
-        "args": [1e-8, 1e-6],
-        "upper": 0.99e-6
+        "args": [1e-2, 2.0],
+        "upper": 1.8
     },
     "ECORR": {
         "distribution": "LogUniform",
-        "args": [1e-8, 1e-6],
-        "lower": 1.01e-8,
-        "upper": 0.99e-6
+        "args": [1e-2, 2.0]
     }
 }
