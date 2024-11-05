@@ -1,3 +1,4 @@
+from io import StringIO
 import os
 
 import emcee
@@ -11,9 +12,19 @@ def test_analysis_NGC6440E_emcee():
     dataset = "NGC6440E"
     parfile, timfile = f"{datadir}/{dataset}.par", f"{datadir}/{dataset}.tim"
 
+    prior_str = StringIO(
+        """{
+            "PHOFF": {
+                "distribution": "Uniform",
+                "args": [-0.5, 0.5]
+            }
+        }"""
+    )
+
     spnta = SPNTA(
         parfile,
         timfile,
+        custom_priors=prior_str,
     )
 
     nwalkers = 3 * spnta.ndim

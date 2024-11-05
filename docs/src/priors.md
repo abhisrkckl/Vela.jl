@@ -85,11 +85,11 @@ Prior distributions available in `Distributions.jl` can be represented as a `JSO
     },
     "EQUAD": {
         "distribution": "LogUniform",
-        "args": [1e-8, 1e-6]
+        "args": [1e-2, 2.0]
     }
     "M2": {
         "distribution": "Normal",
-        "args": [492.7, 98.5],
+        "args": [0.1, 0.02],
         "lower": 0.0
     }
 }
@@ -99,5 +99,6 @@ The `distribution` attribute for each parameter corresponds to a `UnivariateDist
 `UnivariateDistribution` type's constructor. The `lower` and `upper` attributes represent the lower and 
 upper bounds for truncating the distribution (see [`truncated`](https://juliastats.org/Distributions.jl/stable/truncate/)).
 
-Note that the values above should be given `Vela.jl`'s internal units. Specifically, the prior on M2 corresponds 
-to 0.1 ± 0.02 Msun, where the normal distribution is truncated at a lower bound 0.
+Note that the values above should be given in their "normal" units as they appear in the par files. 
+Specifically, the prior on M2 corresponds  to 0.1 ± 0.02 Msun, where the normal distribution is truncated 
+at a lower bound 0.

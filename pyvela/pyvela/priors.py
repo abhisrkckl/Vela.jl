@@ -1,11 +1,17 @@
 import json
 from typing import IO, List
 
+import numpy as np
 from astropy.time import Time
 from pint.models import TimingModel
 from pint.models.parameter import AngleParameter, MJDParameter, floatParameter
 
-from .parameters import fdjump_rx, get_scale_factor, pseudo_single_params
+from .parameters import (
+    fdjump_rx,
+    get_scale_factor,
+    get_unit_conversion_factor,
+    pseudo_single_params,
+)
 from .toas import day_to_s
 from .vela import jl, vl
 
@@ -137,31 +143,41 @@ def get_default_priors(
     )
 
 
-def parse_custom_prior_file(prior_file: str | IO):
-    if isinstance(prior_file, str):
-        with open(prior_file) as prior_file_:
-            input_dict = json.load(prior_file_)
-    else:
-        input_dict = json.load(prior_file)
-
+def process_custom_priors(custom_priors_raw: dict, model: TimingModel) -> dict:
     output_dict = dict()
-    for pname, pdict in input_dict.items():
-        pdict: dict
-        distr_type = getattr(jl.Distributions, pdict["distribution"])
-        distr_args = pdict["args"]
-        if "upper" in pdict and "lower" in pdict:
-            output_dict[pname] = jl.Distributions.truncated(
-                distr_type(*distr_args), lower=pdict["lower"], upper=pdict["upper"]
+    for par in model.free_params:
+        prior_info: dict
+        if par in custom_priors_raw:
+            prior_info = custom_priors_raw[par]
+        elif hasattr(model[par], "prefix") and model[par].prefix in custom_priors_raw:
+            prior_info = custom_priors_raw[model[par].prefix]
+        else:
+            continue
+
+        unit_conversion_factor = get_unit_conversion_factor(model[par])
+
+        distr_type = getattr(jl.Distributions, prior_info["distribution"])
+        args = np.array(prior_info["args"])
+
+        scaled_args = vl.scale_prior_args(distr_type, args, unit_conversion_factor)
+
+        if "upper" in prior_info and "lower" in prior_info:
+            output_dict[par] = jl.Distributions.truncated(
+                distr_type(*scaled_args),
+                lower=(prior_info["lower"] * unit_conversion_factor),
+                upper=(prior_info["upper"] * unit_conversion_factor),
             )
-        elif "upper" in pdict:
-            output_dict[pname] = jl.Distributions.truncated(
-                distr_type(*distr_args), upper=pdict["upper"]
+        elif "upper" in prior_info:
+            output_dict[par] = jl.Distributions.truncated(
+                distr_type(*scaled_args),
+                upper=(prior_info["upper"] * unit_conversion_factor),
             )
-        elif "lower" in pdict:
-            output_dict[pname] = jl.Distributions.truncated(
-                distr_type(*distr_args), lower=pdict["lower"]
+        elif "lower" in prior_info:
+            output_dict[par] = jl.Distributions.truncated(
+                distr_type(*scaled_args),
+                lower=(prior_info["lower"] * unit_conversion_factor),
             )
         else:
-            output_dict[pname] = distr_type(*distr_args)
+            output_dict[par] = distr_type(*scaled_args)
 
     return output_dict

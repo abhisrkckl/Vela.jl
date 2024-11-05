@@ -1,6 +1,8 @@
 # Unreleased
 ## Added
 - `pyvela.SPNTA` class
+- `get_unit_conversion_factor` function
+- `prior_scaling` methods and `scale_prior_args` function
 ## Changed
 - Reorganized `pyvela` code
 - Rerun failures in `pyvela` CI tests.
@@ -9,6 +11,10 @@
 - Made the repository public and deployed the documentation website.
 - Migrated Python package settings from `setup.py` to `pyproject.toml`
 - Migrated from `Codecov` to `Coveralls` for code coverage
+- Prior JSON files now accept parameters in "normal" units.
+- `SPNTA` constructor now accepts "raw" prior dictionaries similar to the prior files rather than those containing actual `Distribution` objects.
+- Renamed `parse_custom_prior_file` to `process_custom_priors`
+- Renamed `read_model_and_toas` to `convert_model_and_toas`
 ## Fixed
 - Memory allocation in GP components
 ## Removed

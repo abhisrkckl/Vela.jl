@@ -6,19 +6,9 @@ using DoubleFloats: Double64
 using LinearAlgebra: dot
 using .Threads: @threads, @spawn, fetch, nthreads
 using Unrolled: @unroll
+using Distributions
 import Distributions:
-    Distribution,
-    ContinuousUnivariateDistribution,
-    pdf,
-    logpdf,
-    cdf,
-    logcdf,
-    quantile,
-    support,
-    minimum,
-    maximum,
-    insupport,
-    RealInterval
+    pdf, logpdf, cdf, logcdf, quantile, support, minimum, maximum, insupport
 import JLSO
 
 export GQ
@@ -57,6 +47,7 @@ include("model/dispersion_measurement_noise.jl")
 include("model/timing_model.jl")
 include("model/wideband_model.jl")
 include("prior/prior.jl")
+include("prior/prior_scaling.jl")
 include("prior/simple_prior.jl")
 include("prior/known_priors.jl")
 include("residuals/residuals.jl")

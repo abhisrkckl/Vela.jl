@@ -1,4 +1,5 @@
 import os
+import time
 
 import numpy as np
 import pytest
@@ -173,6 +174,8 @@ def test_readwrite_jlso(model_and_toas):
 
     spnta.save_jlso(jlsoname)
     assert os.path.isfile(jlsoname)
+
+    time.sleep(0.1)
 
     spnta2 = SPNTA.load_jlso(jlsoname)
     assert len(spnta2.toas) == len(spnta.toas)

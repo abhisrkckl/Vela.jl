@@ -66,4 +66,53 @@
             @test isfinite(quantile(d, 0.5))
         end
     end
+
+    @testset "prior scaling" begin
+        args = (1.0, 2.0)
+        distr_types = [
+            Arcsine,
+            Beta,
+            BetaPrime,
+            Biweight,
+            Cauchy,
+            Chi,
+            Chisq,
+            Cosine,
+            Epanechnikov,
+            Erlang,
+            Exponential,
+            FDist,
+            Frechet,
+            Gamma,
+            GeneralizedExtremeValue,
+            GeneralizedPareto,
+            Gumbel,
+            InverseGamma,
+            InverseGaussian,
+            Kolmogorov,
+            Kumaraswamy,
+            Laplace,
+            Levy,
+            Logistic,
+            LogNormal,
+            LogUniform,
+            Normal,
+            Pareto,
+            Rayleigh,
+            Semicircle,
+            SymTriangularDist,
+            TDist,
+            TriangularDist,
+            Triweight,
+            Uniform,
+            VonMises,
+            Weibull,
+        ]
+
+        for D in distr_types
+            @test all(map(isfinite, Vela.prior_scaling(D, args)))
+        end
+
+        @test scale_prior_args(Uniform, args, 2.0) == (2.0, 4.0)
+    end
 end
