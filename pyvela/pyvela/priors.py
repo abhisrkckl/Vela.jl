@@ -61,8 +61,8 @@ def get_default_prior(
 
     if param_name in custom_prior_dists:
         pdist = custom_prior_dists[param_name]
-    elif hasattr(param, "prefix") and param.prefix in custom_prior_dists:
-        pdist = custom_prior_dists[param.prefix]
+    # elif hasattr(param, "prefix") and param.prefix in custom_prior_dists:
+    #     pdist = custom_prior_dists[param.prefix]
     elif param_name in DEFAULT_PRIOR_DISTS:
         pdist = DEFAULT_PRIOR_DISTS[param_name]
     elif hasattr(param, "prefix") and param.prefix in DEFAULT_PRIOR_DISTS:
