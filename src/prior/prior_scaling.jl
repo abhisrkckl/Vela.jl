@@ -1,4 +1,4 @@
-export prior_scaling
+export scale_prior_args
 
 prior_scaling(::Type{Arcsine}, args) = map(oneunit, args)
 
@@ -74,3 +74,6 @@ prior_scaling(::Type{Uniform}, args) = map(oneunit, args)
 prior_scaling(::Type{VonMises}, args) = ((), (0,), (0, 1))[length(args)+1]
 
 prior_scaling(::Type{Weibull}, args) = ((), (0,), (0, 1))[length(args)+1]
+
+scale_prior_args(distr_type, args, unit_conversion_factor) =
+    args .* (unit_conversion_factor .^ prior_scaling(distr_type, args))
