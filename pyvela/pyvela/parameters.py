@@ -62,6 +62,20 @@ def get_scale_factor(param: Parameter):
         raise ValueError(f"Unable to estimate scale factor for {param.name}.")
 
 
+def get_unit_conversion_factor(param: Parameter):
+    scale_factor = get_scale_factor(param)
+
+    dim = (
+        compute_effective_dimensionality(param.quantity, scale_factor)
+        if not isinstance(param.quantity, Time)
+        else 1
+    )
+
+    return (param.units * scale_factor / u.s**dim).to_value(
+        u.dimensionless_unscaled, equivalencies=u.dimensionless_angles()
+    )
+
+
 def pint_parameter_to_vela(param: Parameter, epoch_mjd: float):
     """Construct a `Vela.Parameter` object from a `PINT` `Parameter` object."""
 
@@ -79,9 +93,7 @@ def pint_parameter_to_vela(param: Parameter, epoch_mjd: float):
     )
 
     original_units = str(param.units)
-    unit_conversion_factor = (param.units * scale_factor / u.s**dim).to_value(
-        u.dimensionless_unscaled, equivalencies=u.dimensionless_angles()
-    )
+    unit_conversion_factor = get_unit_conversion_factor(param)
 
     if param.name != "F0":
         return vl.Parameter(

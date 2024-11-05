@@ -1,2 +1,2 @@
-from .spnta import SPNTA, read_model_and_toas
+from .spnta import SPNTA
 from .vela import vl as Vela

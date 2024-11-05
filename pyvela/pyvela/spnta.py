@@ -1,54 +1,46 @@
 from copy import deepcopy
+import json
 from typing import IO
 
 import numpy as np
 from pint.binaryconvert import convert_binary
 from pint.logging import setup as setup_log
 from pint.models import TimingModel, get_model_and_toas
+from pint.toa import TOAs
 
 from .ecorr import ecorr_sort
 from .model import pint_model_to_vela
-from .priors import parse_custom_prior_file
+from .priors import process_custom_priors
 from .toas import day_to_s, pint_toas_to_vela
 from .vela import jl, vl
 
 
-def read_model_and_toas(
-    parfile: str, timfile: str, cheat_prior_scale=20, custom_priors={}
+def convert_model_and_toas(
+    model: TimingModel, toas: TOAs, cheat_prior_scale=20, custom_priors={}
 ):
     """Read a pair of par & tim files and create a `Vela.TimingModel` object and a
     Julia `Vector` of `TOA`s."""
 
-    setup_log(level="WARNING")
-    mp, tp = get_model_and_toas(
-        parfile,
-        timfile,
-        planets=True,
-        allow_tcb=True,
-        allow_T2=True,
-        add_tzr_to_model=True,
-    )
+    if "BinaryBT" in model.components:
+        model = convert_binary(model, "DD")
 
-    if "BinaryBT" in mp.components:
-        mp = convert_binary(mp, "DD")
-
-    if "EcorrNoise" in mp.components:
-        assert not tp.is_wideband(), "ECORR is not supported for wideband data."
-        tp, ecorr_toa_ranges, ecorr_indices = ecorr_sort(mp, tp)
+    if "EcorrNoise" in model.components:
+        assert not toas.is_wideband(), "ECORR is not supported for wideband data."
+        toas, ecorr_toa_ranges, ecorr_indices = ecorr_sort(model, toas)
     else:
         ecorr_toa_ranges, ecorr_indices = None, None
 
-    model = pint_model_to_vela(
-        mp,
-        tp,
+    model_v = pint_model_to_vela(
+        model,
+        toas,
         cheat_prior_scale,
         custom_priors,
         ecorr_toa_ranges=ecorr_toa_ranges,
         ecorr_indices=ecorr_indices,
     )
-    toas = pint_toas_to_vela(tp, float(mp.PEPOCH.value))
+    toas_v = pint_toas_to_vela(toas, float(model.PEPOCH.value))
 
-    return model, toas, mp
+    return model_v, toas_v
 
 
 class SPNTA:
@@ -97,21 +89,42 @@ class SPNTA:
         timfile: str,
         cheat_prior_scale: float = 20,
         custom_priors: str | IO | dict = {},
+        pint_kwargs={},
     ):
         self.parfile = parfile
         self.timfile = timfile
 
-        if not isinstance(custom_priors, dict):
-            custom_priors = parse_custom_prior_file(custom_priors)
-
-        model, toas, model_pint = read_model_and_toas(
+        setup_log(level="WARNING")
+        model_pint, toas_pint = get_model_and_toas(
             parfile,
             timfile,
+            planets=True,
+            allow_T2=True,
+            allow_tcb=True,
+            add_tzr_to_model=True,
+            **pint_kwargs,
+        )
+        self.model_pint = model_pint
+
+        # custom_priors_dict is in the "raw" format. The numbers may be
+        # in "normal" units and have to be converted into internal units.
+        if isinstance(custom_priors, dict):
+            custom_priors_dict = custom_priors
+        elif isinstance(custom_priors, str):
+            with open(custom_priors) as custom_priors_file:
+                custom_priors_dict = json.load(custom_priors_file)
+        else:
+            custom_priors_dict = json.load(custom_priors)
+
+        custom_priors = process_custom_priors(custom_priors_dict, model_pint)
+
+        setup_log(level="WARNING")
+        model, toas = convert_model_and_toas(
+            model_pint,
+            toas_pint,
             cheat_prior_scale=cheat_prior_scale,
             custom_priors=custom_priors,
         )
-
-        self.model_pint = model_pint
 
         self._setup(model, toas)
 
