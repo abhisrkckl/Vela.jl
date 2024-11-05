@@ -16,6 +16,7 @@
     },
     "ECORR": {
         "distribution": "LogUniform",
-        "args": [1e-2, 2.0]
+        "args": [1e-2, 2.0],
+        "lower": 1.1e-2
     }
 }
