@@ -14,7 +14,7 @@ Now install the Python dependencies and set the environment variables. The most 
 (base) $ # Setup conda environment
 (base) $ conda create -n vela python=3.12
 (base) $ conda activate vela
-(vela) $ conda install -c conda-forge pyjuliacall pint-pulsar black emcee nestle corner tqdm pytest pytest-xdist
+(vela) $ conda install -c conda-forge pyjuliacall pint-pulsar>=1.1 black emcee nestle corner tqdm pytest pytest-xdist
 (vela) $ conda env config vars set PYTHON_JULIACALL_HANDLE_SIGNALS=yes
 (vela) $ conda env config vars set PYTHON_JULIACALL_THREADS=4
 (vela) $ conda env config vars set JULIA_NUM_THREADS=4

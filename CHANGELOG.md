@@ -15,6 +15,7 @@
 - `SPNTA` constructor now accepts "raw" prior dictionaries similar to the prior files rather than those containing actual `Distribution` objects.
 - Renamed `parse_custom_prior_file` to `process_custom_priors`
 - Renamed `read_model_and_toas` to `convert_model_and_toas`
+- Updated lowest versions for Python dependencies
 ## Fixed
 - Memory allocation in GP components
 ## Removed

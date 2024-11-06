@@ -18,10 +18,10 @@ maintainers = [
 
 requires-python = ">=3.10"
 dependencies = [
-    "numpy",
-    "astropy",
-    "pint-pulsar",
-    "juliacall"
+    "numpy>=2.1",
+    "astropy>=6.1",
+    "pint-pulsar>=1.1",
+    "juliacall>=0.9"
 ]
 
 classifiers = [
