@@ -1,5 +1,11 @@
 # Unreleased
 ## Added
+## Changed
+## Fixed
+## Removed
+
+# 0.0.6
+## Added
 - `pyvela.SPNTA` class
 - `get_unit_conversion_factor` function
 - `prior_scaling` methods and `scale_prior_args` function
