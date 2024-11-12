@@ -241,6 +241,38 @@ class SPNTA:
         spnta._setup(model, toas)
         return spnta
 
+    @classmethod
+    def from_pint(
+        cls, model: TimingModel, toas: TOAs, cheat_prior_scale=20, custom_priors={}
+    ):
+        """Construct an `SPNTA` object from PINT `TimingModel` and `TOAs` objects"""
+        spnta = cls.__new__(cls)
+
+        setup_log(level="WARNING")
+
+        spnta.model_pint = model
+
+        # custom_priors_dict is in the "raw" format. The numbers may be
+        # in "normal" units and have to be converted into internal units.
+        if isinstance(custom_priors, dict):
+            custom_priors_dict = custom_priors
+        elif isinstance(custom_priors, str):
+            with open(custom_priors) as custom_priors_file:
+                custom_priors_dict = json.load(custom_priors_file)
+        else:
+            custom_priors_dict = json.load(custom_priors)
+
+        custom_priors = process_custom_priors(custom_priors_dict, model)
+
+        model_v, toas_v = convert_model_and_toas(
+            model,
+            toas,
+            cheat_prior_scale=cheat_prior_scale,
+            custom_priors=custom_priors,
+        )
+
+        spnta._setup(model_v, toas_v)
+
     def update_pint_model(self, samples: np.ndarray) -> TimingModel:
         """Return an updataed PINT `TimingModel` based on posterior samples."""
         mp: TimingModel = deepcopy(self.model_pint)
