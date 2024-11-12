@@ -1,5 +1,6 @@
 # Unreleased
 ## Added
+- `time_residuals`, `scaled_toa_uncertainties`, and `model_dm` functions
 ## Changed
 ## Fixed
 ## Removed

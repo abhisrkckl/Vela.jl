@@ -196,10 +196,16 @@ class SPNTA:
     def scaled_toa_unceritainties(self, params: np.ndarray) -> np.ndarray:
         """Get the scaled TOA uncertainties (s) for a given set of parameters."""
         params = vl.read_params(self.model, params)
+
         ctoas = [vl.correct_toa(self.model, tvi, params) for tvi in self.toas]
+
         return np.sqrt(
             [
-                vl.value(vl.scaled_toa_error_sqr(tvi, ctoa))
+                vl.value(
+                    vl.scaled_toa_error_sqr(tvi, ctoa)
+                    if not self.is_wideband()
+                    else vl.scaled_toa_error_sqr(tvi.toa, ctoa.toa_correction)
+                )
                 for (tvi, ctoa) in zip(self.toas, ctoas)
             ]
         )
@@ -207,15 +213,20 @@ class SPNTA:
     def model_dm(self, params: np.ndarray) -> np.ndarray:
         """Compute the model DM (dmu) for a given set of parameters."""
         params = vl.read_params(self.model, params)
-        dms = np.zeros(len(self.toas))
-        for ii, toa in enumerate(self.toas):
-            ctoa = vl.TOACorrection()
-            for component in self.model.components:
-                if vl.isa(component, vl.DispersionComponent):
-                    dms[ii] += vl.value(
-                        vl.dispersion_slope(component, toa, ctoa, params)
-                    )
-                ctoa = vl.correct_toa(component, toa, ctoa, params)
+
+        if not self.is_wideband():
+            dms = np.zeros(len(self.toas))
+            for ii, toa in enumerate(self.toas):
+                ctoa = vl.TOACorrection()
+                for component in self.model.components:
+                    if vl.isa(component, vl.DispersionComponent):
+                        dms[ii] += vl.value(
+                            vl.dispersion_slope(component, toa, ctoa, params)
+                        )
+                    ctoa = vl.correct_toa(component, toa, ctoa, params)
+        else:
+            ctoas = [vl.correct_toa(self.model, tvi, params) for tvi in self.toas]
+            dms = np.array([vl.value(ctoa.dm_correction.model_dm) for ctoa in ctoas])
 
         dmu_conversion_factor = 2.41e-16  # Hz / (DMconst * dmu)
 
