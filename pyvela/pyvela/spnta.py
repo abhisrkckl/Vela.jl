@@ -212,10 +212,12 @@ class SPNTA:
             ctoa = vl.TOACorrection()
             for component in self.model.components:
                 if vl.isa(component, vl.DispersionComponent):
-                    dms[ii] += vl.value(vl.dispersion_slope(component, toa, ctoa, params))
+                    dms[ii] += vl.value(
+                        vl.dispersion_slope(component, toa, ctoa, params)
+                    )
                 ctoa = vl.correct_toa(component, toa, ctoa, params)
-        
-        dmu_conversion_factor = 2.41e-16 # Hz / (DMconst * dmu)
+
+        dmu_conversion_factor = 2.41e-16  # Hz / (DMconst * dmu)
 
         return dms * dmu_conversion_factor
 

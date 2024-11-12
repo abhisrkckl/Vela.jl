@@ -106,6 +106,12 @@ def test_data(model_and_toas):
 
     assert all(np.isfinite(spnta.get_mjds())) and len(spnta.get_mjds()) == len(t)
 
+    assert all(np.isfinite(spnta.time_residuals(spnta.maxlike_params)))
+
+    assert all(np.isfinite(spnta.scaled_toa_unceritainties(spnta.maxlike_params)))
+
+    assert all(np.isfinite(spnta.model_dm(spnta.maxlike_params)))
+
 
 def test_chi2(model_and_toas):
     spnta: SPNTA
