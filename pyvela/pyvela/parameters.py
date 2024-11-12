@@ -132,7 +132,7 @@ def _get_multiparam_elements(model: TimingModel, multi_param_names: List[str]):
 
 # Parameters that are treated as single `Parameter`s in `PINT` due to compatibility reasons,
 # but logically should have been `prefixParameter`s.
-pseudo_single_params = ["DM", "CM"]
+pseudo_single_params = ["DM", "CM", "NE_SW"]
 
 
 def pint_parameters_to_vela(model: TimingModel):

@@ -1,5 +1,6 @@
 # Unreleased
 ## Added
+- NE_SW derivatives in `SolarWind`
 ## Changed
 ## Fixed
 ## Removed
