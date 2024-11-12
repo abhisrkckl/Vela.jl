@@ -79,47 +79,26 @@ for idx, (pname, mean, std) in enumerate(zip(spnta.param_names, means, stds)):
     if idx in param_plot_mask:
         print(f"{pname}\t\t{mean:.18e}\t\t{std:.4e}")
 
+params_median = np.median(samples_v_0, axis=0)
+rv = spnta.time_residuals(params_median)
+errs = spnta.scaled_toa_unceritainties(params_median)
 
-# param_labels = [f"\n\n{pname}\n({m[pname].units})\n" for pname in param_names]
-param_labels = [
-    f"\n\n{label}\n\n"
-    for idx, label in enumerate(spnta.param_labels)
-    if idx in param_plot_mask
-]
 samples_for_plot = samples_v[:, param_plot_mask]
 fig = corner.corner(
     samples_for_plot,
-    labels=param_labels,
+    labels=spnta.param_labels,
     label_kwargs={"fontsize": 11},
-    range=[0.999] * len(param_labels),
+    range=[0.999] * spnta.ndim,
     truths=(maxlike_params_v[0] / spnta.scale_factors)[param_plot_mask],
     plot_datapoints=False,
     hist_kwargs={"density": True},
+    labelpad=0.3,
+    max_n_ticks=3,
 )
 
 plt.suptitle(spnta.model.pulsar_name)
-plt.tight_layout()
-plt.show()
 
-
-params_median = vl.read_params(spnta.model, np.median(samples_v_0, axis=0))
-rv = (
-    list(map(vl.value, vl.form_residuals(spnta.model, spnta.toas, params_median)))
-    if not spnta.is_wideband()
-    else [
-        vl.value(wr[0])
-        for wr in vl.form_residuals(spnta.model, spnta.toas, params_median)
-    ]
-)
-
-ctoas = [vl.correct_toa(spnta.model, tvi, params_median) for tvi in spnta.toas]
-errs = np.sqrt(
-    [
-        vl.value(vl.scaled_toa_error_sqr(tvi, ctoa))
-        for (tvi, ctoa) in zip(spnta.toas, ctoas)
-    ]
-)
-
+plt.subplot(6, 3, 3)
 plt.errorbar(
     spnta.get_mjds(),
     rv,
@@ -132,5 +111,5 @@ plt.axhline(0, color="grey", ls="dotted")
 plt.xlabel("MJD")
 plt.ylabel("Residuals (s)")
 plt.suptitle(spnta.model.pulsar_name)
-plt.tight_layout()
+
 plt.show()

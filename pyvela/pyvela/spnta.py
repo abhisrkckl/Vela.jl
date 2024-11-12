@@ -179,6 +179,29 @@ class SPNTA:
                 [jl.Float64(vl.value(toa.value)) / day_to_s for toa in self.toas]
             )
 
+    def time_residuals(self, params: np.ndarray) -> np.ndarray:
+        """Get the timing residuals (s) for a given set of parameters."""
+        params = vl.read_params(self.model, params)
+        return np.array(
+            list(map(vl.value, vl.form_residuals(self.model, self.toas, params)))
+            if not self.is_wideband()
+            else [
+                vl.value(wr[0])
+                for wr in vl.form_residuals(self.model, self.toas, params)
+            ]
+        )
+
+    def scaled_toa_unceritainties(self, params: np.ndarray) -> np.ndarray:
+        """Get the scaled TOA uncertainties (s) for a given set of parameters."""
+        params = vl.read_params(self.model, params)
+        ctoas = [vl.correct_toa(self.model, tvi, params) for tvi in self.toas]
+        return np.sqrt(
+            [
+                vl.value(vl.scaled_toa_error_sqr(tvi, ctoa))
+                for (tvi, ctoa) in zip(self.toas, ctoas)
+            ]
+        )
+
     @classmethod
     def load_jlso(cls, filename: str):
         """Construct an `SPNTA` object from a JLSO file"""
