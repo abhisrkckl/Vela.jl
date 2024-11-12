@@ -3,10 +3,12 @@ import json
 from typing import IO
 
 import numpy as np
+import astropy.units as u
 from pint.binaryconvert import convert_binary
 from pint.logging import setup as setup_log
 from pint.models import TimingModel, get_model_and_toas
 from pint.toa import TOAs
+from pint import dmu, DMconst
 
 from .ecorr import ecorr_sort
 from .model import pint_model_to_vela
@@ -178,6 +180,44 @@ class SPNTA:
             return np.array(
                 [jl.Float64(vl.value(toa.value)) / day_to_s for toa in self.toas]
             )
+
+    def time_residuals(self, params: np.ndarray) -> np.ndarray:
+        """Get the timing residuals (s) for a given set of parameters."""
+        params = vl.read_params(self.model, params)
+        return np.array(
+            list(map(vl.value, vl.form_residuals(self.model, self.toas, params)))
+            if not self.is_wideband()
+            else [
+                vl.value(wr[0])
+                for wr in vl.form_residuals(self.model, self.toas, params)
+            ]
+        )
+
+    def scaled_toa_unceritainties(self, params: np.ndarray) -> np.ndarray:
+        """Get the scaled TOA uncertainties (s) for a given set of parameters."""
+        params = vl.read_params(self.model, params)
+        ctoas = [vl.correct_toa(self.model, tvi, params) for tvi in self.toas]
+        return np.sqrt(
+            [
+                vl.value(vl.scaled_toa_error_sqr(tvi, ctoa))
+                for (tvi, ctoa) in zip(self.toas, ctoas)
+            ]
+        )
+
+    def model_dm(self, params: np.ndarray) -> np.ndarray:
+        """Compute the model DM (dmu) for a given set of parameters."""
+        params = vl.read_params(self.model, params)
+        dms = np.zeros(len(self.toas))
+        for ii, toa in enumerate(self.toas):
+            ctoa = vl.TOACorrection()
+            for component in self.model.components:
+                if vl.isa(component, vl.DispersionComponent):
+                    dms[ii] += vl.value(vl.dispersion_slope(component, toa, ctoa, params))
+                ctoa = vl.correct_toa(component, toa, ctoa, params)
+        
+        dmu_conversion_factor = 2.41e-16 # Hz / (DMconst * dmu)
+
+        return dms * dmu_conversion_factor
 
     @classmethod
     def load_jlso(cls, filename: str):
