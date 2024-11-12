@@ -3,10 +3,12 @@ import json
 from typing import IO
 
 import numpy as np
+import astropy.units as u
 from pint.binaryconvert import convert_binary
 from pint.logging import setup as setup_log
 from pint.models import TimingModel, get_model_and_toas
 from pint.toa import TOAs
+from pint import dmu, DMconst
 
 from .ecorr import ecorr_sort
 from .model import pint_model_to_vela
@@ -201,6 +203,21 @@ class SPNTA:
                 for (tvi, ctoa) in zip(self.toas, ctoas)
             ]
         )
+
+    def model_dm(self, params: np.ndarray) -> np.ndarray:
+        """Compute the model DM (dmu) for a given set of parameters."""
+        params = vl.read_params(self.model, params)
+        dms = np.zeros(len(self.toas))
+        for ii, toa in enumerate(self.toas):
+            ctoa = vl.TOACorrection()
+            for component in self.model.components:
+                if vl.isa(component, vl.DispersionComponent):
+                    dms[ii] += vl.value(vl.dispersion_slope(component, toa, ctoa, params))
+                ctoa = vl.correct_toa(component, toa, ctoa, params)
+        
+        dmu_conversion_factor = 2.41e-16 # Hz / (DMconst * dmu)
+
+        return dms * dmu_conversion_factor
 
     @classmethod
     def load_jlso(cls, filename: str):
