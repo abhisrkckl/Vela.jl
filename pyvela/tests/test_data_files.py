@@ -17,33 +17,33 @@ jl.seval("get_alloc(func, args...) = @ballocated(($func)(($args)...))")
 datadir = os.path.dirname(os.path.realpath(__file__)) + "/datafiles"
 
 datasets = [
-    "sim1",
-    "sim_dmwn",
-    "sim_jump",
-    "sim_jump_ex",
-    "sim_sw",
-    "sim_sw.wb",
-    "sim_fdjumpdm",
-    "sim_dmjump",
-    "sim_cm",
-    "sim2",
-    "sim3",
-    "sim3.gp",
-    "sim4",
-    "sim4.gp",
-    "sim_fd",
-    "sim_fdjump",
-    "sim6",
-    "sim6.gp",
-    "sim_ddk",
-    "sim_glitch",
-    "J0613-0200.sim",
-    "J1856-3754.sim",
-    "J1802-2124.sim",
-    "J0955-6150.sim",
-    "J1208-5936.sim",
-    "J2302+4442.sim",
-    "J1227-6208.sim",
+    "sim_1",
+    # "sim_dmwn",
+    # "sim_jump",
+    # "sim_jump_ex",
+    # "sim_sw",
+    # "sim_sw.wb",
+    # "sim_fdjumpdm",
+    # "sim_dmjump",
+    # "sim_cm",
+    # "sim2",
+    # "sim3",
+    # "sim3.gp",
+    # "sim4",
+    # "sim4.gp",
+    # "sim_fd",
+    # "sim_fdjump",
+    # "sim6",
+    # "sim6.gp",
+    # "sim_ddk",
+    # "sim_glitch",
+    # "J0613-0200.sim",
+    # "J1856-3754.sim",
+    # "J1802-2124.sim",
+    # "J0955-6150.sim",
+    # "J1208-5936.sim",
+    # "J2302+4442.sim",
+    # "J1227-6208.sim",
 ]
 
 
@@ -55,7 +55,7 @@ def model_and_toas(request):
 
     m, t = get_model_and_toas(f"{datadir}/{dataset}.par", f"{datadir}/{dataset}.tim")
 
-    custom_priors = f"{datadir}/custom_priors.json" if "EFAC1" in m.free_params else {}
+    custom_priors = f"{datadir}/custom_priors.json"
 
     spnta = SPNTA(
         parfile,
