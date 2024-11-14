@@ -35,8 +35,8 @@ datasets = [
     # "sim_fdjump",
     # "sim6",
     # "sim6.gp",
-    # "sim_ddk",
-    # "sim_glitch",
+    "sim_ddk",
+    "sim_glitch",
     # "J0613-0200.sim",
     # "J1856-3754.sim",
     # "J1802-2124.sim",
@@ -134,11 +134,11 @@ def test_chi2(model_and_toas):
         )
 
 
-# def test_likelihood(model_and_toas):
-#     spnta: SPNTA
-#     spnta, _, _ = model_and_toas
-#     calc_lnlike = vl.get_lnlike_func(spnta.model, spnta.toas)
-#     assert np.isfinite(calc_lnlike(spnta.maxlike_params))
+def test_likelihood(model_and_toas):
+    spnta: SPNTA
+    spnta, _, _ = model_and_toas
+    calc_lnlike = vl.get_lnlike_func(spnta.model, spnta.toas)
+    assert np.isfinite(calc_lnlike(spnta.maxlike_params))
 
 
 def test_prior(model_and_toas):
