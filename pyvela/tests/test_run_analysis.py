@@ -5,12 +5,15 @@ import emcee
 import numpy as np
 
 from pyvela.spnta import SPNTA
+from pint.models import get_model_and_toas
 
 
 def test_analysis_NGC6440E_emcee():
     datadir = os.path.dirname(os.path.realpath(__file__)) + "/datafiles"
     dataset = "NGC6440E"
     parfile, timfile = f"{datadir}/{dataset}.par", f"{datadir}/{dataset}.tim"
+
+    mp, tp = get_model_and_toas(parfile, timfile, planets=True)
 
     prior_str = StringIO(
         """{
@@ -21,9 +24,9 @@ def test_analysis_NGC6440E_emcee():
         }"""
     )
 
-    spnta = SPNTA(
-        parfile,
-        timfile,
+    spnta = SPNTA.from_pint(
+        mp,
+        tp,
         custom_priors=prior_str,
     )
 
