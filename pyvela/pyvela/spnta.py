@@ -3,10 +3,12 @@ import json
 from typing import IO
 
 import numpy as np
+import astropy.units as u
 from pint.binaryconvert import convert_binary
 from pint.logging import setup as setup_log
 from pint.models import TimingModel, get_model_and_toas
 from pint.toa import TOAs
+from pint import dmu, DMconst
 
 from .ecorr import ecorr_sort
 from .model import pint_model_to_vela
@@ -179,6 +181,57 @@ class SPNTA:
                 [jl.Float64(vl.value(toa.value)) / day_to_s for toa in self.toas]
             )
 
+    def time_residuals(self, params: np.ndarray) -> np.ndarray:
+        """Get the timing residuals (s) for a given set of parameters."""
+        params = vl.read_params(self.model, params)
+        return np.array(
+            list(map(vl.value, vl.form_residuals(self.model, self.toas, params)))
+            if not self.is_wideband()
+            else [
+                vl.value(wr[0])
+                for wr in vl.form_residuals(self.model, self.toas, params)
+            ]
+        )
+
+    def scaled_toa_unceritainties(self, params: np.ndarray) -> np.ndarray:
+        """Get the scaled TOA uncertainties (s) for a given set of parameters."""
+        params = vl.read_params(self.model, params)
+
+        ctoas = [vl.correct_toa(self.model, tvi, params) for tvi in self.toas]
+
+        return np.sqrt(
+            [
+                vl.value(
+                    vl.scaled_toa_error_sqr(tvi, ctoa)
+                    if not self.is_wideband()
+                    else vl.scaled_toa_error_sqr(tvi.toa, ctoa.toa_correction)
+                )
+                for (tvi, ctoa) in zip(self.toas, ctoas)
+            ]
+        )
+
+    def model_dm(self, params: np.ndarray) -> np.ndarray:
+        """Compute the model DM (dmu) for a given set of parameters."""
+        params = vl.read_params(self.model, params)
+
+        if not self.is_wideband():
+            dms = np.zeros(len(self.toas))
+            for ii, toa in enumerate(self.toas):
+                ctoa = vl.TOACorrection()
+                for component in self.model.components:
+                    if vl.isa(component, vl.DispersionComponent):
+                        dms[ii] += vl.value(
+                            vl.dispersion_slope(component, toa, ctoa, params)
+                        )
+                    ctoa = vl.correct_toa(component, toa, ctoa, params)
+        else:
+            ctoas = [vl.correct_toa(self.model, tvi, params) for tvi in self.toas]
+            dms = np.array([vl.value(ctoa.dm_correction.model_dm) for ctoa in ctoas])
+
+        dmu_conversion_factor = 2.41e-16  # Hz / (DMconst * dmu)
+
+        return dms * dmu_conversion_factor
+
     @classmethod
     def load_jlso(cls, filename: str):
         """Construct an `SPNTA` object from a JLSO file"""
@@ -187,6 +240,38 @@ class SPNTA:
         spnta.jlsofile = filename
         spnta._setup(model, toas)
         return spnta
+
+    @classmethod
+    def from_pint(
+        cls, model: TimingModel, toas: TOAs, cheat_prior_scale=20, custom_priors={}
+    ):
+        """Construct an `SPNTA` object from PINT `TimingModel` and `TOAs` objects"""
+        spnta = cls.__new__(cls)
+
+        setup_log(level="WARNING")
+
+        spnta.model_pint = model
+
+        # custom_priors_dict is in the "raw" format. The numbers may be
+        # in "normal" units and have to be converted into internal units.
+        if isinstance(custom_priors, dict):
+            custom_priors_dict = custom_priors
+        elif isinstance(custom_priors, str):
+            with open(custom_priors) as custom_priors_file:
+                custom_priors_dict = json.load(custom_priors_file)
+        else:
+            custom_priors_dict = json.load(custom_priors)
+
+        custom_priors = process_custom_priors(custom_priors_dict, model)
+
+        model_v, toas_v = convert_model_and_toas(
+            model,
+            toas,
+            cheat_prior_scale=cheat_prior_scale,
+            custom_priors=custom_priors,
+        )
+
+        spnta._setup(model_v, toas_v)
 
     def update_pint_model(self, samples: np.ndarray) -> TimingModel:
         """Return an updataed PINT `TimingModel` based on posterior samples."""

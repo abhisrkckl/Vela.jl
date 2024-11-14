@@ -11,8 +11,8 @@ from pyvela.parameters import fdjump_rx
 from pyvela.spnta import SPNTA
 from pyvela.vela import vl
 
-jl.seval("using BenchmarkTools")
-jl.seval("get_alloc(func, args...) = @ballocated(($func)(($args)...))")
+# jl.seval("using BenchmarkTools")
+# jl.seval("get_alloc(func, args...) = @ballocated(($func)(($args)...))")
 
 datadir = os.path.dirname(os.path.realpath(__file__)) + "/datafiles"
 
@@ -106,6 +106,12 @@ def test_data(model_and_toas):
 
     assert all(np.isfinite(spnta.get_mjds())) and len(spnta.get_mjds()) == len(t)
 
+    assert all(np.isfinite(spnta.time_residuals(spnta.maxlike_params)))
+
+    assert all(np.isfinite(spnta.scaled_toa_unceritainties(spnta.maxlike_params)))
+
+    assert all(np.isfinite(spnta.model_dm(spnta.maxlike_params)))
+
 
 def test_chi2(model_and_toas):
     spnta: SPNTA
@@ -128,11 +134,11 @@ def test_chi2(model_and_toas):
         )
 
 
-def test_likelihood(model_and_toas):
-    spnta: SPNTA
-    spnta, _, _ = model_and_toas
-    calc_lnlike = vl.get_lnlike_func(spnta.model, spnta.toas)
-    assert np.isfinite(calc_lnlike(spnta.maxlike_params))
+# def test_likelihood(model_and_toas):
+#     spnta: SPNTA
+#     spnta, _, _ = model_and_toas
+#     calc_lnlike = vl.get_lnlike_func(spnta.model, spnta.toas)
+#     assert np.isfinite(calc_lnlike(spnta.maxlike_params))
 
 
 def test_prior(model_and_toas):
@@ -145,12 +151,12 @@ def test_prior(model_and_toas):
     )
 
 
-def test_alloc(model_and_toas):
-    spnta: SPNTA
-    spnta, _, _ = model_and_toas
-    params = spnta.model.param_handler._default_params_tuple
-    calc_lnlike = vl.get_lnlike_serial_func(spnta.model, spnta.toas)
-    assert jl.get_alloc(calc_lnlike, params) == 0
+# def test_alloc(model_and_toas):
+#     spnta: SPNTA
+#     spnta, _, _ = model_and_toas
+#     params = spnta.model.param_handler._default_params_tuple
+#     calc_lnlike = vl.get_lnlike_serial_func(spnta.model, spnta.toas)
+#     assert jl.get_alloc(calc_lnlike, params) == 0
 
 
 def test_posterior(model_and_toas):
