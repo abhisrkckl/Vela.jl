@@ -4,6 +4,7 @@
 ## Changed
 ## Fixed
 ## Removed
+- `test_alloc` and `test_likelihood` from `test_data_files.py`
 
 # 0.0.6
 ## Added
