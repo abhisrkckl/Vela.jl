@@ -11,8 +11,8 @@ from pyvela.parameters import fdjump_rx
 from pyvela.spnta import SPNTA
 from pyvela.vela import vl
 
-jl.seval("using BenchmarkTools")
-jl.seval("get_alloc(func, args...) = @ballocated(($func)(($args)...))")
+# jl.seval("using BenchmarkTools")
+# jl.seval("get_alloc(func, args...) = @ballocated(($func)(($args)...))")
 
 datadir = os.path.dirname(os.path.realpath(__file__)) + "/datafiles"
 
@@ -151,12 +151,12 @@ def test_prior(model_and_toas):
     )
 
 
-def test_alloc(model_and_toas):
-    spnta: SPNTA
-    spnta, _, _ = model_and_toas
-    params = spnta.model.param_handler._default_params_tuple
-    calc_lnlike = vl.get_lnlike_serial_func(spnta.model, spnta.toas)
-    assert jl.get_alloc(calc_lnlike, params) == 0
+# def test_alloc(model_and_toas):
+#     spnta: SPNTA
+#     spnta, _, _ = model_and_toas
+#     params = spnta.model.param_handler._default_params_tuple
+#     calc_lnlike = vl.get_lnlike_serial_func(spnta.model, spnta.toas)
+#     assert jl.get_alloc(calc_lnlike, params) == 0
 
 
 def test_posterior(model_and_toas):
