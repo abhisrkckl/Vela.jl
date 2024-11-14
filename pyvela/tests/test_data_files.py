@@ -32,7 +32,7 @@ datasets = [
     # "sim4",
     # "sim4.gp",
     # "sim_fd",
-    # "sim_fdjump",
+    "sim_fdjump",
     # "sim6",
     # "sim6.gp",
     "sim_ddk",
