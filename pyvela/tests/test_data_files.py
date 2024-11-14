@@ -27,7 +27,7 @@ datasets = [
     # "sim_dmjump",
     # "sim_cm",
     # "sim2",
-    # "sim3",
+    "sim3",
     "sim3.gp",
     # "sim4",
     # "sim4.gp",
