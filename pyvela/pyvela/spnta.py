@@ -3,12 +3,10 @@ import json
 from typing import IO
 
 import numpy as np
-import astropy.units as u
 from pint.binaryconvert import convert_binary
 from pint.logging import setup as setup_log
 from pint.models import TimingModel, get_model_and_toas
 from pint.toa import TOAs
-from pint import dmu, DMconst
 
 from .ecorr import ecorr_sort
 from .model import pint_model_to_vela

@@ -1,5 +1,4 @@
-import json
-from typing import IO, List
+from typing import List
 
 import numpy as np
 from astropy.time import Time
