@@ -5,6 +5,7 @@
 ## Fixed
 ## Removed
 - `test_alloc` and `test_likelihood` from `test_data_files.py`
+- Unnecessary test & example data files
 
 # 0.0.6
 ## Added
