@@ -17,9 +17,9 @@ def test_analysis_NGC6440E_emcee():
 
     prior_str = StringIO(
         """{
-            "PHOFF": {
+            "EFAC": {
                 "distribution": "Uniform",
-                "args": [-0.5, 0.5]
+                "args": [0.5, 1.5]
             }
         }"""
     )
