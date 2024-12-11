@@ -1,4 +1,4 @@
-export get_lnpost_func
+export calc_lnpost, calc_lnpost_serial, calc_lnpost_vectorized, get_lnpost_func
 
 
 function calc_lnpost(model::TimingModel, toas::Vector{T}, params) where {T<:TOABase}
