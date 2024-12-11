@@ -146,12 +146,12 @@
         params = model.param_handler._default_params_tuple
         parv = read_param_values_to_vector(model.param_handler, params)
 
-        calc_lnpost = get_lnpost_func(model, toas)
-        @test isfinite(calc_lnpost(params))
+        calc_lnpost_ = get_lnpost_func(model, toas)
+        @test isfinite(calc_lnpost_(params))
 
         calc_lnpost_vec = get_lnpost_func(model, toas, true)
         paramss = transpose([parv parv parv])
         @test allequal(calc_lnpost_vec(paramss))
-        @test calc_lnpost_vec(paramss)[1] ≈ calc_lnpost(params)
+        @test calc_lnpost_vec(paramss)[1] ≈ calc_lnpost_(params)
     end
 end

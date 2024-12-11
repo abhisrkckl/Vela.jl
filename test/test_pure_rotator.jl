@@ -117,7 +117,7 @@
         calc_lnprior = get_lnprior_func(model)
         params = model.param_handler._default_params_tuple
         parv = read_param_values_to_vector(model.param_handler, params)
-        @test isfinite(calc_lnprior(model.param_handler._default_params_tuple))
+        @test isfinite(calc_lnprior(params))
         @test calc_lnprior(params) == calc_lnprior(parv)
 
         prior_transform = get_prior_transform_func(model)
