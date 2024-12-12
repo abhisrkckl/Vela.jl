@@ -1,6 +1,7 @@
 # Unreleased
 ## Added
 - `time_residuals`, `scaled_toa_uncertainties`, and `model_dm`, `from_pint` methods in `SPNTA`
+- `Pulsar` class
 ## Changed
 ## Fixed
 ## Removed
@@ -12,7 +13,6 @@
 - `pyvela.SPNTA` class
 - `get_unit_conversion_factor` function
 - `prior_scaling` methods and `scale_prior_args` function
-- `Pulsar` class
 ## Changed
 - Reorganized `pyvela` code
 - Rerun failures in `pyvela` CI tests.
