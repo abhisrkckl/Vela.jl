@@ -96,6 +96,11 @@ def test_data(model_and_toas):
 
     assert all(np.isfinite(spnta.model_dm(spnta.maxlike_params)))
 
+    assert (
+        all([len(label) > 0 for label in spnta.param_labels])
+        and len(spnta.param_labels) == spnta.ndim
+    )
+
 
 def test_chi2(model_and_toas):
     spnta: SPNTA
