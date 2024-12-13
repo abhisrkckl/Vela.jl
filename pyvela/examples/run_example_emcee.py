@@ -48,7 +48,7 @@ sampler = emcee.EnsembleSampler(
     nwalkers,
     spnta.ndim,
     spnta.lnpost_vectorized,
-    moves=[emcee.moves.StretchMove(), emcee.moves.DESnookerMove()],
+    # moves=[emcee.moves.StretchMove(), emcee.moves.DESnookerMove()],
     vectorize=True,
 )
 sampler.run_mcmc(p0, 6000, progress=True, progress_kwargs={"mininterval": 1})
