@@ -1,6 +1,7 @@
 # Unreleased
 ## Added
 - `time_residuals`, `scaled_toa_uncertainties`, and `model_dm`, `from_pint` methods in `SPNTA`
+- `Pulsar` class
 ## Changed
 ## Fixed
 ## Removed

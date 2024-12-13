@@ -126,23 +126,7 @@ class SPNTA:
             custom_priors=custom_priors,
         )
 
-        self._setup(model, toas)
-
-    def _setup(self, model, toas):
-        self.model = model
-        self.toas = toas
-
-        self.lnlike = vl.get_lnlike_func(self.model, self.toas)
-        self.lnprior = vl.get_lnprior_func(self.model)
-        self.prior_transform = vl.get_prior_transform_func(self.model)
-        self.lnpost = vl.get_lnpost_func(self.model, self.toas, False)
-        self.lnpost_vectorized = vl.get_lnpost_func(self.model, self.toas, True)
-
-        self.param_names = list(vl.get_free_param_names(self.model))
-        self.param_labels = list(vl.get_free_param_labels(self.model))
-        self.scale_factors = np.array(vl.get_scale_factors(self.model))
-        self.maxlike_params = np.array(vl.read_param_values_to_vector(self.model))
-        self.ndim = len(self.param_names)
+        self.pulsar = vl.Pulsar(model, toas)
 
         self._check()
 
@@ -156,46 +140,99 @@ class SPNTA:
         assert all(np.isfinite([lnpr, lnl, lnp]))
         assert np.isclose(lnp, lnpv)
 
+    def lnlike(self, params):
+        return vl.calc_lnlike(self.pulsar, params)
+
+    def lnprior(self, params):
+        return vl.calc_lnprior(self.pulsar, params)
+
+    def prior_transform(self, cube):
+        return vl.prior_transform(self.pulsar, cube)
+
+    def lnpost(self, params):
+        return vl.calc_lnpost(self.pulsar, params)
+
+    def lnpost_vectorized(self, paramss):
+        return vl.calc_lnpost_vectorized(self.pulsar, paramss)
+
+    @property
+    def model(self):
+        return self.pulsar.model
+
+    @property
+    def toas(self):
+        return self.pulsar.toas
+
+    @property
+    def param_names(self):
+        return list(vl.get_free_param_names(self.pulsar.model))
+
+    @property
+    def param_labels(self):
+        return list(vl.get_free_param_labels(self.pulsar.model))
+
+    @property
+    def scale_factors(self):
+        return np.array(vl.get_scale_factors(self.pulsar.model))
+
+    @property
+    def maxlike_params(self):
+        return np.array(vl.read_param_values_to_vector(self.pulsar.model))
+
+    @property
+    def ndim(self):
+        return len(self.param_names)
+
     def rescale_samples(self, samples: np.ndarray) -> np.ndarray:
         """Rescale the samples from Vela's internal units to common units"""
         return samples / self.scale_factors
 
     def save_jlso(self, filename: str) -> None:
         """Write the model and TOAs as a JLSO file"""
-        vl.save_pulsar_data(filename, self.model, self.toas)
+        vl.save_pulsar_data(filename, self.pulsar.model, self.pulsar.toas)
 
     def is_wideband(self) -> bool:
         """Whether the TOAs are wideband."""
-        return jl.isa(self.toas[0], vl.WidebandTOA)
+        return jl.isa(self.pulsar.toas[0], vl.WidebandTOA)
 
     def get_mjds(self) -> np.ndarray:
         """Get the MJDs of each TOA."""
         if self.is_wideband():
             return np.array(
-                [jl.Float64(vl.value(wtoa.toa.value)) / day_to_s for wtoa in self.toas]
+                [
+                    jl.Float64(vl.value(wtoa.toa.value)) / day_to_s
+                    for wtoa in self.pulsar.toas
+                ]
             )
         else:
             return np.array(
-                [jl.Float64(vl.value(toa.value)) / day_to_s for toa in self.toas]
+                [jl.Float64(vl.value(toa.value)) / day_to_s for toa in self.pulsar.toas]
             )
 
     def time_residuals(self, params: np.ndarray) -> np.ndarray:
         """Get the timing residuals (s) for a given set of parameters."""
-        params = vl.read_params(self.model, params)
+        params = vl.read_params(self.pulsar.model, params)
         return np.array(
-            list(map(vl.value, vl.form_residuals(self.model, self.toas, params)))
+            list(
+                map(
+                    vl.value,
+                    vl.form_residuals(self.pulsar.model, self.pulsar.toas, params),
+                )
+            )
             if not self.is_wideband()
             else [
                 vl.value(wr[0])
-                for wr in vl.form_residuals(self.model, self.toas, params)
+                for wr in vl.form_residuals(self.pulsar.model, self.pulsar.toas, params)
             ]
         )
 
     def scaled_toa_unceritainties(self, params: np.ndarray) -> np.ndarray:
         """Get the scaled TOA uncertainties (s) for a given set of parameters."""
-        params = vl.read_params(self.model, params)
+        params = vl.read_params(self.pulsar.model, params)
 
-        ctoas = [vl.correct_toa(self.model, tvi, params) for tvi in self.toas]
+        ctoas = [
+            vl.correct_toa(self.pulsar.model, tvi, params) for tvi in self.pulsar.toas
+        ]
 
         return np.sqrt(
             [
@@ -204,26 +241,29 @@ class SPNTA:
                     if not self.is_wideband()
                     else vl.scaled_toa_error_sqr(tvi.toa, ctoa.toa_correction)
                 )
-                for (tvi, ctoa) in zip(self.toas, ctoas)
+                for (tvi, ctoa) in zip(self.pulsar.toas, ctoas)
             ]
         )
 
     def model_dm(self, params: np.ndarray) -> np.ndarray:
         """Compute the model DM (dmu) for a given set of parameters."""
-        params = vl.read_params(self.model, params)
+        params = vl.read_params(self.pulsar.model, params)
 
         if not self.is_wideband():
-            dms = np.zeros(len(self.toas))
-            for ii, toa in enumerate(self.toas):
+            dms = np.zeros(len(self.pulsar.toas))
+            for ii, toa in enumerate(self.pulsar.toas):
                 ctoa = vl.TOACorrection()
-                for component in self.model.components:
+                for component in self.pulsar.model.components:
                     if vl.isa(component, vl.DispersionComponent):
                         dms[ii] += vl.value(
                             vl.dispersion_slope(component, toa, ctoa, params)
                         )
                     ctoa = vl.correct_toa(component, toa, ctoa, params)
         else:
-            ctoas = [vl.correct_toa(self.model, tvi, params) for tvi in self.toas]
+            ctoas = [
+                vl.correct_toa(self.pulsar.model, tvi, params)
+                for tvi in self.pulsar.toas
+            ]
             dms = np.array([vl.value(ctoa.dm_correction.model_dm) for ctoa in ctoas])
 
         dmu_conversion_factor = 2.41e-16  # Hz / (DMconst * dmu)
@@ -236,7 +276,8 @@ class SPNTA:
         spnta = cls.__new__(cls)
         model, toas = vl.load_pulsar_data(filename)
         spnta.jlsofile = filename
-        spnta._setup(model, toas)
+        spnta.pulsar = vl.Pulsar(model, toas)
+        spnta._check()
         return spnta
 
     @classmethod
@@ -269,7 +310,8 @@ class SPNTA:
             custom_priors=custom_priors,
         )
 
-        spnta._setup(model_v, toas_v)
+        spnta.pulsar = vl.Pulsar(model_v, toas_v)
+        spnta._check()
 
         return spnta
 

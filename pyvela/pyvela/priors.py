@@ -25,15 +25,15 @@ DEFAULT_PRIOR_DISTS = {
     "DMEFAC": jl.LogNormal(0.0, 0.25),
     "PLREDCOS_": jl.Normal(),
     "PLREDSIN_": jl.Normal(),
-    "TNREDAMP": jl.Uniform(-16.0, -9.0),
+    "TNREDAMP": jl.Uniform(-18.0, -9.0),
     "TNREDGAM": jl.Uniform(0.0, 7.0),
     "PLDMCOS_": jl.Normal(),
     "PLDMSIN_": jl.Normal(),
-    "TNDMAMP": jl.Uniform(-16.0, -9.0),
+    "TNDMAMP": jl.Uniform(-18.0, -9.0),
     "TNDMGAM": jl.Uniform(0.0, 7.0),
     "PLCHROMCOS_": jl.Normal(),
     "PLCHROMSIN_": jl.Normal(),
-    "TNCHROMAMP": jl.Uniform(-16.0, -9.0),
+    "TNCHROMAMP": jl.Uniform(-18.0, -9.0),
     "TNCHROMGAM": jl.Uniform(0.0, 7.0),
 }
 
