@@ -1,5 +1,11 @@
 export Pulsar
 
+"""
+    Pulsar{M<:TimingModel,T<:TOABase}
+    
+Represents a pulsar dataset with a timing model and a set of TOAs.
+All TOAs must be of the same paradigm (narrowband/wideband).
+"""
 struct Pulsar{M<:TimingModel,T<:TOABase}
     model::M
     toas::Vector{T}
