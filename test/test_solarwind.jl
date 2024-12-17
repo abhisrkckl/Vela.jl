@@ -15,7 +15,8 @@
         PX = GQ{-1}(3e-12),
         PMELAT = GQ{-1}(-7e-16),
         PMELONG = GQ{-1}(-5e-16),
-        NE_SW = GQ{-2}(1.6e8),
+        NE_SW = (GQ{-2}(1.6e8),),
+        SWEPOCH = time((53470.0 - epoch_mjd) * day_to_s),
     )
 
     swd = SolarWindDispersion()

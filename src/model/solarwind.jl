@@ -31,5 +31,8 @@ function dispersion_slope(
     params::NamedTuple,
 )::GQ
     ρ, r = sun_angle_and_distance(toa, toacorr)
-    return params.NE_SW * AU * AU * ρ / (r * sin(ρ))
+    t0 = params.SWEPOCH
+    t = corrected_toa_value(toa, toacorr, Float64)
+    ne_sw = taylor_horner(t - t0, params.NE_SW)
+    return ne_sw * AU * AU * ρ / (r * sin(ρ))
 end
