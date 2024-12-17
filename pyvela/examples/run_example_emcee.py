@@ -86,7 +86,7 @@ errs = spnta.scaled_toa_unceritainties(params_median)
 samples_for_plot = samples_v[:, param_plot_mask]
 fig = corner.corner(
     samples_for_plot,
-    labels=spnta.param_labels,
+    labels=np.array(spnta.param_labels)[param_plot_mask],
     label_kwargs={"fontsize": 11},
     range=[0.999] * spnta.ndim,
     truths=(maxlike_params_v[0] / spnta.scale_factors)[param_plot_mask],

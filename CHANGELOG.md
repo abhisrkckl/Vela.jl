@@ -1,9 +1,12 @@
 # Unreleased
 ## Added
+- `time_residuals`, `scaled_toa_uncertainties`, and `model_dm`, `from_pint` methods in `SPNTA`
 - NE_SW derivatives in `SolarWind`
 ## Changed
 ## Fixed
 ## Removed
+- `test_alloc` and `test_likelihood` from `test_data_files.py`
+- Unnecessary test & example data files
 
 # 0.0.6
 ## Added

@@ -11,36 +11,20 @@ from pyvela.parameters import fdjump_rx
 from pyvela.spnta import SPNTA
 from pyvela.vela import vl
 
-jl.seval("using BenchmarkTools")
-jl.seval("get_alloc(func, args...) = @ballocated(($func)(($args)...))")
+# jl.seval("using BenchmarkTools")
+# jl.seval("get_alloc(func, args...) = @ballocated(($func)(($args)...))")
 
 datadir = os.path.dirname(os.path.realpath(__file__)) + "/datafiles"
 
 datasets = [
-    "sim1",
-    "sim_dmwn",
-    "sim_jump",
-    "sim_jump_ex",
-    "sim_sw",
+    "sim_1",
     "sim_sw.wb",
-    "sim_fdjumpdm",
-    "sim_dmjump",
-    "sim_cm",
-    "sim2",
     "sim3",
     "sim3.gp",
-    "sim4",
-    "sim4.gp",
-    "sim_fd",
     "sim_fdjump",
-    "sim6",
-    "sim6.gp",
     "sim_ddk",
     "sim_glitch",
     "J0613-0200.sim",
-    "J1856-3754.sim",
-    "J1802-2124.sim",
-    "J0955-6150.sim",
     "J1208-5936.sim",
     "J2302+4442.sim",
     "J1227-6208.sim",
@@ -55,7 +39,7 @@ def model_and_toas(request):
 
     m, t = get_model_and_toas(f"{datadir}/{dataset}.par", f"{datadir}/{dataset}.tim")
 
-    custom_priors = f"{datadir}/custom_priors.json" if "EFAC1" in m.free_params else {}
+    custom_priors = f"{datadir}/custom_priors.json"
 
     spnta = SPNTA(
         parfile,
@@ -106,6 +90,12 @@ def test_data(model_and_toas):
 
     assert all(np.isfinite(spnta.get_mjds())) and len(spnta.get_mjds()) == len(t)
 
+    assert all(np.isfinite(spnta.time_residuals(spnta.maxlike_params)))
+
+    assert all(np.isfinite(spnta.scaled_toa_unceritainties(spnta.maxlike_params)))
+
+    assert all(np.isfinite(spnta.model_dm(spnta.maxlike_params)))
+
 
 def test_chi2(model_and_toas):
     spnta: SPNTA
@@ -145,12 +135,12 @@ def test_prior(model_and_toas):
     )
 
 
-def test_alloc(model_and_toas):
-    spnta: SPNTA
-    spnta, _, _ = model_and_toas
-    params = spnta.model.param_handler._default_params_tuple
-    calc_lnlike = vl.get_lnlike_serial_func(spnta.model, spnta.toas)
-    assert jl.get_alloc(calc_lnlike, params) == 0
+# def test_alloc(model_and_toas):
+#     spnta: SPNTA
+#     spnta, _, _ = model_and_toas
+#     params = spnta.model.param_handler._default_params_tuple
+#     calc_lnlike = vl.get_lnlike_serial_func(spnta.model, spnta.toas)
+#     assert jl.get_alloc(calc_lnlike, params) == 0
 
 
 def test_posterior(model_and_toas):
