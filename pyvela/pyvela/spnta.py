@@ -172,6 +172,10 @@ class SPNTA:
         return list(vl.get_free_param_labels(self.pulsar.model))
 
     @property
+    def param_units(self):
+        return list(vl.get_free_param_units(self.pulsar.model))
+
+    @property
     def scale_factors(self):
         return np.array(vl.get_scale_factors(self.pulsar.model))
 
