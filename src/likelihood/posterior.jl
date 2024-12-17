@@ -1,5 +1,28 @@
-export get_lnpost_func
+export calc_lnpost, calc_lnpost_serial, calc_lnpost_vectorized, get_lnpost_func
 
+
+function calc_lnpost(model::TimingModel, toas::Vector{T}, params) where {T<:TOABase}
+    lnpr = calc_lnprior(model, params)
+    return isnan(lnpr) ? lnpr : lnpr + calc_lnlike(model, toas, params)
+end
+
+function calc_lnpost_serial(model::TimingModel, toas::Vector{T}, params) where {T<:TOABase}
+    lnpr = calc_lnprior(model, params)
+    return isnan(lnpr) ? lnpr : lnpr + calc_lnlike_serial(model, toas, params)
+end
+
+function calc_lnpost_vectorized(
+    model::TimingModel,
+    toas::Vector{T},
+    paramss,
+) where {T<:TOABase}
+    nparamss = size(paramss)[1]
+    result = Vector{Float64}(undef, nparamss)
+    @threads :static for ii = 1:nparamss
+        result[ii] = calc_lnpost_serial(model, toas, paramss[ii, :])
+    end
+    return result
+end
 
 """
     get_lnpost_func(::TimingModel, toas::Vector{T}, vectorize::Bool = false) where {T<:TOABase}
@@ -13,29 +36,11 @@ function get_lnpost_func(
     toas::Vector{T},
     vectorize::Bool = false,
 ) where {T<:TOABase}
-    lnprior_func = get_lnprior_func(model)
-    lnlike_func =
-        vectorize ? get_lnlike_serial_func(model, toas) : get_lnlike_func(model, toas)
-    nfree = model.param_handler._nfree
-
-    function lnpost(params)
-        lnpr = lnprior_func(params)
-        return isfinite(lnpr) ? lnpr + lnlike_func(params) : -Inf
-    end
-
-    if vectorize
-        function _lnpost_vector(paramss)
-            @assert (length(size(paramss)) == 2 && size(paramss)[2] == nfree) "Please pass a 2D array to this function for vectorized evaluation, where each row has `Nfree` elements."
-            nparamss = size(paramss)[1]
-            result = Vector{Float64}(undef, nparamss)
-            @threads :static for ii = 1:nparamss
-                result[ii] = lnpost(paramss[ii, :])
-            end
-            return result
-        end
-
-        return _lnpost_vector
+    return if vectorize
+        paramss -> calc_lnpost_vectorized(model, toas, paramss)
+    elseif nthreads() == 1
+        params -> calc_lnpost_serial(model, toas, params)
     else
-        return lnpost
+        params -> calc_lnpost(model, toas, params)
     end
 end
