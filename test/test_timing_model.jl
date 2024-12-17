@@ -83,5 +83,6 @@
         )
 
         @test get_free_param_names(m2) == ["PHOFF", "F0", "F1", "ECORR1", "ECORR2"]
+        @test length(get_free_param_units(m2)) == length(get_free_param_names(m2))
     end
 end

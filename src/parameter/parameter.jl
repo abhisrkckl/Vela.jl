@@ -4,6 +4,7 @@ export Parameter,
     ParamHandler,
     read_params,
     get_free_param_names,
+    get_free_param_units,
     get_free_param_labels,
     read_param_values_to_vector,
     get_scale_factors
@@ -173,7 +174,7 @@ function get_free_param_labels(
     return pnames
 end
 
-"""Generate an ordered collection of free parameter unit."""
+"""Generate an ordered collection of free parameter units."""
 function get_free_param_units(param_handler::ParamHandler)::Vector{String}
     pnames = Vector{String}()
 
