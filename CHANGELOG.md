@@ -2,6 +2,7 @@
 ## Added
 - `time_residuals`, `scaled_toa_uncertainties`, and `model_dm`, `from_pint` methods in `SPNTA`
 - NE_SW derivatives in `SolarWind`
+- `Pulsar` class
 ## Changed
 ## Fixed
 ## Removed

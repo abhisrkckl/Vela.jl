@@ -146,12 +146,32 @@
         params = model.param_handler._default_params_tuple
         parv = read_param_values_to_vector(model.param_handler, params)
 
-        calc_lnpost = get_lnpost_func(model, toas)
-        @test isfinite(calc_lnpost(params))
+        calc_lnpost_ = get_lnpost_func(model, toas)
+        @test isfinite(calc_lnpost_(params))
 
         calc_lnpost_vec = get_lnpost_func(model, toas, true)
         paramss = transpose([parv parv parv])
         @test allequal(calc_lnpost_vec(paramss))
-        @test calc_lnpost_vec(paramss)[1] ≈ calc_lnpost(params)
+        @test calc_lnpost_vec(paramss)[1] ≈ calc_lnpost_(params)
+    end
+
+    @testset "pulsar" begin
+        psr = Pulsar(model, toas)
+
+        params = model.param_handler._default_params_tuple
+        parv = read_param_values_to_vector(model.param_handler, params)
+
+        @test calc_lnlike(psr, parv) ≈ calc_lnlike_serial(psr, parv)
+
+        @test isfinite(calc_lnprior(psr, parv))
+
+        cube = 0.5 .* ones(length(parv))
+        @test isfinite(calc_lnprior(psr, prior_transform(psr, cube)))
+
+        @test calc_lnpost(psr, parv) == calc_lnpost(psr, params)
+        @test calc_lnpost(psr, parv) ≈ calc_lnpost_serial(psr, parv)
+
+        paramss = transpose([parv parv parv])
+        @test allequal(calc_lnpost_vectorized(psr, paramss))
     end
 end

@@ -59,6 +59,7 @@ include("likelihood/wls_likelihood.jl")
 include("likelihood/ecorr_likelihood.jl")
 include("likelihood/wideband_wls_likelihood.jl")
 include("likelihood/posterior.jl")
+include("pulsar/pulsar.jl")
 include("readwrite/readwrite.jl")
 
 end

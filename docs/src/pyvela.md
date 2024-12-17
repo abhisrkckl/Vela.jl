@@ -37,7 +37,14 @@ Here, `spnta.model` is a `Vela.TimingModel` object and `spnta.toas` is a `Vector
 function reads the `par` and `tim` files using the
 [`pint.models.get_model_and_toas`](https://nanograv-pint.readthedocs.io/en/latest/_autosummary/pint.models.model_builder.get_model_and_toas.html) 
 function under the hood and converts the resulting `pint.models.TimingModel` and `pint.toa.TOAs` objects. Note that this conversion does 
-not conserve all the information, and the reverse is not possible. 
+not conserve all the information, and the reverse is not possible.
+
+The `SPNTA` class internally uses the `Pulsar` type to store the timing model and the TOAs together.
+Currently it is assumed that all the TOAs are of the same paradigm (narrowband or wideband). Inhomogeneous
+datasets are not supported.
+```@docs
+Pulsar
+```
 
 `cheat_prior_scale` defines the scale factor by which the frequentist uncertainties are multiplied to 
 obtain the "cheat" prior widths. The `custom_priors` argument contains the user-defined prior distributions, 
