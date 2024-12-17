@@ -179,20 +179,14 @@ function get_free_param_units(param_handler::ParamHandler)::Vector{String}
 
     @inbounds for spar in param_handler.single_params
         if !spar.frozen
-            push!(
-                pnames,
-                spar.original_units,
-            )
+            push!(pnames, spar.original_units)
         end
     end
 
     @inbounds for mpar in param_handler.multi_params
         for param in mpar.parameters
             if !param.frozen
-                push!(
-                    pnames,
-                    param.original_units,
-                )
+                push!(pnames, param.original_units)
             end
         end
     end
