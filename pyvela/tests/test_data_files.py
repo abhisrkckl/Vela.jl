@@ -101,6 +101,8 @@ def test_data(model_and_toas):
         and len(spnta.param_labels) == spnta.ndim
     )
 
+    assert len(spnta.param_units) == spnta.ndim
+
 
 def test_chi2(model_and_toas):
     spnta: SPNTA
