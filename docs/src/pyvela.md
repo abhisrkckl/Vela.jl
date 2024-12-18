@@ -178,6 +178,8 @@ syntax.
 ```
 $ pyvela -h
 
+A command line interface for the Vela.jl pulsar timing & noise analysis package
+
 usage: pyvela [-h] [-P PRIOR_FILE] [--cheat_prior_scale CHEAT_PRIOR_SCALE] [-o OUTDIR] [-N NSTEPS] [-b BURNIN] [-t THIN] par_file tim_file
 
 positional arguments:

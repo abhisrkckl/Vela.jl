@@ -45,7 +45,10 @@ def info_dict(args):
 
 
 def parse_args(argv):
-    parser = ArgumentParser()
+    parser = ArgumentParser(
+        prog="pyvela",
+        description="A command line interface for the Vela.jl pulsar timing & noise analysis package",
+    )
     parser.add_argument("par_file")
     parser.add_argument("tim_file")
     parser.add_argument("-P", "--prior_file")
