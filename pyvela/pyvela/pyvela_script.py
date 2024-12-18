@@ -1,22 +1,21 @@
-from argparse import ArgumentParser
-import sys
-import os
-import shutil
+import datetime
 import json
+import os
+import platform
+import shutil
+import sys
+from argparse import ArgumentParser
 
 import emcee
 import numpy as np
+import pint
 
+import pyvela
 from pyvela import SPNTA
 from pyvela import Vela as vl
 
 
 def info_dict(args):
-    import pyvela
-    import pint
-    import datetime
-    import platform
-
     return {
         "input": {
             "par_file": args.par_file,
