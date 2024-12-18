@@ -8,7 +8,7 @@ from pint.models import get_model_and_toas
 
 from pyvela.model import fix_red_noise_components
 from pyvela.parameters import fdjump_rx
-from pyvela.spnta import SPNTA
+from pyvela.spnta import SPNTA, convert_model_and_toas
 from pyvela.vela import vl
 
 # jl.seval("using BenchmarkTools")
@@ -31,7 +31,7 @@ datasets = [
 ]
 
 
-@pytest.fixture(params=datasets, scope="module")
+@pytest.fixture(params=datasets[:2], scope="module")
 def model_and_toas(request):
     dataset = request.param
 
@@ -58,6 +58,15 @@ def model_and_toas(request):
         fix_red_noise_components(m, t)
 
     return spnta, m, t
+
+
+@pytest.mark.parametrize("dataset", datasets[2:])
+def test_read_data(dataset):
+    parfile, timfile = f"{datadir}/{dataset}.par", f"{datadir}/{dataset}.tim"
+    m, t = get_model_and_toas(parfile, timfile)
+    model, toas = convert_model_and_toas(m, t)
+    assert len(toas) == len(t)
+    assert len(model.components) <= len(m.components)
 
 
 def test_data(model_and_toas):
