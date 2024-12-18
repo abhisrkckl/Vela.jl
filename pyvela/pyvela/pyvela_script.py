@@ -1,4 +1,5 @@
 import datetime
+import getpass
 import json
 import os
 import platform
@@ -30,7 +31,7 @@ def info_dict(args):
         },
         "env": {
             "launch_time": datetime.datetime.now().isoformat(),
-            "user": os.getlogin(),
+            "user": getpass.getuser(),
             "host": platform.node(),
             "os": platform.platform(),
             "julia_threads": vl.nthreads(),
