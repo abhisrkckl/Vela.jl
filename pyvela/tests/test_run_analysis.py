@@ -63,7 +63,7 @@ def test_script_NGC6440():
     with open(prior_file, "w") as pf:
         print(prior_str, file=pf)
 
-    args = f"{parfile} {timfile} -p {prior_file} -o {outdir}".split()
+    args = f"{parfile} {timfile} -P {prior_file} -o {outdir}".split()
 
     pyvela_script.main(args)
 
