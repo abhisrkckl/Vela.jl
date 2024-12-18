@@ -7,6 +7,7 @@ makedocs(
         "Home" => "index.md",
         "installation.md",
         "pyvela.md",
+        "pyvela-cli.md",
         "Explanation & API Reference" => [
             "precision.md",
             "quantities.md",
