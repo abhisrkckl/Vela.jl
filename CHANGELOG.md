@@ -3,6 +3,8 @@
 - `time_residuals`, `scaled_toa_uncertainties`, and `model_dm`, `from_pint` methods in `SPNTA`
 - NE_SW derivatives in `SolarWind`
 - `Pulsar` class
+- `pyvela` script
+- `get_free_param_units` function
 ## Changed
 ## Fixed
 ## Removed

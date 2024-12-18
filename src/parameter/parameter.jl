@@ -4,6 +4,7 @@ export Parameter,
     ParamHandler,
     read_params,
     get_free_param_names,
+    get_free_param_units,
     get_free_param_labels,
     read_param_values_to_vector,
     get_scale_factors
@@ -166,6 +167,27 @@ function get_free_param_labels(
                     isempty(param.original_units) ? string(param.name) :
                     "$(string(param.name))$delim($(param.original_units))",
                 )
+            end
+        end
+    end
+
+    return pnames
+end
+
+"""Generate an ordered collection of free parameter units."""
+function get_free_param_units(param_handler::ParamHandler)::Vector{String}
+    pnames = Vector{String}()
+
+    @inbounds for spar in param_handler.single_params
+        if !spar.frozen
+            push!(pnames, spar.original_units)
+        end
+    end
+
+    @inbounds for mpar in param_handler.multi_params
+        for param in mpar.parameters
+            if !param.frozen
+                push!(pnames, param.original_units)
             end
         end
     end

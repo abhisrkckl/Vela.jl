@@ -58,6 +58,7 @@ end
 read_params(model::TimingModel, values) = read_params(model.param_handler, values)
 
 get_free_param_names(model::TimingModel) = get_free_param_names(model.param_handler)
+get_free_param_units(model::TimingModel) = get_free_param_units(model.param_handler)
 get_free_param_labels(model::TimingModel) = get_free_param_labels(model.param_handler)
 
 read_param_values_to_vector(model::TimingModel) =

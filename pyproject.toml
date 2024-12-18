@@ -15,7 +15,6 @@ maintainers = [
     {name = "Abhimanyu Susobhanan", email = "abhisrkckl@gmail.com"}
 ]
 
-
 requires-python = ">=3.10"
 dependencies = [
     "numpy>=2.1",
@@ -43,6 +42,9 @@ content-type = "text/x-rst"
 [project.urls]
 Homepage = "https://github.com/abhisrkckl/Vela.jl"
 Documentation = "https://abhisrkckl.github.io/Vela.jl/"
+
+[project.scripts]
+pyvela = "pyvela.pyvela_script:main"
 
 [tool.setuptools]
 zip-safe = false
