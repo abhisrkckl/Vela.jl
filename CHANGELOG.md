@@ -14,6 +14,8 @@
 - `pyvela.SPNTA` class
 - `get_unit_conversion_factor` function
 - `prior_scaling` methods and `scale_prior_args` function
+- `pyvela` script
+- `get_free_param_units` function
 ## Changed
 - Reorganized `pyvela` code
 - Rerun failures in `pyvela` CI tests.
