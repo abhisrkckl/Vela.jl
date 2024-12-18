@@ -63,7 +63,7 @@ def model_and_toas(request):
 @pytest.mark.parametrize("dataset", datasets[2:])
 def test_read_data(dataset):
     parfile, timfile = f"{datadir}/{dataset}.par", f"{datadir}/{dataset}.tim"
-    m, t = get_model_and_toas(parfile, timfile)
+    m, t = get_model_and_toas(parfile, timfile, planets=True)
     model, toas = convert_model_and_toas(m, t)
     assert len(toas) == len(t)
     assert len(model.components) <= len(m.components)
