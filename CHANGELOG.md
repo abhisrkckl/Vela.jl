@@ -6,6 +6,7 @@
 - `pyvela` script
 - `get_free_param_units` function
 ## Changed
+- Reduced the number of `pyvela` tests and disabled parallel execution to avoid segfaults
 ## Fixed
 ## Removed
 - `test_alloc` and `test_likelihood` from `test_data_files.py`
