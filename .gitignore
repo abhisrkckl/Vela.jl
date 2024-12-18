@@ -189,3 +189,5 @@ cython_debug/
 profile.pb.gz
 
 *_results.pdf
+
+pyvela/tests/_*_out/
