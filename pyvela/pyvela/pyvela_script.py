@@ -48,7 +48,7 @@ def parse_args(argv):
     parser.add_argument("par_file")
     parser.add_argument("tim_file")
     parser.add_argument("-P", "--prior_file")
-    parser.add_argument("--cheat_prior_scale", default=10)
+    parser.add_argument("--cheat_prior_scale", default=10, type=float)
     parser.add_argument("-o", "--outdir", default="pyvela_results")
     parser.add_argument("-N", "--nsteps", default=6000, type=int)
     parser.add_argument("-b", "--burnin", default=1500, type=int)

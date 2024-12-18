@@ -5,6 +5,7 @@ import emcee
 import numpy as np
 
 from pyvela.spnta import SPNTA
+from pyvela import pyvela_script
 from pint.models import get_model_and_toas
 
 
@@ -50,3 +51,20 @@ def test_analysis_NGC6440E_emcee():
         and pint_model_final[pname].uncertainty_value != 0
         for pname in pint_model_final.free_params
     )
+
+
+def test_script_NGC6440():
+    datadir = os.path.dirname(os.path.realpath(__file__)) + "/datafiles"
+    dataset = "NGC6440E"
+    parfile, timfile = f"{datadir}/{dataset}.par", f"{datadir}/{dataset}.tim"
+    outdir = "_NGC6440E_out"
+    args = f"{parfile} {timfile} -o {outdir}".split()
+    pyvela_script.main(args)
+
+    assert os.path.isdir(outdir)
+    assert os.path.isfile(f"{outdir}/summary.json")
+    assert os.path.isfile(f"{outdir}/param_names.txt")
+    assert os.path.isfile(f"{outdir}/param_units.txt")
+    assert os.path.isfile(f"{outdir}/param_scale_factors.txt")
+    assert os.path.isfile(f"{outdir}/samples_raw.npy")
+    assert os.path.isfile(f"{outdir}/samples.npy")
