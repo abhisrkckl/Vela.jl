@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 from argparse import ArgumentParser
 import sys
 import os
@@ -41,6 +39,7 @@ def info_dict(args):
             "julia": str(vl.VERSION),
             "pyvela": pyvela.__version__,
             "pint": pint.__version__,
+            "emcee": emcee.__version__,
         },
     }
 
@@ -69,7 +68,7 @@ def prepare_outdir(args):
     if args.prior_file is not None:
         shutil.copy(args.prior_file, args.outdir)
     with open(f"{args.outdir}/summary.json", "w") as summary_file:
-        json.dump(summary_info, summary_file)
+        json.dump(summary_info, summary_file, indent=4)
 
 
 def save_spnta_attrs(spnta: SPNTA, args):
@@ -111,7 +110,3 @@ def main(argv=None):
         np.save(f, samples_raw)
     with open(f"{args.outdir}/samples.npy", "wb") as f:
         np.save(f, samples)
-
-
-if __name__ == "__main__":
-    main(sys.argv[1:])
