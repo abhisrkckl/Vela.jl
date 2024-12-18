@@ -78,7 +78,7 @@ def save_spnta_attrs(spnta: SPNTA, args):
     np.savetxt(f"{args.outdir}/param_scale_factors.txt", spnta.scale_factors, fmt="%s")
 
 
-def main(argv):
+def main(argv=None):
     args = parse_args(argv)
     prepare_outdir(args)
 
