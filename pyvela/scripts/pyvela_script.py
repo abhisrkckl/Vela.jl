@@ -36,6 +36,7 @@ def info_dict(args):
             "user": os.getlogin(),
             "host": platform.node(),
             "os": platform.platform(),
+            "julia_threads": vl.nthreads(),
             "python": sys.version,
             "julia": str(vl.VERSION),
             "pyvela": pyvela.__version__,
