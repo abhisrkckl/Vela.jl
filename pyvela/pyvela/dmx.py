@@ -10,7 +10,7 @@ from pint.utils import find_prefix_bytime
 
 def get_dmx_mask(model: TimingModel, toas: TOAs) -> np.ndarray:
     mask: List[int] = []
-    for ii in len(toas):
+    for ii in range(len(toas)):
         t: Time = toas.table["mjd"][ii]
         idxs = find_prefix_bytime(model, "DMX_", t)
         if np.isscalar(idxs):
