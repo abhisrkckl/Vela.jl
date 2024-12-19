@@ -6,6 +6,7 @@
 - `pyvela` script
 - `get_free_param_units` function
 - "Known issues" page in documentation
+- Piecewise-constant model for DM (`DispersionPiecewise`)
 ## Changed
 - Reduced the number of `pyvela` tests and disabled parallel execution to avoid segfaults
 ## Fixed
