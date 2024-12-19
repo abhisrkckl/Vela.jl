@@ -288,7 +288,7 @@ class SPNTA:
         model: TimingModel,
         toas: TOAs,
         cheat_prior_scale: float = 20,
-        custom_priors: dict = {},
+        custom_priors: dict | str | IO = {},
     ) -> "SPNTA":
         """Construct an `SPNTA` object from PINT `TimingModel` and `TOAs` objects"""
         spnta = cls.__new__(cls)
