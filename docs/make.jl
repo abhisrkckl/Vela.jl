@@ -19,6 +19,7 @@ makedocs(
             "priors.md",
             "red-noise.md",
         ],
+        "issues.md",
     ],
     # format = Documenter.LaTeX(platform = "none")
 )
