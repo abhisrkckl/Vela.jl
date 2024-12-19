@@ -1,4 +1,4 @@
-export DispersionTaylor, dispersion_slope
+export DispersionTaylor, DispersionPiecewise, dispersion_slope
 
 """Taylor series representation of the dispersion measure.
 
@@ -20,4 +20,28 @@ function dispersion_slope(
     dms = params.DM
     dm = taylor_horner(t - t0, dms)
     return dm
+end
+
+"""Piecewise-constant representation of the dispersion measure.
+
+Corresponds to `DispersionDMX` in `PINT`.
+
+Reference:
+    [Arzoumanian+ 2015](http://doi.org/10.1088/0004-637X/813/1/65)
+"""
+struct DispersionPiecewise <: DispersionComponent
+    dmx_mask::Vector{UInt}
+end
+
+function dispersion_slope(
+    dmx::DispersionPiecewise,
+    toa::TOA,
+    ::TOACorrection,
+    params::NamedTuple,
+)
+    if is_tzr(toa)
+        return zero(params.DMX_[1])
+    end
+    dmx_idx = dmx.dmx_mask[toa.index]
+    return (dmx_idx == 0) ? zero(params.DMX_[1]) : params.DMX_[dmx_idx]
 end

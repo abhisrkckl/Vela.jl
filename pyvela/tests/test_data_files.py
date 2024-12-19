@@ -24,6 +24,7 @@ datasets = [
     "sim_fdjump",
     "sim_ddk",
     "sim_glitch",
+    "sim_dmx",
     "J0613-0200.sim",
     "J1208-5936.sim",
     "J2302+4442.sim",

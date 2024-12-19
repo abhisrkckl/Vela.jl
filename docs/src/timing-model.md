@@ -140,6 +140,12 @@ See also [Red noise models](@ref).
 SolarWindDispersion
 ```
 
+Alternatively, DM variations can be modeled as a simple piecewise-constant function using
+DMX parameters. This is available through the `DispersionPiecewise` component.
+```@docs
+DispersionPiecewise
+```
+
 `DispersionJump` and `DispersionOffset` represent two types of system-dependent dispersion 
 offsets.
 ```@docs

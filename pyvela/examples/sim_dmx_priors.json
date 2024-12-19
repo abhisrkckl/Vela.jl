@@ -1,0 +1,6 @@
+{
+    "DMX_": {
+        "distribution": "Normal",
+        "args": [0.0, 1e-3]
+    }
+}
