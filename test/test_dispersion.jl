@@ -26,6 +26,27 @@
     display(dmt)
 end
 
+@testset "DispersionPiecewise" begin
+    toa = default_toa()
+    ctoa = TOACorrection()
+
+    params = (DMX_ = (GQ{-1}(4e12), GQ{-1}(1e12)),)
+
+    mask = UInt[0]
+    dmx = DispersionPiecewise(mask)
+    @test dispersion_slope(dmx, toa, ctoa, params) == GQ{-1}(0.0)
+    @test @ballocated(delay($dmx, $toa, $ctoa, $params)) == 0
+
+    mask = UInt[1]
+    dmx = DispersionPiecewise(mask)
+    @test dispersion_slope(dmx, toa, ctoa, params) == params.DMX_[1]
+    @test @ballocated(delay($dmx, $toa, $ctoa, $params)) == 0
+
+    tzrtoa = default_tzrtoa()
+    ctzrtoa = TOACorrection()
+    @test dispersion_slope(dmx, tzrtoa, ctzrtoa, params) == GQ{-1}(0.0)
+end
+
 @testset "DispersionOffset" begin
     toa = default_toa()
     ctoa = TOACorrection()

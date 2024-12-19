@@ -40,5 +40,5 @@ function dispersion_slope(
     params::NamedTuple,
 )
     dmx_idx = dmx.dmx_mask[toa.index]
-    return (dmx_idx == 0) ? zero(params.DMX_[1]) : params.DMX_[dmx_idx]
+    return (dmx_idx == 0 || is_tzr(toa)) ? zero(params.DMX_[1]) : params.DMX_[dmx_idx]
 end
