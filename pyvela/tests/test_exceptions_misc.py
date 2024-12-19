@@ -1,5 +1,6 @@
+import os
 from pint.models.parameter import floatParameter
-from pint.models import get_model
+from pint.models import get_model, get_model_and_toas
 from pint.simulation import make_fake_toas_uniform
 
 from pyvela.parameters import get_scale_factor
@@ -7,6 +8,10 @@ from pyvela.model import pint_components_to_vela
 
 import pytest
 from io import StringIO
+
+from pyvela.spnta import SPNTA
+
+datadir = os.path.dirname(os.path.realpath(__file__)) + "/datafiles"
 
 
 def test_unknown_scale_factor():
@@ -59,3 +64,16 @@ def test_ell1k_exception():
 
     with pytest.raises(NotImplementedError):
         pint_components_to_vela(model, fake_toas)
+
+
+def test_open_prior_file():
+    parfile, timfile = f"{datadir}/NGC6440E.par", f"{datadir}/NGC6440E.tim"
+    with open(f"{datadir}/custom_priors.json", "r") as prior_file:
+        spnta1 = SPNTA(parfile, timfile, custom_priors=prior_file)
+
+    m, t = get_model_and_toas(parfile, timfile, planets=True)
+    spnta2 = SPNTA.from_pint(m, t, custom_priors=f"{datadir}/custom_priors.json")
+
+    assert all(
+        [pr1 == pr2 for pr1, pr2 in zip(spnta1.model.priors, spnta2.model.priors)]
+    )

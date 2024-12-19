@@ -1,6 +1,6 @@
 from copy import deepcopy
 import json
-from typing import IO
+from typing import IO, Iterable
 
 import numpy as np
 from pint.binaryconvert import convert_binary
@@ -61,23 +61,15 @@ class SPNTA:
         A Vela `TimingModel` object
     toas: Vector[Vela.TOA]
         A collection of Vela TOAs.
-    lnlike: Callable
-        Computes the log-likelihood
-    lnprior: Callable
-        Computes the log-prior
-    prior_transform: Callable
-        Computes the prior transform
-    lnpost: Callable
-        Computes the log-posterior
-    lnpost_vectorized: Callable
-        Computes the log-posterior for a collection of parameters
-    param_names: List[str]
+    param_names: array-like[str]
         Free parameter names
-    param_labels: List[str]
+    param_units: array-like[str]
+        Free parameter units
+    param_labels: array-like[str]
         Free parameter labels (for plotting)
-    scale_factors: numpy.ndarray
+    scale_factors: ndarray
         Scale factors for converting between Vela's internal units and the commonly used units.
-    maxlike_params: numpy.ndarray
+    maxlike_params: ndarray
         Free parameter values taken from the par file in internal units
     ndim: int
         Number of free parameters
@@ -89,7 +81,7 @@ class SPNTA:
         timfile: str,
         cheat_prior_scale: float = 20,
         custom_priors: str | IO | dict = {},
-        pint_kwargs={},
+        pint_kwargs: dict = {},
     ):
         self.parfile = parfile
         self.timfile = timfile
@@ -140,19 +132,25 @@ class SPNTA:
         assert all(np.isfinite([lnpr, lnl, lnp]))
         assert np.isclose(lnp, lnpv)
 
-    def lnlike(self, params):
+    def lnlike(self, params: Iterable[float]) -> float:
+        """Compute the log-likelihood function"""
         return vl.calc_lnlike(self.pulsar, params)
 
-    def lnprior(self, params):
+    def lnprior(self, params: Iterable[float]) -> float:
+        """Compute the log-prior distribution"""
         return vl.calc_lnprior(self.pulsar, params)
 
-    def prior_transform(self, cube):
+    def prior_transform(self, cube: Iterable[float]) -> Iterable[float]:
+        """Compute the prior transform"""
         return vl.prior_transform(self.pulsar, cube)
 
-    def lnpost(self, params):
+    def lnpost(self, params: Iterable[float]) -> float:
+        """Compute the log-posterior distribution"""
         return vl.calc_lnpost(self.pulsar, params)
 
-    def lnpost_vectorized(self, paramss):
+    def lnpost_vectorized(self, paramss: np.ndarray) -> Iterable[float]:
+        """Compute the log-posterior distribution over a collection
+        of points in the parameter space"""
         return vl.calc_lnpost_vectorized(self.pulsar, paramss)
 
     @property
@@ -164,27 +162,27 @@ class SPNTA:
         return self.pulsar.toas
 
     @property
-    def param_names(self):
+    def param_names(self) -> Iterable[str]:
         return np.array(list(vl.get_free_param_names(self.pulsar.model)))
 
     @property
-    def param_labels(self):
+    def param_labels(self) -> Iterable[str]:
         return np.array(list(vl.get_free_param_labels(self.pulsar.model)))
 
     @property
-    def param_units(self):
+    def param_units(self) -> Iterable[str]:
         return np.array(list(vl.get_free_param_units(self.pulsar.model)))
 
     @property
-    def scale_factors(self):
+    def scale_factors(self) -> Iterable[float]:
         return np.array(vl.get_scale_factors(self.pulsar.model))
 
     @property
-    def maxlike_params(self):
+    def maxlike_params(self) -> Iterable[str]:
         return np.array(vl.read_param_values_to_vector(self.pulsar.model))
 
     @property
-    def ndim(self):
+    def ndim(self) -> int:
         return len(self.param_names)
 
     def rescale_samples(self, samples: np.ndarray) -> np.ndarray:
@@ -275,7 +273,7 @@ class SPNTA:
         return dms * dmu_conversion_factor
 
     @classmethod
-    def load_jlso(cls, filename: str):
+    def load_jlso(cls, filename: str) -> "SPNTA":
         """Construct an `SPNTA` object from a JLSO file"""
         spnta = cls.__new__(cls)
         model, toas = vl.load_pulsar_data(filename)
@@ -286,8 +284,12 @@ class SPNTA:
 
     @classmethod
     def from_pint(
-        cls, model: TimingModel, toas: TOAs, cheat_prior_scale=20, custom_priors={}
-    ):
+        cls,
+        model: TimingModel,
+        toas: TOAs,
+        cheat_prior_scale: float = 20,
+        custom_priors: dict | str | IO = {},
+    ) -> "SPNTA":
         """Construct an `SPNTA` object from PINT `TimingModel` and `TOAs` objects"""
         spnta = cls.__new__(cls)
 
