@@ -5,10 +5,11 @@ from pint.models import PhaseOffset, TimingModel
 from pint.models.parameter import MJDParameter, maskParameter
 from pint.toa import TOAs
 
-from pyvela.gp_noise import PLChromNoiseGP, PLDMNoiseGP, PLRedNoiseGP
-from pyvela.parameters import pint_parameters_to_vela
-from pyvela.priors import get_default_priors
-from pyvela.toas import day_to_s, pint_toa_to_vela
+from .dmx import get_dmx_mask
+from .gp_noise import PLChromNoiseGP, PLDMNoiseGP, PLRedNoiseGP
+from .parameters import pint_parameters_to_vela
+from .priors import get_default_priors
+from .toas import day_to_s, pint_toa_to_vela
 
 from .vela import jl, vl
 
@@ -93,6 +94,10 @@ def pint_components_to_vela(model: TimingModel, toas: TOAs):
 
     if "DispersionDM" in component_names:
         components.append(vl.DispersionTaylor())
+
+    if "DispersionDMX" in component_names:
+        dmx_mask = get_dmx_mask(model, toas)
+        components.append(vl.DispersionPiecewise(dmx_mask))
 
     if "DMWaveX" in component_names:
         components.append(vl.DMWaveX())
