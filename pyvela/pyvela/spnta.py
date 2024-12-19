@@ -1,8 +1,9 @@
-from copy import deepcopy
 import json
+from copy import deepcopy
 from typing import IO, Iterable
 
 import numpy as np
+
 from pint.binaryconvert import convert_binary
 from pint.logging import setup as setup_log
 from pint.models import TimingModel, get_model_and_toas
