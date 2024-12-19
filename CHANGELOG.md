@@ -5,6 +5,7 @@
 - `Pulsar` class
 - `pyvela` script
 - `get_free_param_units` function
+- "Known issues" page in documentation
 ## Changed
 - Reduced the number of `pyvela` tests and disabled parallel execution to avoid segfaults
 ## Fixed
