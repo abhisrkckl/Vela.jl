@@ -71,9 +71,8 @@ def test_open_prior_file():
     with open(f"{datadir}/custom_priors.json", "r") as prior_file:
         spnta1 = SPNTA(parfile, timfile, custom_priors=prior_file)
 
-    with open(f"{datadir}/custom_priors.json", "r") as prior_file:
-        m, t = get_model_and_toas(parfile, timfile, planets=True)
-        spnta2 = SPNTA.from_pint(m, t, custom_priors=prior_file)
+    m, t = get_model_and_toas(parfile, timfile, planets=True)
+    spnta2 = SPNTA.from_pint(m, t, custom_priors=f"{datadir}/custom_priors.json")
 
     assert all(
         [pr1 == pr2 for pr1, pr2 in zip(spnta1.model.priors, spnta2.model.priors)]
