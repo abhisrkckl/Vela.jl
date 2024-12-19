@@ -157,6 +157,8 @@ def pint_parameters_to_vela(model: TimingModel):
         "SWM",
         "H4",  # Handled separately; converted to STIG.
         "DMX",  # The actual DMX parameters are "DMX_".
+        "DMXR1_",  # Included separately in the component as an index mask.
+        "DMXR2_",
         "PEPOCH",  # Included separately. We subtract PEPOCH from all TOAs and MJDParameters.
         "TNREDC",  # Included separately in the component
         "TNDMC",
