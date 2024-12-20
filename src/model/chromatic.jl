@@ -1,4 +1,4 @@
-export ChromaticComponent, ChromaticTaylor, chromatic_slope
+export ChromaticComponent, ChromaticTaylor, ChromaticPiecewise, chromatic_slope
 
 """
     ChromaticComponent
@@ -31,4 +31,26 @@ function chromatic_slope(
     cms = params.CM
     cm = taylor_horner(t - t0, cms)
     return cm
+end
+
+"""Piecewise-constant representation of the chromatic measure with a 
+constant chromatic index.
+
+Corresponds to `ChromaticCMX` in `PINT`.
+"""
+struct ChromaticPiecewise <: ChromaticComponent
+    cmx_mask::Vector{UInt}
+end
+
+function chromatic_slope(
+    cmx::ChromaticPiecewise,
+    toa::TOA,
+    ::TOACorrection,
+    params::NamedTuple,
+)
+    if is_tzr(toa)
+        return zero(params.CMX_[1])
+    end
+    cmx_idx = cmx.cmx_mask[toa.index]
+    return (cmx_idx == 0) ? zero(params.CMX_[1]) : params.CMX_[cmx_idx]
 end
