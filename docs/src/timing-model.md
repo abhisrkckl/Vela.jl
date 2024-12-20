@@ -178,6 +178,12 @@ PowerlawChromaticNoiseGP
 
 See also [Red noise models](@ref).
 
+Chromatic variations can also be modeled as a simple piecewise-constant function using
+DMX parameters. This is available through the `ChromaticPiecewise` component.
+```@docs
+ChromaticPiecewise
+```
+
 ### Binary delays
 Similar to solar system delays, the binary motion of the pulsar also introduces various 
 delays to the TOAs, including Rømer delay, Shapiro delay, and Einstein delay. 
