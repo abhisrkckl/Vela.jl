@@ -21,3 +21,24 @@
 
     @test @ballocated(delay($cmt, $toa, $ctoa, $params)) == 0
 end
+
+@testset "ChromaticPiecewise" begin
+    toa = default_toa()
+    ctoa = TOACorrection()
+
+    params = (TNCHROMIDX = dimensionless(4.0), CMX_ = (GQ{-1}(4e12), GQ{-1}(1e12)))
+
+    mask = UInt[0]
+    cmx = ChromaticPiecewise(mask)
+    @test chromatic_slope(cmx, toa, ctoa, params) == GQ{-1}(0.0)
+    @test @ballocated(delay($cmx, $toa, $ctoa, $params)) == 0
+
+    mask = UInt[1]
+    cmx = ChromaticPiecewise(mask)
+    @test chromatic_slope(cmx, toa, ctoa, params) == params.CMX_[1]
+    @test @ballocated(delay($cmx, $toa, $ctoa, $params)) == 0
+
+    tzrtoa = default_tzrtoa()
+    ctzrtoa = TOACorrection()
+    @test chromatic_slope(cmx, tzrtoa, ctzrtoa, params) == GQ{-1}(0.0)
+end

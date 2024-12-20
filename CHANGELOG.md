@@ -7,8 +7,9 @@
 - `get_free_param_units` function
 - "Known issues" page in documentation
 - DMX: Piecewise-constant model for DM (`DispersionPiecewise`) 
+- CMX: Piecewise-constant model for CM (`ChromaticPiecewise`) 
 ## Changed
-- Reduced the number of `pyvela` tests and disabled parallel execution to avoid segfaults
+- Reduced the number of `pyvela` tests
 ## Fixed
 ## Removed
 - `test_alloc` and `test_likelihood` from `test_data_files.py`

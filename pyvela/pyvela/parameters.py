@@ -39,7 +39,7 @@ def get_scale_factor(param: Parameter):
         return 1
     elif param.name in ["CM"] or (
         hasattr(param, "prefix")
-        and param.prefix in ["CM", "CMWXSIN_", "CMWXCOS_", "DMJUMP", "DMEQUAD"]
+        and param.prefix in ["CM", "CMWXSIN_", "CMWXCOS_", "CMX_", "DMJUMP", "DMEQUAD"]
     ):
         return DMconst
     elif (
@@ -159,6 +159,8 @@ def pint_parameters_to_vela(model: TimingModel):
         "DMX",  # The actual DMX parameters are "DMX_".
         "DMXR1_",  # Included separately in the component as an index mask.
         "DMXR2_",
+        "CMXR1_",  # Included separately in the component as an index mask.
+        "CMXR2_",
         "PEPOCH",  # Included separately. We subtract PEPOCH from all TOAs and MJDParameters.
         "TNREDC",  # Included separately in the component
         "TNDMC",
