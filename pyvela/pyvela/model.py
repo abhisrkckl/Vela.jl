@@ -131,6 +131,10 @@ def pint_components_to_vela(model: TimingModel, toas: TOAs):
     if "ChromaticCM" in component_names:
         components.append(vl.ChromaticTaylor())
 
+    if "ChromaticCMX" in component_names:
+        cmx_mask = get_dmx_mask(model, toas, param_prefix="CMX_")
+        components.append(vl.ChromaticPiecewise(cmx_mask))
+
     if "CMWaveX" in component_names:
         components.append(vl.CMWaveX())
     elif "PLChromNoiseGP" in component_names:
