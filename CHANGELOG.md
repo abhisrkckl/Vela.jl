@@ -8,7 +8,7 @@
 - "Known issues" page in documentation
 - DMX: Piecewise-constant model for DM (`DispersionPiecewise`) 
 ## Changed
-- Reduced the number of `pyvela` tests and disabled parallel execution to avoid segfaults
+- Reduced the number of `pyvela` tests
 ## Fixed
 ## Removed
 - `test_alloc` and `test_likelihood` from `test_data_files.py`
