@@ -292,10 +292,10 @@ is roughly as follows:
         a. Measurement noise corrections
 
 ## The TZR TOA
-The pulse phases are measured with respect to a fictitious fiducial TOA called the TZR TOA.
-This is represented using the `TOA` class, but is distinguished from physical TOAs using the 
-`tzr` attribute. The `make_tzr_toa` function creates a TZR TOA and the `is_tzr` function checks 
-whether a TOA is a TZR TOA.
+The pulse phases are measured with respect to a fictitious fiducial TOA called the TZR TOA (TZR 
+stands for t_zero). This is represented using the `TOA` class, but is distinguished from physical 
+TOAs using the  `tzr` attribute. The `make_tzr_toa` function creates a TZR TOA and the `is_tzr` 
+function checks whether a TOA is a TZR TOA. A TZR TOA is always narrowband.
 ```@docs
 make_tzr_toa
 is_tzr

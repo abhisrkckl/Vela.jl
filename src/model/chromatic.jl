@@ -36,7 +36,8 @@ end
 """Piecewise-constant representation of the chromatic measure with a 
 constant chromatic index.
 
-Corresponds to `ChromaticCMX` in `PINT`.
+Corresponds to `ChromaticCMX` in `PINT`. Does not support overlapping 
+ranges.
 """
 struct ChromaticPiecewise <: ChromaticComponent
     cmx_mask::Vector{UInt}
