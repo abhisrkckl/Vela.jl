@@ -39,7 +39,7 @@ def get_scale_factor(param: Parameter):
         return 1
     elif param.name in ["CM"] or (
         hasattr(param, "prefix")
-        and param.prefix in ["CM", "CMWXSIN_", "CMWXCOS_", "DMJUMP", "DMEQUAD"]
+        and param.prefix in ["CM", "CMWXSIN_", "CMWXCOS_", "CMX_", "DMJUMP", "DMEQUAD"]
     ):
         return DMconst
     elif (
