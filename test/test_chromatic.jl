@@ -26,7 +26,7 @@ end
     toa = default_toa()
     ctoa = TOACorrection()
 
-    params = (TNCHROMIDX = 4.0, CMX_ = (GQ{-1}(4e12), GQ{-1}(1e12)))
+    params = (TNCHROMIDX = dimensionless(4.0), CMX_ = (GQ{-1}(4e12), GQ{-1}(1e12)))
 
     mask = UInt[0]
     cmx = ChromaticPiecewise(mask)
