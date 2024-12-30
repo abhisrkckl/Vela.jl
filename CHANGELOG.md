@@ -12,6 +12,7 @@
 ## Changed
 - Reduced the number of `pyvela` tests
 ## Fixed
+- DMX and CMX cannot be used alongside other stochastic DM variation models 
 ## Removed
 - `test_alloc` and `test_likelihood` from `test_data_files.py`
 - Unnecessary test & example data files
