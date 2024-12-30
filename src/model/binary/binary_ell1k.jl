@@ -35,6 +35,7 @@ function ELL1State(ell1::BinaryELL1k, toa::TOA, toacorr::TOACorrection, params::
     return ELL1State(Φ_trigs, n, a1, ϵ1, ϵ2, m2, sini)
 end
 
-function rømer_delay(::BinaryELL1k, state::ELL1State)::GQ
-    return rømer_delay(::BinaryELL1, state) - (3 // 2) * state.a1 * state.ϵ1
+function rømer_delay(ell1k::BinaryELL1k, state::ELL1State)::GQ
+    return invoke(rømer_delay, Tuple{BinaryELL1Base,ELL1State}, ell1k, state) -
+           (3 // 2) * state.a1 * state.ϵ1
 end
