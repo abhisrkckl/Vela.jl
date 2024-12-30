@@ -8,6 +8,7 @@
 - "Known issues" page in documentation
 - DMX: Piecewise-constant model for DM (`DispersionPiecewise`) 
 - CMX: Piecewise-constant model for CM (`ChromaticPiecewise`) 
+- `BinaryELL1k` model
 ## Changed
 - Reduced the number of `pyvela` tests
 ## Fixed
