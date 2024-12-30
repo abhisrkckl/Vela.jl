@@ -1,0 +1,49 @@
+# Created: 2024-12-30T11:15:27.178656
+# PINT_version: 1.1.1+26.g008be2d6
+# User: Abhimanyu Susobhanan (abhimanyu)
+# Host: abhimanyu-HP-Envy-x360-2-in-1-Laptop-15-fh0xxx
+# OS: Linux-6.8.0-51-generic-x86_64-with-glibc2.39
+# Python: 3.12.2 | packaged by conda-forge | (main, Feb 16 2024, 20:50:58) [GCC 12.3.0]
+# Format: pint
+# read_time: 2024-12-30T11:14:47.348313
+# allow_tcb: False
+# convert_tcb: False
+# allow_T2: False
+# original_name: sim_ell1k.par
+PSR                             SIM_ELL1k
+EPHEM                               DE440
+CLOCK                        TT(BIPM2023)
+UNITS                                 TDB
+START              54000.0000000111165625
+FINISH             55999.9999999432170602
+DILATEFREQ                              N
+DMDATA                                  N
+NTOA                                  500
+CHI2                   469.65030516090957
+CHI2R                  0.9604300719037004
+TRES                0.8385250620756515235
+RAJ                      4:59:59.99999925 1 0.00000199050357607619
+DECJ                    14:59:59.99979698 1 0.00017367760690635930
+PMRA                                  0.0
+PMDEC                                 0.0
+PX                                    0.0
+POSEPOCH           55000.0000000000000000
+F0                  100.00000000000057184 1 2.5284558715212678555e-13
+F1              -9.9999908211833063185e-15 1 7.943213901954207131e-21
+PEPOCH             55000.0000000000000000
+PLANET_SHAPIRO                          N
+DM                    15.0000293776323761 1 0.00021768035270968924414
+DMEPOCH            55000.0000000000000000
+BINARY                              ELL1k
+PB                 0.07999999999958116133 1 1.2487101932911701726e-12
+A1                    0.07500002378602222 1 5.5934825475673267e-08
+TASC               55000.1000000000000000
+EPS1            1.1240920318338478763e-05 1 1.4220318089955411986e-06
+EPS2            -1.6136638527218668729e-05 1 1.4363314494530647547e-06
+# ECC             1.9665944995381044057e-05
+# OM                  145.13860107814906567
+OMDOT               41.682819808272744626 1 1.8698535712675787845
+LNEDOT                                0.0 0 0.0
+TZRMJD             55000.0000000000000000
+TZRSITE                               gbt
+TZRFRQ                             1400.0
