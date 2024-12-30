@@ -23,7 +23,7 @@ function ELL1State(ell1::BinaryELL1k, toa::TOA, toacorr::TOACorrection, params::
     ϵ20 = params.EPS2
     sin_ωdot_Δt, cos_ωdot_Δt = sincos(ωdot * Δt)
     ϵ1 = (1 + lnedot * Δt) * (ϵ10 * cos_ωdot_Δt + ϵ20 * sin_ωdot_Δt)
-    ϵ2 = (1 + lnedot * dt) * (ϵ20 * cos_ωdot_Δt - ϵ10 * sin_ωdot_Δt)
+    ϵ2 = (1 + lnedot * Δt) * (ϵ20 * cos_ωdot_Δt - ϵ10 * sin_ωdot_Δt)
 
     Φ = mean_anomaly(Δt, params, ell1.use_fbx)
     Φ_trigs = sincos(Φ), sincos(2Φ), sincos(3Φ), sincos(4Φ)
