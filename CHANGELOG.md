@@ -8,9 +8,11 @@
 - "Known issues" page in documentation
 - DMX: Piecewise-constant model for DM (`DispersionPiecewise`) 
 - CMX: Piecewise-constant model for CM (`ChromaticPiecewise`) 
+- `BinaryELL1k` model
 ## Changed
 - Reduced the number of `pyvela` tests
 ## Fixed
+- DMX and CMX cannot be used alongside other stochastic DM variation models 
 ## Removed
 - `test_alloc` and `test_likelihood` from `test_data_files.py`
 - Unnecessary test & example data files
