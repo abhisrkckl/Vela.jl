@@ -98,8 +98,7 @@ def pint_components_to_vela(model: TimingModel, toas: TOAs):
     if "DispersionDMX" in component_names:
         dmx_mask = get_dmx_mask(model, toas)
         components.append(vl.DispersionPiecewise(dmx_mask))
-
-    if "DMWaveX" in component_names:
+    elif "DMWaveX" in component_names:
         components.append(vl.DMWaveX())
     elif "PLDMNoiseGP" in component_names:
         components.append(vl.PowerlawDispersionNoiseGP(int(model.TNDMC.value)))
@@ -134,8 +133,7 @@ def pint_components_to_vela(model: TimingModel, toas: TOAs):
     if "ChromaticCMX" in component_names:
         cmx_mask = get_dmx_mask(model, toas, param_prefix="CMX_")
         components.append(vl.ChromaticPiecewise(cmx_mask))
-
-    if "CMWaveX" in component_names:
+    elif "CMWaveX" in component_names:
         components.append(vl.CMWaveX())
     elif "PLChromNoiseGP" in component_names:
         components.append(vl.PowerlawChromaticNoiseGP(int(model.TNCHROMC.value)))
