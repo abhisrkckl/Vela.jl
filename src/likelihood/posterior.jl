@@ -8,7 +8,15 @@ end
 
 function calc_lnpost_serial(model::TimingModel, toas::Vector{T}, params) where {T<:TOABase}
     lnpr = calc_lnprior(model, params)
-    return isnan(lnpr) ? lnpr : lnpr + calc_lnlike_serial(model, toas, params)
+    if isnan(lnpr)
+        return lnpr
+    else
+        try
+            return lnpr + calc_lnlike_serial(model, toas, params)
+        catch e
+            return -Inf
+        end
+    end
 end
 
 function calc_lnpost_vectorized(

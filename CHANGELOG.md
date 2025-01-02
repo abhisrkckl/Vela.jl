@@ -1,6 +1,7 @@
 # Unreleased
 ## Added
 ## Changed
+- Catch exceptions in `calc_lnpost_serial` and return -Inf
 ## Fixed
 ## Removed
 
