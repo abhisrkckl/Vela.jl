@@ -229,6 +229,19 @@ class SPNTA:
             ]
         )
 
+    def dm_residuals(self, params: np.ndarray) -> np.ndarray:
+        """Get the DM residuals (s) for a given set of parameters (wideband only)."""
+        assert self.is_wideband(), "This method is only defined for wideband datasets."
+
+        params = vl.read_params(self.pulsar.model, params)
+
+        return np.array(
+            [
+                vl.value(wr[1])
+                for wr in vl.form_residuals(self.pulsar.model, self.pulsar.toas, params)
+            ]
+        )
+
     def scaled_toa_unceritainties(self, params: np.ndarray) -> np.ndarray:
         """Get the scaled TOA uncertainties (s) for a given set of parameters."""
         params = vl.read_params(self.pulsar.model, params)
@@ -244,6 +257,23 @@ class SPNTA:
                     if not self.is_wideband()
                     else vl.scaled_toa_error_sqr(tvi.toa, ctoa.toa_correction)
                 )
+                for (tvi, ctoa) in zip(self.pulsar.toas, ctoas)
+            ]
+        )
+
+    def scaled_dm_unceritainties(self, params: np.ndarray) -> np.ndarray:
+        """Get the scaled DM uncertainties (s) for a given set of parameters (wideband only)."""
+        assert self.is_wideband(), "This method is only defined for wideband datasets."
+
+        params = vl.read_params(self.pulsar.model, params)
+
+        ctoas = [
+            vl.correct_toa(self.pulsar.model, tvi, params) for tvi in self.pulsar.toas
+        ]
+
+        return np.sqrt(
+            [
+                vl.value(vl.scaled_dm_error_sqr(tvi.dminfo, ctoa.dm_correction))
                 for (tvi, ctoa) in zip(self.pulsar.toas, ctoas)
             ]
         )
