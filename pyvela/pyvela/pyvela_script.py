@@ -104,7 +104,7 @@ def main(argv=None):
         spnta.lnpost_vectorized,
         # moves=[emcee.moves.StretchMove(), emcee.moves.DESnookerMove()],
         vectorize=True,
-        backend=emcee.backends.HDFBackend(f"{args.outdir}/chain.h5")
+        backend=emcee.backends.HDFBackend(f"{args.outdir}/chain.h5"),
     )
     sampler.run_mcmc(p0, args.nsteps, progress=True, progress_kwargs={"mininterval": 1})
     samples_raw = sampler.get_chain(flat=True, discard=args.burnin, thin=args.thin)
