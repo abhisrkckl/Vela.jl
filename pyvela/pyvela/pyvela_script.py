@@ -16,8 +16,6 @@ import pyvela
 from pyvela import SPNTA
 from pyvela import Vela as vl
 
-from pint.models import TimingModel
-
 
 def info_dict(args):
     return {
