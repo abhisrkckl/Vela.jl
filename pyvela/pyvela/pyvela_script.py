@@ -1,3 +1,4 @@
+from copy import deepcopy
 import datetime
 import getpass
 import json
@@ -14,6 +15,8 @@ import pint
 import pyvela
 from pyvela import SPNTA
 from pyvela import Vela as vl
+
+from pint.models import TimingModel
 
 
 def info_dict(args):
@@ -80,6 +83,27 @@ def save_spnta_attrs(spnta: SPNTA, args):
     np.savetxt(f"{args.outdir}/param_scale_factors.txt", spnta.scale_factors, fmt="%s")
 
 
+def save_new_parfile(
+    spnta: SPNTA, params: np.ndarray, param_uncertainties: np.ndarray, filename: str
+):
+    param_vals = spnta.rescale_samples(params)
+    param_errs = spnta.rescale_samples(param_uncertainties)
+
+    model1 = deepcopy(spnta.model_pint)
+    for pname, pval, perr in zip(spnta.param_names, param_vals, param_errs):
+        model1[pname].value = (
+            pval
+            if pname != "F0"
+            else (
+                np.longdouble(spnta.model.param_handler._default_params_tuple.F_.x)
+                + pval
+            )
+        )
+        model1[pname].uncertainty_value = perr
+
+    model1.write_parfile(filename)
+
+
 def main(argv=None):
     args = parse_args(argv)
     prepare_outdir(args)
@@ -114,3 +138,28 @@ def main(argv=None):
         np.save(f, samples_raw)
     with open(f"{args.outdir}/samples.npy", "wb") as f:
         np.save(f, samples)
+
+    param_uncertainties = np.std(samples_raw, axis=0)
+
+    params_maxpost = sampler.chain[
+        *np.unravel_index(
+            np.argmax(sampler.get_log_prob().T), sampler.get_log_prob().T.shape
+        ),
+        :,
+    ]
+    np.savetxt(f"{args.outdir}/params_maxpost.txt", params_maxpost)
+    save_new_parfile(
+        spnta,
+        params_maxpost,
+        param_uncertainties,
+        f"{args.outdir}/{spnta.model.pulsar_name}.maxpost.par",
+    )
+
+    params_median = np.median(samples_raw, axis=0)
+    np.savetxt(f"{args.outdir}/params_median.txt", params_median)
+    save_new_parfile(
+        spnta,
+        params_median,
+        param_uncertainties,
+        f"{args.outdir}/{spnta.model.pulsar_name}.median.par",
+    )
