@@ -26,12 +26,12 @@ def parse_args(argv):
 def main(argv=None):
     args = parse_args(argv)
 
-    m, t = get_model_and_toas(args.par_file, args.tim_file)
+    m, t = get_model_and_toas(args.par_file, args.tim_file, planets=True)
     t.compute_pulse_numbers(m)
 
-    spnta = SPNTA(
-        args.par_file,
-        args.tim_file,
+    spnta = SPNTA.from_pint(
+        m,
+        t,
         custom_priors=(args.prior_file if args.prior_file is not None else {}),
     )
 
