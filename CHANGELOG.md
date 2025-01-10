@@ -6,6 +6,7 @@
 - Save maximum-posterior and median par files in `pyvela` script
 ## Changed
 ## Fixed
+- Correctly avoid likelihood computation when the parameter is outside prior range.
 ## Removed
 - `compare_residuals.py` example script
 
