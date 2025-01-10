@@ -2,9 +2,12 @@
 ## Added
 - Use `HDFBackend` in `pyvela` script
 - `scaled_dm_uncertainties()` and `dm_residuals()` methods in `SPNTA` class
+- `pyvela-compare` script
+- Save maximum-posterior and median par files in `pyvela` script
 ## Changed
 ## Fixed
 ## Removed
+- `compare_residuals.py` example script
 
 # 0.0.7
 ## Added
