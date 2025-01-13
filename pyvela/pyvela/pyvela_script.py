@@ -187,3 +187,5 @@ def main(argv=None):
     )
 
     save_resids(spnta, params_median, args.outdir)
+
+    np.savetxt(f"{args.outdir}/default_values.txt", spnta.default_params)
