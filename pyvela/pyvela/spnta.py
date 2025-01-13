@@ -173,7 +173,7 @@ class SPNTA:
     @property
     def param_units(self) -> Iterable[str]:
         return np.array(list(vl.get_free_param_units(self.pulsar.model)))
-    
+
     @property
     def param_prefixes(self) -> Iterable[str]:
         return np.array(list(vl.get_free_param_prefixes(self.pulsar.model)))
