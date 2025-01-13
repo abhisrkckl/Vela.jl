@@ -13,6 +13,10 @@ prior_str = """
         "EFAC": {
             "distribution": "Uniform",
             "args": [0.5, 1.5]
+        },
+        "EQUAD": {
+            "distribution": "LogUniform",
+            "args": [1e-3, 1.0]
         }
     }
 """
