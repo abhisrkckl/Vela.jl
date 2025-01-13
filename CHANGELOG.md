@@ -4,6 +4,7 @@
 - `scaled_dm_uncertainties()` and `dm_residuals()` methods in `SPNTA` class
 - `pyvela-compare` script
 - Save maximum-posterior and median par files in `pyvela` script
+- `get_free_param_prefixes` function and `SPNTA.param_prefixes` property
 ## Changed
 ## Fixed
 - Correctly avoid likelihood computation when the parameter is outside prior range.

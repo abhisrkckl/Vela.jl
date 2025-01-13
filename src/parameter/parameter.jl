@@ -6,6 +6,7 @@ export Parameter,
     get_free_param_names,
     get_free_param_units,
     get_free_param_labels,
+    get_free_param_prefixes,
     read_param_values_to_vector,
     get_scale_factors
 
@@ -135,6 +136,28 @@ function get_free_param_names(param_handler::ParamHandler)::Vector{String}
         for param in mpar.parameters
             if !param.frozen
                 push!(pnames, string(param.name))
+            end
+        end
+    end
+
+    return pnames
+end
+
+
+"""Generate an ordered collection of free parameter prefixes."""
+function get_free_param_prefixes(param_handler::ParamHandler)::Vector{String}
+    pnames = Vector{String}()
+
+    @inbounds for spar in param_handler.single_params
+        if !spar.frozen
+            push!(pnames, string(spar.name))
+        end
+    end
+
+    @inbounds for mpar in param_handler.multi_params
+        for param in mpar.parameters
+            if !param.frozen
+                push!(pnames, string(mpar.name))
             end
         end
     end
