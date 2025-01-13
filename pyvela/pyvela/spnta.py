@@ -183,7 +183,7 @@ class SPNTA:
         return np.array(vl.get_scale_factors(self.pulsar.model))
 
     @property
-    def maxlike_params(self) -> Iterable[str]:
+    def default_params(self) -> Iterable[str]:
         return np.array(vl.read_param_values_to_vector(self.pulsar.model))
 
     @property

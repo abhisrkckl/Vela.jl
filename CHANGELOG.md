@@ -7,6 +7,7 @@
 - `get_free_param_prefixes` function and `SPNTA.param_prefixes` property
 - Save free parameter prefixes and post-fit residuals in the `pyvela` script.
 ## Changed
+- Renamed `SPNTA.maxlike_params` -> `SPNTA.default_params`
 ## Fixed
 - Correctly avoid likelihood computation when the parameter is outside prior range.
 ## Removed
