@@ -5,7 +5,7 @@
 - `pyvela-compare` script
 - Save maximum-posterior and median par files in `pyvela` script
 - `get_free_param_prefixes` function and `SPNTA.param_prefixes` property
-- Save free parameter prefixes and post-fit residuals in the `pyvela` script.
+- Save free parameter prefixes, default values, and post-fit residuals in the `pyvela` script.
 ## Changed
 - Renamed `SPNTA.maxlike_params` -> `SPNTA.default_params`
 ## Fixed
