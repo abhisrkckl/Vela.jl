@@ -81,7 +81,7 @@ def test_compare_script():
     datadir = os.path.dirname(os.path.realpath(__file__)) + "/datafiles"
     dataset = "NGC6440E"
     parfile, timfile = f"{datadir}/{dataset}.par", f"{datadir}/{dataset}.tim"
-    
+
     prior_file = "__prior.json"
     with open(prior_file, "w") as pf:
         print(prior_str, file=pf)
