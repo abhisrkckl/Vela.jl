@@ -3,6 +3,7 @@ import os
 
 import emcee
 import numpy as np
+import pytest
 
 from pyvela.spnta import SPNTA
 from pyvela import pyvela_compare_script, pyvela_script
@@ -81,9 +82,9 @@ def test_script_NGC6440():
     assert os.path.isfile(f"{outdir}/samples.npy")
 
 
-def test_compare_script():
+@pytest.mark.parametrize("dataset", ["NGC6440E", "sim_sw.wb"])
+def test_compare_script(dataset):
     datadir = os.path.dirname(os.path.realpath(__file__)) + "/datafiles"
-    dataset = "NGC6440E"
     parfile, timfile = f"{datadir}/{dataset}.par", f"{datadir}/{dataset}.tim"
 
     prior_file = "__prior.json"
