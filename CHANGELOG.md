@@ -5,6 +5,7 @@
 - `pyvela-compare` script
 - Save maximum-posterior and median par files in `pyvela` script
 - `get_free_param_prefixes` function and `SPNTA.param_prefixes` property
+- Save free parameter prefixes and post-fit residuals in the `pyvela` script.
 ## Changed
 ## Fixed
 - Correctly avoid likelihood computation when the parameter is outside prior range.

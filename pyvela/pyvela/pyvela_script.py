@@ -77,6 +77,7 @@ def prepare_outdir(args):
 
 def save_spnta_attrs(spnta: SPNTA, args):
     np.savetxt(f"{args.outdir}/param_names.txt", spnta.param_names, fmt="%s")
+    np.savetxt(f"{args.outdir}/param_prefixes.txt", spnta.param_prefixes, fmt="%s")
     np.savetxt(f"{args.outdir}/param_units.txt", spnta.param_units, fmt="%s")
     np.savetxt(f"{args.outdir}/param_scale_factors.txt", spnta.scale_factors, fmt="%s")
 
@@ -100,6 +101,29 @@ def save_new_parfile(
         model1[pname].uncertainty_value = perr
 
     model1.write_parfile(filename)
+
+
+def save_resids(spnta: SPNTA, params: np.ndarray, outdir: str) -> None:
+    wb = spnta.is_wideband()
+
+    ntoas = len(spnta.toas)
+    mjds = spnta.get_mjds()
+    tres = spnta.time_residuals(params)
+    terr = spnta.scaled_toa_unceritainties(params)
+
+    res_arr = np.zeros((ntoas, 2 * (1 + int(wb)) + 1))
+    res_arr[:, 0] = mjds
+    res_arr[:, 1] = tres
+    res_arr[:, 2] = terr
+
+    if wb:
+        dres = spnta.dm_residuals(params)
+        derr = spnta.scaled_dm_unceritainties(params)
+
+        res_arr[:, 3] = dres
+        res_arr[:, 4] = derr
+
+    np.savetxt(f"{outdir}/residuals.txt", res_arr)
 
 
 def main(argv=None):
@@ -161,3 +185,5 @@ def main(argv=None):
         param_uncertainties,
         f"{args.outdir}/{spnta.model.pulsar_name}.median.par",
     )
+
+    save_resids(spnta, params_median, args.outdir)
