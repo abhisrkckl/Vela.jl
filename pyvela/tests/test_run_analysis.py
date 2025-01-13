@@ -3,9 +3,10 @@ import os
 
 import emcee
 import numpy as np
+import pytest
 
 from pyvela.spnta import SPNTA
-from pyvela import pyvela_script
+from pyvela import pyvela_compare_script, pyvela_script
 from pint.models import get_model_and_toas
 
 prior_str = """
@@ -13,6 +14,10 @@ prior_str = """
         "EFAC": {
             "distribution": "Uniform",
             "args": [0.5, 1.5]
+        },
+        "EQUAD": {
+            "distribution": "LogUniform",
+            "args": [1e-3, 1.0]
         }
     }
 """
@@ -75,3 +80,17 @@ def test_script_NGC6440():
     assert os.path.isfile(f"{outdir}/param_scale_factors.txt")
     assert os.path.isfile(f"{outdir}/samples_raw.npy")
     assert os.path.isfile(f"{outdir}/samples.npy")
+
+
+@pytest.mark.parametrize("dataset", ["NGC6440E", "sim_sw.wb"])
+def test_compare_script(dataset):
+    datadir = os.path.dirname(os.path.realpath(__file__)) + "/datafiles"
+    parfile, timfile = f"{datadir}/{dataset}.par", f"{datadir}/{dataset}.tim"
+
+    prior_file = "__prior.json"
+    with open(prior_file, "w") as pf:
+        print(prior_str, file=pf)
+
+    args = f"{parfile} {timfile} -P {prior_file}".split()
+
+    pyvela_compare_script.main(args)

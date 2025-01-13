@@ -353,7 +353,7 @@ class SPNTA:
         return spnta
 
     def update_pint_model(self, samples: np.ndarray) -> TimingModel:
-        """Return an updataed PINT `TimingModel` based on posterior samples."""
+        """Return an updated PINT `TimingModel` based on posterior samples."""
         mp: TimingModel = deepcopy(self.model_pint)
 
         scaled_samples = self.rescale_samples(samples)

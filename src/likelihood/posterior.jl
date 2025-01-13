@@ -3,12 +3,12 @@ export calc_lnpost, calc_lnpost_serial, calc_lnpost_vectorized, get_lnpost_func
 
 function calc_lnpost(model::TimingModel, toas::Vector{T}, params) where {T<:TOABase}
     lnpr = calc_lnprior(model, params)
-    return isnan(lnpr) ? lnpr : lnpr + calc_lnlike(model, toas, params)
+    return !isfinite(lnpr) ? lnpr : lnpr + calc_lnlike(model, toas, params)
 end
 
 function calc_lnpost_serial(model::TimingModel, toas::Vector{T}, params) where {T<:TOABase}
     lnpr = calc_lnprior(model, params)
-    return isnan(lnpr) ? lnpr : lnpr + calc_lnlike_serial(model, toas, params)
+    return !isfinite(lnpr) ? lnpr : lnpr + calc_lnlike_serial(model, toas, params)
 end
 
 function calc_lnpost_vectorized(
