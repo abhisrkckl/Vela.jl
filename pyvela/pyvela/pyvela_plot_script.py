@@ -2,6 +2,8 @@ from typing import Iterable
 import numpy as np
 import matplotlib.pyplot as plt
 import corner
+import json
+from pint.models import get_model
 from argparse import ArgumentParser
 
 
@@ -44,6 +46,19 @@ def get_param_plot_mask(
     ]
 
 
+def read_true_values(args):
+    with open(f"{args.result_dir}/summary.json", "r") as summary_file:
+        summary = json.load(summary_file)
+
+    if "truth_par_file" not in summary["input"]:
+        return None
+
+    true_values_raw = np.genfromtxt(f"{args.result_dir}/param_true_values.txt")
+    scale_factors = np.genfromtxt(f"{args.result_dir}/param_scale_factors.txt")
+
+    return true_values_raw / scale_factors
+
+
 def main(argv=None):
     args = parse_args(argv)
 
@@ -69,6 +84,8 @@ def main(argv=None):
     else:
         mjds, tres, terr = residuals_data.T
 
+    true_values = read_true_values(args)[param_plot_mask]
+
     fig = corner.corner(
         samples[:, param_plot_mask],
         labels=plot_labels,
@@ -78,6 +95,7 @@ def main(argv=None):
         plot_datapoints=False,
         hist_kwargs={"density": True},
         range=[0.999] * len(param_plot_mask),
+        truths=true_values,
     )
 
     plt.subplot(5, 4, 4)
