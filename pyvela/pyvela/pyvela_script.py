@@ -23,7 +23,11 @@ def info_dict(args):
         "input": {
             "par_file": os.path.basename(args.par_file),
             "tim_file": os.path.basename(args.tim_file),
-            "prior_file": os.path.basename(args.prior_file),
+            "prior_file": (
+                os.path.basename(args.prior_file)
+                if args.prior_file is not None
+                else None
+            ),
             "cheat_prior_scale": args.cheat_prior_scale,
         },
         "sampler": {
