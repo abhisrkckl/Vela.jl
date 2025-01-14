@@ -82,6 +82,7 @@ class SPNTA:
         timfile: str,
         cheat_prior_scale: float = 20,
         custom_priors: str | IO | dict = {},
+        check: bool = True,
         pint_kwargs: dict = {},
     ):
         self.parfile = parfile
@@ -121,7 +122,8 @@ class SPNTA:
 
         self.pulsar = vl.Pulsar(model, toas)
 
-        self._check()
+        if check:
+            self._check()
 
     def _check(self):
         cube = np.random.rand(self.ndim)
