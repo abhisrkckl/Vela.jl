@@ -16,8 +16,9 @@ prior_str = """
             "args": [0.5, 1.5]
         },
         "EQUAD": {
-            "distribution": "LogUniform",
-            "args": [1e-3, 1.0]
+            "distribution": "Normal",
+            "args": [0.0, 1.0],
+            "lower": 0.0
         }
     }
 """
@@ -68,7 +69,7 @@ def test_script_NGC6440():
     with open(prior_file, "w") as pf:
         print(prior_str, file=pf)
 
-    args = f"{parfile} {timfile} -P {prior_file} -o {outdir}".split()
+    args = f"{parfile} {timfile} -P {prior_file} -T {parfile} -o {outdir}".split()
 
     pyvela_script.main(args)
 
