@@ -59,11 +59,11 @@ def test_analysis_NGC6440E_emcee():
     )
 
 
-def test_script_NGC6440():
+@pytest.mark.parametrize("dataset", ["NGC6440E", "sim_sw.wb"])
+def test_script(dataset):
     datadir = os.path.dirname(os.path.realpath(__file__)) + "/datafiles"
-    dataset = "NGC6440E"
     parfile, timfile = f"{datadir}/{dataset}.par", f"{datadir}/{dataset}.tim"
-    outdir = "_NGC6440E_out"
+    outdir = f"_{dataset}_out"
 
     prior_file = "__prior.json"
     with open(prior_file, "w") as pf:
