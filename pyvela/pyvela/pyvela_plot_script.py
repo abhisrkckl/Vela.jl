@@ -3,8 +3,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import corner
 import json
-from pint.models import get_model
 from argparse import ArgumentParser
+from astropy import units as u
+from pint import dmu, DMconst
 
 
 def parse_args(argv):
@@ -81,6 +82,8 @@ def main(argv=None):
     wb = residuals_data.shape[1] == 5
     if wb:
         mjds, tres, terr, dres, derr = residuals_data.T
+        dres = (dres * u.Hz / DMconst).to_value(dmu)
+        derr = (derr * u.Hz / DMconst).to_value(dmu)
     else:
         mjds, tres, terr = residuals_data.T
 
@@ -89,8 +92,8 @@ def main(argv=None):
     fig = corner.corner(
         samples[:, param_plot_mask],
         labels=plot_labels,
-        label_kwargs={"fontsize": 12},
-        labelpad=0.02 * len(param_plot_mask),
+        label_kwargs={"fontsize": 9},
+        labelpad=0.04 * len(param_plot_mask),
         max_n_ticks=3,
         plot_datapoints=False,
         hist_kwargs={"density": True},
@@ -98,15 +101,20 @@ def main(argv=None):
         truths=true_values,
     )
 
-    plt.subplot(5, 4, 4)
-    plt.errorbar(mjds, tres, terr, marker="+", ls="")
-    plt.axhline(0, ls="dotted")
+    for ax in fig.get_axes():
+        ax.tick_params(axis="both", labelsize=8)
+        ax.yaxis.get_offset_text().set_fontsize(8)
+        ax.xaxis.get_offset_text().set_fontsize(8)
+
+    plt.subplot(5, 3, 3)
+    plt.errorbar(mjds, tres, terr, marker="+", ls="", alpha=0.9)
+    plt.axhline(0, ls="dotted", color="k")
     plt.ylabel("Time res (s)")
     if wb:
         plt.xticks([])
-        plt.subplot(5, 4, 8)
-        plt.errorbar(mjds, dres, derr, marker="+", ls="")
-        plt.axhline(0, ls="dotted")
+        plt.subplot(5, 3, 6)
+        plt.errorbar(mjds, dres, derr, marker="+", ls="", alpha=0.9)
+        plt.axhline(0, ls="dotted", color="k")
         plt.ylabel("DM res (dmu)")
-    plt.xlabel("MJD")
+    plt.xlabel("MJD - PEPOCH")
     plt.show()
