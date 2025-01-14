@@ -6,8 +6,11 @@
 - Save maximum-posterior and median par files in `pyvela` script
 - `get_free_param_prefixes` function and `SPNTA.param_prefixes` property
 - Save free parameter prefixes, default values, and post-fit residuals in the `pyvela` script.
+- `-T` option in pyvela to save the true parameters for simulation studies.
 ## Changed
 - Renamed `SPNTA.maxlike_params` -> `SPNTA.default_params`
+- Throw an error if the output directory exists in `pyvela`
+- Save only the basename of input files in the summary file in in `pyvela`
 ## Fixed
 - Correctly avoid likelihood computation when the parameter is outside prior range.
 ## Removed
