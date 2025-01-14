@@ -7,6 +7,8 @@
 - `get_free_param_prefixes` function and `SPNTA.param_prefixes` property
 - Save free parameter prefixes, default values, and post-fit residuals in the `pyvela` script.
 - `-T` option in pyvela to save the true parameters for simulation studies.
+- More help messages in `pyvela`
+- `pyvela-plot` script
 ## Changed
 - Renamed `SPNTA.maxlike_params` -> `SPNTA.default_params`
 - Throw an error if the output directory exists in `pyvela`
