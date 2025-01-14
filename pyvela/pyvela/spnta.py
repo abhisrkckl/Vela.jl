@@ -103,14 +103,14 @@ class SPNTA:
         # custom_priors_dict is in the "raw" format. The numbers may be
         # in "normal" units and have to be converted into internal units.
         if isinstance(custom_priors, dict):
-            custom_priors_dict = custom_priors
+            self.custom_priors_dict = custom_priors
         elif isinstance(custom_priors, str):
             with open(custom_priors) as custom_priors_file:
-                custom_priors_dict = json.load(custom_priors_file)
+                self.custom_priors_dict = json.load(custom_priors_file)
         else:
-            custom_priors_dict = json.load(custom_priors)
+            self.custom_priors_dict = json.load(custom_priors)
 
-        custom_priors = process_custom_priors(custom_priors_dict, model_pint)
+        custom_priors = process_custom_priors(self.custom_priors_dict, model_pint)
 
         setup_log(level="WARNING")
         model, toas = convert_model_and_toas(
