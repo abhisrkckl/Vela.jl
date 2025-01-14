@@ -6,7 +6,7 @@ import numpy as np
 import pytest
 
 from pyvela.spnta import SPNTA
-from pyvela import pyvela_compare_script, pyvela_script
+from pyvela import pyvela_compare_script, pyvela_script, pyvela_plot_script
 from pint.models import get_model_and_toas
 
 prior_str = """
@@ -81,6 +81,8 @@ def test_script_NGC6440():
     assert os.path.isfile(f"{outdir}/param_scale_factors.txt")
     assert os.path.isfile(f"{outdir}/samples_raw.npy")
     assert os.path.isfile(f"{outdir}/samples.npy")
+
+    pyvela_plot_script.main([f"{outdir}/"])
 
 
 @pytest.mark.parametrize("dataset", ["NGC6440E", "sim_sw.wb"])
