@@ -9,6 +9,7 @@
 - `-T` option in `pyvela` script to save the true parameters for simulation studies.
 - More help messages in `pyvela` script
 - `pyvela-plot` script
+- `check` option in `SPNTA` constructor
 ## Changed
 - Renamed `SPNTA.maxlike_params` -> `SPNTA.default_params`
 - Throw an error if the output directory exists in `pyvela` script
