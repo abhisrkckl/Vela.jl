@@ -139,7 +139,11 @@ def get_true_values(spnta: SPNTA, args):
     return (
         np.array(
             [
-                true_model[par].value if par in true_model else np.nan
+                (
+                    (true_model[par].value if par != "F0" else 0.0)
+                    if par in true_model
+                    else np.nan
+                )
                 for par in spnta.param_names
             ]
         )
