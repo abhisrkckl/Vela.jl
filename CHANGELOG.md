@@ -14,6 +14,7 @@
 - Renamed `SPNTA.maxlike_params` -> `SPNTA.default_params`
 - Throw an error if the output directory exists in `pyvela` script
 - Save only the basename of input files in the summary file in in `pyvela` script
+- Changed `par_tim-to-jlso.py` into an installable script `pyvela-jlso`.
 ## Fixed
 - Correctly avoid likelihood computation when the parameter is outside prior range.
 ## Removed
