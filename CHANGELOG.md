@@ -16,6 +16,7 @@
 - Save only the basename of input files in the summary file in in `pyvela` script
 ## Fixed
 - Correctly avoid likelihood computation when the parameter is outside prior range.
+- 2π factor in likelihood expression
 ## Removed
 - `compare_residuals.py` example script
 

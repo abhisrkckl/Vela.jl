@@ -1,6 +1,8 @@
 export calc_lnlike,
     calc_lnlike_serial, get_lnlike_serial_func, get_lnlike_parallel_func, get_lnlike_func
 
+const ln_2π = log(2π)
+
 """A single term in the pulsar timing log-likelihood expression (white noise-only).
 
 A factor of 1/2 is excluded here."""
@@ -21,6 +23,9 @@ _wls_lnlike_chunk(
     chunk,
 ) where {T<:TOABase} = sum(ii -> _wls_lnlike_term(model, toas[ii], params, tzrphase), chunk)
 
+data_length(toas::Vector{TOA}) = length(toas)
+data_length(toas::Vector{WidebandTOA}) = 2 * length(toas)
+
 function calc_lnlike(
     model::TimingModel{ComponentsTuple,WhiteNoiseKernel,PriorsTuple},
     toas::Vector{T},
@@ -31,7 +36,7 @@ function calc_lnlike(
     spawn_chunk(chunk) = @spawn _wls_lnlike_chunk(model, toas, params, tzrphase, chunk)
     tasks = map(spawn_chunk, chunks)
     result = sum(fetch, tasks)
-    return -result / 2
+    return -result / 2 - (data_length(toas) * ln_2π / 2)
 end
 
 """
@@ -52,7 +57,8 @@ function calc_lnlike_serial(
     params::NamedTuple,
 ) where {ComponentsTuple<:Tuple,PriorsTuple<:Tuple,T<:TOABase}
     tzrphase = calc_tzr_phase(model, params)
-    return -sum(toa -> _wls_lnlike_term(model, toa, params, tzrphase), toas) / 2
+    return -sum(toa -> _wls_lnlike_term(model, toa, params, tzrphase), toas) / 2 -
+           (data_length(toas) * ln_2π / 2)
 end
 
 """
