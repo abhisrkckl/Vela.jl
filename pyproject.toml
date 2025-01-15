@@ -50,6 +50,7 @@ Documentation = "https://abhisrkckl.github.io/Vela.jl/"
 pyvela = "pyvela.pyvela_script:main"
 pyvela-compare = "pyvela.pyvela_compare_script:main"
 pyvela-plot = "pyvela.pyvela_plot_script:main"
+pyvela-jlso = "pyvela.pyvela_jlso_script:main"
 
 [tool.setuptools]
 zip-safe = false

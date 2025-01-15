@@ -6,7 +6,12 @@ import numpy as np
 import pytest
 
 from pyvela.spnta import SPNTA
-from pyvela import pyvela_compare_script, pyvela_script, pyvela_plot_script
+from pyvela import (
+    pyvela_compare_script,
+    pyvela_jlso_script,
+    pyvela_script,
+    pyvela_plot_script,
+)
 from pint.models import get_model_and_toas
 
 prior_str = """
@@ -97,3 +102,21 @@ def test_compare_script(dataset):
     args = f"{parfile} {timfile} -P {prior_file}".split()
 
     pyvela_compare_script.main(args)
+
+
+@pytest.mark.parametrize("dataset", ["NGC6440E"])
+def test_jlso_script(dataset):
+    datadir = os.path.dirname(os.path.realpath(__file__)) + "/datafiles"
+    parfile, timfile = f"{datadir}/{dataset}.par", f"{datadir}/{dataset}.tim"
+
+    prior_file = "__prior.json"
+    with open(prior_file, "w") as pf:
+        print(prior_str, file=pf)
+
+    outfile = f"__{dataset}.jlso"
+
+    args = f"{parfile} {timfile} -P {prior_file} -o {outfile}".split()
+
+    pyvela_jlso_script.main(args)
+
+    assert os.path.isfile(outfile)
