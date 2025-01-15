@@ -88,7 +88,7 @@ def test_data(model_and_toas):
             {"H4"}
         )
 
-    assert len(spnta.maxlike_params) == len(pnames)
+    assert len(spnta.default_params) == len(pnames)
 
     prnames = [str(vl.param_name(pr)) for pr in spnta.model.priors]
     assert len(spnta.model.priors) == len(pnames)
@@ -96,21 +96,21 @@ def test_data(model_and_toas):
         [pn.startswith(prn) or fdjump_rx.match(pn) for pn, prn in zip(pnames, prnames)]
     )
 
-    assert all(np.isfinite(spnta.rescale_samples(spnta.maxlike_params)))
+    assert all(np.isfinite(spnta.rescale_samples(spnta.default_params)))
 
     assert spnta.is_wideband() == t.is_wideband()
 
     assert all(np.isfinite(spnta.get_mjds())) and len(spnta.get_mjds()) == len(t)
 
-    assert all(np.isfinite(spnta.time_residuals(spnta.maxlike_params)))
+    assert all(np.isfinite(spnta.time_residuals(spnta.default_params)))
 
-    assert all(np.isfinite(spnta.scaled_toa_unceritainties(spnta.maxlike_params)))
+    assert all(np.isfinite(spnta.scaled_toa_unceritainties(spnta.default_params)))
 
     if spnta.is_wideband():
-        assert all(np.isfinite(spnta.dm_residuals(spnta.maxlike_params)))
-        assert all(np.isfinite(spnta.scaled_dm_unceritainties(spnta.maxlike_params)))
+        assert all(np.isfinite(spnta.dm_residuals(spnta.default_params)))
+        assert all(np.isfinite(spnta.scaled_dm_unceritainties(spnta.default_params)))
 
-    assert all(np.isfinite(spnta.model_dm(spnta.maxlike_params)))
+    assert all(np.isfinite(spnta.model_dm(spnta.default_params)))
 
     assert (
         all([len(label) > 0 for label in spnta.param_labels])
@@ -134,7 +134,7 @@ def test_chi2(model_and_toas):
         == 0
     ):
         assert ("PHOFF" not in m) or (
-            calc_chi2(spnta.maxlike_params)
+            calc_chi2(spnta.default_params)
             / len(spnta.toas)
             / (1 + int(t.is_wideband()))
             < 1.2
@@ -145,7 +145,7 @@ def test_likelihood(model_and_toas):
     spnta: SPNTA
     spnta, _, _ = model_and_toas
     calc_lnlike = vl.get_lnlike_func(spnta.model, spnta.toas)
-    assert np.isfinite(calc_lnlike(spnta.maxlike_params))
+    assert np.isfinite(calc_lnlike(spnta.default_params))
 
 
 def test_prior(model_and_toas):
@@ -153,7 +153,7 @@ def test_prior(model_and_toas):
     spnta, _, _ = model_and_toas
     calc_lnprior = vl.get_lnprior_func(spnta.model)
     assert np.isfinite(calc_lnprior(spnta.model.param_handler._default_params_tuple))
-    assert calc_lnprior(spnta.maxlike_params) == calc_lnprior(
+    assert calc_lnprior(spnta.default_params) == calc_lnprior(
         spnta.model.param_handler._default_params_tuple
     )
 
@@ -169,7 +169,7 @@ def test_prior(model_and_toas):
 def test_posterior(model_and_toas):
     spnta: SPNTA
     spnta, _, _ = model_and_toas
-    parv = spnta.maxlike_params
+    parv = spnta.default_params
     maxlike_params_v = np.array([parv, parv, parv, parv])
 
     lnpost = vl.get_lnpost_func(spnta.model, spnta.toas, True)

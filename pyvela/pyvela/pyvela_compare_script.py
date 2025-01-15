@@ -38,7 +38,7 @@ def main(argv=None):
     if not t.is_wideband():
         res = Residuals(t, m)
 
-        rv = spnta.time_residuals(spnta.maxlike_params)
+        rv = spnta.time_residuals(spnta.default_params)
         rp = res.calc_time_resids(subtract_mean=False).si.value
         terr = res.get_data_error().si.value
 
@@ -67,11 +67,11 @@ def main(argv=None):
     else:
         res = WidebandTOAResiduals(t, m)
 
-        rv = spnta.time_residuals(spnta.maxlike_params)
+        rv = spnta.time_residuals(spnta.default_params)
         rp = res.toa.calc_time_resids(subtract_mean=False).si.value
         terr = res.toa.get_data_error().si.value
 
-        dv = (spnta.dm_residuals(spnta.maxlike_params) * u.Hz / DMconst).to_value(dmu)
+        dv = (spnta.dm_residuals(spnta.default_params) * u.Hz / DMconst).to_value(dmu)
         dp = res.dm.calc_resids().to_value(dmu)
         derr = res.dm.get_data_error().to_value(dmu)
 

@@ -82,6 +82,7 @@ class SPNTA:
         timfile: str,
         cheat_prior_scale: float = 20,
         custom_priors: str | IO | dict = {},
+        check: bool = True,
         pint_kwargs: dict = {},
     ):
         self.parfile = parfile
@@ -102,14 +103,14 @@ class SPNTA:
         # custom_priors_dict is in the "raw" format. The numbers may be
         # in "normal" units and have to be converted into internal units.
         if isinstance(custom_priors, dict):
-            custom_priors_dict = custom_priors
+            self.custom_priors_dict = custom_priors
         elif isinstance(custom_priors, str):
             with open(custom_priors) as custom_priors_file:
-                custom_priors_dict = json.load(custom_priors_file)
+                self.custom_priors_dict = json.load(custom_priors_file)
         else:
-            custom_priors_dict = json.load(custom_priors)
+            self.custom_priors_dict = json.load(custom_priors)
 
-        custom_priors = process_custom_priors(custom_priors_dict, model_pint)
+        custom_priors = process_custom_priors(self.custom_priors_dict, model_pint)
 
         setup_log(level="WARNING")
         model, toas = convert_model_and_toas(
@@ -121,7 +122,8 @@ class SPNTA:
 
         self.pulsar = vl.Pulsar(model, toas)
 
-        self._check()
+        if check:
+            self._check()
 
     def _check(self):
         cube = np.random.rand(self.ndim)
@@ -175,11 +177,15 @@ class SPNTA:
         return np.array(list(vl.get_free_param_units(self.pulsar.model)))
 
     @property
+    def param_prefixes(self) -> Iterable[str]:
+        return np.array(list(vl.get_free_param_prefixes(self.pulsar.model)))
+
+    @property
     def scale_factors(self) -> Iterable[float]:
         return np.array(vl.get_scale_factors(self.pulsar.model))
 
     @property
-    def maxlike_params(self) -> Iterable[str]:
+    def default_params(self) -> Iterable[str]:
         return np.array(vl.read_param_values_to_vector(self.pulsar.model))
 
     @property
