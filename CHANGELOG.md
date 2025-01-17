@@ -18,6 +18,7 @@
 - Correctly avoid likelihood computation when the parameter is outside prior range.
 ## Removed
 - `compare_residuals.py` example script
+- Separate `README` for `pyvela`
 
 # 0.0.7
 ## Added
