@@ -21,8 +21,15 @@ from pyvela import Vela as vl
 def info_dict(args):
     info_dict = {
         "input": {
-            "par_file": os.path.basename(args.par_file),
-            "tim_file": os.path.basename(args.tim_file),
+            "par_file": (
+                os.path.basename(args.par_file) if args.par_file is not None else None
+            ),
+            "tim_file": (
+                os.path.basename(args.tim_file) if args.tim_file is not None else None
+            ),
+            "jlso_file": (
+                os.path.basename(args.jlso_file) if args.jlso_file is not None else None
+            ),
             "prior_file": (
                 os.path.basename(args.prior_file)
                 if args.prior_file is not None
@@ -67,9 +74,19 @@ def parse_args(argv):
         "par_file",
         help="The pulsar ephemeris file. Should be readable using PINT. The "
         "uncertainties listed in the file will be used for 'cheat' priors where applicable.",
+        required=False,
     )
     parser.add_argument(
-        "tim_file", help="The pulsar TOA file. Should be readable using PINT."
+        "tim_file",
+        help="The pulsar TOA file. Should be readable using PINT.",
+        required=False,
+    )
+    parser.add_argument(
+        "-J",
+        "--jlso_file",
+        help="The JLSO file containing pulsar timing and noise model & TOAs created using "
+        "`pyvela-jlso`. JLSO files may need to be recreated after updating `Vela.jl` since "
+        "the data format may change.",
     )
     parser.add_argument(
         "-P",
@@ -97,6 +114,12 @@ def parse_args(argv):
         help="The output directory. Will throw an error if it already exists.",
     )
     parser.add_argument(
+        "-f",
+        "--force_rewrite",
+        action="store_true",
+        help="The output directory. Will throw an error if it already exists.",
+    )
+    parser.add_argument(
         "-N",
         "--nsteps",
         default=6000,
@@ -121,16 +144,43 @@ def parse_args(argv):
     return parser.parse_args(argv)
 
 
-def prepare_outdir(args):
-    summary_info = info_dict(args)
+def validate_input(args):
+    if args.jlso_file is None:
+        assert args.par_file is not None and os.path.isfile(
+            args.par_file
+        ), "Invalid par file."
+        assert args.tim_file is not None and os.path.isfile(
+            args.tim_file
+        ), "Invalid tim file."
+    else:
+        assert os.path.isfile(args.jlso_file), "Invalid JLSO file."
 
-    assert not os.path.isdir(args.outdir), "The output directory already exists!"
+    assert args.prior_file is None or os.path.isfile(
+        args.prior_file
+    ), "Prior file not found."
+    assert args.truth is None or os.path.isfile(args.truth), "Truth par file not found."
+
+    assert args.force_rewrite or not os.path.isdir(
+        args.outdir
+    ), "The output directory already exists! Use `-f` option to force overwrite."
+
+
+def prepare_outdir(args):
+    if args.force_rewrite and os.path.isdir(args.outdir):
+        shutil.rmtree(args.outdir)
 
     os.mkdir(args.outdir)
-    shutil.copy(args.par_file, args.outdir)
-    shutil.copy(args.tim_file, args.outdir)
+
+    if args.jlso_file is None:
+        shutil.copy(args.par_file, args.outdir)
+        shutil.copy(args.tim_file, args.outdir)
+    else:
+        shutil.copy(args.jlso_file, args.outdir)
+
     if args.prior_file is not None:
         shutil.copy(args.prior_file, args.outdir)
+
+    summary_info = info_dict(args)
     with open(f"{args.outdir}/summary.json", "w") as summary_file:
         json.dump(summary_info, summary_file, indent=4)
 
@@ -211,13 +261,18 @@ def save_resids(spnta: SPNTA, params: np.ndarray, outdir: str) -> None:
 
 def main(argv=None):
     args = parse_args(argv)
+    validate_input(args)
     prepare_outdir(args)
 
-    spnta = SPNTA(
-        args.par_file,
-        args.tim_file,
-        cheat_prior_scale=args.cheat_prior_scale,
-        custom_priors=(args.prior_file if args.prior_file is not None else {}),
+    spnta = (
+        SPNTA(
+            args.par_file,
+            args.tim_file,
+            cheat_prior_scale=args.cheat_prior_scale,
+            custom_priors=(args.prior_file if args.prior_file is not None else {}),
+        )
+        if args.jlso_file is None
+        else SPNTA.load_jlso(args.jlso_file)
     )
 
     save_spnta_attrs(spnta, args)
@@ -246,28 +301,29 @@ def main(argv=None):
 
     param_uncertainties = np.std(samples_raw, axis=0)
 
-    params_maxpost = sampler.chain[
-        *np.unravel_index(
-            np.argmax(sampler.get_log_prob().T), sampler.get_log_prob().T.shape
-        ),
-        :,
-    ]
-    np.savetxt(f"{args.outdir}/params_maxpost.txt", params_maxpost)
-    save_new_parfile(
-        spnta,
-        params_maxpost,
-        param_uncertainties,
-        f"{args.outdir}/{spnta.model.pulsar_name}.maxpost.par",
-    )
+    if args.jlso_file is not None:
+        params_maxpost = sampler.chain[
+            *np.unravel_index(
+                np.argmax(sampler.get_log_prob().T), sampler.get_log_prob().T.shape
+            ),
+            :,
+        ]
+        np.savetxt(f"{args.outdir}/params_maxpost.txt", params_maxpost)
+        save_new_parfile(
+            spnta,
+            params_maxpost,
+            param_uncertainties,
+            f"{args.outdir}/{spnta.model.pulsar_name}.maxpost.par",
+        )
 
-    params_median = np.median(samples_raw, axis=0)
-    np.savetxt(f"{args.outdir}/params_median.txt", params_median)
-    save_new_parfile(
-        spnta,
-        params_median,
-        param_uncertainties,
-        f"{args.outdir}/{spnta.model.pulsar_name}.median.par",
-    )
+        params_median = np.median(samples_raw, axis=0)
+        np.savetxt(f"{args.outdir}/params_median.txt", params_median)
+        save_new_parfile(
+            spnta,
+            params_median,
+            param_uncertainties,
+            f"{args.outdir}/{spnta.model.pulsar_name}.median.par",
+        )
 
     save_resids(spnta, params_median, args.outdir)
 
