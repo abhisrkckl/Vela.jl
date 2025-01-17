@@ -1,18 +1,18 @@
-from io import StringIO
 import os
+from io import StringIO
 
 import emcee
 import numpy as np
 import pytest
+from pint.models import get_model_and_toas
 
-from pyvela.spnta import SPNTA
 from pyvela import (
     pyvela_compare_script,
     pyvela_jlso_script,
-    pyvela_script,
     pyvela_plot_script,
+    pyvela_script,
 )
-from pint.models import get_model_and_toas
+from pyvela.spnta import SPNTA
 
 prior_str = """
     {
@@ -74,7 +74,7 @@ def test_script(dataset):
     with open(prior_file, "w") as pf:
         print(prior_str, file=pf)
 
-    args = f"{parfile} {timfile} -P {prior_file} -T {parfile} -o {outdir}".split()
+    args = f"{parfile} {timfile} -P {prior_file} -T {parfile} -o {outdir} -f".split()
 
     pyvela_script.main(args)
 

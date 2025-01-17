@@ -3,10 +3,9 @@ from copy import deepcopy
 from typing import IO, Iterable
 
 import numpy as np
-
 from pint.binaryconvert import convert_binary
 from pint.logging import setup as setup_log
-from pint.models import TimingModel, get_model_and_toas
+from pint.models import TimingModel, get_model, get_model_and_toas
 from pint.toa import TOAs
 
 from .ecorr import ecorr_sort
@@ -310,12 +309,13 @@ class SPNTA:
         return dms * dmu_conversion_factor
 
     @classmethod
-    def load_jlso(cls, filename: str) -> "SPNTA":
+    def load_jlso(cls, jlsoname: str, parfile: str) -> "SPNTA":
         """Construct an `SPNTA` object from a JLSO file"""
         spnta = cls.__new__(cls)
-        model, toas = vl.load_pulsar_data(filename)
-        spnta.jlsofile = filename
+        model, toas = vl.load_pulsar_data(jlsoname)
+        spnta.jlsofile = jlsoname
         spnta.pulsar = vl.Pulsar(model, toas)
+        spnta.model_pint = get_model(parfile)
         spnta._check()
         return spnta
 

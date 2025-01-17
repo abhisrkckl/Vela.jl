@@ -1,11 +1,12 @@
-from typing import Iterable
-import numpy as np
-import matplotlib.pyplot as plt
-import corner
 import json
 from argparse import ArgumentParser
+from typing import Iterable
+
+import corner
+import matplotlib.pyplot as plt
+import numpy as np
 from astropy import units as u
-from pint import dmu, DMconst
+from pint import DMconst, dmu
 
 
 def parse_args(argv):

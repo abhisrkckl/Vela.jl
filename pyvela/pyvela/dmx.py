@@ -2,7 +2,6 @@ from typing import List
 
 import numpy as np
 from astropy.time import Time
-
 from pint.models import TimingModel
 from pint.toa import TOAs
 from pint.utils import find_prefix_bytime

@@ -190,7 +190,7 @@ def test_readwrite_jlso(model_and_toas):
 
     time.sleep(0.1)
 
-    spnta2 = SPNTA.load_jlso(jlsoname)
+    spnta2 = SPNTA.load_jlso(jlsoname, spnta.model_pint.name)
     assert len(spnta2.toas) == len(spnta.toas)
     assert set(spnta2.param_names) == set(spnta.param_names)
 

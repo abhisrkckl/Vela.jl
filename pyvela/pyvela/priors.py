@@ -2,7 +2,6 @@ from typing import List
 
 import numpy as np
 from astropy.time import Time
-
 from pint.models import TimingModel
 from pint.models.parameter import AngleParameter, MJDParameter, floatParameter
 
