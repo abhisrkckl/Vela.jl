@@ -1,4 +1,3 @@
-from copy import deepcopy
 import datetime
 import getpass
 import json
@@ -7,12 +6,13 @@ import platform
 import shutil
 import sys
 from argparse import ArgumentParser
+from copy import deepcopy
 
 import emcee
 import numpy as np
 import pint
-
 import pint.models
+
 import pyvela
 from pyvela import SPNTA
 from pyvela import Vela as vl

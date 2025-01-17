@@ -1,18 +1,18 @@
-from io import StringIO
 import os
+from io import StringIO
 
 import emcee
 import numpy as np
 import pytest
+from pint.models import get_model_and_toas
 
-from pyvela.spnta import SPNTA
 from pyvela import (
     pyvela_compare_script,
     pyvela_jlso_script,
-    pyvela_script,
     pyvela_plot_script,
+    pyvela_script,
 )
-from pint.models import get_model_and_toas
+from pyvela.spnta import SPNTA
 
 prior_str = """
     {

@@ -3,10 +3,9 @@ from copy import deepcopy
 from typing import IO, Iterable
 
 import numpy as np
-
 from pint.binaryconvert import convert_binary
 from pint.logging import setup as setup_log
-from pint.models import TimingModel, get_model_and_toas, get_model
+from pint.models import TimingModel, get_model, get_model_and_toas
 from pint.toa import TOAs
 
 from .ecorr import ecorr_sort

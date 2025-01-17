@@ -1,14 +1,13 @@
 import os
-from pint.models.parameter import floatParameter
-from pint.models import get_model, get_model_and_toas
-from pint.simulation import make_fake_toas_uniform
-
-from pyvela.parameters import get_scale_factor
-from pyvela.model import pint_components_to_vela
-
-import pytest
 from io import StringIO
 
+import pytest
+from pint.models import get_model, get_model_and_toas
+from pint.models.parameter import floatParameter
+from pint.simulation import make_fake_toas_uniform
+
+from pyvela.model import pint_components_to_vela
+from pyvela.parameters import get_scale_factor
 from pyvela.spnta import SPNTA
 
 datadir = os.path.dirname(os.path.realpath(__file__)) + "/datafiles"
