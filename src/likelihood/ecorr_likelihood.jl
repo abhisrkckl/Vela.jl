@@ -58,7 +58,7 @@ function calc_lnlike(
     spawn_chunk(chunk) = @spawn _ecorr_lnlike_chunk(model, toas, params, tzrphase, chunk)
     tasks = map(spawn_chunk, chunks)
     result = sum(fetch, tasks)
-    return -value(result) / 2
+    return -value(result) / 2 - (data_length(toas) * ln_2π / 2)
 end
 
 function calc_lnlike_serial(
@@ -72,5 +72,5 @@ function calc_lnlike_serial(
             group -> _ecorr_lnlike_group(model, toas, params, tzrphase, group),
             model.kernel.ecorr_groups,
         ),
-    ) / 2
+    ) / 2 - (data_length(toas) * ln_2π / 2)
 end

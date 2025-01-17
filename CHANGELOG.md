@@ -17,6 +17,7 @@
 - Changed `par_tim-to-jlso.py` into an installable script `pyvela-jlso`.
 ## Fixed
 - Correctly avoid likelihood computation when the parameter is outside prior range.
+- 2π factor in likelihood expression
 ## Removed
 - `compare_residuals.py` example script
 
