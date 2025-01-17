@@ -74,7 +74,6 @@ def parse_args(argv):
         "par_file",
         help="The pulsar ephemeris file. Should be readable using PINT. The "
         "uncertainties listed in the file will be used for 'cheat' priors where applicable.",
-        required=False,
     )
     parser.add_argument(
         "tim_file",
@@ -145,10 +144,8 @@ def parse_args(argv):
 
 
 def validate_input(args):
+    assert os.path.isfile(args.par_file), "Invalid par file."
     if args.jlso_file is None:
-        assert args.par_file is not None and os.path.isfile(
-            args.par_file
-        ), "Invalid par file."
         assert args.tim_file is not None and os.path.isfile(
             args.tim_file
         ), "Invalid tim file."
@@ -171,8 +168,9 @@ def prepare_outdir(args):
 
     os.mkdir(args.outdir)
 
+    shutil.copy(args.par_file, args.outdir)
+
     if args.jlso_file is None:
-        shutil.copy(args.par_file, args.outdir)
         shutil.copy(args.tim_file, args.outdir)
     else:
         shutil.copy(args.jlso_file, args.outdir)
@@ -272,7 +270,7 @@ def main(argv=None):
             custom_priors=(args.prior_file if args.prior_file is not None else {}),
         )
         if args.jlso_file is None
-        else SPNTA.load_jlso(args.jlso_file)
+        else SPNTA.load_jlso(args.jlso_file, args.par_file)
     )
 
     save_spnta_attrs(spnta, args)
@@ -301,29 +299,28 @@ def main(argv=None):
 
     param_uncertainties = np.std(samples_raw, axis=0)
 
-    if args.jlso_file is not None:
-        params_maxpost = sampler.chain[
-            *np.unravel_index(
-                np.argmax(sampler.get_log_prob().T), sampler.get_log_prob().T.shape
-            ),
-            :,
-        ]
-        np.savetxt(f"{args.outdir}/params_maxpost.txt", params_maxpost)
-        save_new_parfile(
-            spnta,
-            params_maxpost,
-            param_uncertainties,
-            f"{args.outdir}/{spnta.model.pulsar_name}.maxpost.par",
-        )
+    params_maxpost = sampler.chain[
+        *np.unravel_index(
+            np.argmax(sampler.get_log_prob().T), sampler.get_log_prob().T.shape
+        ),
+        :,
+    ]
+    np.savetxt(f"{args.outdir}/params_maxpost.txt", params_maxpost)
+    save_new_parfile(
+        spnta,
+        params_maxpost,
+        param_uncertainties,
+        f"{args.outdir}/{spnta.model.pulsar_name}.maxpost.par",
+    )
 
-        params_median = np.median(samples_raw, axis=0)
-        np.savetxt(f"{args.outdir}/params_median.txt", params_median)
-        save_new_parfile(
-            spnta,
-            params_median,
-            param_uncertainties,
-            f"{args.outdir}/{spnta.model.pulsar_name}.median.par",
-        )
+    params_median = np.median(samples_raw, axis=0)
+    np.savetxt(f"{args.outdir}/params_median.txt", params_median)
+    save_new_parfile(
+        spnta,
+        params_median,
+        param_uncertainties,
+        f"{args.outdir}/{spnta.model.pulsar_name}.median.par",
+    )
 
     save_resids(spnta, params_median, args.outdir)
 
