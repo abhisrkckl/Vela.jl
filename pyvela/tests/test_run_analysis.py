@@ -74,7 +74,7 @@ def test_script(dataset):
     with open(prior_file, "w") as pf:
         print(prior_str, file=pf)
 
-    args = f"{parfile} {timfile} -P {prior_file} -T {parfile} -o {outdir}".split()
+    args = f"{parfile} {timfile} -P {prior_file} -T {parfile} -o {outdir} -f".split()
 
     pyvela_script.main(args)
 

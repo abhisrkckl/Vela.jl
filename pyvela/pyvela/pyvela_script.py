@@ -78,7 +78,7 @@ def parse_args(argv):
     parser.add_argument(
         "tim_file",
         help="The pulsar TOA file. Should be readable using PINT.",
-        required=False,
+        default=None,
     )
     parser.add_argument(
         "-J",
