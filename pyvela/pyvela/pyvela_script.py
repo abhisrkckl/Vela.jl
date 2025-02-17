@@ -91,7 +91,7 @@ def parse_args(argv):
     parser.add_argument(
         "-P",
         "--prior_file",
-        help="A JSON file containing the prior distributions for each free parameter.",
+        help="A JSON file containing the prior distributions for each free parameter. (Ignored if `-J` option is used.)",
     )
     parser.add_argument(
         "-T",

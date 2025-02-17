@@ -30,7 +30,7 @@ prior_str = """
 
 
 def test_analysis_NGC6440E_emcee():
-    datadir = os.path.dirname(os.path.realpath(__file__)) + "/datafiles"
+    datadir = f"{os.path.dirname(os.path.realpath(__file__))}/datafiles"
     dataset = "NGC6440E"
     parfile, timfile = f"{datadir}/{dataset}.par", f"{datadir}/{dataset}.tim"
 
@@ -66,7 +66,7 @@ def test_analysis_NGC6440E_emcee():
 
 @pytest.mark.parametrize("dataset", ["NGC6440E", "sim_sw.wb"])
 def test_script(dataset):
-    datadir = os.path.dirname(os.path.realpath(__file__)) + "/datafiles"
+    datadir = f"{os.path.dirname(os.path.realpath(__file__))}/datafiles"
     parfile, timfile = f"{datadir}/{dataset}.par", f"{datadir}/{dataset}.tim"
     outdir = f"_{dataset}_out"
 
@@ -92,7 +92,7 @@ def test_script(dataset):
 
 @pytest.mark.parametrize("dataset", ["NGC6440E", "sim_sw.wb"])
 def test_compare_script(dataset):
-    datadir = os.path.dirname(os.path.realpath(__file__)) + "/datafiles"
+    datadir = f"{os.path.dirname(os.path.realpath(__file__))}/datafiles"
     parfile, timfile = f"{datadir}/{dataset}.par", f"{datadir}/{dataset}.tim"
 
     prior_file = "__prior.json"
@@ -106,17 +106,18 @@ def test_compare_script(dataset):
 
 @pytest.mark.parametrize("dataset", ["NGC6440E"])
 def test_jlso_script(dataset):
-    datadir = os.path.dirname(os.path.realpath(__file__)) + "/datafiles"
+    datadir = f"{os.path.dirname(os.path.realpath(__file__))}/datafiles"
     parfile, timfile = f"{datadir}/{dataset}.par", f"{datadir}/{dataset}.tim"
 
     prior_file = "__prior.json"
     with open(prior_file, "w") as pf:
         print(prior_str, file=pf)
 
-    outfile = f"__{dataset}.jlso"
+    jlsofile = f"__{dataset}.jlso"
 
-    args = f"{parfile} {timfile} -P {prior_file} -o {outfile}".split()
-
+    args = f"{parfile} {timfile} -P {prior_file} -o {jlsofile}".split()
     pyvela_jlso_script.main(args)
+    assert os.path.isfile(jlsofile)
 
-    assert os.path.isfile(outfile)
+    outdir = f"_{dataset}_jlso_out"
+    args = f"{parfile} -J {jlsofile} -T {parfile} -o {outdir} -f".split()
