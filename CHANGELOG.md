@@ -17,6 +17,8 @@
 - Changed `par_tim-to-jlso.py` into an installable script `pyvela-jlso`.
 ## Fixed
 - Correctly avoid likelihood computation when the parameter is outside prior range.
+- Added `DoubleFloats`, `Distributions`, and `GeometricUnits` to installation instructions
+- Improved error message for missing prior info.
 ## Removed
 - `compare_residuals.py` example script
 - Separate `README` for `pyvela`
