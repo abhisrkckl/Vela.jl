@@ -66,7 +66,9 @@ def get_unit_conversion_factor(param: Parameter):
     scale_factor = get_scale_factor(param)
 
     dim = (
-        1 if isinstance(param.quantity, Time) else compute_effective_dimensionality(param.quantity, scale_factor)
+        1
+        if isinstance(param.quantity, Time)
+        else compute_effective_dimensionality(param.quantity, scale_factor)
     )
 
     return (param.units * scale_factor / u.s**dim).to_value(
@@ -85,7 +87,9 @@ def pint_parameter_to_vela(param: Parameter, epoch_mjd: float):
     )
 
     dim = (
-        1 if isinstance(param.quantity, Time) else compute_effective_dimensionality(param.quantity, scale_factor)
+        1
+        if isinstance(param.quantity, Time)
+        else compute_effective_dimensionality(param.quantity, scale_factor)
     )
 
     original_units = str(param.units)

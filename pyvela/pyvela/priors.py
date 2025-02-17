@@ -78,9 +78,7 @@ def get_default_prior(
             else 0.0
         )
 
-        assert (
-            param.uncertainty is not None and param.uncertainty > 0
-        ), (
+        assert param.uncertainty is not None and param.uncertainty > 0, (
             f"Unable to construct prior for {param_name}. This can be resolved by "
             f"(a) defining a prior in the prior file or "
             f"(b) providing the frequentist uncertainty in the par file so that a 'cheat' prior can be used."

@@ -223,14 +223,16 @@ class SPNTA:
         params = vl.read_params(self.pulsar.model, params)
         return np.array(
             [
-                            vl.value(wr[0])
-                            for wr in vl.form_residuals(self.pulsar.model, self.pulsar.toas, params)
-                        ] if self.is_wideband() else list(
-                            map(
-                                vl.value,
-                                vl.form_residuals(self.pulsar.model, self.pulsar.toas, params),
-                            )
-                        )
+                vl.value(wr[0])
+                for wr in vl.form_residuals(self.pulsar.model, self.pulsar.toas, params)
+            ]
+            if self.is_wideband()
+            else list(
+                map(
+                    vl.value,
+                    vl.form_residuals(self.pulsar.model, self.pulsar.toas, params),
+                )
+            )
         )
 
     def dm_residuals(self, params: np.ndarray) -> np.ndarray:
@@ -257,7 +259,9 @@ class SPNTA:
         return np.sqrt(
             [
                 vl.value(
-                    vl.scaled_toa_error_sqr(tvi.toa, ctoa.toa_correction) if self.is_wideband() else vl.scaled_toa_error_sqr(tvi, ctoa)
+                    vl.scaled_toa_error_sqr(tvi.toa, ctoa.toa_correction)
+                    if self.is_wideband()
+                    else vl.scaled_toa_error_sqr(tvi, ctoa)
                 )
                 for (tvi, ctoa) in zip(self.pulsar.toas, ctoas)
             ]
