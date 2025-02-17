@@ -13,7 +13,7 @@ def ecorr_weight_indices(model: TimingModel, toas: TOAs) -> np.ndarray:
     """
     ecorrs = model.components["EcorrNoise"].get_ecorrs()
 
-    ts = (toas.table["tdbld"].quantity * u.day).to(u.s).value
+    ts = (toas.table["tdbld"].quantity * u.day).to_value(u.s)
     nweights = [get_ecorr_nweights(ts[ec.select_toa_mask(toas)]) for ec in ecorrs]
     nc = sum(nweights)
 

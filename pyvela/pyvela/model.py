@@ -13,7 +13,7 @@ from .toas import day_to_s, pint_toa_to_vela
 from .vela import jl, vl
 
 
-def read_mask(toas: TOAs, params: List[maskParameter]):
+def read_mask(toas: TOAs, params: List[maskParameter]) -> np.ndarray:
     """Read a TOA mask from a `maskParameter` in a `Vela`-friendly
     representation."""
 
@@ -26,7 +26,7 @@ def read_mask(toas: TOAs, params: List[maskParameter]):
     return np.array(masks)
 
 
-def is_exclusive_mask(mask: np.ndarray):
+def is_exclusive_mask(mask: np.ndarray) -> bool:
     """Check if the mask is exclusive. An exclusive mask is where one TOA
     belongs to only one group.
 
@@ -36,7 +36,7 @@ def is_exclusive_mask(mask: np.ndarray):
     return all(map(lambda x: x in [0, 1], mask.sum(axis=0)))
 
 
-def get_exclusive_mask(mask: np.ndarray):
+def get_exclusive_mask(mask: np.ndarray) -> np.ndarray:
     """Convert a mask to its exclusive representation. Throws an error
     if the input is not exclusive."""
     result = []
@@ -82,12 +82,12 @@ def pint_components_to_vela(model: TimingModel, toas: TOAs):
     #     components.append(vl.Troposphere())
 
     if "AstrometryEcliptic" in component_names:
-        components.append(vl.SolarSystem(True, model.PLANET_SHAPIRO.value))
+        components.append(vl.SolarSystem(True, model["PLANET_SHAPIRO"].value))
     elif "AstrometryEquatorial" in component_names:
-        components.append(vl.SolarSystem(False, model.PLANET_SHAPIRO.value))
+        components.append(vl.SolarSystem(False, model["PLANET_SHAPIRO"].value))
 
     if "SolarWindDispersion" in component_names and not (
-        model.NE_SW.value == 0 and model.NE_SW.frozen
+        model["NE_SW"].value == 0 and model["NE_SW"].frozen
     ):
         components.append(vl.SolarWindDispersion())
 
@@ -100,7 +100,7 @@ def pint_components_to_vela(model: TimingModel, toas: TOAs):
     elif "DMWaveX" in component_names:
         components.append(vl.DMWaveX())
     elif "PLDMNoiseGP" in component_names:
-        components.append(vl.PowerlawDispersionNoiseGP(int(model.TNDMC.value)))
+        components.append(vl.PowerlawDispersionNoiseGP(int(model["TNDMC"].value)))
 
     if "FDJumpDM" in component_names:
         fdjumpdms = list(
@@ -287,7 +287,7 @@ def fix_params(model: TimingModel) -> None:
             and isinstance(model[param], MJDParameter)
             and model[param].value is None
         ):
-            model[param].quantity = model.PEPOCH.quantity
+            model[param].quantity = model["PEPOCH"].quantity
 
     if "PhaseOffset" not in model.components:
         model.add_component(PhaseOffset())
@@ -352,7 +352,7 @@ def get_kernel(
 
 def fix_red_noise_components(model: TimingModel, toas: TOAs):
     f1 = 1 / toas.get_Tspan()
-    epoch = model.PEPOCH.quantity
+    epoch = model["PEPOCH"].quantity
 
     if "PLRedNoise" in model.components:
         plred_gp = PLRedNoiseGP(model.components["PLRedNoise"], f1, epoch)
@@ -380,7 +380,7 @@ def pint_model_to_vela(
 ):
     """Construct a `Vela.TimingModel` from a `PINT` `TimingModel`."""
 
-    epoch_mjd = float(model.PEPOCH.value)
+    epoch_mjd = float(model["PEPOCH"].value)
 
     toas.compute_pulse_numbers(model)
 
@@ -388,7 +388,7 @@ def pint_model_to_vela(
 
     fix_red_noise_components(model, toas)
 
-    pulsar_name = model.PSR.value if model.PSR.value is not None else ""
+    pulsar_name = model["PSR"].value if model["PSR"].value is not None else ""
 
     components = pint_components_to_vela(model, toas)
 
@@ -409,9 +409,9 @@ def pint_model_to_vela(
 
     return vl.TimingModel(
         pulsar_name,
-        model.EPHEM.value,
-        model.CLOCK.value,
-        model.UNITS.value,
+        model["EPHEM"].value,
+        model["CLOCK"].value,
+        model["UNITS"].value,
         vl.time(epoch_mjd * day_to_s),
         components,
         kernel,

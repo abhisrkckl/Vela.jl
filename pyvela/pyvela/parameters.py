@@ -125,7 +125,7 @@ def _get_multiparam_elements(model: TimingModel, multi_param_names: List[str]):
         if pxparam.value is None:
             break
 
-        elements.append(pint_parameter_to_vela(pxparam, float(model.PEPOCH.value)))
+        elements.append(pint_parameter_to_vela(pxparam, float(model["PEPOCH"].value)))
 
     return jl.Vector[vl.Parameter](elements)
 
@@ -196,12 +196,14 @@ def pint_parameters_to_vela(model: TimingModel):
         ):
             continue
 
-        single_params.append(pint_parameter_to_vela(param, float(model.PEPOCH.value)))
+        single_params.append(
+            pint_parameter_to_vela(param, float(model["PEPOCH"].value))
+        )
 
     single_params.append(
         vl.Parameter(
             jl.Symbol("F_"),
-            vl.GQ[-1](to_jldd(model.F0.quantity.si.value).hi),
+            vl.GQ[-1](to_jldd(model["F0"].quantity.si.value).hi),
             True,
             str(model.F0.units),
             1.0,
