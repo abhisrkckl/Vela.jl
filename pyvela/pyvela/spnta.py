@@ -3,10 +3,9 @@ from copy import deepcopy
 from typing import IO, Iterable
 
 import numpy as np
-
 from pint.binaryconvert import convert_binary
 from pint.logging import setup as setup_log
-from pint.models import TimingModel, get_model_and_toas
+from pint.models import TimingModel, get_model, get_model_and_toas
 from pint.toa import TOAs
 
 from .ecorr import ecorr_sort
@@ -222,17 +221,17 @@ class SPNTA:
         """Get the timing residuals (s) for a given set of parameters."""
         params = vl.read_params(self.pulsar.model, params)
         return np.array(
-            list(
+            [
+                vl.value(wr[0])
+                for wr in vl.form_residuals(self.pulsar.model, self.pulsar.toas, params)
+            ]
+            if self.is_wideband()
+            else list(
                 map(
                     vl.value,
                     vl.form_residuals(self.pulsar.model, self.pulsar.toas, params),
                 )
             )
-            if not self.is_wideband()
-            else [
-                vl.value(wr[0])
-                for wr in vl.form_residuals(self.pulsar.model, self.pulsar.toas, params)
-            ]
         )
 
     def dm_residuals(self, params: np.ndarray) -> np.ndarray:
@@ -259,9 +258,9 @@ class SPNTA:
         return np.sqrt(
             [
                 vl.value(
-                    vl.scaled_toa_error_sqr(tvi, ctoa)
-                    if not self.is_wideband()
-                    else vl.scaled_toa_error_sqr(tvi.toa, ctoa.toa_correction)
+                    vl.scaled_toa_error_sqr(tvi.toa, ctoa.toa_correction)
+                    if self.is_wideband()
+                    else vl.scaled_toa_error_sqr(tvi, ctoa)
                 )
                 for (tvi, ctoa) in zip(self.pulsar.toas, ctoas)
             ]
@@ -310,12 +309,13 @@ class SPNTA:
         return dms * dmu_conversion_factor
 
     @classmethod
-    def load_jlso(cls, filename: str) -> "SPNTA":
+    def load_jlso(cls, jlsoname: str, parfile: str) -> "SPNTA":
         """Construct an `SPNTA` object from a JLSO file"""
         spnta = cls.__new__(cls)
-        model, toas = vl.load_pulsar_data(filename)
-        spnta.jlsofile = filename
+        model, toas = vl.load_pulsar_data(jlsoname)
+        spnta.jlsofile = jlsoname
         spnta.pulsar = vl.Pulsar(model, toas)
+        spnta.model_pint = get_model(parfile)
         spnta._check()
         return spnta
 

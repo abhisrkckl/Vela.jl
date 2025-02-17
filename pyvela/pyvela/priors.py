@@ -2,7 +2,6 @@ from typing import List
 
 import numpy as np
 from astropy.time import Time
-
 from pint.models import TimingModel
 from pint.models.parameter import AngleParameter, MJDParameter, floatParameter
 
@@ -78,9 +77,11 @@ def get_default_prior(
             else 0.0
         )
 
-        assert (
-            param.uncertainty is not None and param.uncertainty > 0
-        ), f"Uncertainty not given for {param_name}."
+        assert param.uncertainty is not None and param.uncertainty > 0, (
+            f"Unable to construct prior for {param_name}. This can be resolved by "
+            f"(a) defining a prior in the prior file or "
+            f"(b) providing the frequentist uncertainty in the par file so that a 'cheat' prior can be used."
+        )
         err = (param.uncertainty * scale_factor).si.value
 
         pmin = val - cheat_prior_scale * err
@@ -144,7 +145,7 @@ def get_default_priors(
 
 
 def process_custom_priors(custom_priors_raw: dict, model: TimingModel) -> dict:
-    output_dict = dict()
+    output_dict = {}
     for par in model.free_params:
         prior_info: dict
         if par in custom_priors_raw:

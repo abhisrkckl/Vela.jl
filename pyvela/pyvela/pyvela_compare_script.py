@@ -6,6 +6,7 @@ from pint import DMconst, dmu
 from pint.logging import setup as setup_log
 from pint.models import get_model_and_toas
 from pint.residuals import Residuals, WidebandTOAResiduals
+
 from pyvela import SPNTA
 
 setup_log(level="WARNING")
@@ -63,7 +64,6 @@ def main(argv=None):
         plt.ylabel("Time residuals (s)")
         plt.xlabel("MJD")
         plt.legend()
-        plt.show()
     else:
         res = WidebandTOAResiduals(t, m)
 
@@ -118,4 +118,5 @@ def main(argv=None):
         )
         plt.ylabel("DM residuals (dmu)")
         plt.xlabel("MJD")
-        plt.show()
+
+    plt.show()

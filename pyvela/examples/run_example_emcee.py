@@ -30,12 +30,12 @@ shifts = [
 ]
 
 
-maxlike_params_v = np.array([spnta.maxlike_params])
+default_params_v = np.array([spnta.default_params])
 
 
-print(spnta.lnpost_vectorized(maxlike_params_v))
+print(spnta.lnpost_vectorized(default_params_v))
 print(
-    timeit("spnta.lnpost_vectorized(maxlike_params_v)", globals=globals(), number=1000)
+    timeit("spnta.lnpost_vectorized(default_params_v)", globals=globals(), number=1000)
 )
 
 
@@ -89,7 +89,7 @@ fig = corner.corner(
     labels=np.array(spnta.param_labels)[param_plot_mask],
     label_kwargs={"fontsize": 11},
     range=[0.999] * spnta.ndim,
-    truths=(maxlike_params_v[0] / spnta.scale_factors)[param_plot_mask],
+    truths=(default_params_v[0] / spnta.scale_factors)[param_plot_mask],
     plot_datapoints=False,
     hist_kwargs={"density": True},
     labelpad=0.3,

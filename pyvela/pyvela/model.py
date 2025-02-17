@@ -10,7 +10,6 @@ from .gp_noise import PLChromNoiseGP, PLDMNoiseGP, PLRedNoiseGP
 from .parameters import pint_parameters_to_vela
 from .priors import get_default_priors
 from .toas import day_to_s, pint_toa_to_vela
-
 from .vela import jl, vl
 
 
@@ -267,9 +266,7 @@ def pint_components_to_vela(model: TimingModel, toas: TOAs):
 
         components.append(vl.DispersionMeasurementNoise(dmefac_mask, dmequad_mask))
 
-    components = jl.Tuple(components)
-
-    return components
+    return jl.Tuple(components)
 
 
 def fix_params(model: TimingModel) -> None:
