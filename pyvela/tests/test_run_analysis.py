@@ -121,3 +121,4 @@ def test_jlso_script(dataset):
 
     outdir = f"_{dataset}_jlso_out"
     args = f"{parfile} -J {jlsofile} -T {parfile} -o {outdir} -f".split()
+    pyvela_script.main(args)
