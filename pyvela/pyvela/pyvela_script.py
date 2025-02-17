@@ -1,4 +1,3 @@
-from copy import deepcopy
 import datetime
 import getpass
 import json
@@ -7,12 +6,13 @@ import platform
 import shutil
 import sys
 from argparse import ArgumentParser
+from copy import deepcopy
 
 import emcee
 import numpy as np
 import pint
-
 import pint.models
+
 import pyvela
 from pyvela import SPNTA
 from pyvela import Vela as vl
@@ -21,8 +21,15 @@ from pyvela import Vela as vl
 def info_dict(args):
     info_dict = {
         "input": {
-            "par_file": os.path.basename(args.par_file),
-            "tim_file": os.path.basename(args.tim_file),
+            "par_file": (
+                os.path.basename(args.par_file) if args.par_file is not None else None
+            ),
+            "tim_file": (
+                os.path.basename(args.tim_file) if args.tim_file is not None else None
+            ),
+            "jlso_file": (
+                os.path.basename(args.jlso_file) if args.jlso_file is not None else None
+            ),
             "prior_file": (
                 os.path.basename(args.prior_file)
                 if args.prior_file is not None
@@ -69,12 +76,22 @@ def parse_args(argv):
         "uncertainties listed in the file will be used for 'cheat' priors where applicable.",
     )
     parser.add_argument(
-        "tim_file", help="The pulsar TOA file. Should be readable using PINT."
+        "tim_file",
+        help="The pulsar TOA file. Should be readable using PINT. Either this or a JLSO file (-J) should be provided.",
+        default=None,
+        nargs="?",
+    )
+    parser.add_argument(
+        "-J",
+        "--jlso_file",
+        help="The JLSO file containing pulsar timing and noise model & TOAs created using "
+        "`pyvela-jlso`. JLSO files may need to be recreated after updating `Vela.jl` since "
+        "the data format may change. These files are faster to read and parse.",
     )
     parser.add_argument(
         "-P",
         "--prior_file",
-        help="A JSON file containing the prior distributions for each free parameter.",
+        help="A JSON file containing the prior distributions for each free parameter. (Ignored if `-J` option is used.)",
     )
     parser.add_argument(
         "-T",
@@ -94,7 +111,13 @@ def parse_args(argv):
         "-o",
         "--outdir",
         default="pyvela_results",
-        help="The output directory. Will throw an error if it already exists.",
+        help="The output directory. Will throw an error if it already exists (unless -f is given).",
+    )
+    parser.add_argument(
+        "-f",
+        "--force_rewrite",
+        action="store_true",
+        help="Force rewrite the output directory if it exists.",
     )
     parser.add_argument(
         "-N",
@@ -121,16 +144,49 @@ def parse_args(argv):
     return parser.parse_args(argv)
 
 
-def prepare_outdir(args):
-    summary_info = info_dict(args)
+def validate_input(args):
+    assert os.path.isfile(args.par_file), "Invalid par file."
+    assert (
+        args.tim_file is not None or args.jlso_file is not None
+    ), "Either a tim file or a JLSO file must be provided."
+    assert (
+        args.tim_file is None or args.jlso_file is None
+    ), "Both a tim file and a JLSO file can't be provided together."
 
-    assert not os.path.isdir(args.outdir), "The output directory already exists!"
+    if args.jlso_file is None:
+        assert args.tim_file is not None and os.path.isfile(
+            args.tim_file
+        ), "Invalid tim file."
+    else:
+        assert os.path.isfile(args.jlso_file), "Invalid JLSO file."
+
+    assert args.prior_file is None or os.path.isfile(
+        args.prior_file
+    ), "Prior file not found."
+    assert args.truth is None or os.path.isfile(args.truth), "Truth par file not found."
+
+    assert args.force_rewrite or not os.path.isdir(
+        args.outdir
+    ), "The output directory already exists! Use `-f` option to force overwrite."
+
+
+def prepare_outdir(args):
+    if args.force_rewrite and os.path.isdir(args.outdir):
+        shutil.rmtree(args.outdir)
 
     os.mkdir(args.outdir)
+
     shutil.copy(args.par_file, args.outdir)
-    shutil.copy(args.tim_file, args.outdir)
+
+    if args.jlso_file is None:
+        shutil.copy(args.tim_file, args.outdir)
+    else:
+        shutil.copy(args.jlso_file, args.outdir)
+
     if args.prior_file is not None:
         shutil.copy(args.prior_file, args.outdir)
+
+    summary_info = info_dict(args)
     with open(f"{args.outdir}/summary.json", "w") as summary_file:
         json.dump(summary_info, summary_file, indent=4)
 
@@ -211,13 +267,18 @@ def save_resids(spnta: SPNTA, params: np.ndarray, outdir: str) -> None:
 
 def main(argv=None):
     args = parse_args(argv)
+    validate_input(args)
     prepare_outdir(args)
 
-    spnta = SPNTA(
-        args.par_file,
-        args.tim_file,
-        cheat_prior_scale=args.cheat_prior_scale,
-        custom_priors=(args.prior_file if args.prior_file is not None else {}),
+    spnta = (
+        SPNTA(
+            args.par_file,
+            args.tim_file,
+            cheat_prior_scale=args.cheat_prior_scale,
+            custom_priors=(args.prior_file if args.prior_file is not None else {}),
+        )
+        if args.jlso_file is None
+        else SPNTA.load_jlso(args.jlso_file, args.par_file)
     )
 
     save_spnta_attrs(spnta, args)

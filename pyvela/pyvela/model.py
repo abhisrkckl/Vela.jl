@@ -10,7 +10,6 @@ from .gp_noise import PLChromNoiseGP, PLDMNoiseGP, PLRedNoiseGP
 from .parameters import pint_parameters_to_vela
 from .priors import get_default_priors
 from .toas import day_to_s, pint_toa_to_vela
-
 from .vela import jl, vl
 
 

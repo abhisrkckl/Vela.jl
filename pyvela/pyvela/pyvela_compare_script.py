@@ -6,6 +6,7 @@ from pint import DMconst, dmu
 from pint.logging import setup as setup_log
 from pint.models import get_model_and_toas
 from pint.residuals import Residuals, WidebandTOAResiduals
+
 from pyvela import SPNTA
 
 setup_log(level="WARNING")
