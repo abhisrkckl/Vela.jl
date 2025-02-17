@@ -16,7 +16,10 @@ from .vela import jl, vl
 
 
 def convert_model_and_toas(
-    model: TimingModel, toas: TOAs, cheat_prior_scale=20, custom_priors={}
+    model: TimingModel,
+    toas: TOAs,
+    cheat_prior_scale: float = 20.0,
+    custom_priors: dict = {},
 ):
     """Read a pair of par & tim files and create a `Vela.TimingModel` object and a
     Julia `Vector` of `TOA`s."""
@@ -38,7 +41,7 @@ def convert_model_and_toas(
         ecorr_toa_ranges=ecorr_toa_ranges,
         ecorr_indices=ecorr_indices,
     )
-    toas_v = pint_toas_to_vela(toas, float(model.PEPOCH.value))
+    toas_v = pint_toas_to_vela(toas, float(model["PEPOCH"].value))
 
     return model_v, toas_v
 
