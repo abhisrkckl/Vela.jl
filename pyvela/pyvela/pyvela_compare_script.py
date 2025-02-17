@@ -64,7 +64,6 @@ def main(argv=None):
         plt.ylabel("Time residuals (s)")
         plt.xlabel("MJD")
         plt.legend()
-        plt.show()
     else:
         res = WidebandTOAResiduals(t, m)
 
@@ -119,4 +118,5 @@ def main(argv=None):
         )
         plt.ylabel("DM residuals (dmu)")
         plt.xlabel("MJD")
-        plt.show()
+
+    plt.show()

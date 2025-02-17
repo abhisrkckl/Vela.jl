@@ -266,9 +266,7 @@ def pint_components_to_vela(model: TimingModel, toas: TOAs):
 
         components.append(vl.DispersionMeasurementNoise(dmefac_mask, dmequad_mask))
 
-    components = jl.Tuple(components)
-
-    return components
+    return jl.Tuple(components)
 
 
 def fix_params(model: TimingModel) -> None:
