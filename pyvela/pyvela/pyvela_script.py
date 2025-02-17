@@ -77,7 +77,7 @@ def parse_args(argv):
     )
     parser.add_argument(
         "tim_file",
-        help="The pulsar TOA file. Should be readable using PINT.",
+        help="The pulsar TOA file. Should be readable using PINT. Either this or a JLSO file (-J) should be provided.",
         default=None,
     )
     parser.add_argument(
@@ -85,7 +85,7 @@ def parse_args(argv):
         "--jlso_file",
         help="The JLSO file containing pulsar timing and noise model & TOAs created using "
         "`pyvela-jlso`. JLSO files may need to be recreated after updating `Vela.jl` since "
-        "the data format may change.",
+        "the data format may change. These files are faster to read and parse.",
     )
     parser.add_argument(
         "-P",
@@ -110,13 +110,13 @@ def parse_args(argv):
         "-o",
         "--outdir",
         default="pyvela_results",
-        help="The output directory. Will throw an error if it already exists.",
+        help="The output directory. Will throw an error if it already exists (unless -f is given).",
     )
     parser.add_argument(
         "-f",
         "--force_rewrite",
         action="store_true",
-        help="The output directory. Will throw an error if it already exists.",
+        help="Force rewrite the output directory if it exists.",
     )
     parser.add_argument(
         "-N",
@@ -145,6 +145,13 @@ def parse_args(argv):
 
 def validate_input(args):
     assert os.path.isfile(args.par_file), "Invalid par file."
+    assert (
+        args.tim_file is not None or args.jlso_file is not None
+    ), "Either a tim file or a JLSO file must be provided."
+    assert (
+        args.tim_file is None or args.jlso_file is None
+    ), "Both a tim file and a JLSO file can't be provided together."
+
     if args.jlso_file is None:
         assert args.tim_file is not None and os.path.isfile(
             args.tim_file
