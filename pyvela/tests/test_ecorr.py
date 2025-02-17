@@ -9,7 +9,7 @@ from pyvela.ecorr import ecorr_sort
 from pyvela.model import get_kernel
 from pyvela.spnta import SPNTA
 
-datadir = os.path.dirname(os.path.realpath(__file__)) + "/datafiles"
+datadir = f"{os.path.dirname(os.path.realpath(__file__))}/datafiles"
 
 
 @pytest.fixture(scope="module")

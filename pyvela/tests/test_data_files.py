@@ -14,7 +14,7 @@ from pyvela.vela import vl
 # jl.seval("using BenchmarkTools")
 # jl.seval("get_alloc(func, args...) = @ballocated(($func)(($args)...))")
 
-datadir = os.path.dirname(os.path.realpath(__file__)) + "/datafiles"
+datadir = f"{os.path.dirname(os.path.realpath(__file__))}/datafiles"
 
 datasets = [
     "sim_1",
@@ -93,7 +93,7 @@ def test_data(model_and_toas):
     prnames = [str(vl.param_name(pr)) for pr in spnta.model.priors]
     assert len(spnta.model.priors) == len(pnames)
     assert all(
-        [pn.startswith(prn) or fdjump_rx.match(pn) for pn, prn in zip(pnames, prnames)]
+        pn.startswith(prn) or fdjump_rx.match(pn) for pn, prn in zip(pnames, prnames)
     )
 
     assert all(np.isfinite(spnta.rescale_samples(spnta.default_params)))
@@ -113,7 +113,7 @@ def test_data(model_and_toas):
     assert all(np.isfinite(spnta.model_dm(spnta.default_params)))
 
     assert (
-        all([len(label) > 0 for label in spnta.param_labels])
+        all(len(label) > 0 for label in spnta.param_labels)
         and len(spnta.param_labels) == spnta.ndim
     )
 
