@@ -21,7 +21,9 @@ def read_mask(toas: TOAs, params: List[maskParameter]) -> np.ndarray:
     for param in params:
         mask = np.repeat(False, len(toas))
         mask[param.select_toa_mask(toas)] = True
-        assert any(mask), f"{param.name} has no TOAs!"
+        assert any(
+            mask
+        ), f"Mask parameter {param.name} has no TOAs! Please modify the par file to avoid such parameters."
         masks.append(mask)
     return np.array(masks)
 
@@ -48,7 +50,9 @@ def get_exclusive_mask(mask: np.ndarray) -> np.ndarray:
             result.append(wh.item() + 1)
         else:
             raise ValueError("The mask is not exclusive!")
-    assert len(result) == mask.shape[1]
+    assert (
+        len(result) == mask.shape[1]
+    ), "Shape of the constructed (exclusive) index mask is inconsistent with its bit mask representation. This is a bug."
     return np.array(result)
 
 
@@ -138,7 +142,9 @@ def pint_components_to_vela(model: TimingModel, toas: TOAs):
         components.append(vl.PowerlawChromaticNoiseGP(int(model.TNCHROMC.value)))
 
     if model.BINARY.value is not None:
-        assert (model["PB"].quantity is not None) != (model["FB0"].quantity is not None)
+        assert (model["PB"].quantity is not None) != (
+            model["FB0"].quantity is not None
+        ), "Expecting one and only one of PB and FB0. Please check the par file."
         use_fbx = model["FB0"].quantity is not None
         if "BinaryELL1" in component_names:
             components.append(vl.BinaryELL1(use_fbx))
@@ -156,7 +162,7 @@ def pint_components_to_vela(model: TimingModel, toas: TOAs):
             assert (
                 "AstrometryEcliptic" in component_names
                 or "AstrometryEquatorial" in component_names
-            )
+            ), "`AstrometryEcliptic` or `AstrometryEquatorial` must be present in the model when `BinaryDDK` is used. Please check the par file."
             ecliptic_coords = "AstrometryEcliptic" in component_names
             components.append(vl.BinaryDDK(use_fbx, ecliptic_coords))
         else:
@@ -216,8 +222,12 @@ def pint_components_to_vela(model: TimingModel, toas: TOAs):
             toas, [model[eq] for eq in model.EQUADs if model.EQUADs[eq][0] is not None]
         )
 
-        assert len(efac_mask0) == 0 or is_exclusive_mask(efac_mask0)
-        assert len(equad_mask0) == 0 or is_exclusive_mask(equad_mask0)
+        assert len(efac_mask0) == 0 or is_exclusive_mask(
+            efac_mask0
+        ), "Non-exclusive EFAC masks are not supported. Check the par file for overlapping EFACs."
+        assert len(equad_mask0) == 0 or is_exclusive_mask(
+            equad_mask0
+        ), "Non-exclusive EQUAD masks are not supported. Check the par file for overlapping EQUADs."
 
         efac_mask = (
             jl.Vector[jl.UInt](get_exclusive_mask(efac_mask0))
@@ -250,8 +260,12 @@ def pint_components_to_vela(model: TimingModel, toas: TOAs):
             ],
         )
 
-        assert len(dmefac_mask0) == 0 or is_exclusive_mask(dmefac_mask0)
-        assert len(dmequad_mask0) == 0 or is_exclusive_mask(dmequad_mask0)
+        assert len(dmefac_mask0) == 0 or is_exclusive_mask(
+            dmefac_mask0
+        ), "Non-exclusive DMEFAC masks are not supported. Check the par file for overlapping DMEFACs."
+        assert len(dmequad_mask0) == 0 or is_exclusive_mask(
+            dmequad_mask0
+        ), "Non-exclusive DMEQUAD masks are not supported. Check the par file for overlapping DMEQUADs."
 
         dmefac_mask = (
             jl.Vector[jl.UInt](get_exclusive_mask(dmefac_mask0))
@@ -279,7 +293,7 @@ def fix_params(model: TimingModel) -> None:
         4. Sets the unset parameter values to 0 where possible.
     """
 
-    assert model.PEPOCH.value is not None
+    assert model["PEPOCH"].value is not None, "PEPOCH is not given in the par file."
 
     for param in model.params:
         if (
@@ -337,7 +351,7 @@ def get_kernel(
 
         assert len(ecorr_mask0) == 0 or is_exclusive_mask(
             ecorr_mask0
-        ), "Non-exclusive ECORRs are not supported."
+        ), "Non-exclusive ECORRs are not supported. Check the par file for overlapping ECORRs."
 
         ecorr_groups = vl.Vector(
             [

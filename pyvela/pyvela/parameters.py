@@ -167,11 +167,14 @@ def pint_parameters_to_vela(model: TimingModel):
         "TNCHROMC",
     ]
 
-    assert all(psp not in ignore_params for psp in pseudo_single_params)
+    assert all(psp not in ignore_params for psp in pseudo_single_params), (
+        f"Pseudo-single parameters cannot be ignored. This is most likely a bug. "
+        f"Ignored parameters are {ignore_params} and pseudo-single parameters are {pseudo_single_params}"
+    )
     assert all(
         psp not in model or not hasattr(model[psp], "prefix")
         for psp in pseudo_single_params
-    )
+    ), f"Pseudo-single parameters cannot have the `prefix` attribute. The pseudo-single parameters are {pseudo_single_params}."
 
     # Process single parameters
     single_params = []

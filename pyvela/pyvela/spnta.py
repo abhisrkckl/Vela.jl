@@ -134,8 +134,15 @@ class SPNTA:
         lnl = self.lnlike(sample)
         lnp = self.lnpost(sample)
         lnpv = self.lnpost_vectorized(np.array([sample]))
-        assert all(np.isfinite([lnpr, lnl, lnp]))
-        assert np.isclose(lnp, lnpv)
+        assert all(np.isfinite([lnpr, lnl, lnp])), (
+            "The log-prior, log-likelihood, or log-posterior is non-finite at the default parameter values. "
+            "Please make sure that (1) default values are within the prior range, and (b) the default values "
+            "provide a phase-connected solution. If nothing is wrong, this may be a bug. Please report this."
+        )
+        assert np.isclose(lnp, lnpv), (
+            "The non-vectorized and vectorized versions of the log-posterior gives different results. "
+            "This is most likely a bug. Please report this."
+        )
 
     def lnlike(self, params: Iterable[float]) -> float:
         """Compute the log-likelihood function"""

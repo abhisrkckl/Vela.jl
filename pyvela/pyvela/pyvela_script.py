@@ -145,7 +145,9 @@ def parse_args(argv):
 
 
 def validate_input(args):
-    assert os.path.isfile(args.par_file), "Invalid par file."
+    assert os.path.isfile(
+        args.par_file
+    ), f"Invalid par file {args.par_file}. Make sure that the path is correct."
     assert (
         args.tim_file is not None or args.jlso_file is not None
     ), "Either a tim file or a JLSO file must be provided."
@@ -156,18 +158,22 @@ def validate_input(args):
     if args.jlso_file is None:
         assert args.tim_file is not None and os.path.isfile(
             args.tim_file
-        ), "Invalid tim file."
+        ), f"Invalid tim file {args.tim_file}. Make sure that the path is correct."
     else:
-        assert os.path.isfile(args.jlso_file), "Invalid JLSO file."
+        assert os.path.isfile(
+            args.jlso_file
+        ), f"Invalid JLSO file {args.jlso_file}. Make sure that the path is correct."
 
     assert args.prior_file is None or os.path.isfile(
         args.prior_file
-    ), "Prior file not found."
-    assert args.truth is None or os.path.isfile(args.truth), "Truth par file not found."
+    ), f"Prior file {args.prior_file} not found. Make sure the path is correct."
+    assert args.truth is None or os.path.isfile(
+        args.truth
+    ), f"Truth par file {args.truth} not found.  Make sure the path is correct."
 
     assert args.force_rewrite or not os.path.isdir(
         args.outdir
-    ), "The output directory already exists! Use `-f` option to force overwrite."
+    ), f"The output directory {args.outdir} already exists! Use `-f` option to force overwrite."
 
 
 def prepare_outdir(args):

@@ -52,7 +52,9 @@ def get_default_prior(
     distribution centered at the default value in the `model`, and a width that is
     `2 * cheat_prior_scale` times the uncertainty quoted in the model."""
 
-    assert param_name in model.free_params
+    assert (
+        param_name in model.free_params
+    ), "Refusing to construct prior for a non-free parameter."
 
     param = model[param_name]
 
@@ -134,7 +136,10 @@ def get_default_priors(
     params_disallow_custom_priors = {"PLREDCOS_", "PLREDSIN_", "PLDMCOS_", "PLDMSIN_"}
     assert (
         len(params_disallow_custom_priors.intersection(custom_prior_dists.keys())) == 0
-    ), f"Custom priors cannot be set for the following parameters: {params_disallow_custom_priors.intersection(custom_prior_dists.keys())}"
+    ), (
+        f"Custom priors cannot be set for the following parameters: {params_disallow_custom_priors.intersection(custom_prior_dists.keys())}. "
+        f"The priors for these parameters are defined by the model."
+    )
 
     return tuple(
         get_default_prior(
