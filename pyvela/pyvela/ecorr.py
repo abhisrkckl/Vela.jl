@@ -13,7 +13,7 @@ def ecorr_weight_indices(model: TimingModel, toas: TOAs) -> np.ndarray:
     """
     ecorrs = model.components["EcorrNoise"].get_ecorrs()
 
-    ts = (toas.table["tdbld"].quantity * u.day).to(u.s).value
+    ts = (toas.table["tdbld"].quantity * u.day).to_value(u.s)
     nweights = [get_ecorr_nweights(ts[ec.select_toa_mask(toas)]) for ec in ecorrs]
     nc = sum(nweights)
 
@@ -36,7 +36,9 @@ def ecorr_sort(
     Also returns a list containing the start and end indices of each ECORR
     group and an array containing the ECORR parameter indices for each group."""
 
-    assert "EcorrNoise" in model.components
+    assert (
+        "EcorrNoise" in model.components
+    ), "`ecorr_sort()` was called without any ECORRs in the model."
 
     ecorr_masks = model.components["EcorrNoise"].get_noise_basis(toas).T.astype(bool)
 
@@ -60,8 +62,12 @@ def ecorr_sort(
             (len(ecorr_sort_mask) - int(sum(ecmask)) + 1, len(ecorr_sort_mask))
         )
 
-    assert len(ecorr_sort_mask) == len(toas)
-    assert len(toa_ranges) == len(weight_indices)
+    assert len(ecorr_sort_mask) == len(
+        toas
+    ), "Shape of the ECORR mask is inconsistent with the number of TOAs. This is a bug."
+    assert len(toa_ranges) == len(
+        weight_indices
+    ), "Number of ECORR groups is inconsistent with the weight indices. This is a bug."
 
     toas_sorted = toas[ecorr_sort_mask]
     toas_sorted.table["index"] = np.arange(len(toas))

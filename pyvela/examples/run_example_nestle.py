@@ -80,12 +80,12 @@ params_median = vl.read_params(
     spnta.model, wq.median(result_nestle_v.samples.T, weights=result_nestle_v.weights)
 )
 rv = (
-    list(map(vl.value, vl.form_residuals(spnta.model, spnta.toas, params_median)))
-    if not spnta.is_wideband()
-    else [
+    [
         vl.value(wr[0])
         for wr in vl.form_residuals(spnta.model, spnta.toas, params_median)
     ]
+    if spnta.is_wideband()
+    else list(map(vl.value, vl.form_residuals(spnta.model, spnta.toas, params_median)))
 )
 
 ctoas = [vl.correct_toa(spnta.model, tvi, params_median) for tvi in spnta.toas]

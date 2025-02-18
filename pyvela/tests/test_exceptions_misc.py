@@ -1,5 +1,4 @@
 import os
-from io import StringIO
 
 import pytest
 from pint.models import get_model_and_toas
@@ -38,6 +37,6 @@ def test_open_prior_file():
 def test_dmx_exception():
     parfile, timfile = f"{datadir}/sim_dmx.par", f"{datadir}/sim_dmx.tim"
     m, t = get_model_and_toas(parfile, timfile, planets=True)
-    m.DMXR2_0001.value = m.DMXR2_0002.value
+    m["DMXR2_0001"].value = m["DMXR2_0002"].value
     with pytest.raises(ValueError):
         SPNTA.from_pint(m, t)

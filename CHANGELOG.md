@@ -12,6 +12,7 @@
 - `check` option in `SPNTA` constructor
 - Force rewrite (`-f`) option in `pyvela` script
 - Take JLSO files as input in the `pyvela` script (`-J` option)
+- Informative error messages in `assert` statements
 ## Changed
 - Renamed `SPNTA.maxlike_params` -> `SPNTA.default_params`
 - Throw an error if the output directory exists in `pyvela` script

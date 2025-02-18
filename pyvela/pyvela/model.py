@@ -13,7 +13,7 @@ from .toas import day_to_s, pint_toa_to_vela
 from .vela import jl, vl
 
 
-def read_mask(toas: TOAs, params: List[maskParameter]):
+def read_mask(toas: TOAs, params: List[maskParameter]) -> np.ndarray:
     """Read a TOA mask from a `maskParameter` in a `Vela`-friendly
     representation."""
 
@@ -21,12 +21,14 @@ def read_mask(toas: TOAs, params: List[maskParameter]):
     for param in params:
         mask = np.repeat(False, len(toas))
         mask[param.select_toa_mask(toas)] = True
-        assert any(mask), f"{param.name} has no TOAs!"
+        assert any(
+            mask
+        ), f"Mask parameter {param.name} has no TOAs! Please modify the par file to avoid such parameters."
         masks.append(mask)
     return np.array(masks)
 
 
-def is_exclusive_mask(mask: np.ndarray):
+def is_exclusive_mask(mask: np.ndarray) -> bool:
     """Check if the mask is exclusive. An exclusive mask is where one TOA
     belongs to only one group.
 
@@ -36,7 +38,7 @@ def is_exclusive_mask(mask: np.ndarray):
     return all(map(lambda x: x in [0, 1], mask.sum(axis=0)))
 
 
-def get_exclusive_mask(mask: np.ndarray):
+def get_exclusive_mask(mask: np.ndarray) -> np.ndarray:
     """Convert a mask to its exclusive representation. Throws an error
     if the input is not exclusive."""
     result = []
@@ -48,7 +50,9 @@ def get_exclusive_mask(mask: np.ndarray):
             result.append(wh.item() + 1)
         else:
             raise ValueError("The mask is not exclusive!")
-    assert len(result) == mask.shape[1]
+    assert (
+        len(result) == mask.shape[1]
+    ), "Shape of the constructed (exclusive) index mask is inconsistent with its bit mask representation. This is a bug."
     return np.array(result)
 
 
@@ -82,12 +86,12 @@ def pint_components_to_vela(model: TimingModel, toas: TOAs):
     #     components.append(vl.Troposphere())
 
     if "AstrometryEcliptic" in component_names:
-        components.append(vl.SolarSystem(True, model.PLANET_SHAPIRO.value))
+        components.append(vl.SolarSystem(True, model["PLANET_SHAPIRO"].value))
     elif "AstrometryEquatorial" in component_names:
-        components.append(vl.SolarSystem(False, model.PLANET_SHAPIRO.value))
+        components.append(vl.SolarSystem(False, model["PLANET_SHAPIRO"].value))
 
     if "SolarWindDispersion" in component_names and not (
-        model.NE_SW.value == 0 and model.NE_SW.frozen
+        model["NE_SW"].value == 0 and model["NE_SW"].frozen
     ):
         components.append(vl.SolarWindDispersion())
 
@@ -100,7 +104,7 @@ def pint_components_to_vela(model: TimingModel, toas: TOAs):
     elif "DMWaveX" in component_names:
         components.append(vl.DMWaveX())
     elif "PLDMNoiseGP" in component_names:
-        components.append(vl.PowerlawDispersionNoiseGP(int(model.TNDMC.value)))
+        components.append(vl.PowerlawDispersionNoiseGP(int(model["TNDMC"].value)))
 
     if "FDJumpDM" in component_names:
         fdjumpdms = list(
@@ -138,7 +142,9 @@ def pint_components_to_vela(model: TimingModel, toas: TOAs):
         components.append(vl.PowerlawChromaticNoiseGP(int(model.TNCHROMC.value)))
 
     if model.BINARY.value is not None:
-        assert (model["PB"].quantity is not None) != (model["FB0"].quantity is not None)
+        assert (model["PB"].quantity is not None) != (
+            model["FB0"].quantity is not None
+        ), "Expecting one and only one of PB and FB0. Please check the par file."
         use_fbx = model["FB0"].quantity is not None
         if "BinaryELL1" in component_names:
             components.append(vl.BinaryELL1(use_fbx))
@@ -156,7 +162,7 @@ def pint_components_to_vela(model: TimingModel, toas: TOAs):
             assert (
                 "AstrometryEcliptic" in component_names
                 or "AstrometryEquatorial" in component_names
-            )
+            ), "`AstrometryEcliptic` or `AstrometryEquatorial` must be present in the model when `BinaryDDK` is used. Please check the par file."
             ecliptic_coords = "AstrometryEcliptic" in component_names
             components.append(vl.BinaryDDK(use_fbx, ecliptic_coords))
         else:
@@ -188,7 +194,7 @@ def pint_components_to_vela(model: TimingModel, toas: TOAs):
     if "WaveX" in component_names:
         components.append(vl.WaveX())
     elif "PLRedNoiseGP" in component_names:
-        components.append(vl.PowerlawRedNoiseGP(int(model.TNREDC.value)))
+        components.append(vl.PowerlawRedNoiseGP(int(model["TNREDC"].value)))
 
     if "Spindown" in component_names:
         components.append(vl.Spindown())
@@ -216,8 +222,12 @@ def pint_components_to_vela(model: TimingModel, toas: TOAs):
             toas, [model[eq] for eq in model.EQUADs if model.EQUADs[eq][0] is not None]
         )
 
-        assert len(efac_mask0) == 0 or is_exclusive_mask(efac_mask0)
-        assert len(equad_mask0) == 0 or is_exclusive_mask(equad_mask0)
+        assert len(efac_mask0) == 0 or is_exclusive_mask(
+            efac_mask0
+        ), "Non-exclusive EFAC masks are not supported. Check the par file for overlapping EFACs."
+        assert len(equad_mask0) == 0 or is_exclusive_mask(
+            equad_mask0
+        ), "Non-exclusive EQUAD masks are not supported. Check the par file for overlapping EQUADs."
 
         efac_mask = (
             jl.Vector[jl.UInt](get_exclusive_mask(efac_mask0))
@@ -250,8 +260,12 @@ def pint_components_to_vela(model: TimingModel, toas: TOAs):
             ],
         )
 
-        assert len(dmefac_mask0) == 0 or is_exclusive_mask(dmefac_mask0)
-        assert len(dmequad_mask0) == 0 or is_exclusive_mask(dmequad_mask0)
+        assert len(dmefac_mask0) == 0 or is_exclusive_mask(
+            dmefac_mask0
+        ), "Non-exclusive DMEFAC masks are not supported. Check the par file for overlapping DMEFACs."
+        assert len(dmequad_mask0) == 0 or is_exclusive_mask(
+            dmequad_mask0
+        ), "Non-exclusive DMEQUAD masks are not supported. Check the par file for overlapping DMEQUADs."
 
         dmefac_mask = (
             jl.Vector[jl.UInt](get_exclusive_mask(dmefac_mask0))
@@ -279,7 +293,7 @@ def fix_params(model: TimingModel) -> None:
         4. Sets the unset parameter values to 0 where possible.
     """
 
-    assert model.PEPOCH.value is not None
+    assert model["PEPOCH"].value is not None, "PEPOCH is not given in the par file."
 
     for param in model.params:
         if (
@@ -287,7 +301,7 @@ def fix_params(model: TimingModel) -> None:
             and isinstance(model[param], MJDParameter)
             and model[param].value is None
         ):
-            model[param].quantity = model.PEPOCH.quantity
+            model[param].quantity = model["PEPOCH"].quantity
 
     if "PhaseOffset" not in model.components:
         model.add_component(PhaseOffset())
@@ -337,7 +351,7 @@ def get_kernel(
 
         assert len(ecorr_mask0) == 0 or is_exclusive_mask(
             ecorr_mask0
-        ), "Non-exclusive ECORRs are not supported."
+        ), "Non-exclusive ECORRs are not supported. Check the par file for overlapping ECORRs."
 
         ecorr_groups = vl.Vector(
             [
@@ -352,7 +366,7 @@ def get_kernel(
 
 def fix_red_noise_components(model: TimingModel, toas: TOAs):
     f1 = 1 / toas.get_Tspan()
-    epoch = model.PEPOCH.quantity
+    epoch = model["PEPOCH"].quantity
 
     if "PLRedNoise" in model.components:
         plred_gp = PLRedNoiseGP(model.components["PLRedNoise"], f1, epoch)
@@ -380,7 +394,7 @@ def pint_model_to_vela(
 ):
     """Construct a `Vela.TimingModel` from a `PINT` `TimingModel`."""
 
-    epoch_mjd = float(model.PEPOCH.value)
+    epoch_mjd = float(model["PEPOCH"].value)
 
     toas.compute_pulse_numbers(model)
 
@@ -388,7 +402,7 @@ def pint_model_to_vela(
 
     fix_red_noise_components(model, toas)
 
-    pulsar_name = model.PSR.value if model.PSR.value is not None else ""
+    pulsar_name = model["PSR"].value if model["PSR"].value is not None else ""
 
     components = pint_components_to_vela(model, toas)
 
@@ -409,9 +423,9 @@ def pint_model_to_vela(
 
     return vl.TimingModel(
         pulsar_name,
-        model.EPHEM.value,
-        model.CLOCK.value,
-        model.UNITS.value,
+        model["EPHEM"].value,
+        model["CLOCK"].value,
+        model["UNITS"].value,
         vl.time(epoch_mjd * day_to_s),
         components,
         kernel,

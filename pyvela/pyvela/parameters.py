@@ -125,7 +125,7 @@ def _get_multiparam_elements(model: TimingModel, multi_param_names: List[str]):
         if pxparam.value is None:
             break
 
-        elements.append(pint_parameter_to_vela(pxparam, float(model.PEPOCH.value)))
+        elements.append(pint_parameter_to_vela(pxparam, float(model["PEPOCH"].value)))
 
     return jl.Vector[vl.Parameter](elements)
 
@@ -167,11 +167,14 @@ def pint_parameters_to_vela(model: TimingModel):
         "TNCHROMC",
     ]
 
-    assert all(psp not in ignore_params for psp in pseudo_single_params)
+    assert all(psp not in ignore_params for psp in pseudo_single_params), (
+        f"Pseudo-single parameters cannot be ignored. This is most likely a bug. "
+        f"Ignored parameters are {ignore_params} and pseudo-single parameters are {pseudo_single_params}"
+    )
     assert all(
         psp not in model or not hasattr(model[psp], "prefix")
         for psp in pseudo_single_params
-    )
+    ), f"Pseudo-single parameters cannot have the `prefix` attribute. The pseudo-single parameters are {pseudo_single_params}."
 
     # Process single parameters
     single_params = []
@@ -196,12 +199,14 @@ def pint_parameters_to_vela(model: TimingModel):
         ):
             continue
 
-        single_params.append(pint_parameter_to_vela(param, float(model.PEPOCH.value)))
+        single_params.append(
+            pint_parameter_to_vela(param, float(model["PEPOCH"].value))
+        )
 
     single_params.append(
         vl.Parameter(
             jl.Symbol("F_"),
-            vl.GQ[-1](to_jldd(model.F0.quantity.si.value).hi),
+            vl.GQ[-1](to_jldd(model["F0"].quantity.si.value).hi),
             True,
             str(model.F0.units),
             1.0,

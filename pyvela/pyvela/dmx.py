@@ -22,5 +22,7 @@ def get_dmx_mask(
             raise ValueError(
                 f"Multiple {param_prefix} ranges found for TOA number {ii} ({str(t)})."
             )
-    assert len(mask) == len(toas)
+    assert len(mask) == len(
+        toas
+    ), "Length of the DMX mask is inconsistent with the number of TOAs. This is a bug."
     return np.array(mask, dtype=int)

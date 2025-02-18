@@ -10,8 +10,12 @@ day_to_s = 86400
 def pint_toa_to_vela(toas: TOAs, idx: int, epoch_mjd: float):
     """Construct a `Vela.TOA` object from a `PINT` `TOAs` object and an index."""
 
-    assert toas.planets
-    assert toas.get_pulse_numbers() is not None
+    assert (
+        toas.planets
+    ), "Planerary ephemeris not found in `TOAs` object. Use `planets=True` while reading in the TOAs."
+    assert (
+        toas.get_pulse_numbers() is not None
+    ), "Pulse numbers not found in `TOAs` object. Call `toas.compute_pulse_numbers()`."
 
     tdb_ld = (toas.table["tdbld"].value[idx] - epoch_mjd) * day_to_s
     # tdb_ld1, tdb_ld2 = np.modf(tdb_ld)
@@ -80,7 +84,9 @@ def pint_wbtoa_to_vela(toas: TOAs, idx: int, epoch_mjd: float):
     """Construct a `Vela.WidebandTOA`s from a `PINT` `TOAs` object containing
     wideband data and an index."""
 
-    assert toas.is_wideband()
+    assert (
+        toas.is_wideband()
+    ), "Expected a wideband `TOAs` object here. Make sure that all TOAs have the `-ppdm` and `-ppdme` flags."
 
     vtoa = pint_toa_to_vela(toas, idx, epoch_mjd)
 
