@@ -1,10 +1,11 @@
 import os
 import time
+from typing import Tuple
 
 import numpy as np
 import pytest
-from juliacall import Main as jl
-from pint.models import get_model_and_toas
+from pint.models import get_model_and_toas, TimingModel
+from pint.toa import TOAs
 
 from pyvela.model import fix_red_noise_components
 from pyvela.parameters import fdjump_rx
@@ -72,8 +73,7 @@ def test_read_data(dataset):
     assert len(model.components) <= len(m.components)
 
 
-def test_data(model_and_toas):
-    spnta: SPNTA
+def test_data(model_and_toas: Tuple[SPNTA, TimingModel, TOAs]):
     spnta, m, t = model_and_toas
 
     assert len(spnta.toas) == len(t)
@@ -98,15 +98,15 @@ def test_data(model_and_toas):
 
     assert all(np.isfinite(spnta.rescale_samples(spnta.default_params)))
 
-    assert spnta.is_wideband() == t.is_wideband()
+    assert spnta.wideband == t.is_wideband()
 
-    assert all(np.isfinite(spnta.get_mjds())) and len(spnta.get_mjds()) == len(t)
+    assert all(np.isfinite(spnta.mjds)) and len(spnta.mjds) == len(t)
 
     assert all(np.isfinite(spnta.time_residuals(spnta.default_params)))
 
     assert all(np.isfinite(spnta.scaled_toa_unceritainties(spnta.default_params)))
 
-    if spnta.is_wideband():
+    if spnta.wideband:
         assert all(np.isfinite(spnta.dm_residuals(spnta.default_params)))
         assert all(np.isfinite(spnta.scaled_dm_unceritainties(spnta.default_params)))
 
@@ -120,8 +120,7 @@ def test_data(model_and_toas):
     assert len(spnta.param_units) == spnta.ndim
 
 
-def test_chi2(model_and_toas):
-    spnta: SPNTA
+def test_chi2(model_and_toas: Tuple[SPNTA, TimingModel, TOAs]):
     spnta, m, t = model_and_toas
     calc_chi2 = vl.get_chi2_func(spnta.model, spnta.toas)
 
