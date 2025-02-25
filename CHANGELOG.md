@@ -1,6 +1,7 @@
 # Unreleased
 ## Added
 ## Changed
+- Made some properties of `SPNTA` cached.
 ## Fixed
 ## Removed
 
@@ -24,7 +25,6 @@
 - Throw an error if the output directory exists in `pyvela` script
 - Save only the basename of input files in the summary file in in `pyvela` script
 - Changed `par_tim-to-jlso.py` into an installable script `pyvela-jlso`.
-- Made some properties of `SPNTA` cached.
 ## Fixed
 - Correctly avoid likelihood computation when the parameter is outside prior range.
 - Added `DoubleFloats`, `Distributions`, and `GeometricUnits` to installation instructions
