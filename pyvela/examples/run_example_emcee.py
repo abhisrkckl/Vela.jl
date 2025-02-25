@@ -100,7 +100,7 @@ plt.suptitle(spnta.model.pulsar_name)
 
 plt.subplot(6, 3, 3)
 plt.errorbar(
-    spnta.get_mjds(),
+    spnta.mjds,
     rv,
     errs,
     ls="",
