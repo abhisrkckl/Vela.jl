@@ -1,3 +1,4 @@
+from functools import cached_property
 import json
 from copy import deepcopy
 from typing import IO, Iterable
@@ -173,31 +174,31 @@ class SPNTA:
     def toas(self):
         return self.pulsar.toas
 
-    @property
+    @cached_property
     def param_names(self) -> Iterable[str]:
         return np.array(list(vl.get_free_param_names(self.pulsar.model)))
 
-    @property
+    @cached_property
     def param_labels(self) -> Iterable[str]:
         return np.array(list(vl.get_free_param_labels(self.pulsar.model)))
 
-    @property
+    @cached_property
     def param_units(self) -> Iterable[str]:
         return np.array(list(vl.get_free_param_units(self.pulsar.model)))
 
-    @property
+    @cached_property
     def param_prefixes(self) -> Iterable[str]:
         return np.array(list(vl.get_free_param_prefixes(self.pulsar.model)))
 
-    @property
+    @cached_property
     def scale_factors(self) -> Iterable[float]:
         return np.array(vl.get_scale_factors(self.pulsar.model))
 
-    @property
+    @cached_property
     def default_params(self) -> Iterable[str]:
         return np.array(vl.read_param_values_to_vector(self.pulsar.model))
 
-    @property
+    @cached_property
     def ndim(self) -> int:
         return len(self.param_names)
 
@@ -209,13 +210,15 @@ class SPNTA:
         """Write the model and TOAs as a JLSO file"""
         vl.save_pulsar_data(filename, self.pulsar.model, self.pulsar.toas)
 
-    def is_wideband(self) -> bool:
+    @cached_property
+    def wideband(self) -> bool:
         """Whether the TOAs are wideband."""
         return jl.isa(self.pulsar.toas[0], vl.WidebandTOA)
 
-    def get_mjds(self) -> np.ndarray:
+    @cached_property
+    def mjds(self) -> np.ndarray:
         """Get the MJDs of each TOA."""
-        if self.is_wideband():
+        if self.wideband:
             return np.array(
                 [
                     jl.Float64(vl.value(wtoa.toa.value)) / day_to_s
@@ -235,7 +238,7 @@ class SPNTA:
                 vl.value(wr[0])
                 for wr in vl.form_residuals(self.pulsar.model, self.pulsar.toas, params)
             ]
-            if self.is_wideband()
+            if self.wideband
             else list(
                 map(
                     vl.value,
@@ -246,7 +249,7 @@ class SPNTA:
 
     def dm_residuals(self, params: np.ndarray) -> np.ndarray:
         """Get the DM residuals (s) for a given set of parameters (wideband only)."""
-        assert self.is_wideband(), "This method is only defined for wideband datasets."
+        assert self.wideband, "This method is only defined for wideband datasets."
 
         params = vl.read_params(self.pulsar.model, params)
 
@@ -269,7 +272,7 @@ class SPNTA:
             [
                 vl.value(
                     vl.scaled_toa_error_sqr(tvi.toa, ctoa.toa_correction)
-                    if self.is_wideband()
+                    if self.wideband
                     else vl.scaled_toa_error_sqr(tvi, ctoa)
                 )
                 for (tvi, ctoa) in zip(self.pulsar.toas, ctoas)
@@ -278,7 +281,7 @@ class SPNTA:
 
     def scaled_dm_unceritainties(self, params: np.ndarray) -> np.ndarray:
         """Get the scaled DM uncertainties (s) for a given set of parameters (wideband only)."""
-        assert self.is_wideband(), "This method is only defined for wideband datasets."
+        assert self.wideband, "This method is only defined for wideband datasets."
 
         params = vl.read_params(self.pulsar.model, params)
 
@@ -297,7 +300,7 @@ class SPNTA:
         """Compute the model DM (dmu) for a given set of parameters."""
         params = vl.read_params(self.pulsar.model, params)
 
-        if not self.is_wideband():
+        if not self.wideband:
             dms = np.zeros(len(self.pulsar.toas))
             for ii, toa in enumerate(self.pulsar.toas):
                 ctoa = vl.TOACorrection()

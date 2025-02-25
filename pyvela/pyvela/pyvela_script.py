@@ -249,10 +249,10 @@ def save_new_parfile(
 
 
 def save_resids(spnta: SPNTA, params: np.ndarray, outdir: str) -> None:
-    wb = spnta.is_wideband()
+    wb = spnta.wideband
 
     ntoas = len(spnta.toas)
-    mjds = spnta.get_mjds()
+    mjds = spnta.mjds
     tres = spnta.time_residuals(params)
     terr = spnta.scaled_toa_unceritainties(params)
 

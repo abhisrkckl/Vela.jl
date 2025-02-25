@@ -84,7 +84,7 @@ rv = (
         vl.value(wr[0])
         for wr in vl.form_residuals(spnta.model, spnta.toas, params_median)
     ]
-    if spnta.is_wideband()
+    if spnta.wideband
     else list(map(vl.value, vl.form_residuals(spnta.model, spnta.toas, params_median)))
 )
 
@@ -97,7 +97,7 @@ errs = np.sqrt(
 )
 
 plt.errorbar(
-    spnta.get_mjds(),
+    spnta.mjds,
     rv,
     errs,
     ls="",

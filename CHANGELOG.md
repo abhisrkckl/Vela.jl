@@ -1,6 +1,7 @@
 # Unreleased
 ## Added
 ## Changed
+- Made some properties of `SPNTA` cached.
 ## Fixed
 ## Removed
 
