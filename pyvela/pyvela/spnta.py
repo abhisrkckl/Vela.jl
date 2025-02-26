@@ -102,6 +102,9 @@ class SPNTA:
             **pint_kwargs,
         )
         self.model_pint = model_pint
+        self.toas_pint = toas_pint
+
+        model_pint = deepcopy(model_pint)
 
         # custom_priors_dict is in the "raw" format. The numbers may be
         # in "normal" units and have to be converted into internal units.
@@ -329,6 +332,7 @@ class SPNTA:
         spnta.jlsofile = jlsoname
         spnta.pulsar = vl.Pulsar(model, toas)
         spnta.model_pint = get_model(parfile)
+        spnta.toas_pint = None
         spnta._check()
         return spnta
 
@@ -346,6 +350,9 @@ class SPNTA:
         setup_log(level="WARNING")
 
         spnta.model_pint = model
+        spnta.toas_pint = toas
+
+        model = deepcopy(model)
 
         # custom_priors_dict is in the "raw" format. The numbers may be
         # in "normal" units and have to be converted into internal units.
