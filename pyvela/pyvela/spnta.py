@@ -1,7 +1,7 @@
 from functools import cached_property
 import json
 from copy import deepcopy
-from typing import IO, Iterable
+from typing import IO, Iterable, List
 
 import numpy as np
 from pint.binaryconvert import convert_binary
@@ -19,6 +19,7 @@ from .vela import jl, vl
 def convert_model_and_toas(
     model: TimingModel,
     toas: TOAs,
+    noise_params: List[str],
     cheat_prior_scale: float = 20.0,
     custom_priors: dict = {},
 ):
@@ -39,6 +40,7 @@ def convert_model_and_toas(
         toas,
         cheat_prior_scale,
         custom_priors,
+        noise_params,
         ecorr_toa_ranges=ecorr_toa_ranges,
         ecorr_indices=ecorr_indices,
     )
@@ -117,10 +119,14 @@ class SPNTA:
 
         custom_priors = process_custom_priors(self.custom_priors_dict, model_pint)
 
+        # Use the original PINT TimingModel object.
+        noise_params = self.model_pint.get_params_of_component_type("NoiseComponent")
+
         setup_log(level="WARNING")
         model, toas = convert_model_and_toas(
             model_pint,
             toas_pint,
+            noise_params,
             cheat_prior_scale=cheat_prior_scale,
             custom_priors=custom_priors,
         )
@@ -365,9 +371,13 @@ class SPNTA:
 
         custom_priors = process_custom_priors(custom_priors_dict, model)
 
+        # Use the original PINT TimingModel object.
+        noise_params = spnta.model_pint.get_params_of_component_type("NoiseComponent")
+
         model_v, toas_v = convert_model_and_toas(
             model,
             toas,
+            noise_params,
             cheat_prior_scale=cheat_prior_scale,
             custom_priors=custom_priors,
         )

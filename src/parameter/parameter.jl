@@ -8,7 +8,8 @@ export Parameter,
     get_free_param_labels,
     get_free_param_prefixes,
     read_param_values_to_vector,
-    get_scale_factors
+    get_scale_factors,
+    is_noise
 
 """
     Parameter
@@ -24,6 +25,7 @@ struct Parameter
     frozen::Bool
     original_units::String
     unit_conversion_factor::Float64
+    noise::Bool
 end
 
 Parameter(
@@ -32,6 +34,7 @@ Parameter(
     frozen::Bool,
     original_units::String,
     unit_conversion_factor::Float64,
+    noise::Bool,
 ) = Parameter(
     name,
     value(default_quantity),
@@ -39,6 +42,7 @@ Parameter(
     frozen,
     original_units,
     unit_conversion_factor,
+    noise,
 )
 
 """
@@ -51,7 +55,14 @@ Corresponds to `maskParameter` or `prefixParameter` in `PINT`.
 struct MultiParameter
     name::Symbol
     parameters::Vector{Parameter}
+
+    function MultiParameter(name::Symbol, parameters::Vector{Parameter})
+        @assert allequal([par.noise for par in parameters])
+        return new(name, parameters)
+    end
 end
+
+is_noise(mpar::MultiParameter) = mpar.parameters[1].noise
 
 function _get_single_params_tuple(single_params)
     pkeys = Tuple((sp.name for sp in single_params))
