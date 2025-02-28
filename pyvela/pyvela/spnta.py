@@ -330,6 +330,7 @@ class SPNTA:
         spnta.jlsofile = jlsoname
         spnta.pulsar = vl.Pulsar(model, toas)
         spnta.model_pint = get_model(parfile)
+        spnta.toas_pint = None
         spnta._check()
         return spnta
 
@@ -346,7 +347,8 @@ class SPNTA:
 
         setup_log(level="WARNING")
 
-        spnta.model_pint = model
+        spnta.model_pint = deepcopy(model)
+        spnta.toas_pint = toas
 
         # custom_priors_dict is in the "raw" format. The numbers may be
         # in "normal" units and have to be converted into internal units.
