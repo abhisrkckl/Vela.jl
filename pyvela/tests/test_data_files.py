@@ -41,7 +41,9 @@ def model_and_toas(request):
 
     parfile, timfile = f"{datadir}/{dataset}.par", f"{datadir}/{dataset}.tim"
 
-    m, t = get_model_and_toas(f"{datadir}/{dataset}.par", f"{datadir}/{dataset}.tim")
+    m, t = get_model_and_toas(
+        f"{datadir}/{dataset}.par", f"{datadir}/{dataset}.tim", usepickle=True
+    )
 
     custom_priors = f"{datadir}/custom_priors.json"
 
