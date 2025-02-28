@@ -7,6 +7,7 @@ import shutil
 import sys
 from argparse import ArgumentParser
 from copy import deepcopy
+from warnings import warn
 
 import emcee
 import numpy as np
@@ -233,17 +234,24 @@ def save_new_parfile(
     param_vals = spnta.rescale_samples(params)
     param_errs = spnta.rescale_samples(param_uncertainties)
 
-    model1 = deepcopy(spnta.model_pint)
+    model1 = (
+        deepcopy(spnta.model_pint_modified)
+        if spnta.model_pint_modified is not None
+        else spnta.model_pint
+    )
     for pname, pval, perr in zip(spnta.param_names, param_vals, param_errs):
-        model1[pname].value = (
-            pval
-            if pname != "F0"
-            else (
-                np.longdouble(spnta.model.param_handler._default_params_tuple.F_.x)
-                + pval
+        if pname in model1:
+            model1[pname].value = (
+                pval
+                if pname != "F0"
+                else (
+                    np.longdouble(spnta.model.param_handler._default_params_tuple.F_.x)
+                    + pval
+                )
             )
-        )
-        model1[pname].uncertainty_value = perr
+            model1[pname].uncertainty_value = perr
+        else:
+            warn(f"Parameter {pname} not found in the PINT TimingModel!")
 
     model1.write_parfile(filename)
 

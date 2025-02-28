@@ -365,6 +365,9 @@ def get_kernel(
 
 
 def fix_red_noise_components(model: TimingModel, toas: TOAs):
+    """Replace the GP red noise components with their non-marginalized counterparts.
+    These non-marginalized components are only used for constructing the Vela `TimingModel`
+    and are not functional `PINT` `Component`s."""
     f1 = 1 / toas.get_Tspan()
     epoch = model["PEPOCH"].quantity
 

@@ -1,7 +1,9 @@
 # Unreleased
 ## Added
+- Store `toas_pint` in `SPNTA` (This is `None` when a `JLSO` file is loaded.)
 ## Changed
 - Made some properties of `SPNTA` cached.
+- Store a deepcopy of `model_pint` instead of the mutated original in `SPNTA`. The mutated version is stored as `model_pint_modified.`
 ## Fixed
 ## Removed
 
