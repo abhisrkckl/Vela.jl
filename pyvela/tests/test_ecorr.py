@@ -16,7 +16,7 @@ datadir = f"{os.path.dirname(os.path.realpath(__file__))}/datafiles"
 def data_B1855p09():
     parfile = f"{datadir}/B1855+09_NANOGrav_9yv1.par"
     timfile = f"{datadir}/B1855+09_NANOGrav_9yv1.tim"
-    mp, tp = get_model_and_toas(parfile, timfile)
+    mp, tp = get_model_and_toas(parfile, timfile, usepickle=True)
     spnta = SPNTA(parfile, timfile)
 
     return mp, tp, spnta
