@@ -4,7 +4,7 @@ from typing import Tuple
 
 import numpy as np
 import pytest
-from pint.models import get_model_and_toas, TimingModel
+from pint.models import get_model_and_toas, get_model, TimingModel
 from pint.toa import TOAs
 
 from pyvela.model import fix_red_noise_components
@@ -194,3 +194,20 @@ def test_readwrite_jlso(model_and_toas):
     assert set(spnta2.param_names) == set(spnta.param_names)
 
     os.unlink(jlsoname)
+
+
+def test_gp_model_conversion():
+    dataset = "sim3.gp"
+    parfile, timfile = f"{datadir}/{dataset}.par", f"{datadir}/{dataset}.tim"
+    m, t = get_model_and_toas(parfile, timfile, planets=True)
+
+    assert all(c in m.components for c in ["PLRedNoise", "PLDMNoise", "PLChromNoise"])
+
+    fix_red_noise_components(m, t)
+
+    assert all(
+        c not in m.components for c in ["PLRedNoise", "PLDMNoise", "PLChromNoise"]
+    )
+    assert all(
+        c in m.components for c in ["PLRedNoiseGP", "PLDMNoiseGP", "PLChromNoiseGP"]
+    )
