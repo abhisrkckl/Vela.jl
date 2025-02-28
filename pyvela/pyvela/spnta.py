@@ -101,7 +101,8 @@ class SPNTA:
             add_tzr_to_model=True,
             **pint_kwargs,
         )
-        self.model_pint = model_pint
+        self.model_pint = deepcopy(model_pint)
+        self.toas_pint = toas_pint
 
         # custom_priors_dict is in the "raw" format. The numbers may be
         # in "normal" units and have to be converted into internal units.
