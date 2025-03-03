@@ -20,7 +20,7 @@ args = parser.parse_args()
 
 
 spnta = SPNTA(
-    args.par_file, args.tim_file, cheat_prior_scale=10, custom_priors=args.priors
+    args.par_file, args.tim_file, cheat_prior_scale=40, custom_priors=args.priors
 )
 
 
@@ -39,7 +39,7 @@ print(
 )
 
 
-nwalkers = spnta.ndim * 5
+nwalkers = spnta.ndim * 4
 p0 = np.array(
     [spnta.prior_transform(cube) for cube in np.random.rand(nwalkers, spnta.ndim)]
 )
@@ -84,11 +84,12 @@ rv = spnta.time_residuals(params_median)
 errs = spnta.scaled_toa_unceritainties(params_median)
 
 samples_for_plot = samples_v[:, param_plot_mask]
+labels_for_plot = np.array(spnta.param_labels)[param_plot_mask]
 fig = corner.corner(
     samples_for_plot,
-    labels=np.array(spnta.param_labels)[param_plot_mask],
+    labels=labels_for_plot,
     label_kwargs={"fontsize": 11},
-    range=[0.999] * spnta.ndim,
+    range=[0.999] * len(labels_for_plot),
     truths=(default_params_v[0] / spnta.scale_factors)[param_plot_mask],
     plot_datapoints=False,
     hist_kwargs={"density": True},
