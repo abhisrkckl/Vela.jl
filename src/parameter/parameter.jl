@@ -142,109 +142,49 @@ function read_params(
     return reinterpret(ParamsType, values)[1]
 end
 
-"""Generate an ordered collection of free parameter names."""
-function get_free_param_names(param_handler::ParamHandler)::Vector{String}
-    pnames = Vector{String}()
+function _get_free_param_attribute(param_handler::ParamHandler, attr_func)
+    pattrs = []
 
     for noise in (false, true)
         @inbounds for spar in param_handler.single_params
             if !spar.frozen && spar.noise == noise
-                push!(pnames, string(spar.name))
+                push!(pattrs, attr_func(spar, spar))
             end
         end
 
         @inbounds for mpar in param_handler.multi_params
             for param in mpar.parameters
                 if !param.frozen && param.noise == noise
-                    push!(pnames, string(param.name))
+                    push!(pattrs, attr_func(mpar, param))
                 end
             end
         end
     end
 
-    return pnames
+    return pattrs
 end
 
+"""Generate an ordered collection of free parameter names."""
+get_free_param_names(param_handler::ParamHandler)::Vector{String} =
+    _get_free_param_attribute(param_handler, (mpar, param) -> string(param.name))
 
 """Generate an ordered collection of free parameter prefixes."""
-function get_free_param_prefixes(param_handler::ParamHandler)::Vector{String}
-    pnames = Vector{String}()
-
-    for noise in (false, true)
-        @inbounds for spar in param_handler.single_params
-            if !spar.frozen && spar.noise == noise
-                push!(pnames, string(spar.name))
-            end
-        end
-
-        @inbounds for mpar in param_handler.multi_params
-            for param in mpar.parameters
-                if !param.frozen && param.noise == noise
-                    push!(pnames, string(mpar.name))
-                end
-            end
-        end
-    end
-
-    return pnames
-end
+get_free_param_prefixes(param_handler::ParamHandler)::Vector{String} =
+    _get_free_param_attribute(param_handler, (mpar, param) -> string(mpar.name))
 
 """Generate an ordered collection of free parameter labels."""
-function get_free_param_labels(
-    param_handler::ParamHandler;
-    delim::String = "\n",
-)::Vector{String}
-    pnames = Vector{String}()
-
-    for noise in (false, true)
-        @inbounds for spar in param_handler.single_params
-            if !spar.frozen && spar.noise == noise
-                push!(
-                    pnames,
-                    isempty(spar.original_units) ? string(spar.name) :
-                    "$(string(spar.name))$delim($(spar.original_units))",
-                )
-            end
-        end
-
-        @inbounds for mpar in param_handler.multi_params
-            for param in mpar.parameters
-                if !param.frozen && param.noise == noise
-                    push!(
-                        pnames,
-                        isempty(param.original_units) ? string(param.name) :
-                        "$(string(param.name))$delim($(param.original_units))",
-                    )
-                end
-            end
-        end
-    end
-
-    return pnames
-end
+get_free_param_labels(param_handler::ParamHandler; delim::String = "\n")::Vector{String} =
+    _get_free_param_attribute(
+        param_handler,
+        (mpar, param) -> (
+            isempty(param.original_units) ? string(param.name) :
+            "$(string(param.name))$delim($(param.original_units))"
+        ),
+    )
 
 """Generate an ordered collection of free parameter units."""
-function get_free_param_units(param_handler::ParamHandler)::Vector{String}
-    pnames = Vector{String}()
-
-    for noise in (false, true)
-        @inbounds for spar in param_handler.single_params
-            if !spar.frozen && spar.noise == noise
-                push!(pnames, spar.original_units)
-            end
-        end
-
-        @inbounds for mpar in param_handler.multi_params
-            for param in mpar.parameters
-                if !param.frozen && param.noise == noise
-                    push!(pnames, param.original_units)
-                end
-            end
-        end
-    end
-
-    return pnames
-end
+get_free_param_units(param_handler::ParamHandler)::Vector{String} =
+    _get_free_param_attribute(param_handler, (mpar, param) -> param.original_units)
 
 """Generate a collection of free parameter values from a parameter tuple.
 
@@ -279,24 +219,5 @@ read_param_values_to_vector(param_handler::ParamHandler) =
 
 """Get the scale factors that convert the free parameters from `Vela.jl`'s 
 internal representation to the units used in `PINT`."""
-function get_scale_factors(param_handler::ParamHandler)
-    scale_factors = Float64[]
-
-    for noise in (false, true)
-        @inbounds for spar in param_handler.single_params
-            if !spar.frozen && spar.noise == noise
-                push!(scale_factors, spar.unit_conversion_factor)
-            end
-        end
-
-        @inbounds for mpar in param_handler.multi_params
-            for param in mpar.parameters
-                if !param.frozen && param.noise == noise
-                    push!(scale_factors, param.unit_conversion_factor)
-                end
-            end
-        end
-    end
-
-    return scale_factors
-end
+get_scale_factors(param_handler::ParamHandler)::Vector{Float64} =
+    _get_free_param_attribute(param_handler, (mpar, param) -> param.unit_conversion_factor)
