@@ -53,6 +53,7 @@
         param_handler = model.param_handler
         @test Set(get_free_param_names(param_handler)) ==
               Set(["F0", "F1", "PHOFF", "RAJ", "DECJ", "DM", "EFAC1", "EQUAD1"])
+        @test get_num_timing_params(model) == 6
         @test length(param_handler.multi_params) + length(param_handler.single_params) ==
               length(param_handler._default_params_tuple)
         @test length(get_free_param_names(param_handler)) ==

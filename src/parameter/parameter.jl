@@ -9,7 +9,8 @@ export Parameter,
     get_free_param_prefixes,
     read_param_values_to_vector,
     get_scale_factors,
-    is_noise
+    is_noise,
+    get_num_timing_params
 
 """
     Parameter
@@ -221,3 +222,23 @@ read_param_values_to_vector(param_handler::ParamHandler) =
 internal representation to the units used in `PINT`."""
 get_scale_factors(param_handler::ParamHandler)::Vector{Float64} =
     _get_free_param_attribute(param_handler, (mpar, param) -> param.unit_conversion_factor)
+
+function get_num_timing_params(param_handler::ParamHandler)
+    ntmdim = 0
+
+    @inbounds for spar in param_handler.single_params
+        if !spar.frozen && !spar.noise
+            ntmdim += 1
+        end
+    end
+
+    @inbounds for mpar in param_handler.multi_params
+        for param in mpar.parameters
+            if !param.frozen && !param.noise
+                ntmdim += 1
+            end
+        end
+    end
+
+    return ntmdim
+end
