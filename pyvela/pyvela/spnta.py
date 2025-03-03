@@ -219,7 +219,7 @@ class SPNTA:
     def ndim(self) -> int:
         """Number of free parameters."""
         return len(self.param_names)
-    
+
     @cached_property
     def ntmdim(self) -> int:
         """Number of free timing model parameters (does not include noise parameters)."""
