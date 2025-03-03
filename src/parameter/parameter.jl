@@ -64,20 +64,29 @@ end
 
 is_noise(mpar::MultiParameter) = mpar.parameters[1].noise
 
-function _get_single_params_tuple(single_params)
-    pkeys = Tuple((sp.name for sp in single_params))
-    pquants = Tuple((GQ{sp.dimension}(sp.default_value) for sp in single_params))
+function _get_single_params_tuple(single_params, noise)
+    pkeys = Tuple((sp.name for sp in single_params if sp.noise == noise))
+    pquants = Tuple((
+        GQ{sp.dimension}(sp.default_value) for sp in single_params if sp.noise == noise
+    ))
     return (; zip(pkeys, pquants)...)
 end
 
-function _get_multi_params_tuple(multi_params)
-    pkeys = Tuple((mp.name for mp in multi_params))
-    ptups = Tuple((Tuple(_get_single_params_tuple(mp.parameters)) for mp in multi_params))
+function _get_multi_params_tuple(multi_params, noise)
+    pkeys = Tuple((mp.name for mp in multi_params if is_noise(mp) == noise))
+    ptups = Tuple((
+        Tuple(_get_single_params_tuple(mp.parameters, noise)) for
+        mp in multi_params if is_noise(mp) == noise
+    ))
     return (; zip(pkeys, ptups)...)
 end
 
-_get_params_tuple(single_params, multi_params) =
-    merge(_get_single_params_tuple(single_params), _get_multi_params_tuple(multi_params))
+_get_params_tuple(single_params, multi_params) = merge(
+    _get_single_params_tuple(single_params, false),
+    _get_multi_params_tuple(multi_params, false),
+    _get_single_params_tuple(single_params, true),
+    _get_multi_params_tuple(multi_params, true),
+)
 
 """
     ParamHandler{PT<:NamedTuple}
@@ -137,16 +146,18 @@ end
 function get_free_param_names(param_handler::ParamHandler)::Vector{String}
     pnames = Vector{String}()
 
-    @inbounds for spar in param_handler.single_params
-        if !spar.frozen
-            push!(pnames, string(spar.name))
+    for noise in (false, true)
+        @inbounds for spar in param_handler.single_params
+            if !spar.frozen && spar.noise == noise
+                push!(pnames, string(spar.name))
+            end
         end
-    end
 
-    @inbounds for mpar in param_handler.multi_params
-        for param in mpar.parameters
-            if !param.frozen
-                push!(pnames, string(param.name))
+        @inbounds for mpar in param_handler.multi_params
+            for param in mpar.parameters
+                if !param.frozen && param.noise == noise
+                    push!(pnames, string(param.name))
+                end
             end
         end
     end
@@ -159,16 +170,18 @@ end
 function get_free_param_prefixes(param_handler::ParamHandler)::Vector{String}
     pnames = Vector{String}()
 
-    @inbounds for spar in param_handler.single_params
-        if !spar.frozen
-            push!(pnames, string(spar.name))
+    for noise in (false, true)
+        @inbounds for spar in param_handler.single_params
+            if !spar.frozen && spar.noise == noise
+                push!(pnames, string(spar.name))
+            end
         end
-    end
 
-    @inbounds for mpar in param_handler.multi_params
-        for param in mpar.parameters
-            if !param.frozen
-                push!(pnames, string(mpar.name))
+        @inbounds for mpar in param_handler.multi_params
+            for param in mpar.parameters
+                if !param.frozen && param.noise == noise
+                    push!(pnames, string(mpar.name))
+                end
             end
         end
     end
@@ -183,24 +196,26 @@ function get_free_param_labels(
 )::Vector{String}
     pnames = Vector{String}()
 
-    @inbounds for spar in param_handler.single_params
-        if !spar.frozen
-            push!(
-                pnames,
-                isempty(spar.original_units) ? string(spar.name) :
-                "$(string(spar.name))$delim($(spar.original_units))",
-            )
-        end
-    end
-
-    @inbounds for mpar in param_handler.multi_params
-        for param in mpar.parameters
-            if !param.frozen
+    for noise in (false, true)
+        @inbounds for spar in param_handler.single_params
+            if !spar.frozen && spar.noise == noise
                 push!(
                     pnames,
-                    isempty(param.original_units) ? string(param.name) :
-                    "$(string(param.name))$delim($(param.original_units))",
+                    isempty(spar.original_units) ? string(spar.name) :
+                    "$(string(spar.name))$delim($(spar.original_units))",
                 )
+            end
+        end
+
+        @inbounds for mpar in param_handler.multi_params
+            for param in mpar.parameters
+                if !param.frozen && param.noise == noise
+                    push!(
+                        pnames,
+                        isempty(param.original_units) ? string(param.name) :
+                        "$(string(param.name))$delim($(param.original_units))",
+                    )
+                end
             end
         end
     end
@@ -212,16 +227,18 @@ end
 function get_free_param_units(param_handler::ParamHandler)::Vector{String}
     pnames = Vector{String}()
 
-    @inbounds for spar in param_handler.single_params
-        if !spar.frozen
-            push!(pnames, spar.original_units)
+    for noise in (false, true)
+        @inbounds for spar in param_handler.single_params
+            if !spar.frozen && spar.noise == noise
+                push!(pnames, spar.original_units)
+            end
         end
-    end
 
-    @inbounds for mpar in param_handler.multi_params
-        for param in mpar.parameters
-            if !param.frozen
-                push!(pnames, param.original_units)
+        @inbounds for mpar in param_handler.multi_params
+            for param in mpar.parameters
+                if !param.frozen && param.noise == noise
+                    push!(pnames, param.original_units)
+                end
             end
         end
     end
@@ -239,16 +256,18 @@ function read_param_values_to_vector(
 )::Vector{Float64}
     param_vec = Float64[]
 
-    @inbounds for spar in param_handler.single_params
-        if !spar.frozen
-            push!(param_vec, Float64(params[spar.name].x))
+    for noise in (false, true)
+        @inbounds for spar in param_handler.single_params
+            if !spar.frozen && spar.noise == noise
+                push!(param_vec, Float64(params[spar.name].x))
+            end
         end
-    end
 
-    @inbounds for mpar in param_handler.multi_params
-        for (jj, param) in enumerate(mpar.parameters)
-            if !param.frozen
-                push!(param_vec, Float64(params[mpar.name][jj].x))
+        @inbounds for mpar in param_handler.multi_params
+            for (jj, param) in enumerate(mpar.parameters)
+                if !param.frozen && param.noise == noise
+                    push!(param_vec, Float64(params[mpar.name][jj].x))
+                end
             end
         end
     end
@@ -263,16 +282,18 @@ internal representation to the units used in `PINT`."""
 function get_scale_factors(param_handler::ParamHandler)
     scale_factors = Float64[]
 
-    @inbounds for spar in param_handler.single_params
-        if !spar.frozen
-            push!(scale_factors, spar.unit_conversion_factor)
+    for noise in (false, true)
+        @inbounds for spar in param_handler.single_params
+            if !spar.frozen && spar.noise == noise
+                push!(scale_factors, spar.unit_conversion_factor)
+            end
         end
-    end
 
-    @inbounds for mpar in param_handler.multi_params
-        for param in mpar.parameters
-            if !param.frozen
-                push!(scale_factors, param.unit_conversion_factor)
+        @inbounds for mpar in param_handler.multi_params
+            for param in mpar.parameters
+                if !param.frozen && param.noise == noise
+                    push!(scale_factors, param.unit_conversion_factor)
+                end
             end
         end
     end
