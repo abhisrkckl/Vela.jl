@@ -89,6 +89,33 @@ _get_params_tuple(single_params, multi_params) = merge(
     _get_multi_params_tuple(multi_params, true),
 )
 
+function _get_free_indices(single_params, multi_params)
+    idx = 1
+    _free_indices = Int[]
+    for noise in (false, true)
+        @inbounds for spar in single_params
+            if spar.noise == noise
+                if !spar.frozen
+                    push!(_free_indices, idx)
+                end
+                idx += 1
+            end
+        end
+
+        @inbounds for mpar in multi_params
+            for (jj, param) in enumerate(mpar.parameters)
+                if param.noise == noise
+                    if !param.frozen
+                        push!(_free_indices, idx)
+                    end
+                    idx += 1
+                end
+            end
+        end
+    end
+    return _free_indices
+end
+
 """
     ParamHandler{PT<:NamedTuple}
 
@@ -107,11 +134,7 @@ function ParamHandler(single_params, multi_params)
     default_params = _get_params_tuple(single_params, multi_params)
     default_values = collect(map(value, Iterators.flatten(default_params)))
 
-    all_params = [
-        single_params
-        collect(Iterators.flatten([mpar.parameters for mpar in multi_params]))
-    ]
-    free_indices = collect(1:length(all_params))[[!par.frozen for par in all_params]]
+    free_indices = _get_free_indices(single_params, multi_params)
 
     ParamHandler(
         single_params,
