@@ -16,12 +16,11 @@
         true,
         "day",
         float(day_to_s),
-        false,
     )
-    f0 = Parameter(:F0, frequency(100.0), false, "Hz", 1.0, false)
-    f1 = Parameter(:F1, GQ{-2}(-1e-14), false, "Hz^2", 1.0, false)
+    f0 = Parameter(:F0, frequency(100.0), false, "Hz", 1.0)
+    f1 = Parameter(:F1, GQ{-2}(-1e-14), false, "Hz^2", 1.0)
     f_mpar = MultiParameter(:F, [f0, f1])
-    phoff = Parameter(:PHOFF, dimensionless(0.0), false, "", 1.0, false)
+    phoff = Parameter(:PHOFF, dimensionless(0.0), false, "", 1.0)
     ph = ParamHandler([pepoch, phoff], [f_mpar])
 
     phoff_prior = SimplePrior{:PHOFF}(Uniform(-0.5, 0.5))
@@ -61,8 +60,8 @@
 
         display(ecorr_kernel)
 
-        ecorr1 = Parameter(:ECORR1, time(1e-6), false, "us", 1e-6, true)
-        ecorr2 = Parameter(:ECORR2, time(1e-6), false, "us", 1e-6, true)
+        ecorr1 = Parameter(:ECORR1, time(1e-6), false, "us", 1e-6)
+        ecorr2 = Parameter(:ECORR2, time(1e-6), false, "us", 1e-6)
         ecorr_mpar = MultiParameter(:ECORR, [ecorr1, ecorr2])
         ph = ParamHandler([pepoch, phoff], [f_mpar, ecorr_mpar])
 

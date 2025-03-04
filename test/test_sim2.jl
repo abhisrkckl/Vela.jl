@@ -38,15 +38,6 @@
         @test all([toa.error > time(0.0) for toa in toas])
     end
 
-    @testset "repr" begin
-        @test startswith(string(toas[1]), "TOA")
-        display(toas)
-        display(toas[1])
-        display(model.tzr_toa)
-        @test startswith(string(model), "TimingModel")
-        display(model)
-    end
-
     @testset "tzr_toa" begin
         tzrtoa = model.tzr_toa
         @test is_tzr(tzrtoa)

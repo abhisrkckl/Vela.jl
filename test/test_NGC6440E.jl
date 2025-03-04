@@ -52,8 +52,7 @@
     @testset "param_handler" begin
         param_handler = model.param_handler
         @test Set(get_free_param_names(param_handler)) ==
-              Set(["F0", "F1", "PHOFF", "RAJ", "DECJ", "DM", "EFAC1", "EQUAD1"])
-        @test get_num_timing_params(model) == 6
+              Set(["F0", "F1", "PHOFF", "RAJ", "DECJ", "DM"])
         @test length(param_handler.multi_params) + length(param_handler.single_params) ==
               length(param_handler._default_params_tuple)
         @test length(get_free_param_names(param_handler)) ==
@@ -78,7 +77,7 @@
 
     @testset "components" begin
         components = model.components
-        @test length(components) == 5
+        @test length(components) == 4
 
         @test isa(components[1], SolarSystem)
         @test !components[1].ecliptic_coordinates
@@ -126,7 +125,7 @@
         @test @ballocated(Vela.calc_lnlike_serial($model, $toas, $params)) == 0
 
         parv1 = read_param_values_to_vector(model.param_handler, params)
-        parv1[end-2] *= 2
+        parv1[end] *= 2
         @test calc_lnlike(model, toas, parv1) < calc_lnlike(model, toas, params)
     end
 

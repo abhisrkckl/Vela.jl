@@ -1,7 +1,7 @@
 from functools import cached_property
 import json
 from copy import deepcopy
-from typing import IO, Iterable, List
+from typing import IO, Iterable
 
 import numpy as np
 from pint.binaryconvert import convert_binary
@@ -19,7 +19,6 @@ from .vela import jl, vl
 def convert_model_and_toas(
     model: TimingModel,
     toas: TOAs,
-    noise_params: List[str],
     cheat_prior_scale: float = 20.0,
     custom_priors: dict = {},
 ):
@@ -40,7 +39,6 @@ def convert_model_and_toas(
         toas,
         cheat_prior_scale,
         custom_priors,
-        noise_params,
         ecorr_toa_ranges=ecorr_toa_ranges,
         ecorr_indices=ecorr_indices,
     )
@@ -119,14 +117,10 @@ class SPNTA:
 
         custom_priors = process_custom_priors(self.custom_priors_dict, model_pint)
 
-        # Use the original PINT TimingModel object.
-        noise_params = self.model_pint.get_params_of_component_type("NoiseComponent")
-
         setup_log(level="WARNING")
         model, toas = convert_model_and_toas(
             model_pint,
             toas_pint,
-            noise_params,
             cheat_prior_scale=cheat_prior_scale,
             custom_priors=custom_priors,
         )
@@ -184,46 +178,31 @@ class SPNTA:
 
     @cached_property
     def param_names(self) -> Iterable[str]:
-        """Free parameter names in the correct order. The names are same in both `Vela` and `PINT`,
-        but the order may be different."""
         return np.array(list(vl.get_free_param_names(self.pulsar.model)))
 
     @cached_property
     def param_labels(self) -> Iterable[str]:
-        """Free parameter labels containing parameter names and units."""
         return np.array(list(vl.get_free_param_labels(self.pulsar.model)))
 
     @cached_property
     def param_units(self) -> Iterable[str]:
-        """String representations of `PINT` units of free parameters. These strings are supported by
-        `astropy.units.`"""
         return np.array(list(vl.get_free_param_units(self.pulsar.model)))
 
     @cached_property
     def param_prefixes(self) -> Iterable[str]:
-        """Free parameter prefixes. For non-mask/prefix parameters the prefix is the same as
-        the parameter name."""
         return np.array(list(vl.get_free_param_prefixes(self.pulsar.model)))
 
     @cached_property
     def scale_factors(self) -> Iterable[float]:
-        """Scale factors for converting free parameters from `PINT` units to `Vela` units."""
         return np.array(vl.get_scale_factors(self.pulsar.model))
 
     @cached_property
     def default_params(self) -> Iterable[str]:
-        """Default parameter values taken from the par file."""
         return np.array(vl.read_param_values_to_vector(self.pulsar.model))
 
     @cached_property
     def ndim(self) -> int:
-        """Number of free parameters."""
         return len(self.param_names)
-
-    @cached_property
-    def ntmdim(self) -> int:
-        """Number of free timing model parameters (does not include noise parameters)."""
-        return vl.get_num_timing_params(self.pulsar.model)
 
     def rescale_samples(self, samples: np.ndarray) -> np.ndarray:
         """Rescale the samples from Vela's internal units to common units"""
@@ -386,13 +365,9 @@ class SPNTA:
 
         custom_priors = process_custom_priors(custom_priors_dict, model)
 
-        # Use the original PINT TimingModel object.
-        noise_params = spnta.model_pint.get_params_of_component_type("NoiseComponent")
-
         model_v, toas_v = convert_model_and_toas(
             model,
             toas,
-            noise_params,
             cheat_prior_scale=cheat_prior_scale,
             custom_priors=custom_priors,
         )

@@ -20,8 +20,8 @@ datadir = f"{os.path.dirname(os.path.realpath(__file__))}/datafiles"
 datasets = [
     "sim_1",
     "sim_sw.wb",
-    "sim3.gp",
     "sim3",
+    "sim3.gp",
     "sim_fdjump",
     "sim_ddk",
     "sim_glitch",
@@ -35,7 +35,7 @@ datasets = [
 ]
 
 
-@pytest.fixture(params=datasets[:3], scope="module")
+@pytest.fixture(params=datasets[:2], scope="module")
 def model_and_toas(request):
     dataset = request.param
 
@@ -66,13 +66,11 @@ def model_and_toas(request):
     return spnta, m, t
 
 
-@pytest.mark.parametrize("dataset", datasets[3:])
+@pytest.mark.parametrize("dataset", datasets[2:])
 def test_read_data(dataset):
     parfile, timfile = f"{datadir}/{dataset}.par", f"{datadir}/{dataset}.tim"
     m, t = get_model_and_toas(parfile, timfile, planets=True)
-    model, toas = convert_model_and_toas(
-        m, t, m.get_params_of_component_type("NoiseComponent")
-    )
+    model, toas = convert_model_and_toas(m, t)
     assert len(toas) == len(t)
     assert len(model.components) <= len(m.components)
 
