@@ -1,4 +1,5 @@
 import numpy as np
+import astropy.units as u
 from pint import DMconst
 from pint.toa import TOAs
 
@@ -29,41 +30,41 @@ def pint_toa_to_vela(toas: TOAs, idx: int, epoch_mjd: float):
     phase1, phase2 = np.modf(phase)
     phase = vl.dimensionless(vl.Double64(phase2, phase1))
 
-    err = vl.time(toas.get_errors()[idx].si.value)
-    freq = vl.frequency(toas.get_freqs()[idx].si.value)
+    err = vl.time(toas.get_errors()[idx].to_value(u.s))
+    freq = vl.frequency(toas.get_freqs()[idx].to_value(u.Hz))
 
     ssb_obs_pos = jl.map(
         vl.distance,
-        jl.Tuple(toas.table["ssb_obs_pos"].quantity[idx].to_value("lightsecond")),
+        jl.Tuple(toas.table["ssb_obs_pos"].quantity[idx].to_value(u.lightsecond)),
     )
     ssb_obs_vel = jl.map(
         vl.speed,
-        jl.Tuple(toas.table["ssb_obs_vel"].quantity[idx].to_value("lightsecond/s")),
+        jl.Tuple(toas.table["ssb_obs_vel"].quantity[idx].to_value(u.lightsecond / u.s)),
     )
     obs_sun_pos = jl.map(
         vl.distance,
-        jl.Tuple(toas.table["obs_sun_pos"].quantity[idx].to_value("lightsecond")),
+        jl.Tuple(toas.table["obs_sun_pos"].quantity[idx].to_value(u.lightsecond)),
     )
 
     obs_jupiter_pos = jl.map(
         vl.distance,
-        jl.Tuple(toas.table["obs_jupiter_pos"].quantity[idx].to_value("lightsecond")),
+        jl.Tuple(toas.table["obs_jupiter_pos"].quantity[idx].to_value(u.lightsecond)),
     )
     obs_saturn_pos = jl.map(
         vl.distance,
-        jl.Tuple(toas.table["obs_saturn_pos"].quantity[idx].to_value("lightsecond")),
+        jl.Tuple(toas.table["obs_saturn_pos"].quantity[idx].to_value(u.lightsecond)),
     )
     obs_venus_pos = jl.map(
         vl.distance,
-        jl.Tuple(toas.table["obs_venus_pos"].quantity[idx].to_value("lightsecond")),
+        jl.Tuple(toas.table["obs_venus_pos"].quantity[idx].to_value(u.lightsecond)),
     )
     obs_uranus_pos = jl.map(
         vl.distance,
-        jl.Tuple(toas.table["obs_uranus_pos"].quantity[idx].to_value("lightsecond")),
+        jl.Tuple(toas.table["obs_uranus_pos"].quantity[idx].to_value(u.lightsecond)),
     )
     obs_neptune_pos = jl.map(
         vl.distance,
-        jl.Tuple(toas.table["obs_neptune_pos"].quantity[idx].to_value("lightsecond")),
+        jl.Tuple(toas.table["obs_neptune_pos"].quantity[idx].to_value(u.lightsecond)),
     )
 
     ephem = vl.SolarSystemEphemeris(
