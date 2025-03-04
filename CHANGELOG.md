@@ -11,6 +11,7 @@
 - Priors in examples
 ## Removed
 - `pure_rotator.jlso` test data file
+- Stub for `Troposphere` component
 
 # 0.0.8
 ## Added
