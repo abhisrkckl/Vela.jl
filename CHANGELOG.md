@@ -10,6 +10,7 @@
 ## Fixed
 - Priors in examples
 ## Removed
+- `pure_rotator.jlso` test data file
 
 # 0.0.8
 ## Added
