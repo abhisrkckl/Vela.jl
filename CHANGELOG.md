@@ -9,6 +9,7 @@
 - Refactored parameter attribute functions.
 ## Fixed
 ## Removed
+- Stub for `Troposphere` component
 
 # 0.0.8
 ## Added
