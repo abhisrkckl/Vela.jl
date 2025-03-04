@@ -8,7 +8,9 @@
 - The parameter order now has timing parameters first and then noise parameters.
 - Refactored parameter attribute functions.
 ## Fixed
+- Priors in examples
 ## Removed
+- `pure_rotator.jlso` test data file
 - Stub for `Troposphere` component
 
 # 0.0.8

@@ -3,6 +3,13 @@
 
     pepoch_mjd = value(model.epoch) / day_to_s
 
+    @testset "model info" begin
+        @test model.pulsar_name == "J1748-2021E"
+        @test model.ephem == "DE440"
+        @test model.clock == "TT(BIPM2021)"
+        @test model.units == "TDB"
+    end
+
     @testset "file save" begin
         Vela.save_pulsar_data("__test.jlso", model, toas)
         @test isfile("__test.jlso")
@@ -98,6 +105,16 @@
         # @test all([!isa(c, Troposphere) for c in components])
     end
 
+    @testset "repr" begin
+        @test startswith(string(toas[1]), "TOA")
+        display(toas)
+        display(toas[1])
+        # @test startswith(string(model.tzr_toa), "TZRTOA")
+        display(model.tzr_toa)
+        @test startswith(string(model), "TimingModel")
+        display(model)
+    end
+
     @testset "form_residuals" begin
         params = model.param_handler._default_params_tuple
         res = form_residuals(model, toas, params)
@@ -113,6 +130,9 @@
         chi2_p = calc_chi2_p(parv)
         @test chi2_s / degrees_of_freedom(model, toas) < 1.2
         @test chi2_s ≈ chi2_p
+
+        params = model.param_handler._default_params_tuple
+        @test @ballocated(Vela.calc_chi2_serial($model, $toas, $params)) == 0
     end
 
     @testset "calc_lnlike" begin
