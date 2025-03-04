@@ -8,6 +8,7 @@
 - The parameter order now has timing parameters first and then noise parameters.
 - Refactored parameter attribute functions.
 ## Fixed
+- Priors in examples
 ## Removed
 
 # 0.0.8
