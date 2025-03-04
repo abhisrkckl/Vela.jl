@@ -1,9 +1,12 @@
 # Unreleased
 ## Added
 - Store `toas_pint` in `SPNTA` (This is `None` when a `JLSO` file is loaded.)
+- `get_num_timing_params()` function and `SPNTA.ntmdim` attribute
 ## Changed
 - Made some properties of `SPNTA` cached.
-- Store a deepcopy of `model_pint` instead of the mutated original in `SPNTA`. The mutated version is stored as `model_pint_modified.`
+- Store a deepcopy of `model_pint` instead of the mutated original in `SPNTA`. The mutated version is stored as `model_pint_modified`.
+- The parameter order now has timing parameters first and then noise parameters.
+- Refactored parameter attribute functions.
 ## Fixed
 ## Removed
 

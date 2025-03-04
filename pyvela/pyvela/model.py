@@ -392,6 +392,7 @@ def pint_model_to_vela(
     toas: TOAs,
     cheat_prior_scale: float,
     custom_prior_dists: dict,
+    noise_params: List[str],
     ecorr_toa_ranges: Optional[List[Tuple[int, int]]] = None,
     ecorr_indices: Optional[List[Tuple[int]]] = None,
 ):
@@ -409,7 +410,7 @@ def pint_model_to_vela(
 
     components = pint_components_to_vela(model, toas)
 
-    single_params, multi_params = pint_parameters_to_vela(model)
+    single_params, multi_params = pint_parameters_to_vela(model, noise_params)
     param_handler = vl.ParamHandler(single_params, multi_params)
 
     free_params = vl.get_free_param_names(param_handler)
