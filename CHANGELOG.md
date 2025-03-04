@@ -10,6 +10,7 @@
 ## Fixed
 ## Removed
 - Stub for `Troposphere` component
+- Made `TOA` creation slightly faster
 
 # 0.0.8
 ## Added
