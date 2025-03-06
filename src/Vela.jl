@@ -61,5 +61,7 @@ include("likelihood/wideband_wls_likelihood.jl")
 include("likelihood/posterior.jl")
 include("pulsar/pulsar.jl")
 include("readwrite/readwrite.jl")
+include("ncp/matrix_ops.jl")
+include("ncp/ncp.jl")
 
 end
