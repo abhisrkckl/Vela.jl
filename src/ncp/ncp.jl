@@ -87,9 +87,7 @@ function apply_noncentral_transform(
     y = ncp.y
     a0 = ncp.a0
 
-    a = a0 + calc_noncentral_transform(M, Ndiag, Phidiag, y, alpha)
-
-    return a
+    return a0 + calc_noncentral_transform(M, Ndiag, Phidiag, y, alpha)
 end
 
 function get_noncentral_param_initial_sample(model::TimingModel)

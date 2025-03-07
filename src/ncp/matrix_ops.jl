@@ -18,7 +18,12 @@ function calc_Sigmainv_and_MT_Ninv_y(
     @assert length(Ndiag) == length(y) == Ntoa
     @assert length(Phidiag) == Npar
 
-    Ninv_M = M ./ Ndiag
+    Ninv_M = Matrix{X}(undef, Ntoa, Npar)
+    @inbounds for p = 1:Npar
+        @simd for j = 1:Ntoa
+            Ninv_M[j, p] = M[j, p] / Ndiag[j]
+        end
+    end
 
     # TODO: Only allocate memory for lower triangular elements.
     Sigmainv = Matrix{X}(undef, Npar, Npar)
@@ -44,9 +49,8 @@ function calc_Sigmainv_and_MT_Ninv_y(
         u[p] = up
     end
 
-    return Symmetric(LowerTriangular(Sigmainv)), u
+    return Symmetric(Sigmainv, :L), u
 end
-
 
 """
 Given the design matrix `M`, diagonal measurement noise matrix `N`, diagonal weight matrix `Φ`, and
