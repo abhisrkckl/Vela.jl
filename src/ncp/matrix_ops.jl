@@ -69,11 +69,17 @@ function calc_noncentral_transform(
     y::Vector{X},
     alpha::Vector{X},
 ) where {X<:AbstractFloat}
+    Npar = length(alpha)
+    @assert length(Phidiag) == Npar
+
     Sigmainv, MT_Ninv_y = calc_Sigmainv_and_MT_Ninv_y(M, Ndiag, Phidiag, y)
 
     Sigmainv_cf = cholesky!(Sigmainv)
 
-    Linv_MT_Ninv_y = ldiv!(Sigmainv_cf.L, MT_Ninv_y)
+    dα = ldiv!(Sigmainv_cf.L, MT_Ninv_y) # Linv_MT_Ninv_y
+    @inbounds @simd for p = 1:Npar
+        dα[p] = alpha[p] - dα[p]
+    end
 
-    return ldiv!(Sigmainv_cf.U, (alpha - Linv_MT_Ninv_y))
+    return ldiv!(Sigmainv_cf.U, dα)
 end
