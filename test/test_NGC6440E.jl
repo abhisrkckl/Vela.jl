@@ -58,6 +58,8 @@
               length(param_handler._default_params_tuple)
         @test length(get_free_param_names(param_handler)) ==
               length(param_handler._free_indices)
+        @test length(get_free_param_labels(param_handler)) ==
+              length(param_handler._free_indices)
         @test sizeof(param_handler._default_params_tuple) ==
               sizeof(GQ{0,Float64}) * length(param_handler._default_values)
 

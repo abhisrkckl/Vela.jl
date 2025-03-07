@@ -5,7 +5,8 @@ export Component,
     BinaryComponent,
     DispersionComponent,
     correct_toa,
-    delay
+    delay,
+    is_gp_noise
 
 """
     Component
