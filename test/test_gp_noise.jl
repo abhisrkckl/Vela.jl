@@ -15,6 +15,8 @@
     @test length(rn.ln_js) == 3
 
     @test isfinite(delay(rn, toa, ctoa, params))
+
+    @test is_gp_noise(rn)
 end
 
 @testset "PowerlawDispersionNoiseGP" begin
@@ -34,6 +36,8 @@ end
     @test length(dmn.ln_js) == 3
 
     @test isfinite(delay(dmn, toa, ctoa, params))
+
+    @test is_gp_noise(dmn)
 end
 
 @testset "PowerlawChromaticNoiseGP" begin
@@ -54,4 +58,6 @@ end
     @test length(cmn.ln_js) == 3
 
     @test isfinite(delay(cmn, toa, ctoa, params))
+
+    @test is_gp_noise(cmn)
 end
