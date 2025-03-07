@@ -1,6 +1,3 @@
-using LinearAlgebra
-using .Threads
-
 """
 Given the design matrix `M`, diagonal measurement noise matrix `N`, diagonal weight matrix `Φ`, and
 residual vector `y`, compute the matrices
