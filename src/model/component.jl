@@ -5,13 +5,16 @@ export Component,
     BinaryComponent,
     DispersionComponent,
     correct_toa,
-    delay
+    delay,
+    is_gp_noise
 
 """
     Component
 
 Abstract base type of all timing & noise model components which affect one TOA at a time."""
 abstract type Component end
+
+is_gp_noise(::Component) = false
 
 """
     correct_toa(::Component, ::TOABase, ::TOACorrectionBase, ::NamedTuple)
