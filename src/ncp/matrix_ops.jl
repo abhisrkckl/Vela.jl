@@ -26,14 +26,14 @@ function calc_Sigmainv_and_MT_Ninv_y(
     Sigmainv = Matrix{X}(undef, Npar, Npar)
     @inbounds for p = 1:Npar
         for q = 1:p
-            Sigmainv_pq = (p == q) ? 1 / Phidiag[p] : zero(X)
+            Sigmainv_qp = (p == q) ? 1 / Phidiag[p] : zero(X)
             @simd for j = 1:Ntoa
-                Sigmainv_pq += M[j, p] * Ninv_M[j, q]
+                Sigmainv_qp += M[j, p] * Ninv_M[j, q]
             end
 
-            # Only lower triangular elements are populated.
+            # Only upper triangular elements are populated.
             # The rest contain garbage.
-            Sigmainv[p, q] = Sigmainv_pq
+            Sigmainv[q, p] = Sigmainv_qp
         end
     end
 
@@ -46,7 +46,7 @@ function calc_Sigmainv_and_MT_Ninv_y(
         u[p] = up
     end
 
-    return Symmetric(Sigmainv, :L), u
+    return Symmetric(Sigmainv, :U), u
 end
 
 """
