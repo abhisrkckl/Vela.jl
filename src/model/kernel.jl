@@ -39,3 +39,8 @@ show(io::IO, ek::EcorrKernel) = print(
     io,
     "EcorrKernel($(length(unique(grp.index for grp in ek.ecorr_groups)) - 1) ECORRs, $(length(ek.ecorr_groups)) groups)",
 )
+
+struct WoodburyKernel{InnerKernel<:Kernel, GPComponentsTuple<:Tuple} <: Kernel
+    gp_components::GPComponentsTuple
+    noise_basis::Matrix{Float64}
+end
