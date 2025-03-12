@@ -15,6 +15,8 @@
     @test length(rn.ln_js) == 3
 
     @test isfinite(delay(rn, toa, ctoa, params))
+
+    @test all(calc_noise_weights_inv(rn, params) .> 0)
 end
 
 @testset "PowerlawDispersionNoiseGP" begin
@@ -34,6 +36,8 @@ end
     @test length(dmn.ln_js) == 3
 
     @test isfinite(delay(dmn, toa, ctoa, params))
+
+    @test all(calc_noise_weights_inv(dmn, params) .> 0)
 end
 
 @testset "PowerlawChromaticNoiseGP" begin
@@ -54,4 +58,6 @@ end
     @test length(cmn.ln_js) == 3
 
     @test isfinite(delay(cmn, toa, ctoa, params))
+
+    @test all(calc_noise_weights_inv(cmn, params) .> 0)
 end
