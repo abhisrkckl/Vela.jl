@@ -57,6 +57,8 @@ struct PowerlawRedNoiseGP{N} <: RedNoiseBase
     PowerlawRedNoiseGP(N::Int) = new{N}(Tuple(map(log, 1:N)))
 end
 
+is_gp_noise(::PowerlawRedNoiseGP) = true
+
 delay(arn::PowerlawRedNoiseGP, toa::TOA, toacorr::TOACorrection, params::NamedTuple) =
     evaluate_powerlaw_red_noise_gp(
         params.TNREDAMP,
@@ -87,6 +89,8 @@ struct PowerlawDispersionNoiseGP{N} <: DispersionNoiseBase
 
     PowerlawDispersionNoiseGP(N::Int) = new{N}(Tuple(map(log, 1:N)))
 end
+
+is_gp_noise(::PowerlawDispersionNoiseGP) = true
 
 function dispersion_slope(
     dmn::PowerlawDispersionNoiseGP,
@@ -125,6 +129,8 @@ struct PowerlawChromaticNoiseGP{N} <: ChromaticNoiseBase
 
     PowerlawChromaticNoiseGP(N::Int) = new{N}(Tuple(map(log, 1:N)))
 end
+
+is_gp_noise(::PowerlawChromaticNoiseGP) = true
 
 function chromatic_slope(
     crn::PowerlawChromaticNoiseGP,

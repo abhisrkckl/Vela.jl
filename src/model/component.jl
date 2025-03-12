@@ -19,6 +19,8 @@ abstract type Component end
 Correct the TOA using a delay, phase, observing frequency shift, uncertainty scaling, doppler factor, etc."""
 function correct_toa end
 
+is_gp_noise(::Component) = false
+
 """
     PhaseComponent
 

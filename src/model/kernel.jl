@@ -1,4 +1,4 @@
-export Kernel, WhiteNoiseKernel, EcorrKernel, EcorrGroup
+export Kernel, WhiteNoiseKernel, EcorrKernel, EcorrGroup, WoodburyKernel
 
 """
     Kernel
@@ -40,7 +40,22 @@ show(io::IO, ek::EcorrKernel) = print(
     "EcorrKernel($(length(unique(grp.index for grp in ek.ecorr_groups)) - 1) ECORRs, $(length(ek.ecorr_groups)) groups)",
 )
 
-struct WoodburyKernel{InnerKernel<:Kernel, GPComponentsTuple<:Tuple} <: Kernel
+struct WoodburyKernel{InnerKernel<:Kernel,GPComponentsTuple<:Tuple} <: Kernel
+    inner_kernel::InnerKernel
     gp_components::GPComponentsTuple
     noise_basis::Matrix{Float64}
+
+    function WoodburyKernel(
+        inner_kernel::Kernel,
+        gp_components::Tuple,
+        noise_basis::Matrix{Float64},
+    )
+        @assert all(is_gp_noise.(gp_components))
+        # @assert sum(get_gp_npars.(gp_components)) == size(noise_basis)[2]
+        return new{typeof(inner_kernel),typeof(gp_components)}(
+            inner_kernel,
+            gp_components,
+            noise_basis,
+        )
+    end
 end
