@@ -1,4 +1,5 @@
-export PowerlawRedNoiseGP, PowerlawDispersionNoiseGP, PowerlawChromaticNoiseGP
+export PowerlawRedNoiseGP,
+    PowerlawDispersionNoiseGP, PowerlawChromaticNoiseGP, calc_noise_weights_inv
 
 function powerlaw(A, γ, f, f1)
     fyr = frequency(1 / 3600 / 24 / 365.25)
@@ -28,6 +29,22 @@ function evaluate_powerlaw_red_noise_gp(log10_A, γ, αs, βs, f1, Δt, ln_js)
     return σ1 * result
 end
 
+function evaluate_powerlaw_red_noise_weights_inv(log10_A, γ, f1, ln_js)
+    A = exp10(log10_A)
+
+    P1 = powerlaw(A, γ, f1, f1)
+    @assert udim(P1) == 2
+    P1 = value(P1)
+
+    npar = length(ln_js)
+    weights_inv = Vector{Float64}(undef, 2 * npar)
+    @inbounds for p = 1:npar
+        weights_inv[p] = weights_inv[p+npar] = 1 / (P1 * exp(-γ * ln_js[p]))
+    end
+
+    return weights_inv
+end
+
 """
     PowerlawRedNoiseGP
 
@@ -37,7 +54,7 @@ power spectral density is assumed to be a power law.
 struct PowerlawRedNoiseGP{N} <: RedNoiseBase
     ln_js::NTuple{N,Float32}
 
-    PowerlawRedNoiseGP(N::Int) = new{N}(Tuple(map(Float32 ∘ log, 1:N)))
+    PowerlawRedNoiseGP(N::Int) = new{N}(Tuple(map(log, 1:N)))
 end
 
 delay(arn::PowerlawRedNoiseGP, toa::TOA, toacorr::TOACorrection, params::NamedTuple) =
@@ -48,6 +65,14 @@ delay(arn::PowerlawRedNoiseGP, toa::TOA, toacorr::TOACorrection, params::NamedTu
         params.PLREDCOS_,
         params.PLREDFREQ,
         corrected_toa_value(toa, toacorr, Float64) - params.PLREDEPOCH,
+        arn.ln_js,
+    )
+
+calc_noise_weights_inv(arn::PowerlawRedNoiseGP, params::NamedTuple) =
+    evaluate_powerlaw_red_noise_weights_inv(
+        params.TNREDAMP,
+        params.TNREDGAM,
+        params.PLREDFREQ,
         arn.ln_js,
     )
 
@@ -81,6 +106,14 @@ function dispersion_slope(
     )
 end
 
+calc_noise_weights_inv(dmn::PowerlawDispersionNoiseGP, params::NamedTuple) =
+    evaluate_powerlaw_red_noise_weights_inv(
+        params.TNDMAMP,
+        params.TNDMGAM,
+        params.PLDMFREQ,
+        dmn.ln_js,
+    )
+
 """
     PowerlawDispersionNoiseGP
 
@@ -110,3 +143,11 @@ function chromatic_slope(
         crn.ln_js,
     )
 end
+
+calc_noise_weights_inv(crn::PowerlawChromaticNoiseGP, params::NamedTuple) =
+    evaluate_powerlaw_red_noise_weights_inv(
+        params.TNCHROMAMP,
+        params.TNCHROMGAM,
+        params.PLCHROMFREQ,
+        crn.ln_js,
+    )
