@@ -346,7 +346,7 @@ def get_kernel(
         return vl.WhiteNoiseKernel()
     elif not model.has_time_correlated_errors:
         ecorr_mask0 = read_mask(
-            toas, [model[ef] for ef in model.EFACs if model.EFACs[ef][0] is not None]
+            toas, [model[ec] for ec in model.ECORRs if model.ECORRs[ec][0] is not None]
         )
 
         assert len(ecorr_mask0) == 0 or is_exclusive_mask(
