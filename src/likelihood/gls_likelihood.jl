@@ -113,3 +113,13 @@ function calc_lnlike_serial(
 
     return _gls_lnlike_serial(M, Ndiag, Φinv, y)
 end
+
+calc_lnlike(
+    model::TimingModel{
+        ComponentsTuple,
+        WoodburyKernel{WhiteNoiseKernel,GPComponentsTuple},
+        PriorsTuple,
+    },
+    toas::Vector{TOA},
+    params::NamedTuple,
+) where {ComponentsTuple<:Tuple,GPComponentsTuple<:Tuple,PriorsTuple<:Tuple} = calc_lnlike_serial(model, toas, params)
