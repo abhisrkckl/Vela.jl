@@ -58,6 +58,7 @@ struct PowerlawRedNoiseGP{N} <: RedNoiseBase
 end
 
 is_gp_noise(::PowerlawRedNoiseGP) = true
+get_gp_npars(arn::PowerlawRedNoiseGP) = 2 * length(arn.ln_js)
 
 delay(arn::PowerlawRedNoiseGP, toa::TOA, toacorr::TOACorrection, params::NamedTuple) =
     evaluate_powerlaw_red_noise_gp(
@@ -91,6 +92,7 @@ struct PowerlawDispersionNoiseGP{N} <: DispersionNoiseBase
 end
 
 is_gp_noise(::PowerlawDispersionNoiseGP) = true
+get_gp_npars(dmn::PowerlawDispersionNoiseGP) = 2 * length(dmn.ln_js)
 
 function dispersion_slope(
     dmn::PowerlawDispersionNoiseGP,
@@ -131,6 +133,7 @@ struct PowerlawChromaticNoiseGP{N} <: ChromaticNoiseBase
 end
 
 is_gp_noise(::PowerlawChromaticNoiseGP) = true
+get_gp_npars(crn::PowerlawChromaticNoiseGP) = 2 * length(crn.ln_js)
 
 function chromatic_slope(
     crn::PowerlawChromaticNoiseGP,
