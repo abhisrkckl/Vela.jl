@@ -21,50 +21,6 @@ function _calc_resids_and_Ndiag(model::TimingModel, toas::Vector{TOA}, params::N
     return ys, Ndiag
 end
 
-# function _calc_Σinv__MT_Ninv_y(
-#     M::Matrix{X},
-#     Ndiag::Vector{X},
-#     Φinv::Vector{X},
-#     y::Vector{X},
-# ) where {X<:AbstractFloat}
-#     Ntoa, Npar = size(M)
-#     @assert length(Ndiag) == length(y) == Ntoa
-#     @assert length(Φinv) == Npar
-
-#     Ninv_M = Matrix{X}(undef, Ntoa, Npar)
-#     @inbounds for p = 1:Npar
-#         @simd for j = 1:Ntoa
-#             Ninv_M[j, p] = M[j, p] / Ndiag[j]
-#         end
-#     end
-
-#     # TODO: Only allocate memory for lower triangular elements.
-#     Σinv = Matrix{X}(undef, Npar, Npar)
-#     @inbounds for p = 1:Npar
-#         for q = 1:p
-#             Σinv_qp = (p == q) ? Φinv[p] : zero(X)
-#             @simd for j = 1:Ntoa
-#                 Σinv_qp += M[j, p] * Ninv_M[j, q]
-#             end
-
-#             # Only upper triangular elements are populated.
-#             # The rest contain garbage.
-#             Σinv[q, p] = Σinv_qp
-#         end
-#     end
-
-#     u = Vector{X}(undef, Npar)
-#     @inbounds for p = 1:Npar
-#         up = zero(X)
-#         @simd for j = 1:Ntoa
-#             up += Ninv_M[j, p] * y[j]
-#         end
-#         u[p] = up
-#     end
-
-#     return Symmetric(Σinv, :U), u
-# end
-
 function _calc_y_Ninv_y(Ndiag, y)
     Ntoa = length(y)
     @assert length(Ndiag) == Ntoa
@@ -77,6 +33,50 @@ function _calc_y_Ninv_y(Ndiag, y)
     return y_Ninv_y
 end
 
+function _calc_Σinv__and__MT_Ninv_y(
+    M::Matrix{X},
+    Ndiag::Vector{X},
+    Φinv::Vector{X},
+    y::Vector{X},
+) where {X<:AbstractFloat}
+    Ntoa, Npar = size(M)
+    @assert length(Ndiag) == length(y) == Ntoa
+    @assert length(Φinv) == Npar
+
+    Ninv_M = Matrix{X}(undef, Ntoa, Npar)
+    @inbounds for p = 1:Npar
+        @simd for j = 1:Ntoa
+            Ninv_M[j, p] = M[j, p] / Ndiag[j]
+        end
+    end
+
+    # TODO: Only allocate memory for lower triangular elements.
+    Σinv = Matrix{X}(undef, Npar, Npar)
+    @inbounds for p = 1:Npar
+        for q = 1:p
+            Σinv_qp = (p == q) ? Φinv[p] : zero(X)
+            @simd for j = 1:Ntoa
+                Σinv_qp += M[j, p] * Ninv_M[j, q]
+            end
+
+            # Only upper triangular elements are populated.
+            # The rest contain garbage.
+            Σinv[q, p] = Σinv_qp
+        end
+    end
+
+    u = Vector{X}(undef, Npar)
+    @inbounds for p = 1:Npar
+        up = zero(X)
+        @simd for j = 1:Ntoa
+            up += Ninv_M[j, p] * y[j]
+        end
+        u[p] = up
+    end
+
+    return Symmetric(Σinv, :U), u
+end
+
 # function calc_lnlike_serial(
 #     model::TimingModel{ComponentsTuple,WoodburyKernel{WhiteNoiseKernel,GPComponentsTuple},PriorsTuple},
 #     toas::Vector{TOA},
@@ -86,7 +86,7 @@ end
 #     M = model.kernel.noise_basis
 #     Φinv = calc_noise_weights_inv(model.kernel, params)
 
-#     Σinv, MT_Ninv_y = _calc_Sigmainv__MT_Ninv_y(M, Ndiag, Phiinv, y)
+#     Σinv, MT_Ninv_y = _calc_Σinv__and__MT_Ninv_y(M, Ndiag, Phiinv, y)
 #     y_Ninv_y = _calc_y_Ninv_y(Ndiag, y)
 
 #     Σinv_cf = cholesky(Σinv)

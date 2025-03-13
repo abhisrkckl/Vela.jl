@@ -26,11 +26,19 @@
     @test all(calc_noise_weights_inv(kernel, params) .> 0)
 
     @testset "gls likelihood utils" begin
+        y = randn(100)
+        Ndiag = 1 .+ rand(100)
+        M = randn(100, 5)
+        Phiinv = 1 .+ rand(5)
         @testset "_calc_y_Ninv_y" begin
-            y = randn(100)
-            Ndiag = 1 .+ rand(100)
             y_Ninv_y = Vela._calc_y_Ninv_y(Ndiag, y)
-            @test y_Ninv_y == dot(y, y ./ Ndiag)
+            @test y_Ninv_y ≈ dot(y, y ./ Ndiag)
+        end
+
+        @testset "_calc_Σinv__and__MT_Ninv_y" begin
+            Σinv, MT_Ninv_y = Vela._calc_Σinv__and__MT_Ninv_y(M, Ndiag, Phiinv, y)
+            @test MT_Ninv_y ≈ transpose(M) * (y ./ Ndiag)
+            @test Σinv ≈ Diagonal(Phiinv) + transpose(M) * (M ./ Ndiag)
         end
     end
 end
