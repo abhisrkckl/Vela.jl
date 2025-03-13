@@ -77,6 +77,27 @@ function _calc_Σinv__and__MT_Ninv_y(
     return Symmetric(Σinv, :U), u
 end
 
+function _gls_lnlike_serial(
+    M::Matrix{X},
+    Ndiag::Vector{X},
+    Φinv::Vector{X},
+    y::Vector{X},
+) where {X<:AbstractFloat}
+    Σinv, MT_Ninv_y = _calc_Σinv__and__MT_Ninv_y(M, Ndiag, Φinv, y)
+    y_Ninv_y = _calc_y_Ninv_y(Ndiag, y)
+
+    Σinv_cf = cholesky!(Σinv)
+    logdet_Σinv = 2 * sum(log, diag(Σinv_cf.U))
+
+    Linv_MT_Ninv_y = ldiv!(Σinv_cf.L, MT_Ninv_y)
+    y_Ninv_M_Σ_MT_Ninv_y = dot(Linv_MT_Ninv_y, Linv_MT_Ninv_y)
+
+    logdet_Φ = -sum(log, Φinv)
+    logdet_N = sum(log, Ndiag)
+
+    return -0.5 * (y_Ninv_y - y_Ninv_M_Σ_MT_Ninv_y + logdet_N + logdet_Φ + logdet_Σinv)
+end
+
 # function calc_lnlike_serial(
 #     model::TimingModel{ComponentsTuple,WoodburyKernel{WhiteNoiseKernel,GPComponentsTuple},PriorsTuple},
 #     toas::Vector{TOA},
@@ -98,33 +119,4 @@ end
 #     logdet_Σinv = 2 * sum(log, diag(Σinv_cf.U))
 
 #     return -0.5*(y_Ninv_y - y_Ninv_M_Σ_MT_Ninv_y + logdet_N + logdet_Φ + logdet_Σinv)
-# end
-
-
-# function calc_lnlike_serial(
-#     model::TimingModel{ComponentsTuple,KernelType,PriorsTuple},
-#     toas::Vector{T},
-#     params::NamedTuple,
-# ) where {ComponentsTuple<:Tuple,KernelType<:WoodburyKernel,PriorsTuple<:Tuple,T<:TOABase}
-#     y, Ndiag = _calc_resids_and_Ndiag(model, toas, params)
-#     M = model.kernel.noise_basis
-#     Φ = calc_noise_weights(model, params)
-
-#     Ninv_M = M ./ Ndiag
-#     MT_Ninv_M = transpose(M) * Ninv_M
-#     MT_Ninv_y = transpose(Ninv_M) * y
-
-#     Σinv = Φ + MT_Ninv_M
-#     Σinv_cf = cholesky(Σinv)
-
-#     Σ_MT_Ninv_y = Σinv_cf \ MT_Ninv_y
-#     y_Ninv_M_Σ_MT_Ninv_y = dot(MT_Ninv_y, Σ_MT_Ninv_y)
-
-#     logdet_N = sum(log, N)
-#     logdet_Φ = sum(log, Φ)
-#     logdet_Σinv = 2 * sum(log, diag(a))
-
-#     y_Ninv_y = dot(y, y ./ Ninv)
-
-#     return -0.5 * (y_Ninv_y - y_Ninv_M_Σ_MT_Ninv_y + logdet_N + logdet_Φ + logdet_Σinv)
 # end

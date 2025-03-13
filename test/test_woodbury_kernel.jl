@@ -40,5 +40,28 @@
             @test MT_Ninv_y ≈ transpose(M) * (y ./ Ndiag)
             @test Σinv ≈ Diagonal(Phiinv) + transpose(M) * (M ./ Ndiag)
         end
+
+        @testset "_gls_lnlike_serial" begin
+            lnlike = Vela._gls_lnlike_serial(M, Ndiag, Phiinv, y)
+
+            Ninv_y = y ./ Ndiag
+            y_Ninv_y = dot(y, Ninv_y)
+            MT_Ninv_y = transpose(M) * Ninv_y
+            MT_Ninv_M = transpose(M) * (M ./ Ndiag)
+            Sigmainv = Diagonal(Phiinv) + MT_Ninv_M
+            Sigma_MT_Ninv_y = Sigmainv \ MT_Ninv_y
+            y_Ninv_M_Sigma_MT_Ninv_y = dot(MT_Ninv_y, Sigma_MT_Ninv_y)
+            logdet_N = sum(log.(Ndiag))
+            logdet_Phi = -sum(log.(Phiinv))
+            logdet_Sigmainv = logdet(Sigmainv)
+            lnlike_brute =
+                -0.5 * (
+                    y_Ninv_y - y_Ninv_M_Sigma_MT_Ninv_y +
+                    logdet_N +
+                    logdet_Phi +
+                    logdet_Sigmainv
+                )
+            @test lnlike_brute ≈ lnlike
+        end
     end
 end
