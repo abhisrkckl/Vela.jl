@@ -65,17 +65,17 @@ end
 #     return Symmetric(Σinv, :U), u
 # end
 
-# function _calc_y_Ninv_y(Ndiag, y)
-#     Ntoa = length(y)
-#     @assert length(Ndiag) == Ntoa
+function _calc_y_Ninv_y(Ndiag, y)
+    Ntoa = length(y)
+    @assert length(Ndiag) == Ntoa
 
-#     y_Ninv_y = 0.0
-#     @inbounds @simd for j in 1:Ntoa
-#         y_Ninv_y += y[j] * y[j] * Ndiag[j]
-#     end
+    y_Ninv_y = 0.0
+    @inbounds @simd for j = 1:Ntoa
+        y_Ninv_y += y[j] * y[j] / Ndiag[j]
+    end
 
-#     return y_Ninv_y
-# end
+    return y_Ninv_y
+end
 
 # function calc_lnlike_serial(
 #     model::TimingModel{ComponentsTuple,WoodburyKernel{WhiteNoiseKernel,GPComponentsTuple},PriorsTuple},

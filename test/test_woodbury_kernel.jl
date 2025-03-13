@@ -24,4 +24,13 @@
 
     @test length(calc_noise_weights_inv(kernel, params)) == 60
     @test all(calc_noise_weights_inv(kernel, params) .> 0)
+
+    @testset "gls likelihood utils" begin
+        @testset "_calc_y_Ninv_y" begin
+            y = randn(100)
+            Ndiag = 1 .+ rand(100)
+            y_Ninv_y = Vela._calc_y_Ninv_y(Ndiag, y)
+            @test y_Ninv_y == dot(y, y ./ Ndiag)
+        end
+    end
 end
