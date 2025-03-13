@@ -18,4 +18,6 @@
     @test ctoa.spin_frequency == frequency(0.0) && ctoa1.spin_frequency > frequency(0.0)
 
     @ballocated(correct_toa($spn, $toa, $ctoa, $params)) == 0
+
+    @test !is_gp_noise(spn)
 end
