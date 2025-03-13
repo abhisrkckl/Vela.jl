@@ -9,6 +9,7 @@
 - Refactored parameter attribute functions.
 ## Fixed
 - Priors in examples
+- Creation of ECORR mask in `get_kernel` in `pyvela` (This was mistakenly being created from EFACs)
 ## Removed
 - `pure_rotator.jlso` test data file
 - Stub for `Troposphere` component
