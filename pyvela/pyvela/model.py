@@ -333,6 +333,13 @@ def fix_params(model: TimingModel) -> None:
         if p in model and model[p].quantity is None:
             model[p].value = 0
 
+    # Set the scale factor for noise hyperparameters if they are in the model.
+    for noise_type in ["RED", "DM", "CHROM"]:
+        for param_type in ["AMP", "GAM"]:
+            param_name = f"TN{noise_type}{param_type}"
+            if param_name in model:
+                model[param_name].tcb2tdb_scale_factor = 1.0
+
 
 def get_kernel(
     model: TimingModel,
@@ -360,8 +367,39 @@ def get_kernel(
             ]
         )
         return vl.EcorrKernel(ecorr_groups)
+    else:
+        # This branch only runs when `marginalize_gp_noise=True` is given.
+        if "EcorrNoise" not in model.components:
+            return construct_woodbury_kernel(model, toas)
+        else:
+            raise NotImplementedError(
+                "Woodbury kernel with ECORR is not yet implemented."
+            )
 
-    raise NotImplementedError("Time-correlated noise kernels are not yet implemented.")
+
+def construct_woodbury_kernel(model: TimingModel, toas: TOAs):
+    gp_components = []
+    gp_basis_matrices = []
+
+    component_names = list(model.components.keys())
+
+    if "PLRedNoise" in component_names:
+        gp_components.append(vl.PowerlawRedNoiseGP(int(model["TNREDC"].value)))
+        gp_basis_matrices.append(model.components["PLRedNoise"].get_noise_basis(toas))
+
+    if "PLDMNoise" in component_names:
+        gp_components.append(vl.PowerlawDispersionNoiseGP(int(model["TNDMC"].value)))
+        gp_basis_matrices.append(model.components["PLDMNoise"].get_noise_basis(toas))
+
+    if "PLChromNoise" in component_names:
+        gp_components.append(vl.PowerlawChromaticNoiseGP(int(model["TNCHROMC"].value)))
+        gp_basis_matrices.append(model.components["PLChromNoise"].get_noise_basis(toas))
+
+    gp_basis = np.hstack(gp_basis_matrices).astype(float)
+
+    return vl.WoodburyKernel(
+        vl.WhiteNoiseKernel(), jl.Tuple(gp_components), jl.Matrix[jl.Float64](gp_basis)
+    )
 
 
 def fix_red_noise_components(model: TimingModel, toas: TOAs):
@@ -393,6 +431,7 @@ def pint_model_to_vela(
     cheat_prior_scale: float,
     custom_prior_dists: dict,
     noise_params: List[str],
+    marginalize_gp_noise: bool,
     ecorr_toa_ranges: Optional[List[Tuple[int, int]]] = None,
     ecorr_indices: Optional[List[Tuple[int]]] = None,
 ):
@@ -404,7 +443,18 @@ def pint_model_to_vela(
 
     fix_params(model)
 
-    fix_red_noise_components(model, toas)
+    if not marginalize_gp_noise:
+        # If we don't want to use the marginalized GP noise models,
+        # replace them with dummy components which Vela interprets
+        # as delay components whose parameters have specialized prior
+        # distributions. This determines whether the GP noise components
+        # are part of `components` or `kernel` in the Vela `TimingModel`
+        # type. In the former case the GP amplitudes are treated as free
+        # parameters and in the latter case they are marginalized over.
+        # The marginalization assumes that the residuals are linear in
+        # these parameters, and is an approximation, especially when the
+        # amplitudes are large.
+        fix_red_noise_components(model, toas)
 
     pulsar_name = model["PSR"].value if model["PSR"].value is not None else ""
 

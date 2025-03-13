@@ -20,6 +20,7 @@ def convert_model_and_toas(
     model: TimingModel,
     toas: TOAs,
     noise_params: List[str],
+    marginalize_gp_noise: bool,
     cheat_prior_scale: float = 20.0,
     custom_priors: dict = {},
 ):
@@ -41,6 +42,7 @@ def convert_model_and_toas(
         cheat_prior_scale,
         custom_priors,
         noise_params,
+        marginalize_gp_noise,
         ecorr_toa_ranges=ecorr_toa_ranges,
         ecorr_indices=ecorr_indices,
     )
@@ -85,6 +87,7 @@ class SPNTA:
         self,
         parfile: str,
         timfile: str,
+        marginalize_gp_noise: bool = False,
         cheat_prior_scale: float = 20,
         custom_priors: str | IO | dict = {},
         check: bool = True,
@@ -127,6 +130,7 @@ class SPNTA:
             model_pint,
             toas_pint,
             noise_params,
+            marginalize_gp_noise,
             cheat_prior_scale=cheat_prior_scale,
             custom_priors=custom_priors,
         )
@@ -362,6 +366,7 @@ class SPNTA:
         cls,
         model: TimingModel,
         toas: TOAs,
+        marginalize_gp_noise: bool = False,
         cheat_prior_scale: float = 20,
         custom_priors: dict | str | IO = {},
     ) -> "SPNTA":
@@ -393,6 +398,7 @@ class SPNTA:
             model,
             toas,
             noise_params,
+            marginalize_gp_noise,
             cheat_prior_scale=cheat_prior_scale,
             custom_priors=custom_priors,
         )

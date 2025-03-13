@@ -215,3 +215,11 @@ def test_gp_model_conversion():
     assert all(
         c in m.components for c in ["PLRedNoiseGP", "PLDMNoiseGP", "PLChromNoiseGP"]
     )
+
+
+def test_gp_model_marg():
+    dataset = "sim3.gp"
+    parfile, timfile = f"{datadir}/{dataset}.par", f"{datadir}/{dataset}.tim"
+
+    spnta1 = SPNTA(parfile, timfile, marginalize_gp_noise=True, check=False)
+    assert len(spnta1.param_names) == len(spnta1.model_pint.free_params)
