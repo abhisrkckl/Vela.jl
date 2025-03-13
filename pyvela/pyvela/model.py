@@ -1,8 +1,9 @@
 from typing import List, Optional, Tuple
 
 import numpy as np
+import astropy.units as u
 from pint.models import PhaseOffset, TimingModel
-from pint.models.parameter import MJDParameter, maskParameter
+from pint.models.parameter import MJDParameter, maskParameter, floatParameter
 from pint.toa import TOAs
 
 from .dmx import get_dmx_mask
@@ -283,7 +284,7 @@ def pint_components_to_vela(model: TimingModel, toas: TOAs):
     return jl.Tuple(components)
 
 
-def fix_params(model: TimingModel) -> None:
+def fix_params(model: TimingModel, toas: TOAs) -> None:
     """Fix the parameters of a `PINT` `TimingModel` to make it `Vela`-friendly.
 
     It does the following.
@@ -339,6 +340,24 @@ def fix_params(model: TimingModel) -> None:
             param_name = f"TN{noise_type}{param_type}"
             if param_name in model:
                 model[param_name].tcb2tdb_scale_factor = 1.0
+
+    f1 = 1 / toas.get_Tspan()
+    for plgpnoise, freq_param in zip(
+        ["PLRedNoise", "PLDMNoise", "PLChromNoise"],
+        ["PLREDFREQ", "PLDMFREQ", "PLCHROMFREQ"],
+    ):
+        if plgpnoise in model.components:
+            print(plgpnoise)
+            model.components[plgpnoise].add_param(
+                floatParameter(
+                    name=freq_param,
+                    description="Fundamental frequency of the Powerlaw GP noise",
+                    units="1/year",
+                    value=f1.to_value("1/year"),
+                    tcb2tdb_scale_factor=u.Quantity(1),
+                    frozen=True,
+                )
+            )
 
 
 def get_kernel(
@@ -406,21 +425,20 @@ def fix_red_noise_components(model: TimingModel, toas: TOAs):
     """Replace the GP red noise components with their non-marginalized counterparts.
     These non-marginalized components are only used for constructing the Vela `TimingModel`
     and are not functional `PINT` `Component`s."""
-    f1 = 1 / toas.get_Tspan()
     epoch = model["PEPOCH"].quantity
 
     if "PLRedNoise" in model.components:
-        plred_gp = PLRedNoiseGP(model.components["PLRedNoise"], f1, epoch)
+        plred_gp = PLRedNoiseGP(model.components["PLRedNoise"], epoch)
         model.remove_component("PLRedNoise")
         model.add_component(plred_gp)
 
     if "PLDMNoise" in model.components:
-        pldm_gp = PLDMNoiseGP(model.components["PLDMNoise"], f1, epoch)
+        pldm_gp = PLDMNoiseGP(model.components["PLDMNoise"], epoch)
         model.remove_component("PLDMNoise")
         model.add_component(pldm_gp)
 
     if "PLChromNoise" in model.components:
-        pldm_chrom = PLChromNoiseGP(model.components["PLChromNoise"], f1, epoch)
+        pldm_chrom = PLChromNoiseGP(model.components["PLChromNoise"], epoch)
         model.remove_component("PLChromNoise")
         model.add_component(pldm_chrom)
 
@@ -440,8 +458,6 @@ def pint_model_to_vela(
     epoch_mjd = float(model["PEPOCH"].value)
 
     toas.compute_pulse_numbers(model)
-
-    fix_params(model)
 
     if not marginalize_gp_noise:
         # If we don't want to use the marginalized GP noise models,

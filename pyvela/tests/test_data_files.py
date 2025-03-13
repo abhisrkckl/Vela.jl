@@ -4,10 +4,10 @@ from typing import Tuple
 
 import numpy as np
 import pytest
-from pint.models import get_model_and_toas, get_model, TimingModel
+from pint.models import get_model_and_toas, TimingModel
 from pint.toa import TOAs
 
-from pyvela.model import fix_red_noise_components
+from pyvela.model import fix_params, fix_red_noise_components
 from pyvela.parameters import fdjump_rx
 from pyvela.spnta import SPNTA, convert_model_and_toas
 from pyvela.vela import vl
@@ -61,6 +61,7 @@ def model_and_toas(request):
         )
         > 0
     ):
+        fix_params(m, t)
         fix_red_noise_components(m, t)
 
     return spnta, m, t
@@ -207,6 +208,8 @@ def test_gp_model_conversion():
 
     assert all(c in m.components for c in ["PLRedNoise", "PLDMNoise", "PLChromNoise"])
 
+    fix_params(m, t)
+
     fix_red_noise_components(m, t)
 
     assert all(
@@ -221,5 +224,5 @@ def test_gp_model_marg():
     dataset = "sim3.gp"
     parfile, timfile = f"{datadir}/{dataset}.par", f"{datadir}/{dataset}.tim"
 
-    spnta1 = SPNTA(parfile, timfile, marginalize_gp_noise=True, check=False)
+    spnta1 = SPNTA(parfile, timfile, marginalize_gp_noise=True)
     assert len(spnta1.param_names) == len(spnta1.model_pint.free_params)

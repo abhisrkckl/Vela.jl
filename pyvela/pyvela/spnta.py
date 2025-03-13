@@ -10,7 +10,7 @@ from pint.models import TimingModel, get_model, get_model_and_toas
 from pint.toa import TOAs
 
 from .ecorr import ecorr_sort
-from .model import pint_model_to_vela
+from .model import fix_params, pint_model_to_vela
 from .priors import process_custom_priors
 from .toas import day_to_s, pint_toas_to_vela
 from .vela import jl, vl
@@ -26,6 +26,8 @@ def convert_model_and_toas(
 ):
     """Read a pair of par & tim files and create a `Vela.TimingModel` object and a
     Julia `Vector` of `TOA`s."""
+
+    fix_params(model, toas)
 
     if "BinaryBT" in model.components:
         model = convert_binary(model, "DD")
