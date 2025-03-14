@@ -9,15 +9,13 @@ class PLRedNoiseGP(DelayComponent):
     """A dummy PINT component that is used to translate `PLRedNoise` to a form
     `Vela.jl` can handle."""
 
-    def __init__(self, plrednoise: PLRedNoise, f1: u.Quantity, epoch: Time):
+    def __init__(self, plrednoise: PLRedNoise, epoch: Time):
         super().__init__()
 
         self.add_param(plrednoise.TNREDAMP)
         self.add_param(plrednoise.TNREDGAM)
         self.add_param(plrednoise.TNREDC)
-
-        self.TNREDAMP.tcb2tdb_scale_factor = 1
-        self.TNREDGAM.tcb2tdb_scale_factor = 1
+        self.add_param(plrednoise.PLREDFREQ)
 
         self.add_param(
             MJDParameter(
@@ -25,17 +23,6 @@ class PLRedNoiseGP(DelayComponent):
                 description="Epoch of the Powerlaw Fourier GP representation of the achromatic red noise",
                 value=epoch.mjd,
                 time_scale="tdb",
-                tcb2tdb_scale_factor=u.Quantity(1),
-                frozen=True,
-            )
-        )
-
-        self.add_param(
-            floatParameter(
-                name="PLREDFREQ",
-                description="Fundamental frequency of the Powerlaw Fourier GP representation of the achromatic red noise",
-                units="1/year",
-                value=f1.to_value("1/year"),
                 tcb2tdb_scale_factor=u.Quantity(1),
                 frozen=True,
             )
@@ -76,15 +63,13 @@ class PLDMNoiseGP(DelayComponent):
     """A dummy PINT component that is used to translate `PLDMNoise` to a form
     `Vela.jl` can handle."""
 
-    def __init__(self, pldmnoise: PLDMNoise, f1: u.Quantity, epoch: Time):
+    def __init__(self, pldmnoise: PLDMNoise, epoch: Time):
         super().__init__()
 
         self.add_param(pldmnoise.TNDMAMP)
         self.add_param(pldmnoise.TNDMGAM)
         self.add_param(pldmnoise.TNDMC)
-
-        self.TNDMAMP.tcb2tdb_scale_factor = 1
-        self.TNDMGAM.tcb2tdb_scale_factor = 1
+        self.add_param(pldmnoise.PLDMFREQ)
 
         self.add_param(
             MJDParameter(
@@ -92,17 +77,6 @@ class PLDMNoiseGP(DelayComponent):
                 description="Epoch of the Powerlaw Fourier GP representation of the DM noise",
                 value=epoch.mjd,
                 time_scale="tdb",
-                tcb2tdb_scale_factor=u.Quantity(1),
-                frozen=True,
-            )
-        )
-
-        self.add_param(
-            floatParameter(
-                name="PLDMFREQ",
-                description="Fundamental frequency of the Powerlaw Fourier GP representation of the DM noise",
-                units="1/year",
-                value=f1.to_value("1/year"),
                 tcb2tdb_scale_factor=u.Quantity(1),
                 frozen=True,
             )
@@ -143,15 +117,13 @@ class PLChromNoiseGP(DelayComponent):
     """A dummy PINT component that is used to translate `PLDMNoise` to a form
     `Vela.jl` can handle."""
 
-    def __init__(self, plchromnoise: PLChromNoise, f1: u.Quantity, epoch: Time):
+    def __init__(self, plchromnoise: PLChromNoise, epoch: Time):
         super().__init__()
 
         self.add_param(plchromnoise.TNCHROMAMP)
         self.add_param(plchromnoise.TNCHROMGAM)
         self.add_param(plchromnoise.TNCHROMC)
-
-        self.TNCHROMAMP.tcb2tdb_scale_factor = 1
-        self.TNCHROMGAM.tcb2tdb_scale_factor = 1
+        self.add_param(plchromnoise.PLCHROMFREQ)
 
         self.add_param(
             MJDParameter(
@@ -159,17 +131,6 @@ class PLChromNoiseGP(DelayComponent):
                 description="Epoch of the Powerlaw Fourier GP representation of the chromatic noise",
                 value=epoch.mjd,
                 time_scale="tdb",
-                tcb2tdb_scale_factor=u.Quantity(1),
-                frozen=True,
-            )
-        )
-
-        self.add_param(
-            floatParameter(
-                name="PLCHROMFREQ",
-                description="Fundamental frequency of the Powerlaw Fourier GP representation of the chromatic noise",
-                units="1/year",
-                value=f1.to_value("1/year"),
                 tcb2tdb_scale_factor=u.Quantity(1),
                 frozen=True,
             )

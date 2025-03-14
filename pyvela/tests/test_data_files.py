@@ -4,10 +4,10 @@ from typing import Tuple
 
 import numpy as np
 import pytest
-from pint.models import get_model_and_toas, get_model, TimingModel
+from pint.models import get_model_and_toas, TimingModel
 from pint.toa import TOAs
 
-from pyvela.model import fix_red_noise_components
+from pyvela.model import fix_params, fix_red_noise_components
 from pyvela.parameters import fdjump_rx
 from pyvela.spnta import SPNTA, convert_model_and_toas
 from pyvela.vela import vl
@@ -61,6 +61,7 @@ def model_and_toas(request):
         )
         > 0
     ):
+        fix_params(m, t)
         fix_red_noise_components(m, t)
 
     return spnta, m, t
@@ -71,7 +72,7 @@ def test_read_data(dataset):
     parfile, timfile = f"{datadir}/{dataset}.par", f"{datadir}/{dataset}.tim"
     m, t = get_model_and_toas(parfile, timfile, planets=True)
     model, toas = convert_model_and_toas(
-        m, t, m.get_params_of_component_type("NoiseComponent")
+        m, t, m.get_params_of_component_type("NoiseComponent"), False
     )
     assert len(toas) == len(t)
     assert len(model.components) <= len(m.components)
@@ -207,6 +208,8 @@ def test_gp_model_conversion():
 
     assert all(c in m.components for c in ["PLRedNoise", "PLDMNoise", "PLChromNoise"])
 
+    fix_params(m, t)
+
     fix_red_noise_components(m, t)
 
     assert all(
@@ -214,4 +217,18 @@ def test_gp_model_conversion():
     )
     assert all(
         c in m.components for c in ["PLRedNoiseGP", "PLDMNoiseGP", "PLChromNoiseGP"]
+    )
+
+
+def test_gp_model_marg():
+    dataset = "sim3.gp"
+    parfile, timfile = f"{datadir}/{dataset}.par", f"{datadir}/{dataset}.tim"
+
+    spnta1 = SPNTA(parfile, timfile, marginalize_gp_noise=True)
+    assert len(spnta1.param_names) == len(spnta1.model_pint.free_params)
+
+    assert np.isfinite(spnta1.lnpost(spnta1.default_params))
+    assert np.isclose(
+        spnta1.lnpost(spnta1.default_params),
+        spnta1.lnpost_vectorized(np.array([spnta1.default_params]))[0],
     )

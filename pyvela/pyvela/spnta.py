@@ -10,7 +10,7 @@ from pint.models import TimingModel, get_model, get_model_and_toas
 from pint.toa import TOAs
 
 from .ecorr import ecorr_sort
-from .model import pint_model_to_vela
+from .model import fix_params, pint_model_to_vela
 from .priors import process_custom_priors
 from .toas import day_to_s, pint_toas_to_vela
 from .vela import jl, vl
@@ -20,11 +20,14 @@ def convert_model_and_toas(
     model: TimingModel,
     toas: TOAs,
     noise_params: List[str],
+    marginalize_gp_noise: bool,
     cheat_prior_scale: float = 20.0,
     custom_priors: dict = {},
 ):
     """Read a pair of par & tim files and create a `Vela.TimingModel` object and a
     Julia `Vector` of `TOA`s."""
+
+    fix_params(model, toas)
 
     if "BinaryBT" in model.components:
         model = convert_binary(model, "DD")
@@ -41,6 +44,7 @@ def convert_model_and_toas(
         cheat_prior_scale,
         custom_priors,
         noise_params,
+        marginalize_gp_noise,
         ecorr_toa_ranges=ecorr_toa_ranges,
         ecorr_indices=ecorr_indices,
     )
@@ -85,6 +89,7 @@ class SPNTA:
         self,
         parfile: str,
         timfile: str,
+        marginalize_gp_noise: bool = False,
         cheat_prior_scale: float = 20,
         custom_priors: str | IO | dict = {},
         check: bool = True,
@@ -127,6 +132,7 @@ class SPNTA:
             model_pint,
             toas_pint,
             noise_params,
+            marginalize_gp_noise,
             cheat_prior_scale=cheat_prior_scale,
             custom_priors=custom_priors,
         )
@@ -362,6 +368,7 @@ class SPNTA:
         cls,
         model: TimingModel,
         toas: TOAs,
+        marginalize_gp_noise: bool = False,
         cheat_prior_scale: float = 20,
         custom_priors: dict | str | IO = {},
     ) -> "SPNTA":
@@ -393,6 +400,7 @@ class SPNTA:
             model,
             toas,
             noise_params,
+            marginalize_gp_noise,
             cheat_prior_scale=cheat_prior_scale,
             custom_priors=custom_priors,
         )

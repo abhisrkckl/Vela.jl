@@ -95,6 +95,12 @@ def parse_args(argv):
         help="A JSON file containing the prior distributions for each free parameter. (Ignored if `-J` option is used.)",
     )
     parser.add_argument(
+        "-M",
+        "--marg_gp_noise",
+        action="store_true",
+        help="Analytically marginalize the correlated Gaussian noise amplitudes.",
+    )
+    parser.add_argument(
         "-T",
         "--truth",
         help="Pulsar ephemeris file containing the true timing and noise parameter values. "
@@ -290,6 +296,7 @@ def main(argv=None):
             args.tim_file,
             cheat_prior_scale=args.cheat_prior_scale,
             custom_priors=(args.prior_file if args.prior_file is not None else {}),
+            marginalize_gp_noise=args.marg_gp_noise,
         )
         if args.jlso_file is None
         else SPNTA.load_jlso(args.jlso_file, args.par_file)

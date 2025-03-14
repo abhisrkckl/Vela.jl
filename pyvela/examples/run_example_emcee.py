@@ -16,11 +16,16 @@ parser = ArgumentParser()
 parser.add_argument("par_file")
 parser.add_argument("tim_file")
 parser.add_argument("-P", "--priors", default={})
+parser.add_argument("-M", "--marg_gp_noise", action="store_true")
 args = parser.parse_args()
 
 
 spnta = SPNTA(
-    args.par_file, args.tim_file, cheat_prior_scale=40, custom_priors=args.priors
+    args.par_file,
+    args.tim_file,
+    cheat_prior_scale=40,
+    custom_priors=args.priors,
+    marginalize_gp_noise=args.marg_gp_noise,
 )
 
 

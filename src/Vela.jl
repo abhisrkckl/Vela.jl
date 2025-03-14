@@ -3,7 +3,7 @@ module Vela
 
 using GeometricUnits
 using DoubleFloats: Double64
-using LinearAlgebra: dot
+using LinearAlgebra: dot, Symmetric, cholesky!, ldiv!, logdet
 using .Threads: @threads, @spawn, fetch, nthreads
 using Unrolled: @unroll
 using Distributions
@@ -58,6 +58,7 @@ include("likelihood/wideband_wls_chi2.jl")
 include("likelihood/wls_likelihood.jl")
 include("likelihood/ecorr_likelihood.jl")
 include("likelihood/wideband_wls_likelihood.jl")
+include("likelihood/gls_likelihood.jl")
 include("likelihood/posterior.jl")
 include("pulsar/pulsar.jl")
 include("readwrite/readwrite.jl")
