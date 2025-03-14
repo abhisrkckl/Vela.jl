@@ -79,6 +79,9 @@ calc_noise_weights_inv(arn::PowerlawRedNoiseGP, params::NamedTuple) =
         arn.ln_js,
     )
 
+show(io::IO, arn::PowerlawRedNoiseGP) =
+    print(io, "PowerlawRedNoiseGP($(length(arn.ln_js)) harmonics)")
+
 """
     PowerlawDispersionNoiseGP
 
@@ -120,6 +123,9 @@ calc_noise_weights_inv(dmn::PowerlawDispersionNoiseGP, params::NamedTuple) =
         dmn.ln_js,
     )
 
+show(io::IO, dmn::PowerlawDispersionNoiseGP) =
+    print(io, "PowerlawDispersionNoiseGP($(length(dmn.ln_js)) harmonics)")
+
 """
     PowerlawDispersionNoiseGP
 
@@ -160,3 +166,6 @@ calc_noise_weights_inv(crn::PowerlawChromaticNoiseGP, params::NamedTuple) =
         params.PLCHROMFREQ,
         crn.ln_js,
     )
+
+show(io::IO, crn::PowerlawChromaticNoiseGP) =
+    print(io, "PowerlawChromaticNoiseGP($(length(crn.ln_js)) harmonics)")
