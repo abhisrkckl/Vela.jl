@@ -25,6 +25,13 @@
     @test length(calc_noise_weights_inv(kernel, params)) == 60
     @test all(calc_noise_weights_inv(kernel, params) .> 0)
 
+    @test calc_noise_weights_inv(kernel, params)[1:10] ==
+          calc_noise_weights_inv(kernel, params)[11:20]
+    @test calc_noise_weights_inv(kernel, params)[21:35] ==
+          calc_noise_weights_inv(kernel, params)[36:50]
+    @test calc_noise_weights_inv(kernel, params)[51:55] ==
+          calc_noise_weights_inv(kernel, params)[56:60]
+
     @testset "gls likelihood utils" begin
         y = randn(100)
         Ndiag = 1 .+ rand(100)
