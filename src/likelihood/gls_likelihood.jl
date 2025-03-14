@@ -122,4 +122,5 @@ calc_lnlike(
     },
     toas::Vector{TOA},
     params::NamedTuple,
-) where {ComponentsTuple<:Tuple,GPComponentsTuple<:Tuple,PriorsTuple<:Tuple} = calc_lnlike_serial(model, toas, params)
+) where {ComponentsTuple<:Tuple,GPComponentsTuple<:Tuple,PriorsTuple<:Tuple} =
+    calc_lnlike_serial(model, toas, params)
