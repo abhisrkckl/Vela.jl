@@ -228,3 +228,8 @@ def test_gp_model_marg():
     assert len(spnta1.param_names) == len(spnta1.model_pint.free_params)
 
     assert np.isfinite(spnta1.lnpost(spnta1.default_params))
+    assert np.allclose(
+        spnta1.lnpost(spnta1.default_params),
+        spnta1.lnpost_vectorized(np.array([spnta1.default_params]))[0]
+    )
+
