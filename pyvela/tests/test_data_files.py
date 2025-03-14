@@ -226,3 +226,5 @@ def test_gp_model_marg():
 
     spnta1 = SPNTA(parfile, timfile, marginalize_gp_noise=True)
     assert len(spnta1.param_names) == len(spnta1.model_pint.free_params)
+
+    assert np.isfinite(spnta1.lnpost(spnta1.default_params))
