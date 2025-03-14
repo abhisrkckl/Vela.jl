@@ -18,6 +18,19 @@
 
     @test all(calc_noise_weights_inv(rn, params) .> 0)
     @test calc_noise_weights_inv(rn, params)[1:3] == calc_noise_weights_inv(rn, params)[4:6]
+
+    w1 = calc_noise_weights_inv(rn, params)[1:3]
+    w2 = [
+        value(
+            1 / Vela.powerlaw(
+                10.0^params.TNREDAMP,
+                params.TNREDGAM,
+                j * params.PLREDFREQ,
+                params.PLREDFREQ,
+            ),
+        ) for j = 1:3
+    ]
+    @test all(isapprox.(w1 ./ w2, 1.0, atol = 1e-6))
 end
 
 @testset "PowerlawDispersionNoiseGP" begin
@@ -41,6 +54,17 @@ end
     @test all(calc_noise_weights_inv(dmn, params) .> 0)
     @test calc_noise_weights_inv(dmn, params)[1:3] ==
           calc_noise_weights_inv(dmn, params)[4:6]
+
+    @test calc_noise_weights_inv(dmn, params)[1:3] ≈ [
+        value(
+            1 / Vela.powerlaw(
+                10.0^params.TNDMAMP,
+                params.TNDMGAM,
+                j * params.PLDMFREQ,
+                params.PLDMFREQ,
+            ),
+        ) for j = 1:3
+    ]
 end
 
 @testset "PowerlawChromaticNoiseGP" begin
@@ -65,4 +89,15 @@ end
     @test all(calc_noise_weights_inv(cmn, params) .> 0)
     @test calc_noise_weights_inv(cmn, params)[1:3] ==
           calc_noise_weights_inv(cmn, params)[4:6]
+
+    @test calc_noise_weights_inv(cmn, params)[1:3] ≈ [
+        value(
+            1 / Vela.powerlaw(
+                10.0^params.TNCHROMAMP,
+                params.TNCHROMGAM,
+                j * params.PLCHROMFREQ,
+                params.PLCHROMFREQ,
+            ),
+        ) for j = 1:3
+    ]
 end
