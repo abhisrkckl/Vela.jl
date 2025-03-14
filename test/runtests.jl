@@ -82,6 +82,8 @@ end
 
     include("test_sim2.jl")
 
+    include("test_sim3_gp.jl")
+
     @testset "formatting" begin
         @test format(Vela)
     end
