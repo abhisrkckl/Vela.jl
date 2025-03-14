@@ -131,9 +131,9 @@
     @testset "calc_chi2" begin
         calc_chi2_s = get_chi2_serial_func(model, toas)
         calc_chi2_p = get_chi2_parallel_func(model, toas)
-        
+
         calc_chi2 = get_chi2_func(model, toas)
-        
+
         parv = read_param_values_to_vector(model.param_handler)
         # parnp = PyArray(parv)
         chi2_s = calc_chi2_s(parv)
@@ -149,7 +149,7 @@
         calc_lnlike_s = get_lnlike_serial_func(model, toas)
         calc_lnlike_p = get_lnlike_parallel_func(model, toas)
 
-        calc_lnlike = get_lnlike_func(model, toas)
+        _ = get_lnlike_func(model, toas)
 
         params = model.param_handler._default_params_tuple
         parv = read_param_values_to_vector(model)
