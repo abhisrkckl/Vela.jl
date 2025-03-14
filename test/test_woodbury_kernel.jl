@@ -62,6 +62,9 @@
                     logdet_Sigmainv
                 )
             @test lnlike_brute ≈ lnlike
+
+            C = Diagonal(Ndiag) + M * Diagonal(1 ./ Phiinv) * transpose(M)
+            @test lnlike ≈ -0.5 * (dot(y, C \ y) + logdet(C))
         end
     end
 end
