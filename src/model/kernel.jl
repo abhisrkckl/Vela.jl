@@ -59,3 +59,6 @@ struct WoodburyKernel{InnerKernel<:Kernel,GPComponentsTuple<:Tuple} <: Kernel
         )
     end
 end
+
+show(io::IO, wk::WoodburyKernel) =
+    print(io, "WoodburyKernel($(wk.inner_kernel), $(wk.gp_components))")

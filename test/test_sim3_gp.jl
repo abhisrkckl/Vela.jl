@@ -98,6 +98,16 @@
         @test !any(is_gp_noise, model.components)
     end
 
+    @testset "repr" begin
+        @test startswith(string(toas[1]), "TOA")
+        display(toas)
+        display(toas[1])
+        # @test startswith(string(model.tzr_toa), "TZRTOA")
+        display(model.tzr_toa)
+        @test startswith(string(model), "TimingModel")
+        display(model)
+    end
+
     @testset "kernel" begin
         @test isa(model.kernel, WoodburyKernel)
         @test isa(model.kernel.inner_kernel, WhiteNoiseKernel)
