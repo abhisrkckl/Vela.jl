@@ -21,6 +21,29 @@ function _calc_resids_and_Ndiag(model::TimingModel, toas::Vector{TOA}, params::N
     return ys, Ndiag
 end
 
+function _calc_resids_and_Ndiag(
+    model::TimingModel,
+    wtoas::Vector{WidebandTOA},
+    params::NamedTuple,
+)
+    tzrphase = calc_tzr_phase(model, params)
+
+    ntoas = length(wtoas)
+    ys = Vector{Float64}(undef, 2 * ntoas)
+    Ndiag = Vector{Float64}(undef, 2 * ntoas)
+
+    @inbounds for (j, wtoa) in enumerate(wtoas)
+        cwtoa = correct_toa(model, wtoa, params)
+        dphase = GQ{Float64}(phase_residual(wtoa.toa, cwtoa.toa_correction) - tzrphase)
+        ys[j] = dphase / doppler_shifted_spin_frequency(ctoa)
+        ys[ntoas+j] = dm_residual(wtoa.dminfo, cwtoa.dm_correction)
+        Ndiag[j] = scaled_toa_error_sqr(wtoa.toa, cwtoa.toa_correction)
+        Ndiag[ntoas+j] = scaled_dm_error_sqr(wtoa.dminfo, cwtoa.dm_correction)
+    end
+
+    return ys, Ndiag
+end
+
 function _calc_y_Ninv_y(Ndiag, y)
     Ntoa = length(y)
     @assert length(Ndiag) == Ntoa
@@ -104,9 +127,14 @@ function calc_lnlike_serial(
         WoodburyKernel{WhiteNoiseKernel,GPComponentsTuple},
         PriorsTuple,
     },
-    toas::Vector{TOA},
+    toas::Vector{TOAType},
     params::NamedTuple,
-) where {ComponentsTuple<:Tuple,GPComponentsTuple<:Tuple,PriorsTuple<:Tuple}
+) where {
+    ComponentsTuple<:Tuple,
+    GPComponentsTuple<:Tuple,
+    PriorsTuple<:Tuple,
+    TOAType<:TOABase,
+}
     y, Ndiag = _calc_resids_and_Ndiag(model, toas, params)
     M = model.kernel.noise_basis
     Φinv = calc_noise_weights_inv(model.kernel, params)
@@ -120,7 +148,11 @@ calc_lnlike(
         WoodburyKernel{WhiteNoiseKernel,GPComponentsTuple},
         PriorsTuple,
     },
-    toas::Vector{TOA},
+    toas::Vector{TOAType},
     params::NamedTuple,
-) where {ComponentsTuple<:Tuple,GPComponentsTuple<:Tuple,PriorsTuple<:Tuple} =
-    calc_lnlike_serial(model, toas, params)
+) where {
+    ComponentsTuple<:Tuple,
+    GPComponentsTuple<:Tuple,
+    PriorsTuple<:Tuple,
+    TOAType<:TOABase,
+} = calc_lnlike_serial(model, toas, params)
