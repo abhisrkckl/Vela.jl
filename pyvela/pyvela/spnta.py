@@ -235,9 +235,8 @@ class SPNTA:
     @cached_property
     def has_marginalized_gp_noise(self) -> bool:
         """Whether the model contains marginalized correlated Gaussian noise processes."""
-        return vl.isa(self.model.kernel, jl.WoodburyKernel)
-    
-    @cached_property
+        return vl.isa(self.model.kernel, vl.WoodburyKernel)
+
     def get_marginalized_gp_noise_realization(self, params: np.ndarray) -> np.ndarray:
         assert self.has_marginalized_gp_noise
         params_ = vl.read_params(self.model, params)
@@ -296,6 +295,14 @@ class SPNTA:
             )
         )
 
+    def whitened_time_residuals(self, params: np.ndarray) -> np.ndarray:
+        return (
+            self.time_residuals(params)
+            - self.get_marginalized_gp_noise_realization(params)[: len(self.toas)]
+            if self.has_marginalized_gp_noise
+            else self.time_residuals(params)
+        )
+
     def dm_residuals(self, params: np.ndarray) -> np.ndarray:
         """Get the DM residuals (s) for a given set of parameters (wideband only)."""
         assert self.wideband, "This method is only defined for wideband datasets."
@@ -307,6 +314,14 @@ class SPNTA:
                 vl.value(wr[1])
                 for wr in vl.form_residuals(self.pulsar.model, self.pulsar.toas, params)
             ]
+        )
+
+    def whitened_dm_residuals(self, params: np.ndarray) -> np.ndarray:
+        return (
+            self.dm_residuals(params)
+            - self.get_marginalized_gp_noise_realization(params)[len(self.toas) :]
+            if self.has_marginalized_gp_noise
+            else self.dm_residuals(params)
         )
 
     def scaled_toa_unceritainties(self, params: np.ndarray) -> np.ndarray:

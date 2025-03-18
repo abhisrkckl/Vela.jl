@@ -402,9 +402,13 @@ def construct_woodbury_kernel(model: TimingModel, toas: TOAs):
     component_names = list(model.components.keys())
 
     for gpcomp, nharmpar, vela_gp_type in zip(
-        ["PLRedNoise", "PLDMNoise", "PLChromNoise"], 
+        ["PLRedNoise", "PLDMNoise", "PLChromNoise"],
         ["TNREDC", "TNDMC", "TNCHROMC"],
-        [vl.PowerlawRedNoiseGP, vl.PowerlawDispersionNoiseGP, vl.PowerlawChromaticNoiseGP]
+        [
+            vl.PowerlawRedNoiseGP,
+            vl.PowerlawDispersionNoiseGP,
+            vl.PowerlawChromaticNoiseGP,
+        ],
     ):
         if gpcomp in component_names:
             gp_components.append(vela_gp_type(int(model[nharmpar].value)))

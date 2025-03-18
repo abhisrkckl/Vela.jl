@@ -80,13 +80,15 @@ def main(argv=None):
     ]
 
     residuals_data = np.genfromtxt(f"{args.result_dir}/residuals.txt")
-    wb = residuals_data.shape[1] == 5
+    wb = residuals_data.shape[1] == 7
     if wb:
-        mjds, tres, terr, dres, derr = residuals_data.T
+        mjds, tres, tres_w, terr, dres, dres_w, derr = residuals_data.T
         dres = (dres * u.Hz / DMconst).to_value(dmu)
+        dres_w = (dres_w * u.Hz / DMconst).to_value(dmu)
         derr = (derr * u.Hz / DMconst).to_value(dmu)
     else:
-        mjds, tres, terr = residuals_data.T
+        print(residuals_data.shape)
+        mjds, tres, tres_w, terr = residuals_data.T
 
     true_values = read_true_values(args)[param_plot_mask]
 
@@ -109,12 +111,17 @@ def main(argv=None):
 
     plt.subplot(5, 3, 3)
     plt.errorbar(mjds, tres, terr, marker="+", ls="", alpha=0.9)
+    if not np.allclose(tres, tres_w):
+        plt.errorbar(mjds, tres_w, terr, marker="+", ls="", alpha=0.4)
     plt.axhline(0, ls="dotted", color="k")
     plt.ylabel("Time res (s)")
+
     if wb:
         plt.xticks([])
         plt.subplot(5, 3, 6)
         plt.errorbar(mjds, dres, derr, marker="+", ls="", alpha=0.9)
+        if not np.allclose(dres, dres_w):
+            plt.errorbar(mjds, dres_w, derr, marker="+", ls="", alpha=0.4)
         plt.axhline(0, ls="dotted", color="k")
         plt.ylabel("DM res (dmu)")
     plt.xlabel("MJD - PEPOCH")

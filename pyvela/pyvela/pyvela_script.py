@@ -268,19 +268,23 @@ def save_resids(spnta: SPNTA, params: np.ndarray, outdir: str) -> None:
     ntoas = len(spnta.toas)
     mjds = spnta.mjds
     tres = spnta.time_residuals(params)
+    tres_w = spnta.whitened_time_residuals(params)
     terr = spnta.scaled_toa_unceritainties(params)
 
-    res_arr = np.zeros((ntoas, 2 * (1 + int(wb)) + 1))
+    res_arr = np.zeros((ntoas, 3 * (1 + int(wb)) + 1))
     res_arr[:, 0] = mjds
     res_arr[:, 1] = tres
-    res_arr[:, 2] = terr
+    res_arr[:, 2] = tres_w
+    res_arr[:, 3] = terr
 
     if wb:
         dres = spnta.dm_residuals(params)
+        dres_w = spnta.whitened_dm_residuals(params)
         derr = spnta.scaled_dm_unceritainties(params)
 
-        res_arr[:, 3] = dres
-        res_arr[:, 4] = derr
+        res_arr[:, 4] = dres
+        res_arr[:, 5] = dres_w
+        res_arr[:, 6] = derr
 
     np.savetxt(f"{outdir}/residuals.txt", res_arr)
 
