@@ -68,6 +68,8 @@
         @test sizeof(param_handler._default_params_tuple) ==
               sizeof(GQ{0,Float64}) * length(param_handler._default_values)
 
+        @test length(get_free_param_labels(model)) == length(get_free_param_names(model))
+
         @test length(
             read_param_values_to_vector(
                 model.param_handler,
