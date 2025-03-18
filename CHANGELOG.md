@@ -54,6 +54,7 @@
 - DMX: Piecewise-constant model for DM (`DispersionPiecewise`) 
 - CMX: Piecewise-constant model for CM (`ChromaticPiecewise`) 
 - `BinaryELL1k` model
+- Aberration delay in binary models
 ## Changed
 - Reduced the number of `pyvela` tests
 ## Fixed
