@@ -401,17 +401,16 @@ def construct_woodbury_kernel(model: TimingModel, toas: TOAs):
 
     component_names = list(model.components.keys())
 
-    if "PLRedNoise" in component_names:
-        gp_components.append(vl.PowerlawRedNoiseGP(int(model["TNREDC"].value)))
-        gp_basis_matrices.append(model.components["PLRedNoise"].get_noise_basis(toas))
-
-    if "PLDMNoise" in component_names:
-        gp_components.append(vl.PowerlawDispersionNoiseGP(int(model["TNDMC"].value)))
-        gp_basis_matrices.append(model.components["PLDMNoise"].get_noise_basis(toas))
-
-    if "PLChromNoise" in component_names:
-        gp_components.append(vl.PowerlawChromaticNoiseGP(int(model["TNCHROMC"].value)))
-        gp_basis_matrices.append(model.components["PLChromNoise"].get_noise_basis(toas))
+    for gpcomp, nharmpar, vela_gp_type in zip(
+        ["PLRedNoise", "PLDMNoise", "PLChromNoise"], 
+        ["TNREDC", "TNDMC", "TNCHROMC"],
+        [vl.PowerlawRedNoiseGP, vl.PowerlawDispersionNoiseGP, vl.PowerlawChromaticNoiseGP]
+    ):
+        if gpcomp in component_names:
+            gp_components.append(vela_gp_type(int(model[nharmpar].value)))
+            basis = model.components[gpcomp].get_noise_basis(toas)
+            gp_basis_matrices.append(basis[:, ::2])
+            gp_basis_matrices.append(basis[:, 1::2])
 
     gp_basis = np.hstack(gp_basis_matrices).astype(float)
 
