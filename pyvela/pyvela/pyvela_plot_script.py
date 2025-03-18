@@ -96,7 +96,7 @@ def main(argv=None):
         samples[:, param_plot_mask],
         labels=plot_labels,
         label_kwargs={"fontsize": 9},
-        labelpad=0.04 * len(param_plot_mask),
+        labelpad=0.1,
         max_n_ticks=3,
         plot_datapoints=False,
         hist_kwargs={"density": True},
@@ -110,19 +110,51 @@ def main(argv=None):
         ax.xaxis.get_offset_text().set_fontsize(8)
 
     plt.subplot(5, 3, 3)
-    plt.errorbar(mjds, tres, terr, marker="+", ls="", alpha=0.9)
+    plt.errorbar(
+        mjds, tres, terr, marker="+", ls="", alpha=0.9, color="orange", label="Post-fit"
+    )
     if not np.allclose(tres, tres_w):
-        plt.errorbar(mjds, tres_w, terr, marker="+", ls="", alpha=0.4)
+        plt.errorbar(
+            mjds,
+            tres_w,
+            terr,
+            marker="+",
+            ls="",
+            alpha=0.4,
+            color="blue",
+            label="Whitened",
+        )
     plt.axhline(0, ls="dotted", color="k")
     plt.ylabel("Time res (s)")
+    plt.legend()
 
     if wb:
         plt.xticks([])
         plt.subplot(5, 3, 6)
-        plt.errorbar(mjds, dres, derr, marker="+", ls="", alpha=0.9)
+        plt.errorbar(
+            mjds,
+            dres,
+            derr,
+            marker="+",
+            ls="",
+            alpha=0.9,
+            color="orange",
+            label="Post-fit",
+        )
         if not np.allclose(dres, dres_w):
-            plt.errorbar(mjds, dres_w, derr, marker="+", ls="", alpha=0.4)
+            plt.errorbar(
+                mjds,
+                dres_w,
+                derr,
+                marker="+",
+                ls="",
+                alpha=0.4,
+                color="blue",
+                label="Whitened",
+            )
         plt.axhline(0, ls="dotted", color="k")
         plt.ylabel("DM res (dmu)")
+        plt.legend()
+
     plt.xlabel("MJD - PEPOCH")
     plt.show()
