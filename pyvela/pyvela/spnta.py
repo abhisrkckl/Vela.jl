@@ -4,6 +4,7 @@ from copy import deepcopy
 from typing import IO, Iterable, List
 
 import numpy as np
+from scipy.linalg import cho_factor, cho_solve
 from pint.binaryconvert import convert_binary
 from pint.logging import setup as setup_log
 from pint.models import TimingModel, get_model, get_model_and_toas
@@ -230,6 +231,25 @@ class SPNTA:
     def ntmdim(self) -> int:
         """Number of free timing model parameters (does not include noise parameters)."""
         return vl.get_num_timing_params(self.pulsar.model)
+
+    @cached_property
+    def has_marginalized_gp_noise(self) -> bool:
+        """Whether the model contains marginalized correlated Gaussian noise processes."""
+        return vl.isa(self.model.kernel, jl.WoodburyKernel)
+    
+    @cached_property
+    def get_marginalized_gp_noise_realization(self, params: np.ndarray) -> np.ndarray:
+        assert self.has_marginalized_gp_noise
+        params_ = vl.read_params(self.model, params)
+        y, Ndiag = vl._calc_resids_and_Ndiag(self.model, self.toas, params_)
+        M = np.array(self.model.kernel.noise_basis)
+        Phiinv = np.array(vl.calc_noise_weights_inv(self.model.kernel, params_))
+        Ninv_M = M / np.array(Ndiag)[:, None]
+        MT_Ninv_y = y @ Ninv_M
+        Sigmainv = np.diag(Phiinv) + M.T @ Ninv_M
+        Sigmainv_cf = cho_factor(Sigmainv)
+        ahat = cho_solve(Sigmainv_cf, MT_Ninv_y)
+        return M @ ahat
 
     def rescale_samples(self, samples: np.ndarray) -> np.ndarray:
         """Rescale the samples from Vela's internal units to common units"""
