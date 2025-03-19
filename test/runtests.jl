@@ -72,6 +72,8 @@ end
 
     include("test_priors.jl")
 
+    include("test_woodbury_kernel.jl")
+
     include("test_timing_model.jl")
 
     include("test_NGC6440E.jl")
@@ -79,6 +81,8 @@ end
     include("test_sim_sw_wb.jl")
 
     include("test_sim2.jl")
+
+    include("test_sim3_gp.jl")
 
     @testset "formatting" begin
         @test format(Vela)

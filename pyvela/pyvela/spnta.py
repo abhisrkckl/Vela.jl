@@ -4,13 +4,14 @@ from copy import deepcopy
 from typing import IO, Iterable, List
 
 import numpy as np
+from scipy.linalg import cho_factor, cho_solve
 from pint.binaryconvert import convert_binary
 from pint.logging import setup as setup_log
 from pint.models import TimingModel, get_model, get_model_and_toas
 from pint.toa import TOAs
 
 from .ecorr import ecorr_sort
-from .model import pint_model_to_vela
+from .model import fix_params, pint_model_to_vela
 from .priors import process_custom_priors
 from .toas import day_to_s, pint_toas_to_vela
 from .vela import jl, vl
@@ -20,11 +21,14 @@ def convert_model_and_toas(
     model: TimingModel,
     toas: TOAs,
     noise_params: List[str],
+    marginalize_gp_noise: bool,
     cheat_prior_scale: float = 20.0,
     custom_priors: dict = {},
 ):
     """Read a pair of par & tim files and create a `Vela.TimingModel` object and a
     Julia `Vector` of `TOA`s."""
+
+    fix_params(model, toas)
 
     if "BinaryBT" in model.components:
         model = convert_binary(model, "DD")
@@ -41,6 +45,7 @@ def convert_model_and_toas(
         cheat_prior_scale,
         custom_priors,
         noise_params,
+        marginalize_gp_noise,
         ecorr_toa_ranges=ecorr_toa_ranges,
         ecorr_indices=ecorr_indices,
     )
@@ -85,6 +90,7 @@ class SPNTA:
         self,
         parfile: str,
         timfile: str,
+        marginalize_gp_noise: bool = False,
         cheat_prior_scale: float = 20,
         custom_priors: str | IO | dict = {},
         check: bool = True,
@@ -127,6 +133,7 @@ class SPNTA:
             model_pint,
             toas_pint,
             noise_params,
+            marginalize_gp_noise,
             cheat_prior_scale=cheat_prior_scale,
             custom_priors=custom_priors,
         )
@@ -225,6 +232,24 @@ class SPNTA:
         """Number of free timing model parameters (does not include noise parameters)."""
         return vl.get_num_timing_params(self.pulsar.model)
 
+    @cached_property
+    def has_marginalized_gp_noise(self) -> bool:
+        """Whether the model contains marginalized correlated Gaussian noise processes."""
+        return vl.isa(self.model.kernel, vl.WoodburyKernel)
+
+    def get_marginalized_gp_noise_realization(self, params: np.ndarray) -> np.ndarray:
+        assert self.has_marginalized_gp_noise
+        params_ = vl.read_params(self.model, params)
+        y, Ndiag = vl._calc_resids_and_Ndiag(self.model, self.toas, params_)
+        M = np.array(self.model.kernel.noise_basis)
+        Phiinv = np.array(vl.calc_noise_weights_inv(self.model.kernel, params_))
+        Ninv_M = M / np.array(Ndiag)[:, None]
+        MT_Ninv_y = y @ Ninv_M
+        Sigmainv = np.diag(Phiinv) + M.T @ Ninv_M
+        Sigmainv_cf = cho_factor(Sigmainv)
+        ahat = cho_solve(Sigmainv_cf, MT_Ninv_y)
+        return M @ ahat
+
     def rescale_samples(self, samples: np.ndarray) -> np.ndarray:
         """Rescale the samples from Vela's internal units to common units"""
         return samples / self.scale_factors
@@ -270,6 +295,14 @@ class SPNTA:
             )
         )
 
+    def whitened_time_residuals(self, params: np.ndarray) -> np.ndarray:
+        return (
+            self.time_residuals(params)
+            - self.get_marginalized_gp_noise_realization(params)[: len(self.toas)]
+            if self.has_marginalized_gp_noise
+            else self.time_residuals(params)
+        )
+
     def dm_residuals(self, params: np.ndarray) -> np.ndarray:
         """Get the DM residuals (s) for a given set of parameters (wideband only)."""
         assert self.wideband, "This method is only defined for wideband datasets."
@@ -281,6 +314,14 @@ class SPNTA:
                 vl.value(wr[1])
                 for wr in vl.form_residuals(self.pulsar.model, self.pulsar.toas, params)
             ]
+        )
+
+    def whitened_dm_residuals(self, params: np.ndarray) -> np.ndarray:
+        return (
+            self.dm_residuals(params)
+            - self.get_marginalized_gp_noise_realization(params)[len(self.toas) :]
+            if self.has_marginalized_gp_noise
+            else self.dm_residuals(params)
         )
 
     def scaled_toa_unceritainties(self, params: np.ndarray) -> np.ndarray:
@@ -362,6 +403,7 @@ class SPNTA:
         cls,
         model: TimingModel,
         toas: TOAs,
+        marginalize_gp_noise: bool = False,
         cheat_prior_scale: float = 20,
         custom_priors: dict | str | IO = {},
     ) -> "SPNTA":
@@ -393,6 +435,7 @@ class SPNTA:
             model,
             toas,
             noise_params,
+            marginalize_gp_noise,
             cheat_prior_scale=cheat_prior_scale,
             custom_priors=custom_priors,
         )

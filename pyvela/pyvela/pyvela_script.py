@@ -95,6 +95,12 @@ def parse_args(argv):
         help="A JSON file containing the prior distributions for each free parameter. (Ignored if `-J` option is used.)",
     )
     parser.add_argument(
+        "-M",
+        "--marg_gp_noise",
+        action="store_true",
+        help="Analytically marginalize the correlated Gaussian noise amplitudes.",
+    )
+    parser.add_argument(
         "-T",
         "--truth",
         help="Pulsar ephemeris file containing the true timing and noise parameter values. "
@@ -262,19 +268,23 @@ def save_resids(spnta: SPNTA, params: np.ndarray, outdir: str) -> None:
     ntoas = len(spnta.toas)
     mjds = spnta.mjds
     tres = spnta.time_residuals(params)
+    tres_w = spnta.whitened_time_residuals(params)
     terr = spnta.scaled_toa_unceritainties(params)
 
-    res_arr = np.zeros((ntoas, 2 * (1 + int(wb)) + 1))
+    res_arr = np.zeros((ntoas, 3 * (1 + int(wb)) + 1))
     res_arr[:, 0] = mjds
     res_arr[:, 1] = tres
-    res_arr[:, 2] = terr
+    res_arr[:, 2] = tres_w
+    res_arr[:, 3] = terr
 
     if wb:
         dres = spnta.dm_residuals(params)
+        dres_w = spnta.whitened_dm_residuals(params)
         derr = spnta.scaled_dm_unceritainties(params)
 
-        res_arr[:, 3] = dres
-        res_arr[:, 4] = derr
+        res_arr[:, 4] = dres
+        res_arr[:, 5] = dres_w
+        res_arr[:, 6] = derr
 
     np.savetxt(f"{outdir}/residuals.txt", res_arr)
 
@@ -290,6 +300,7 @@ def main(argv=None):
             args.tim_file,
             cheat_prior_scale=args.cheat_prior_scale,
             custom_priors=(args.prior_file if args.prior_file is not None else {}),
+            marginalize_gp_noise=args.marg_gp_noise,
         )
         if args.jlso_file is None
         else SPNTA.load_jlso(args.jlso_file, args.par_file)

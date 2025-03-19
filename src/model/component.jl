@@ -5,7 +5,8 @@ export Component,
     BinaryComponent,
     DispersionComponent,
     correct_toa,
-    delay
+    delay,
+    is_gp_noise
 
 """
     Component
@@ -18,6 +19,13 @@ abstract type Component end
 
 Correct the TOA using a delay, phase, observing frequency shift, uncertainty scaling, doppler factor, etc."""
 function correct_toa end
+
+"""
+    is_gp_noise(::Component)::Bool
+
+Whether a component represents a correlated Gaussian noise process.
+"""
+is_gp_noise(::Component) = false
 
 """
     PhaseComponent

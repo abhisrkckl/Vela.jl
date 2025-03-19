@@ -68,6 +68,8 @@
         @test sizeof(param_handler._default_params_tuple) ==
               sizeof(GQ{0,Float64}) * length(param_handler._default_values)
 
+        @test length(get_free_param_labels(model)) == length(get_free_param_names(model))
+
         @test length(
             read_param_values_to_vector(
                 model.param_handler,
@@ -121,9 +123,19 @@
         @test all(abs(r) < 3 * toa.error for (r, toa) in zip(res, toas))
     end
 
+    @testset "_calc_resids_and_Ndiag" begin
+        params = model.param_handler._default_params_tuple
+        y, Ndiag = Vela._calc_resids_and_Ndiag(model, toas, params)
+        @test length(y) == length(Ndiag)
+        @test all(Ndiag .> 0)
+    end
+
     @testset "calc_chi2" begin
         calc_chi2_s = get_chi2_serial_func(model, toas)
         calc_chi2_p = get_chi2_parallel_func(model, toas)
+
+        calc_chi2 = get_chi2_func(model, toas)
+
         parv = read_param_values_to_vector(model.param_handler)
         # parnp = PyArray(parv)
         chi2_s = calc_chi2_s(parv)
@@ -138,6 +150,9 @@
     @testset "calc_lnlike" begin
         calc_lnlike_s = get_lnlike_serial_func(model, toas)
         calc_lnlike_p = get_lnlike_parallel_func(model, toas)
+
+        _ = get_lnlike_func(model, toas)
+
         params = model.param_handler._default_params_tuple
         parv = read_param_values_to_vector(model)
         # parnp = PyArray(parv)

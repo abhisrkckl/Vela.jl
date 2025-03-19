@@ -2,6 +2,13 @@
 ## Added
 - Store `toas_pint` in `SPNTA` (This is `None` when a `JLSO` file is loaded.)
 - `get_num_timing_params()` function and `SPNTA.ntmdim` attribute
+- Marginalized GP noise using Woodbury lemma
+  - `WoodburyKernel` type with inner `WhiteNoiseKernel`
+  - `is_gp_noise()`, `get_gp_npars()`, and `calc_noise_weights_inv()` functions
+  - corresponding likelihood implementation
+  - `marginalize_gp_noise` option in `SPNTA` class and `pyvela` script
+  - Plot whitened residuals in `pyvela-script`
+  - `has_marginalized_gp_noise` property and `get_marginalized_gp_noise_realization()` and `whitened_time_residuals()` methods in `SPNTA`
 ## Changed
 - Made some properties of `SPNTA` cached.
 - Store a deepcopy of `model_pint` instead of the mutated original in `SPNTA`. The mutated version is stored as `model_pint_modified`.
