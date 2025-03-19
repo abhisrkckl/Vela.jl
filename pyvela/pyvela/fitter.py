@@ -5,11 +5,31 @@ from pint.fitter import Fitter
 from pint.models import TimingModel
 from pint.toa import TOAs
 from pint.residuals import Residuals, WidebandTOAResiduals
+from pint.logging import log
 
 from .spnta import SPNTA
 
 
 class VelaFitter(Fitter):
+    """An implementation of the PINT `Fitter` interface using `Vela` as a backend,
+    applicable to both narrowband and wideband TOAs. This is a thin wrapper over the
+    `SPNTA` class in `pyvela`. The fitting is done by sampling the posterior distribution
+    using `emcee`.
+
+    Note that unlike other `Fitter`s, the `toas` object herein is immutable, and changing its
+    contents will not make any difference in the fitting.
+
+    Unlike the other fitters, `VelaFitter` needs the prior distributions of the free
+    parameters to be specified, except for those which have default priors. For other
+    free parameters, either an `uncertainty_value` should be set from which a 'cheat'
+    prior can be constructed, or a custom prior should be given through the `custom_priors`
+    option. `custom_priors` can be a `dict` or a filename / IO object containing the prior
+    in JSON format.
+
+    The `prior` attribute in the PINT `Parameter` objects are *NOT* used, unlike `MCMCFitter`,
+    since they are too slow.
+    """
+
     def __init__(
         self,
         toas: TOAs,
@@ -17,6 +37,10 @@ class VelaFitter(Fitter):
         cheat_prior_scale: float = 100.0,
         custom_priors: dict | str | IO = {},
     ):
+        log.info(
+            "Constructing the `VelaFitter`... This will take some time due to JIT compilation."
+        )
+
         self.spnta: SPNTA = SPNTA.from_pint(
             model,
             toas,
@@ -38,8 +62,19 @@ class VelaFitter(Fitter):
         return self.spnta.toas_pint
 
     def fit_toas(
-        self, nsteps: int = 6000, burnin: int = 1500, thin: int = 100, **kwargs
+        self, nsteps: int = 6000, burnin: int = 2000, thin: int = 100, **kwargs
     ):
+        """Fit the model to data.
+
+        Parameters
+        ----------
+        nsteps: int
+            Number of ensemble MCMC iterations
+        burnin: int
+            Number of samples to be discarded for burnin
+        thin: int
+            Thinning factor for MCMC samples
+        """
         nwalkers = self.spnta.ndim * 5
         p0 = np.array(
             [
