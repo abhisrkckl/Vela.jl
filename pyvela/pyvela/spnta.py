@@ -22,7 +22,7 @@ def convert_model_and_toas(
     toas: TOAs,
     noise_params: List[str],
     marginalize_gp_noise: bool,
-    cheat_prior_scale: float = 20.0,
+    cheat_prior_scale: float = 100.0,
     custom_priors: dict = {},
 ):
     """Read a pair of par & tim files and create a `Vela.TimingModel` object and a
@@ -91,7 +91,7 @@ class SPNTA:
         parfile: str,
         timfile: str,
         marginalize_gp_noise: bool = False,
-        cheat_prior_scale: float = 20,
+        cheat_prior_scale: float = 100.0,
         custom_priors: str | IO | dict = {},
         check: bool = True,
         pint_kwargs: dict = {},
@@ -202,7 +202,7 @@ class SPNTA:
 
     @cached_property
     def param_units(self) -> Iterable[str]:
-        """String representations of `PINT` units of free parameters. These strings are supported by
+        """String representations of `PINT` units of free parameters. Tfhese strings are supported by
         `astropy.units.`"""
         return np.array(list(vl.get_free_param_units(self.pulsar.model)))
 
@@ -404,7 +404,7 @@ class SPNTA:
         model: TimingModel,
         toas: TOAs,
         marginalize_gp_noise: bool = False,
-        cheat_prior_scale: float = 20,
+        cheat_prior_scale: float = 100.0,
         custom_priors: dict | str | IO = {},
     ) -> "SPNTA":
         """Construct an `SPNTA` object from PINT `TimingModel` and `TOAs` objects"""
