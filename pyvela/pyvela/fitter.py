@@ -88,7 +88,7 @@ class VelaFitter(Fitter):
             self.spnta.ndim,
             self.spnta.lnpost_vectorized,
             vectorize=True,
-            backend=emcee.backends.HDFBackend("__chain.h5"),
+            backend=emcee.backends.HDFBackend(f"__{self.model["PSR"].value}_chain.h5"),
         )
 
         sampler.run_mcmc(p0, nsteps, progress=True, progress_kwargs={"mininterval": 1})
@@ -109,4 +109,8 @@ class VelaFitter(Fitter):
         self.model.set_param_uncertainties(
             dict(zip(self.spnta.param_names, param_uncertainties))
         )
-        self.resids.update()
+
+        if not self.toas.wideband:
+            self.resids.update()
+        else:
+            self.resids.toa.update()
