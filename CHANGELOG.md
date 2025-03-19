@@ -9,6 +9,7 @@
   - `marginalize_gp_noise` option in `SPNTA` class and `pyvela` script
   - Plot whitened residuals in `pyvela-script`
   - `has_marginalized_gp_noise` property and `get_marginalized_gp_noise_realization()` and `whitened_time_residuals()` methods in `SPNTA`
+- `VelaFitter` class
 ## Changed
 - Made some properties of `SPNTA` cached.
 - Store a deepcopy of `model_pint` instead of the mutated original in `SPNTA`. The mutated version is stored as `model_pint_modified`.
