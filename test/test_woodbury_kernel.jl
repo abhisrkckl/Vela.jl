@@ -37,19 +37,21 @@
         Ndiag = 1 .+ rand(100)
         M = randn(100, 5)
         Phiinv = 1 .+ rand(5)
+
         @testset "_calc_y_Ninv_y" begin
-            y_Ninv_y = Vela._calc_y_Ninv_y(Ndiag, y)
+            y_Ninv_y = Vela._calc_y_Ninv_y(WhiteNoiseKernel(), Ndiag, y)
             @test y_Ninv_y ≈ dot(y, y ./ Ndiag)
         end
 
         @testset "_calc_Σinv__and__MT_Ninv_y" begin
-            Σinv, MT_Ninv_y = Vela._calc_Σinv__and__MT_Ninv_y(M, Ndiag, Phiinv, y)
+            Σinv, MT_Ninv_y =
+                Vela._calc_Σinv__and__MT_Ninv_y(WhiteNoiseKernel(), M, Ndiag, Phiinv, y)
             @test MT_Ninv_y ≈ transpose(M) * (y ./ Ndiag)
             @test Σinv ≈ Diagonal(Phiinv) + transpose(M) * (M ./ Ndiag)
         end
 
         @testset "_gls_lnlike_serial" begin
-            lnlike = Vela._gls_lnlike_serial(M, Ndiag, Phiinv, y)
+            lnlike = Vela._gls_lnlike_serial(WhiteNoiseKernel(), M, Ndiag, Phiinv, y)
 
             Ninv_y = y ./ Ndiag
             y_Ninv_y = dot(y, Ninv_y)
