@@ -44,7 +44,7 @@ function _calc_resids_and_Ndiag(
     return ys, Ndiag
 end
 
-function _calc_y_Ninv_y(Ndiag, y)
+function _calc_y_Ninv_y(::WhiteNoiseKernel, Ndiag, y)
     Ntoa = length(y)
     @assert length(Ndiag) == Ntoa
 
@@ -57,6 +57,7 @@ function _calc_y_Ninv_y(Ndiag, y)
 end
 
 function _calc_Σinv__and__MT_Ninv_y(
+    inner_kernel::WhiteNoiseKernel,
     M::Matrix{X},
     Ndiag::Vector{X},
     Φinv::Vector{X},
@@ -66,12 +67,7 @@ function _calc_Σinv__and__MT_Ninv_y(
     @assert length(Ndiag) == length(y) == Ntoa
     @assert length(Φinv) == Npar
 
-    Ninv_M = Matrix{X}(undef, Ntoa, Npar)
-    @inbounds for p = 1:Npar
-        @simd for j = 1:Ntoa
-            Ninv_M[j, p] = M[j, p] / Ndiag[j]
-        end
-    end
+    Ninv_M = _calc_Ninv_M(inner_kernel, M, Ndiag)
 
     # TODO: Only allocate memory for lower triangular elements.
     Σinv = Matrix{X}(undef, Npar, Npar)
@@ -100,14 +96,33 @@ function _calc_Σinv__and__MT_Ninv_y(
     return Symmetric(Σinv, :U), u
 end
 
+function _calc_Ninv_M(
+    ::WhiteNoiseKernel,
+    M::Matrix{X},
+    Ndiag::Vector{X},
+) where {X<:AbstractFloat}
+    Ntoa, Npar = size(M)
+    @assert length(Ndiag) == Ntoa
+
+    Ninv_M = Matrix{X}(undef, Ntoa, Npar)
+    @inbounds for p = 1:Npar
+        @simd for j = 1:Ntoa
+            Ninv_M[j, p] = M[j, p] / Ndiag[j]
+        end
+    end
+
+    return Ninv_M
+end
+
 function _gls_lnlike_serial(
+    inner_kernel::WhiteNoiseKernel,
     M::Matrix{X},
     Ndiag::Vector{X},
     Φinv::Vector{X},
     y::Vector{X},
 ) where {X<:AbstractFloat}
-    Σinv, MT_Ninv_y = _calc_Σinv__and__MT_Ninv_y(M, Ndiag, Φinv, y)
-    y_Ninv_y = _calc_y_Ninv_y(Ndiag, y)
+    Σinv, MT_Ninv_y = _calc_Σinv__and__MT_Ninv_y(inner_kernel, M, Ndiag, Φinv, y)
+    y_Ninv_y = _calc_y_Ninv_y(inner_kernel, Ndiag, y)
 
     Σinv_cf = cholesky!(Σinv)
     logdet_Σinv = logdet(Σinv_cf)
@@ -139,7 +154,7 @@ function calc_lnlike_serial(
     M = model.kernel.noise_basis
     Φinv = calc_noise_weights_inv(model.kernel, params)
 
-    return _gls_lnlike_serial(M, Ndiag, Φinv, y)
+    return _gls_lnlike_serial(model.kernel.inner_kernel, M, Ndiag, Φinv, y)
 end
 
 calc_lnlike(
