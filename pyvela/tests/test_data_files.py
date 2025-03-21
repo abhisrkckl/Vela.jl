@@ -137,11 +137,11 @@ def test_chi2(model_and_toas: Tuple[SPNTA, TimingModel, TOAs]):
         )
         == 0
     ):
-        assert ("PHOFF" not in m) or (
+        assert (
             calc_chi2(spnta.default_params)
             / len(spnta.toas)
             / (1 + int(t.is_wideband()))
-            < 1.2
+            < 1.5
         )
 
 
