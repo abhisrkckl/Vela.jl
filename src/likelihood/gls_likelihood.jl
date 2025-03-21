@@ -44,7 +44,11 @@ function _calc_resids_and_Ndiag(
     return ys, Ndiag
 end
 
-function _calc_y_Ninv_y__and__logdet_N(::WhiteNoiseKernel, Ndiag, y)
+function _calc_y_Ninv_y__and__logdet_N(
+    ::WhiteNoiseKernel,
+    Ndiag::Vector{Float64},
+    y::Vector{Float64},
+)
     Ntoa = length(y)
     @assert length(Ndiag) == Ntoa
 
