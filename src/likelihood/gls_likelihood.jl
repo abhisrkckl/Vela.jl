@@ -8,14 +8,17 @@ function _calc_resids_and_Ndiag(model::TimingModel, toas::Vector{TOA}, params::N
     tzrphase = calc_tzr_phase(model, params)
 
     ntoas = length(toas)
-    ys = Vector{Float64}(undef, ntoas)
-    Ndiag = Vector{Float64}(undef, ntoas)
 
-    @inbounds for (j, toa) in enumerate(toas)
+    result_data = Vector{Float64}(undef, 2 * ntoas)
+    ys = @view result_data[1:ntoas]
+    Ndiag = @view result_data[(ntoas+1):end]
+
+    @inbounds for j = 1:ntoas
+        toa = toas[j]
         ctoa = correct_toa(model, toa, params)
         dphase = GQ{Float64}(phase_residual(toa, ctoa) - tzrphase)
-        ys[j] = dphase / doppler_shifted_spin_frequency(ctoa)
-        Ndiag[j] = scaled_toa_error_sqr(toa, ctoa)
+        ys[j] = value(dphase / doppler_shifted_spin_frequency(ctoa))
+        Ndiag[j] = value(scaled_toa_error_sqr(toa, ctoa))
     end
 
     return ys, Ndiag
@@ -46,8 +49,8 @@ end
 
 function _calc_y_Ninv_y__and__logdet_N(
     ::WhiteNoiseKernel,
-    Ndiag::Vector{Float64},
-    y::Vector{Float64},
+    Ndiag::AbstractVector,
+    y::AbstractVector,
     ::NamedTuple,
 )
     Ntoa = length(y)
@@ -65,23 +68,26 @@ end
 
 function _calc_Σinv__and__MT_Ninv_y(
     inner_kernel::Kernel,
-    M::Matrix{X},
-    Ndiag::Vector{X},
-    Φinv::Vector{X},
-    y::Vector{X},
+    M::AbstractMatrix,
+    Ndiag::AbstractVector,
+    Φinv::AbstractVector,
+    y::AbstractVector,
     params::NamedTuple,
-) where {X<:AbstractFloat}
+)
     Ntoa, Npar = size(M)
     @assert length(Ndiag) == length(y) == Ntoa
     @assert length(Φinv) == Npar
 
     Ninv_M = _calc_Ninv_M(inner_kernel, M, Ndiag, params)
 
+    X = eltype(M)
+
     # TODO: Only allocate memory for lower triangular elements.
-    Σinv = Matrix{X}(undef, Npar, Npar)
+    result_data = Matrix{X}(undef, Npar, Npar + 1)
+    Σinv = @view result_data[:, 1:Npar]
     @inbounds for p = 1:Npar
         for q = 1:p
-            Σinv_qp = (p == q) ? Φinv[p] : zero(X)
+            Σinv_qp = (p == q) ? Φinv[p] : zero(Φinv[p])
             @simd for j = 1:Ntoa
                 Σinv_qp += M[j, p] * Ninv_M[j, q]
             end
@@ -92,7 +98,7 @@ function _calc_Σinv__and__MT_Ninv_y(
         end
     end
 
-    u = Vector{X}(undef, Npar)
+    u = @view result_data[:, Npar+1]
     @inbounds for p = 1:Npar
         up = zero(X)
         @simd for j = 1:Ntoa
@@ -106,12 +112,14 @@ end
 
 function _calc_Ninv_M(
     ::WhiteNoiseKernel,
-    M::Matrix{X},
-    Ndiag::Vector{X},
+    M::AbstractMatrix,
+    Ndiag::AbstractVector,
     ::NamedTuple,
-) where {X<:AbstractFloat}
+)
     Ntoa, Npar = size(M)
     @assert length(Ndiag) == Ntoa
+
+    X = eltype(M)
 
     Ninv_M = Matrix{X}(undef, Ntoa, Npar)
     @inbounds for p = 1:Npar
@@ -125,12 +133,12 @@ end
 
 function _gls_lnlike_serial(
     inner_kernel::Kernel,
-    M::Matrix{X},
-    Ndiag::Vector{X},
-    Φinv::Vector{X},
-    y::Vector{X},
+    M::AbstractMatrix,
+    Ndiag::AbstractVector,
+    Φinv::AbstractVector,
+    y::AbstractVector,
     params::NamedTuple,
-) where {X<:AbstractFloat}
+)
     Σinv, MT_Ninv_y = _calc_Σinv__and__MT_Ninv_y(inner_kernel, M, Ndiag, Φinv, y, params)
     y_Ninv_y, logdet_N = _calc_y_Ninv_y__and__logdet_N(inner_kernel, Ndiag, y, params)
 
