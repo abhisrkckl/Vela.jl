@@ -48,6 +48,7 @@ function _calc_y_Ninv_y__and__logdet_N(
     ::WhiteNoiseKernel,
     Ndiag::Vector{Float64},
     y::Vector{Float64},
+    ::NamedTuple,
 )
     Ntoa = length(y)
     @assert length(Ndiag) == Ntoa
@@ -68,12 +69,13 @@ function _calc_Σinv__and__MT_Ninv_y(
     Ndiag::Vector{X},
     Φinv::Vector{X},
     y::Vector{X},
+    params::NamedTuple,
 ) where {X<:AbstractFloat}
     Ntoa, Npar = size(M)
     @assert length(Ndiag) == length(y) == Ntoa
     @assert length(Φinv) == Npar
 
-    Ninv_M = _calc_Ninv_M(inner_kernel, M, Ndiag)
+    Ninv_M = _calc_Ninv_M(inner_kernel, M, Ndiag, params)
 
     # TODO: Only allocate memory for lower triangular elements.
     Σinv = Matrix{X}(undef, Npar, Npar)
@@ -106,6 +108,7 @@ function _calc_Ninv_M(
     ::WhiteNoiseKernel,
     M::Matrix{X},
     Ndiag::Vector{X},
+    ::NamedTuple,
 ) where {X<:AbstractFloat}
     Ntoa, Npar = size(M)
     @assert length(Ndiag) == Ntoa
@@ -126,9 +129,10 @@ function _gls_lnlike_serial(
     Ndiag::Vector{X},
     Φinv::Vector{X},
     y::Vector{X},
+    params::NamedTuple,
 ) where {X<:AbstractFloat}
-    Σinv, MT_Ninv_y = _calc_Σinv__and__MT_Ninv_y(inner_kernel, M, Ndiag, Φinv, y)
-    y_Ninv_y, logdet_N = _calc_y_Ninv_y__and__logdet_N(inner_kernel, Ndiag, y)
+    Σinv, MT_Ninv_y = _calc_Σinv__and__MT_Ninv_y(inner_kernel, M, Ndiag, Φinv, y, params)
+    y_Ninv_y, logdet_N = _calc_y_Ninv_y__and__logdet_N(inner_kernel, Ndiag, y, params)
 
     Σinv_cf = cholesky!(Σinv)
     logdet_Σinv = logdet(Σinv_cf)
@@ -159,7 +163,7 @@ function calc_lnlike_serial(
     M = model.kernel.noise_basis
     Φinv = calc_noise_weights_inv(model.kernel, params)
 
-    return _gls_lnlike_serial(model.kernel.inner_kernel, M, Ndiag, Φinv, y)
+    return _gls_lnlike_serial(model.kernel.inner_kernel, M, Ndiag, Φinv, y, params)
 end
 
 calc_lnlike(

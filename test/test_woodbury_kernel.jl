@@ -40,20 +40,26 @@
 
         @testset "_calc_y_Ninv_y__and__logdet_N" begin
             y_Ninv_y, logdet_N =
-                Vela._calc_y_Ninv_y__and__logdet_N(WhiteNoiseKernel(), Ndiag, y)
+                Vela._calc_y_Ninv_y__and__logdet_N(WhiteNoiseKernel(), Ndiag, y, (;))
             @test y_Ninv_y ≈ dot(y, y ./ Ndiag)
             @test logdet_N ≈ sum(log.(Ndiag))
         end
 
         @testset "_calc_Σinv__and__MT_Ninv_y" begin
-            Σinv, MT_Ninv_y =
-                Vela._calc_Σinv__and__MT_Ninv_y(WhiteNoiseKernel(), M, Ndiag, Phiinv, y)
+            Σinv, MT_Ninv_y = Vela._calc_Σinv__and__MT_Ninv_y(
+                WhiteNoiseKernel(),
+                M,
+                Ndiag,
+                Phiinv,
+                y,
+                (;),
+            )
             @test MT_Ninv_y ≈ transpose(M) * (y ./ Ndiag)
             @test Σinv ≈ Diagonal(Phiinv) + transpose(M) * (M ./ Ndiag)
         end
 
         @testset "_gls_lnlike_serial" begin
-            lnlike = Vela._gls_lnlike_serial(WhiteNoiseKernel(), M, Ndiag, Phiinv, y)
+            lnlike = Vela._gls_lnlike_serial(WhiteNoiseKernel(), M, Ndiag, Phiinv, y, (;))
 
             Ninv_y = y ./ Ndiag
             y_Ninv_y = dot(y, Ninv_y)
