@@ -1,11 +1,16 @@
-function _calc_y_Ninv_y__and__logdet_N(Ndiag, y, ecorrs, ecorr_groups)
+function _calc_y_Ninv_y__and__logdet_N(
+    inner_kernel::EcorrKernel,
+    Ndiag::Vector{Float64},
+    y::Vector{Float64},
+    params::NamedTuple,
+)
     Ntoa = length(y)
     @assert length(Ndiag) == Ntoa
 
     y_Ninv_y = 0.0
     logdet_Nc = 0.0
-    @inbounds for group in ecorr_groups
-        ecorr = (group.index == 0) ? 0.0 : ecorrs[group.index]
+    @inbounds for group in inner_kernel.ecorr_groups
+        ecorr = (group.index == 0) ? 0.0 : value(params.ECORR[group.index])
         w = ecorr * ecorr
 
         r_r = 0.0
@@ -27,11 +32,16 @@ function _calc_y_Ninv_y__and__logdet_N(Ndiag, y, ecorrs, ecorr_groups)
     return y_Ninv_y, logdet_Nc
 end
 
-function _calc_Ninv_M(Ndiag, M, ecorrs, ecorr_groups)
+function _calc_Ninv_M(
+    inner_kernel::EcorrKernel,
+    M::Matrix{Float64},
+    Ndiag::Vector{Float64},
+    params::NamedTuple,
+)
     Ntoa, Npar = size(M)
     A = Matrix{Float64}(undef, Ntoa, Npar)
-    @inbounds for group in ecorr_groups
-        ecorr = (group.index == 0) ? 0.0 : ecorrs[group.index]
+    @inbounds for group in inner_kernel.ecorr_groups
+        ecorr = (group.index == 0) ? 0.0 : value(params.ECORR[group.index])
         w = ecorr * ecorr
         toa_range = group.start:group.stop
 
@@ -55,45 +65,4 @@ function _calc_Ninv_M(Ndiag, M, ecorrs, ecorr_groups)
     end
 
     return A
-end
-
-function _calc_Σinv__and__MT_Ninv_y(
-    M::Matrix{X},
-    Ndiag::Vector{X},
-    Φinv::Vector{X},
-    y::Vector{X},
-    ecorrs,
-    ecorr_groups,
-) where {X<:AbstractFloat}
-    Ntoa, Npar = size(M)
-    @assert length(Ndiag) == length(y) == Ntoa
-    @assert length(Φinv) == Npar
-
-    Ninv_M = _calc_Ninv_M(Ndiag, M, ecorrs, ecorr_groups)
-
-    # TODO: Only allocate memory for lower triangular elements.
-    Σinv = Matrix{X}(undef, Npar, Npar)
-    @inbounds for p = 1:Npar
-        for q = 1:p
-            Σinv_qp = (p == q) ? Φinv[p] : zero(X)
-            @simd for j = 1:Ntoa
-                Σinv_qp += M[j, p] * Ninv_M[j, q]
-            end
-
-            # Only upper triangular elements are populated.
-            # The rest contain garbage.
-            Σinv[q, p] = Σinv_qp
-        end
-    end
-
-    u = Vector{X}(undef, Npar)
-    @inbounds for p = 1:Npar
-        up = zero(X)
-        @simd for j = 1:Ntoa
-            up += Ninv_M[j, p] * y[j]
-        end
-        u[p] = up
-    end
-
-    return Symmetric(Σinv, :U), u
 end

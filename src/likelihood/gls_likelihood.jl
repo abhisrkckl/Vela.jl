@@ -64,7 +64,7 @@ function _calc_y_Ninv_y__and__logdet_N(
 end
 
 function _calc_Σinv__and__MT_Ninv_y(
-    inner_kernel::WhiteNoiseKernel,
+    inner_kernel::Kernel,
     M::Matrix{X},
     Ndiag::Vector{X},
     Φinv::Vector{X},
@@ -124,7 +124,7 @@ function _calc_Ninv_M(
 end
 
 function _gls_lnlike_serial(
-    inner_kernel::WhiteNoiseKernel,
+    inner_kernel::Kernel,
     M::Matrix{X},
     Ndiag::Vector{X},
     Φinv::Vector{X},
