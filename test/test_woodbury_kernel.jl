@@ -38,9 +38,11 @@
         M = randn(100, 5)
         Phiinv = 1 .+ rand(5)
 
-        @testset "_calc_y_Ninv_y" begin
-            y_Ninv_y = Vela._calc_y_Ninv_y(WhiteNoiseKernel(), Ndiag, y)
+        @testset "_calc_y_Ninv_y__and__logdet_N" begin
+            y_Ninv_y, logdet_N =
+                Vela._calc_y_Ninv_y__and__logdet_N(WhiteNoiseKernel(), Ndiag, y)
             @test y_Ninv_y ≈ dot(y, y ./ Ndiag)
+            @test logdet_N ≈ sum(log.(Ndiag))
         end
 
         @testset "_calc_Σinv__and__MT_Ninv_y" begin

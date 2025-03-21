@@ -44,7 +44,7 @@ function _calc_resids_and_Ndiag(
     return ys, Ndiag
 end
 
-function _calc_y_Ninv_y(::WhiteNoiseKernel, Ndiag, y)
+function _calc_y_Ninv_y__and__logdet_N(::WhiteNoiseKernel, Ndiag, y)
     Ntoa = length(y)
     @assert length(Ndiag) == Ntoa
 
@@ -53,7 +53,9 @@ function _calc_y_Ninv_y(::WhiteNoiseKernel, Ndiag, y)
         y_Ninv_y += y[j] * y[j] / Ndiag[j]
     end
 
-    return y_Ninv_y
+    logdet_N = sum(log, Ndiag)
+
+    return y_Ninv_y, logdet_N
 end
 
 function _calc_Σinv__and__MT_Ninv_y(
@@ -122,7 +124,7 @@ function _gls_lnlike_serial(
     y::Vector{X},
 ) where {X<:AbstractFloat}
     Σinv, MT_Ninv_y = _calc_Σinv__and__MT_Ninv_y(inner_kernel, M, Ndiag, Φinv, y)
-    y_Ninv_y = _calc_y_Ninv_y(inner_kernel, Ndiag, y)
+    y_Ninv_y, logdet_N = _calc_y_Ninv_y__and__logdet_N(inner_kernel, Ndiag, y)
 
     Σinv_cf = cholesky!(Σinv)
     logdet_Σinv = logdet(Σinv_cf)
@@ -131,7 +133,6 @@ function _gls_lnlike_serial(
     y_Ninv_M_Σ_MT_Ninv_y = dot(Linv_MT_Ninv_y, Linv_MT_Ninv_y)
 
     logdet_Φ = -sum(log, Φinv)
-    logdet_N = sum(log, Ndiag)
 
     return -0.5 * (y_Ninv_y - y_Ninv_M_Σ_MT_Ninv_y + logdet_N + logdet_Φ + logdet_Σinv)
 end
