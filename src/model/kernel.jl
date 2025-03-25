@@ -35,10 +35,14 @@ struct EcorrKernel <: Kernel
 end
 
 show(io::IO, ::MIME"text/plain", model::Kernel) = show(io, model)
-show(io::IO, ek::EcorrKernel) = print(
-    io,
-    "EcorrKernel($(length(unique(grp.index for grp in ek.ecorr_groups)) - 1) ECORRs, $(length(ek.ecorr_groups)) groups)",
-)
+function show(io::IO, ek::EcorrKernel)
+    ecorr_idxs = unique(grp.index for grp in ek.ecorr_groups)
+    noecorr_flag = 0 in ecorr_idxs
+    print(
+        io,
+        "EcorrKernel($(length(ecorr_idxs) - Int(noecorr_flag)) ECORRs, $(length(ek.ecorr_groups)) groups)",
+    )
+end
 
 struct WoodburyKernel{InnerKernel<:Kernel,GPComponentsTuple<:Tuple} <: Kernel
     inner_kernel::InnerKernel
