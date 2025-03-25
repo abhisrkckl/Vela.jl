@@ -367,9 +367,9 @@ def get_kernel(
 ):
     """Construct a `Vela.Kernel` object. It may be a white noise kernel or
     an ECORR kernel. Time-correlated noise kernels are not yet suppoted."""
-    if not model.has_correlated_errors:
-        return vl.WhiteNoiseKernel()
-    elif not model.has_time_correlated_errors:
+    if "EcorrNoise" not in model.components:
+        inner_kernel = vl.WhiteNoiseKernel()
+    else:
         ecorr_mask0 = read_mask(
             toas, [model[ec] for ec in model.ECORRs if model.ECORRs[ec][0] is not None]
         )
@@ -384,18 +384,15 @@ def get_kernel(
                 for (start, stop), index in zip(ecorr_toa_ranges, ecorr_indices)
             ]
         )
-        return vl.EcorrKernel(ecorr_groups)
+        inner_kernel = vl.EcorrKernel(ecorr_groups)
+
+    if not model.has_time_correlated_errors:
+        return inner_kernel
     else:
-        # This branch only runs when `marginalize_gp_noise=True` is given.
-        if "EcorrNoise" not in model.components:
-            return construct_woodbury_kernel(model, toas)
-        else:
-            raise NotImplementedError(
-                "Woodbury kernel with ECORR is not yet implemented."
-            )
+        return construct_woodbury_kernel(model, toas, inner_kernel)
 
 
-def construct_woodbury_kernel(model: TimingModel, toas: TOAs):
+def construct_woodbury_kernel(model: TimingModel, toas: TOAs, inner_kernel):
     gp_components = []
     gp_basis_matrices = []
 
@@ -419,7 +416,7 @@ def construct_woodbury_kernel(model: TimingModel, toas: TOAs):
     gp_basis = np.hstack(gp_basis_matrices).astype(float)
 
     return vl.WoodburyKernel(
-        vl.WhiteNoiseKernel(), jl.Tuple(gp_components), jl.Matrix[jl.Float64](gp_basis)
+        inner_kernel, jl.Tuple(gp_components), jl.Matrix[jl.Float64](gp_basis)
     )
 
 

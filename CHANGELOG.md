@@ -15,6 +15,7 @@
 - Store a deepcopy of `model_pint` instead of the mutated original in `SPNTA`. The mutated version is stored as `model_pint_modified`.
 - The parameter order now has timing parameters first and then noise parameters.
 - Refactored parameter attribute functions.
+- `get_kernel()` now supports Woorbury kernel with ECORRs.
 ## Fixed
 - Priors in examples
 - Creation of ECORR mask in `get_kernel` in `pyvela` (This was mistakenly being created from EFACs)
