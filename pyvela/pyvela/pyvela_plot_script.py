@@ -90,7 +90,9 @@ def main(argv=None):
         mjds, tres, tres_w, terr = residuals_data.T
 
     true_values_all = read_true_values(args)
-    true_values = true_values_all[param_plot_mask] if true_values_all is not None else None
+    true_values = (
+        true_values_all[param_plot_mask] if true_values_all is not None else None
+    )
 
     fig = corner.corner(
         samples[:, param_plot_mask],
