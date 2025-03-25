@@ -220,8 +220,8 @@ def test_gp_model_conversion():
     )
 
 
-def test_gp_model_marg():
-    dataset = "sim3.gp"
+@pytest.mark.parametrize("dataset", ["sim3.gp", "sim7.gp"])
+def test_gp_model_marg(dataset):
     parfile, timfile = f"{datadir}/{dataset}.par", f"{datadir}/{dataset}.tim"
 
     spnta1 = SPNTA(parfile, timfile, marginalize_gp_noise=True)
