@@ -1,7 +1,7 @@
 function _calc_y_Ninv_y__and__logdet_N(
     inner_kernel::EcorrKernel,
-    Ndiag::Vector{Float64},
-    y::Vector{Float64},
+    Ndiag,
+    y,
     params::NamedTuple,
 )
     Ntoa = length(y)
@@ -35,7 +35,7 @@ end
 function _calc_Ninv_M(
     inner_kernel::EcorrKernel,
     M::Matrix{Float64},
-    Ndiag::Vector{Float64},
+    Ndiag,
     params::NamedTuple,
 )
     Ntoa, Npar = size(M)

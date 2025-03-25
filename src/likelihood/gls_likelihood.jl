@@ -156,14 +156,14 @@ end
 function calc_lnlike_serial(
     model::TimingModel{
         ComponentsTuple,
-        WoodburyKernel{WhiteNoiseKernel,GPComponentsTuple},
+        WoodburyKernelType,
         PriorsTuple,
     },
     toas::Vector{TOAType},
     params::NamedTuple,
 ) where {
     ComponentsTuple<:Tuple,
-    GPComponentsTuple<:Tuple,
+    WoodburyKernelType<:WoodburyKernel,
     PriorsTuple<:Tuple,
     TOAType<:TOABase,
 }
@@ -177,14 +177,14 @@ end
 calc_lnlike(
     model::TimingModel{
         ComponentsTuple,
-        WoodburyKernel{WhiteNoiseKernel,GPComponentsTuple},
+        WoodburyKernelType,
         PriorsTuple,
     },
     toas::Vector{TOAType},
     params::NamedTuple,
 ) where {
     ComponentsTuple<:Tuple,
-    GPComponentsTuple<:Tuple,
+    WoodburyKernelType<:WoodburyKernel,
     PriorsTuple<:Tuple,
     TOAType<:TOABase,
 } = calc_lnlike_serial(model, toas, params)
