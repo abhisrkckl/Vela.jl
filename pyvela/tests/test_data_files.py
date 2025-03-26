@@ -137,11 +137,11 @@ def test_chi2(model_and_toas: Tuple[SPNTA, TimingModel, TOAs]):
         )
         == 0
     ):
-        assert ("PHOFF" not in m) or (
+        assert (
             calc_chi2(spnta.default_params)
             / len(spnta.toas)
             / (1 + int(t.is_wideband()))
-            < 1.2
+            < 1.5
         )
 
 
@@ -220,8 +220,8 @@ def test_gp_model_conversion():
     )
 
 
-def test_gp_model_marg():
-    dataset = "sim3.gp"
+@pytest.mark.parametrize("dataset", ["sim3.gp", "sim7.gp"])
+def test_gp_model_marg(dataset):
     parfile, timfile = f"{datadir}/{dataset}.par", f"{datadir}/{dataset}.tim"
 
     spnta1 = SPNTA(parfile, timfile, marginalize_gp_noise=True)

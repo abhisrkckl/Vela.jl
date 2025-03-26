@@ -8,14 +8,17 @@ function _calc_resids_and_Ndiag(model::TimingModel, toas::Vector{TOA}, params::N
     tzrphase = calc_tzr_phase(model, params)
 
     ntoas = length(toas)
-    ys = Vector{Float64}(undef, ntoas)
-    Ndiag = Vector{Float64}(undef, ntoas)
 
-    @inbounds for (j, toa) in enumerate(toas)
+    result_data = Vector{Float64}(undef, 2 * ntoas)
+    ys = @view result_data[1:ntoas]
+    Ndiag = @view result_data[(ntoas+1):end]
+
+    @inbounds for j = 1:ntoas
+        toa = toas[j]
         ctoa = correct_toa(model, toa, params)
         dphase = GQ{Float64}(phase_residual(toa, ctoa) - tzrphase)
-        ys[j] = dphase / doppler_shifted_spin_frequency(ctoa)
-        Ndiag[j] = scaled_toa_error_sqr(toa, ctoa)
+        ys[j] = value(dphase / doppler_shifted_spin_frequency(ctoa))
+        Ndiag[j] = value(scaled_toa_error_sqr(toa, ctoa))
     end
 
     return ys, Ndiag
@@ -44,7 +47,12 @@ function _calc_resids_and_Ndiag(
     return ys, Ndiag
 end
 
-function _calc_y_Ninv_y(Ndiag, y)
+function _calc_y_Ninv_y__and__logdet_N(
+    ::WhiteNoiseKernel,
+    Ndiag::AbstractVector,
+    y::AbstractVector,
+    ::NamedTuple,
+)
     Ntoa = length(y)
     @assert length(Ndiag) == Ntoa
 
@@ -53,31 +61,33 @@ function _calc_y_Ninv_y(Ndiag, y)
         y_Ninv_y += y[j] * y[j] / Ndiag[j]
     end
 
-    return y_Ninv_y
+    logdet_N = sum(log, Ndiag)
+
+    return y_Ninv_y, logdet_N
 end
 
 function _calc_Σinv__and__MT_Ninv_y(
-    M::Matrix{X},
-    Ndiag::Vector{X},
-    Φinv::Vector{X},
-    y::Vector{X},
-) where {X<:AbstractFloat}
+    inner_kernel::Kernel,
+    M::AbstractMatrix,
+    Ndiag::AbstractVector,
+    Φinv::AbstractVector,
+    y::AbstractVector,
+    params::NamedTuple,
+)
     Ntoa, Npar = size(M)
     @assert length(Ndiag) == length(y) == Ntoa
     @assert length(Φinv) == Npar
 
-    Ninv_M = Matrix{X}(undef, Ntoa, Npar)
-    @inbounds for p = 1:Npar
-        @simd for j = 1:Ntoa
-            Ninv_M[j, p] = M[j, p] / Ndiag[j]
-        end
-    end
+    Ninv_M = _calc_Ninv_M(inner_kernel, M, Ndiag, params)
+
+    X = eltype(M)
 
     # TODO: Only allocate memory for lower triangular elements.
-    Σinv = Matrix{X}(undef, Npar, Npar)
+    result_data = Matrix{X}(undef, Npar, Npar + 1)
+    Σinv = @view result_data[:, 1:Npar]
     @inbounds for p = 1:Npar
         for q = 1:p
-            Σinv_qp = (p == q) ? Φinv[p] : zero(X)
+            Σinv_qp = (p == q) ? Φinv[p] : zero(Φinv[p])
             @simd for j = 1:Ntoa
                 Σinv_qp += M[j, p] * Ninv_M[j, q]
             end
@@ -88,7 +98,7 @@ function _calc_Σinv__and__MT_Ninv_y(
         end
     end
 
-    u = Vector{X}(undef, Npar)
+    u = @view result_data[:, Npar+1]
     @inbounds for p = 1:Npar
         up = zero(X)
         @simd for j = 1:Ntoa
@@ -100,14 +110,37 @@ function _calc_Σinv__and__MT_Ninv_y(
     return Symmetric(Σinv, :U), u
 end
 
+function _calc_Ninv_M(
+    ::WhiteNoiseKernel,
+    M::AbstractMatrix,
+    Ndiag::AbstractVector,
+    ::NamedTuple,
+)
+    Ntoa, Npar = size(M)
+    @assert length(Ndiag) == Ntoa
+
+    X = eltype(M)
+
+    Ninv_M = Matrix{X}(undef, Ntoa, Npar)
+    @inbounds for p = 1:Npar
+        @simd for j = 1:Ntoa
+            Ninv_M[j, p] = M[j, p] / Ndiag[j]
+        end
+    end
+
+    return Ninv_M
+end
+
 function _gls_lnlike_serial(
-    M::Matrix{X},
-    Ndiag::Vector{X},
-    Φinv::Vector{X},
-    y::Vector{X},
-) where {X<:AbstractFloat}
-    Σinv, MT_Ninv_y = _calc_Σinv__and__MT_Ninv_y(M, Ndiag, Φinv, y)
-    y_Ninv_y = _calc_y_Ninv_y(Ndiag, y)
+    inner_kernel::Kernel,
+    M::AbstractMatrix,
+    Ndiag::AbstractVector,
+    Φinv::AbstractVector,
+    y::AbstractVector,
+    params::NamedTuple,
+)
+    Σinv, MT_Ninv_y = _calc_Σinv__and__MT_Ninv_y(inner_kernel, M, Ndiag, Φinv, y, params)
+    y_Ninv_y, logdet_N = _calc_y_Ninv_y__and__logdet_N(inner_kernel, Ndiag, y, params)
 
     Σinv_cf = cholesky!(Σinv)
     logdet_Σinv = logdet(Σinv_cf)
@@ -116,22 +149,17 @@ function _gls_lnlike_serial(
     y_Ninv_M_Σ_MT_Ninv_y = dot(Linv_MT_Ninv_y, Linv_MT_Ninv_y)
 
     logdet_Φ = -sum(log, Φinv)
-    logdet_N = sum(log, Ndiag)
 
     return -0.5 * (y_Ninv_y - y_Ninv_M_Σ_MT_Ninv_y + logdet_N + logdet_Φ + logdet_Σinv)
 end
 
 function calc_lnlike_serial(
-    model::TimingModel{
-        ComponentsTuple,
-        WoodburyKernel{WhiteNoiseKernel,GPComponentsTuple},
-        PriorsTuple,
-    },
+    model::TimingModel{ComponentsTuple,WoodburyKernelType,PriorsTuple},
     toas::Vector{TOAType},
     params::NamedTuple,
 ) where {
     ComponentsTuple<:Tuple,
-    GPComponentsTuple<:Tuple,
+    WoodburyKernelType<:WoodburyKernel,
     PriorsTuple<:Tuple,
     TOAType<:TOABase,
 }
@@ -139,20 +167,16 @@ function calc_lnlike_serial(
     M = model.kernel.noise_basis
     Φinv = calc_noise_weights_inv(model.kernel, params)
 
-    return _gls_lnlike_serial(M, Ndiag, Φinv, y)
+    return _gls_lnlike_serial(model.kernel.inner_kernel, M, Ndiag, Φinv, y, params)
 end
 
 calc_lnlike(
-    model::TimingModel{
-        ComponentsTuple,
-        WoodburyKernel{WhiteNoiseKernel,GPComponentsTuple},
-        PriorsTuple,
-    },
+    model::TimingModel{ComponentsTuple,WoodburyKernelType,PriorsTuple},
     toas::Vector{TOAType},
     params::NamedTuple,
 ) where {
     ComponentsTuple<:Tuple,
-    GPComponentsTuple<:Tuple,
+    WoodburyKernelType<:WoodburyKernel,
     PriorsTuple<:Tuple,
     TOAType<:TOABase,
 } = calc_lnlike_serial(model, toas, params)
