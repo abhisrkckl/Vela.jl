@@ -99,7 +99,7 @@ sampler = emcee.EnsembleSampler(
     vectorize=True,
 )
 ```
-`p0` contains a number of random draws from the prior distribution. Note the `vectorize=True`
+`p0` contains random draws from the prior distribution. Note the `vectorize=True`
 while creating the sampler. This should be given if we are using the vectorized log-posterior.
 
 In practice, the `moves` should be optimized based on the problem at hand.
@@ -112,13 +112,13 @@ This will only take a few seconds because the dataset is very small. Larger data
 minutes or hours depending on the size and the computing power available.
 
 ```
-samples_v_0 = sampler.get_chain(flat=True, discard=1000, thin=50)
+samples_raw = sampler.get_chain(flat=True, discard=1000, thin=50)
 ```
 This flattens the multiple chains `emcee` was running. Also note the burn-in (`discard`) 
 and the thinning.
 
 ```
-samples_v = spnta.rescale_samples(samples_v_0)
+samples = spnta.rescale_samples(samples_raw)
 ```
 This converts the samples into the usual units used in pulsar astronomy.
 
