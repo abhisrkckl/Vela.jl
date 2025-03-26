@@ -11,33 +11,28 @@ The `pyvela` interface is demonstrated below using an example with the `emcee` s
 While the `par` file format is outwardly simple, it is rife with special cases and arbitrary units,
 and reconstructing a timing & noise model from a `par` file is pretty hard. The `tim` files are
 kind of easier to handle, but there are multiple `tim` file formats and some datasets can have
-multiple format TOAs in the same file. So we are not re-inventing the wheel and instead using
-`PINT` to do this. This also has the advantage of not having to implement clock corrections and
-solar system ephemeris calculations.
+multiple format TOAs in the same file. So we use `PINT` to do this instead of re-inventing the wheel.
+This also has the advantage of not having to implement clock corrections and solar system ephemeris 
+calculations.
 
 Here is how we read read a pair of `par` and `tim` files in `pyvela`:
 ```
 from pyvela import SPNTA, Vela as vl
-from juliacall import Main as jl
 import numpy as np
-
-jl.seval("using Distributions")
 
 parfile, timfile = "NGC6440E.par", "NGC6440E.tim"
 spnta = SPNTA(
     parfile, 
     timfile,
-    cheat_prior_scale=5,
-    custom_priors={
-        "PHOFF": jl.Uniform(-0.5, 0.5)
-    }
+    cheat_prior_scale=100,
 )
 ```
-Here, `spnta.model` is a `Vela.TimingModel` object and `spnta.toas` is a `Vector{Vela.TOA}` object. The `SPNTA` class
-function reads the `par` and `tim` files using the
+Here, `spnta.model` is a `Vela.TimingModel` object and `spnta.toas` is a `Vector{Vela.TOA}` object. 
+The `SPNTA` class function reads the `par` and `tim` files using the
 [`pint.models.get_model_and_toas`](https://nanograv-pint.readthedocs.io/en/latest/_autosummary/pint.models.model_builder.get_model_and_toas.html) 
-function under the hood and converts the resulting `pint.models.TimingModel` and `pint.toa.TOAs` objects. Note that this conversion does 
-not conserve all the information, and the reverse is not possible.
+function under the hood and converts the resulting `pint.models.TimingModel` and `pint.toa.TOAs` objects
+into `Vela.TimingModel` and `Vector{Vela.TOA}` objects. Note that this conversion does 
+not preserve all the information, and the reverse is not possible.
 
 The `SPNTA` class internally uses the `Pulsar` type to store the timing model and the TOAs together.
 Currently it is assumed that all the TOAs are of the same paradigm (narrowband or wideband). Inhomogeneous
@@ -46,20 +41,19 @@ datasets are not supported.
 Pulsar
 ```
 
-`cheat_prior_scale` defines the scale factor by which the frequentist uncertainties are multiplied to 
-obtain the "cheat" prior widths. The `custom_priors` argument contains the user-defined prior distributions, 
-which should be instances of the  `Distributions.UnivariateDistribution` type. It supports both parameter names 
-and prefixes as dict keys. For example, if an entry for "EFAC" is present, it will set the prior for all 
-EFAC parameters. If "EFAC1" is present, it will set the prior for EFAC1 specifically. If both "EFAC" and 
-"EFAC1" are present, the latter sets the prior for EFAC1, whereas the former sets the priors for all other EFACs. 
-In the above example, the priors for all parameters except "PHOFF" are set using "cheat" priors.
-
-The `custom_priors` argument also accepts a filename (`str`) or an `IO` object containing a `JSON` representation of 
-the priors. See [Representing priors in a `JSON` file](@ref) for more details.
+The `cheat_prior_scale` argument defines the scale factor by which the frequentist uncertainties are multiplied to 
+obtain the "cheat" prior widths. `SPNTA` also accepts the `custom_priors` argument, which contains the 
+user-defined prior distributions as a dictionary. It can be a Python `dict` or a filename (`str`) / `IO` object 
+containing a `JSON` representation of the dictionary. It supports both parameter names and prefixes as dict keys. 
+For example, if an entry for "EFAC" is present, it will set the prior for all EFAC parameters. If "EFAC1" is 
+present, it will set the prior for EFAC1 specifically. If both "EFAC" and "EFAC1" are present, the latter sets
+the prior for EFAC1, whereas the former sets the priors for all other EFACs. See [Representing priors in a `JSON` file](@ref) 
+for more details.
 
 Everything defined in `Vela.jl` will be available through the `vl` namespace above, e.g., `vl.TimingModel` 
 and `vl.TOA`. Things that were explicitly imported into `Vela.jl` are also available, e.g., `vl.GQ` is the `GQ` type 
-from `GeometricUnits.jl`. Other things from Julia are accessed using the `juliacall` package.
+from `GeometricUnits.jl`. Other things from Julia are accessed using the [`juliacall`](https://juliapy.github.io/PythonCall.jl/stable/juliacall/) 
+package.
 
 The `SPNTA` object created above has attributes `lnlike`, `lnprior`, `prior_transform`, `lnpost`, and 
 `lnpost_vectorized`. These provide the log-likelihood, log-prior, prior transform, and log-posterior 
@@ -78,14 +72,14 @@ in pulsar astronomy.
 
 Now, let us see if `lnpost` actually works.
 ```
-print(spnta.lnpost(spnta.maxlike_params))
+print(spnta.lnpost(spnta.default_params))
 ```
 
 Similarly,
 ```
 print(
     spnta.lnpost_vectorized(
-        np.array([spnta.maxlike_params])
+        np.array([spnta.default_params])
     )
 )
 ```
