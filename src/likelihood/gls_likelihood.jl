@@ -154,11 +154,7 @@ function _gls_lnlike_serial(
 end
 
 function calc_lnlike_serial(
-    model::TimingModel{
-        ComponentsTuple,
-        WoodburyKernelType,
-        PriorsTuple,
-    },
+    model::TimingModel{ComponentsTuple,WoodburyKernelType,PriorsTuple},
     toas::Vector{TOAType},
     params::NamedTuple,
 ) where {
@@ -175,11 +171,7 @@ function calc_lnlike_serial(
 end
 
 calc_lnlike(
-    model::TimingModel{
-        ComponentsTuple,
-        WoodburyKernelType,
-        PriorsTuple,
-    },
+    model::TimingModel{ComponentsTuple,WoodburyKernelType,PriorsTuple},
     toas::Vector{TOAType},
     params::NamedTuple,
 ) where {
