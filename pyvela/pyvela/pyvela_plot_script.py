@@ -12,10 +12,10 @@ from pint import DMconst, dmu
 def parse_args(argv):
     parser = ArgumentParser(
         prog="pyvela-plot",
-        description="Plot pyvela results.",
+        description="Create a corner plot from pyvela results.",
     )
-    parser.add_argument("result_dir")
-    parser.add_argument("-I", "--ignore_params", nargs="+", default=[])
+    parser.add_argument("result_dir", help="A directory containing the output of the `pyvela` script.")
+    parser.add_argument("-I", "--ignore_params", nargs="+", default=[], help="Parameters to exclude from the corner plot.")
 
     return parser.parse_args(argv)
 
