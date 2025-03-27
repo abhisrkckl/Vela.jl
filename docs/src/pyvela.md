@@ -3,21 +3,23 @@
 `Vela.jl` must interact with Python for three reasons: (1) most pulsar astronomers are more 
 familiar with Python than Julia (2) Python has many samplers that have no counterpart in 
 Julia, and most importantly, (3) it is a real pain to implement `par` and `tim` file readers.
+The `pyvela` interface allows one to access `Vela.jl` from Python. This is the simplest way
+to get started with `Vela.jl`.
 
 The `pyvela` interface is demonstrated below using an example with the `emcee` sampler.
 
 ## Reading `par` and `tim` files using the `SPNTA` class
 
-While the `par` file format is outwardly simple, it is rife with special cases and arbitrary units,
-and reconstructing a timing & noise model from a `par` file is pretty hard. The `tim` files are
-kind of easier to handle, but there are multiple `tim` file formats and some datasets can have
-multiple format TOAs in the same file. So we use `PINT` to do this instead of re-inventing the wheel.
-This also has the advantage of not having to implement clock corrections and solar system ephemeris 
-calculations.
+A pulsar timing dataset usually contains a `par` file and a `tim` file. The `tim` file contains the
+pulse time of arrival (TOA) measurements and related metadata, and the `par` file contains a timing &
+noise model that fits the TOAs along with its parameter values. `pyvela` reads these files with the 
+help of the [`PINT`](https://nanograv-pint.readthedocs.io/) package. `PINT` also does the clock 
+corrections and solar system ephemeris calculations. See [this page](https://nanograv-pint.readthedocs.io/en/latest/explanation.html)
+for detailed explanations on these topics.
 
 Here is how we read read a pair of `par` and `tim` files in `pyvela`:
 ```
-from pyvela import SPNTA, Vela as vl
+from pyvela import SPNTA, Vela
 import numpy as np
 
 parfile, timfile = "NGC6440E.par", "NGC6440E.tim"
@@ -25,38 +27,32 @@ spnta = SPNTA(
     parfile, 
     timfile,
     cheat_prior_scale=100,
+    custom_priors=None,
 )
 ```
 Here, `spnta.model` is a `Vela.TimingModel` object and `spnta.toas` is a `Vector{Vela.TOA}` object. 
-The `SPNTA` class function reads the `par` and `tim` files using the
-[`pint.models.get_model_and_toas`](https://nanograv-pint.readthedocs.io/en/latest/_autosummary/pint.models.model_builder.get_model_and_toas.html) 
+The `SPNTA` class reads the `par` and `tim` files using the [`pint.models.get_model_and_toas()`](https://nanograv-pint.readthedocs.io/en/latest/_autosummary/pint.models.model_builder.get_model_and_toas.html)
 function under the hood and converts the resulting `pint.models.TimingModel` and `pint.toa.TOAs` objects
-into `Vela.TimingModel` and `Vector{Vela.TOA}` objects. Note that this conversion does 
-not preserve all the information, and the reverse is not possible.
+into the corresponding `Vela.jl` objects. Note that this conversion does not preserve all the information
+present in the `PINT` objects, and is not reversible.
 
-The `SPNTA` class internally uses the `Pulsar` type to store the timing model and the TOAs together.
+The `SPNTA` class internally uses the `Vela.Pulsar` type to store the timing model and the TOAs together.
 Currently it is assumed that all the TOAs are of the same paradigm (narrowband or wideband). Inhomogeneous
 datasets are not supported.
 ```@docs
 Pulsar
 ```
 
-The `cheat_prior_scale` argument defines the scale factor by which the frequentist uncertainties are multiplied to 
-obtain the "cheat" prior widths. `SPNTA` also accepts the `custom_priors` argument, which contains the 
-user-defined prior distributions as a dictionary. It can be a Python `dict` or a filename (`str`) / `IO` object 
-containing a `JSON` representation of the dictionary. It supports both parameter names and prefixes as dict keys. 
-For example, if an entry for "EFAC" is present, it will set the prior for all EFAC parameters. If "EFAC1" is 
-present, it will set the prior for EFAC1 specifically. If both "EFAC" and "EFAC1" are present, the latter sets
-the prior for EFAC1, whereas the former sets the priors for all other EFACs. See [Representing priors in a `JSON` file](@ref) 
-for more details.
+The `cheat_prior_scale` and `custom_priors` arguments are used for specifying the prior distributions for
+model parameters. See See [Representing priors in a `JSON` file](@ref) for more details.
 
-Everything defined in `Vela.jl` will be available through the `vl` namespace above, e.g., `vl.TimingModel` 
-and `vl.TOA`. Things that were explicitly imported into `Vela.jl` are also available, e.g., `vl.GQ` is the `GQ` type 
-from `GeometricUnits.jl`. Other things from Julia are accessed using the [`juliacall`](https://juliapy.github.io/PythonCall.jl/stable/juliacall/) 
-package.
+Everything defined in `Vela.jl` will be available through the `Vela` namespace above, e.g., `Vela.TimingModel` 
+and `Vela.TOA`. Things that were explicitly imported into `Vela.jl` are also available, e.g., `Vela.GQ` is the `GQ` type 
+from `GeometricUnits.jl` (see [Quantities](@ref)). Other things from Julia are accessed using the 
+[`juliacall`](https://juliapy.github.io/PythonCall.jl/stable/juliacall/) package.
 
-The `SPNTA` object created above has attributes `lnlike`, `lnprior`, `prior_transform`, `lnpost`, and 
-`lnpost_vectorized`. These provide the log-likelihood, log-prior, prior transform, and log-posterior 
+The `SPNTA` object created above provides functions like `lnlike()`, `lnprior()`, `prior_transform()`, `lnpost()`, and 
+`lnpost_vectorized()`. These provide the log-likelihood, log-prior, prior transform, and log-posterior 
 functions which call `Vela.jl` under the hood. The difference between `spnta.lnpost` and 
 `spnta.lnpost_vectorized` is that if multiple threads are allowed (by setting the `PYTHON_JULIACALL_THREADS`
 environment variable), `spnta.lnpost` parallelizes a single log-posterior computation across TOAs, whereas
@@ -64,11 +60,11 @@ environment variable), `spnta.lnpost` parallelizes a single log-posterior comput
 The latter can be used with samplers such as `emcee` and `zeus`. Make sure not to set `PYTHON_JULIACALL_THREADS` 
 to a value greater than the number of available CPU cores.
 
-The `SPNTA` object also has useful attributes such as the number of free parameters (`ndim`), the free parameter
+The `SPNTA` object also has useful attributes such as the number of free parameters (`ndim`), free parameter
 names (`param_names`), free parameter labels including units (`param_labels`), scale factors for converting to and
-from the `Vela.jl` internal units (`scale_factors`), and the default parameters read from the `par` file (`maxlike_params`).
+from the `Vela.jl` internal units (`scale_factors`), and the default parameters read from the `par` file (`default_params`).
 The `rescale_samples()` function rescales the samples from `Vela.jl` internal units to the usual units used
-in pulsar astronomy.
+in pulsar astronomy (see [this page](https://nanograv-pint.readthedocs.io/en/latest/timingmodels.html#supported-parameters)). 
 
 Now, let us see if `lnpost` actually works.
 ```
@@ -85,6 +81,9 @@ print(
 ```
 
 ## Setting up the sampler
+
+We show below an example using the [`emcee`](https://emcee.readthedocs.io/) sampler.
+
 ```
 import emcee
 
@@ -99,12 +98,11 @@ sampler = emcee.EnsembleSampler(
     vectorize=True,
 )
 ```
-`p0` contains random draws from the prior distribution. Note the `vectorize=True`
-while creating the sampler. This should be given if we are using the vectorized log-posterior.
-
-In practice, the `moves` should be optimized based on the problem at hand.
+`p0` contains random draws from the prior distribution (see [this page](https://en.wikipedia.org/wiki/Inverse_transform_sampling)
+for an explanation on how this works). Note the `vectorize=True` while creating the sampler. This must be given if we are using the 
+vectorized log-posterior. In practice, the `moves` should be optimized based on the problem at hand.
  
-## Running MCMC
+## Running MCMC and getting the samples
 ```
 sampler.run_mcmc(p0, 6000, progress=True)
 ```
@@ -115,7 +113,7 @@ minutes or hours depending on the size and the computing power available.
 samples_raw = sampler.get_chain(flat=True, discard=1000, thin=50)
 ```
 This flattens the multiple chains `emcee` was running. Also note the burn-in (`discard`) 
-and the thinning.
+and the thinning. These samples are in `Vela.jl`'s internal units (see [Quantities](@ref)).
 
 ```
 samples = spnta.rescale_samples(samples_raw)
@@ -133,8 +131,7 @@ for idx, (pname, mean, std) in enumerate(zip(spnta.param_names, means, stds)):
     else:
         print(f"{pname}\t\t{mean}\t\t{std}")
 ```
-Recall that the F0 value is stored as a sum of two `Float64`s. The special case in the `if`
-block combines these parts back together.
+The special treatment for F0 is explained in [Precision](@ref).
 
 ## Plotting
 ```
@@ -158,7 +155,4 @@ plt.show()
 The output looks something like this:
 ![NGC6440E_posterior](NGC6440E_posterior.png)
 
-Note that the F0 plot is centered around 0. This is because F0 is split into 
-the sum of a large number and a small number to have more numerical precision, 
-and only the smaller part is treated as a free parameter. See [Quantities](@ref)
-for more details.
+Note that the F0 plot is centered around 0. Refer to [Precision](@ref) for why this is.
