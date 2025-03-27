@@ -1,4 +1,4 @@
-# The command line interface
+# Command line utilities
 
 The `pyvela` package included a few command line utilities.
 
