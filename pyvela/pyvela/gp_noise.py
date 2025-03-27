@@ -56,7 +56,7 @@ class PLRedNoiseGP(DelayComponent):
         self.delay_funcs_component += [self.dummy_delay]
 
     def dummy_delay(self, toas, delays):
-        raise NotImplementedError("This is a dummy component for use with Vela.jl")
+        return 0 * u.s
 
 
 class PLDMNoiseGP(DelayComponent):
@@ -110,7 +110,7 @@ class PLDMNoiseGP(DelayComponent):
         self.delay_funcs_component += [self.dummy_delay]
 
     def dummy_delay(self, toas, delays):
-        raise NotImplementedError("This is a dummy component for use with Vela.jl")
+        return 0 * u.s
 
 
 class PLChromNoiseGP(DelayComponent):
@@ -164,4 +164,4 @@ class PLChromNoiseGP(DelayComponent):
         self.delay_funcs_component += [self.dummy_delay]
 
     def dummy_delay(self, toas, delays):
-        raise NotImplementedError("This is a dummy component for use with Vela.jl")
+        return 0 * u.s
