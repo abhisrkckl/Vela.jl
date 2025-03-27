@@ -14,8 +14,16 @@ def parse_args(argv):
         prog="pyvela-plot",
         description="Create a corner plot from pyvela results.",
     )
-    parser.add_argument("result_dir", help="A directory containing the output of the `pyvela` script.")
-    parser.add_argument("-I", "--ignore_params", nargs="+", default=[], help="Parameters to exclude from the corner plot.")
+    parser.add_argument(
+        "result_dir", help="A directory containing the output of the `pyvela` script."
+    )
+    parser.add_argument(
+        "-I",
+        "--ignore_params",
+        nargs="+",
+        default=[],
+        help="Parameters to exclude from the corner plot.",
+    )
 
     return parser.parse_args(argv)
 
