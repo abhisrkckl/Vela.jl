@@ -1,9 +1,9 @@
 export TimingModel, correct_toa
 
-"""The pulsar timing & noise model.
+"""
+    TimingModel
 
-Supports both narrowband and wideband timing.
-
+The pulsar timing & noise model. Supports both narrowband and wideband timing.
 Corresponds to `TimingModel` in `PINT`.
 
 References:

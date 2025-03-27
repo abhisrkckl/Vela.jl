@@ -295,9 +295,9 @@ is roughly as follows:
 
 ## The TZR TOA
 The pulse phases are measured with respect to a fictitious fiducial TOA called the TZR TOA (TZR 
-stands for t_zero). This is represented using the `TOA` class, but is distinguished from physical 
+stands for `t_zero`). This is represented using a `TOA` object, but is distinguished from physical 
 TOAs using the  `tzr` attribute. The `make_tzr_toa()` function creates a TZR TOA and the `is_tzr()` 
-function checks whether a TOA is a TZR TOA. A TZR TOA is always narrowband.
+function checks whether a `TOA` is a TZR TOA. A TZR TOA is always narrowband.
 ```@docs
 make_tzr_toa
 is_tzr
@@ -314,7 +314,8 @@ It has the following contents:
 1. Pulsar name (PSR), solar system ephemeris name (EPHEM), name of the TT timescale realization (CLOCK), etc.
 2. An ordered collection of `Components`
 3. A `Kernel`
-4. A `ParamHandler` containing information about model parameters.
-5. An ordered collection of `Prior`s for each free parameter
+4. A TZR `TOA`
+5. A `ParamHandler` containing information about model parameters.
+6. An ordered collection of `Prior`s for each free parameter
 
-Some of these are explained in the following sections.
+These are explained in the following sections.
