@@ -284,14 +284,14 @@ It should be noted that the action of different `Components` do not commute in g
 they must be applied in the correct order to get sensible results. The order followed by `Vela.jl` 
 is roughly as follows:
 
-    1. Delay corrections
-        a. Solar system effects
-        b. Interstellar medium effects
-        c. Pulsar binary effects
-    2. Phase computation
-        a. Pulsar rotational effects
-    3. Uncertainty corrections
-        a. Measurement noise corrections
+1. Delay corrections
+    a. Solar system effects
+    b. Interstellar medium effects
+    c. Pulsar binary effects
+2. Phase computation
+    a. Pulsar rotational effects
+3. Uncertainty corrections
+    a. Measurement noise corrections
 
 ## The TZR TOA
 The pulse phases are measured with respect to a fictitious fiducial TOA called the TZR TOA (TZR 
@@ -310,10 +310,11 @@ TimingModel
 ```
 
 It has the following contents:
-    1. Pulsar name (PSR), solar system ephemeris name (EPHEM), name of the TT timescale realization (CLOCK), etc.
-    2. An ordered collection of `Components`
-    3. A `Kernel`
-    4. A `ParamHandler` containing information about model parameters.
-    5. An ordered collection of `Prior`s for each free parameter
+
+1. Pulsar name (PSR), solar system ephemeris name (EPHEM), name of the TT timescale realization (CLOCK), etc.
+2. An ordered collection of `Components`
+3. A `Kernel`
+4. A `ParamHandler` containing information about model parameters.
+5. An ordered collection of `Prior`s for each free parameter
 
 Some of these are explained in the following sections.
