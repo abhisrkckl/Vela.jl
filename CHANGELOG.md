@@ -16,6 +16,7 @@
 - The parameter order now has timing parameters first and then noise parameters.
 - Refactored parameter attribute functions.
 - `get_kernel()` now supports Woorbury kernel with ECORRs.
+- Big documentation update
 ## Fixed
 - Priors in examples
 - Creation of ECORR mask in `get_kernel` in `pyvela` (This was mistakenly being created from EFACs)

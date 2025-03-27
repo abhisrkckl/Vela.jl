@@ -1,7 +1,7 @@
 # Prior and Posterior distributions
 
-The prior distributions of each free parameter is represented as a `Prior` object.  
-These use the `Distribution`s defined by [`Distributions.jl`](https://juliastats.org/Distributions.jl/) 
+The prior distributions of each free parameter is represented as a `Vela.Prior` object.  
+These use the `Distribution`s defined by the [`Distributions.jl`](https://juliastats.org/Distributions.jl/) package
 under the hood. 
 ```@docs
 Prior
@@ -75,6 +75,20 @@ The preference for the prior distributions is user defined distribution > defaul
 
 See the documentation for `Distrubutions.jl` to see what distributions are available.
 
+## Specifying priors in `pyvela`
+
+While creating a `pyvela.SPNTA` object, the priors are specified using the `cheat_prior_scale` and `custom_priors`
+arguments. 
+
+The `cheat_prior_scale` argument defines the scale factor by which the frequentist uncertainties are multiplied to 
+obtain the "cheat" prior widths. 
+
+The `custom_priors` argument contains the user-defined prior distributions as a dictionary. It can be a Python `dict` 
+or a filename (`str`) / `IO` object containing a `JSON` representation of the dictionary (see below). It supports both parameter 
+names and prefixes as dict keys.  For example, if an entry for "EFAC" is present, it will set the prior for all EFAC 
+parameters. If "EFAC1" is present, it will set the prior for EFAC1 specifically. If both "EFAC" and "EFAC1" are present, 
+the latter sets the prior for EFAC1, whereas the former sets the priors for all other EFACs. 
+
 ## Representing priors in a `JSON` file
 Prior distributions available in `Distributions.jl` can be represented as a `JSON` file like so:
 ```
@@ -101,4 +115,4 @@ upper bounds for truncating the distribution (see [`truncated`](https://juliasta
 
 Note that the values above should be given in their "normal" units as they appear in the par files. 
 Specifically, the prior on M2 corresponds  to 0.1 ± 0.02 Msun, where the normal distribution is truncated 
-at a lower bound 0.
+at a lower bound 0. 

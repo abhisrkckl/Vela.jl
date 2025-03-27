@@ -1,3 +1,5 @@
+"""Python interface for Vela.jl"""
+
 from importlib import metadata
 
 from .spnta import SPNTA

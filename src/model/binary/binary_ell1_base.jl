@@ -10,7 +10,10 @@ abstract type BinaryELL1Base <: BinaryComponent end
 
 ELL1ΦTrigs = NTuple{4,NTuple{2,GQ{0,Float64}}}
 
-"""The instantaneous state of a nearly circular binary.
+"""
+    ELL1State
+
+The instantaneous state of a nearly circular binary.
 
 `Φ_trigs` contains the various trigonometric functions of the mean anomaly 
 required for evaluating the Rømer delay and the Shapiro delay for such

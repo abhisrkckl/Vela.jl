@@ -188,15 +188,24 @@ function _get_free_param_attribute(param_handler::ParamHandler, attr_func)
     return pattrs
 end
 
-"""Generate an ordered collection of free parameter names."""
+"""
+    get_free_param_names(param_handler::ParamHandler)::Vector{String}
+
+Generate an ordered collection of free parameter names."""
 get_free_param_names(param_handler::ParamHandler)::Vector{String} =
     _get_free_param_attribute(param_handler, (mpar, param) -> string(param.name))
 
-"""Generate an ordered collection of free parameter prefixes."""
+"""
+    get_free_param_prefixes(param_handler::ParamHandler)::Vector{String}
+
+Generate an ordered collection of free parameter prefixes."""
 get_free_param_prefixes(param_handler::ParamHandler)::Vector{String} =
     _get_free_param_attribute(param_handler, (mpar, param) -> string(mpar.name))
 
-"""Generate an ordered collection of free parameter labels."""
+"""
+    get_free_param_labels(param_handler::ParamHandler; delim::String = "\n")::Vector{String}
+
+Generate an ordered collection of free parameter labels."""
 get_free_param_labels(param_handler::ParamHandler; delim::String = "\n")::Vector{String} =
     _get_free_param_attribute(
         param_handler,
@@ -206,11 +215,17 @@ get_free_param_labels(param_handler::ParamHandler; delim::String = "\n")::Vector
         ),
     )
 
-"""Generate an ordered collection of free parameter units."""
+"""
+    get_free_param_units(param_handler::ParamHandler)::Vector{String}
+
+Generate an ordered collection of free parameter units (astropy-compatible)."""
 get_free_param_units(param_handler::ParamHandler)::Vector{String} =
     _get_free_param_attribute(param_handler, (mpar, param) -> param.original_units)
 
-"""Generate a collection of free parameter values from a parameter tuple.
+"""
+    read_param_values_to_vector(param_handler::ParamHandler, params::NamedTuple)::Vector{Float64}
+
+Generate a collection of free parameter values from a parameter tuple.
 
 Reverse of `read_params()`
 """
@@ -241,7 +256,10 @@ end
 read_param_values_to_vector(param_handler::ParamHandler) =
     read_param_values_to_vector(param_handler, param_handler._default_params_tuple)
 
-"""Get the scale factors that convert the free parameters from `Vela.jl`'s 
+"""
+    get_scale_factors(param_handler::ParamHandler)::Vector{Float64}
+
+Get the scale factors that convert the free parameters from `Vela.jl`'s 
 internal representation to the units used in `PINT`."""
 get_scale_factors(param_handler::ParamHandler)::Vector{Float64} =
     _get_free_param_attribute(param_handler, (mpar, param) -> param.unit_conversion_factor)

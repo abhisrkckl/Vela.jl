@@ -8,7 +8,10 @@ Reference:
 """
 abstract type BinaryDDBase <: BinaryComponent end
 
-"""The instantaneous state of an eccentric binary.
+"""
+    DDState
+
+The instantaneous state of an eccentric binary.
 
 Contains the various quantities required to compute the binary delays for the 
 "Damour & Deruelle (DD)" family of binary models. This is used to avoid unnecessarily 

@@ -1,6 +1,9 @@
 export BinaryELL1H
 
-"""A binary model representing a nearly circular orbit with orthometric 
+"""
+    BinaryELL1H
+    
+A binary model representing a nearly circular orbit with orthometric 
 parametrization of the Shapiro delay. The Shapiro delay computed in this model
 does not include the Fourier components that are fully covariant with the Rømer
 delay.

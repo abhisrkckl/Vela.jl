@@ -6,7 +6,10 @@ export Kernel, WhiteNoiseKernel, EcorrKernel, EcorrGroup, WoodburyKernel
 Abstract base class of all likelihood kernels"""
 abstract type Kernel end
 
-"""A kernel representing only uncorrelated noise.
+"""
+    WhiteNoiseKernel
+
+A kernel representing only uncorrelated noise.
 The covariance matrix is diagonal.
 
 Reference:
@@ -22,10 +25,13 @@ struct EcorrGroup
     index::UInt
 end
 
-"""A kernel representing white noise and ECORR.
-The covariance matrix is block-diagonal.
+"""
+    EcorrKernel
 
+A kernel representing white noise and ECORR.
+The covariance matrix is block-diagonal.
 Assumes that the `TOA`s are sorted in the correct order.
+Not applicable for wideband TOAs.
 
 Reference:
     [Johnson+ 2024](https://doi.org/10.1103/PhysRevD.109.103012)
@@ -44,6 +50,22 @@ function show(io::IO, ek::EcorrKernel)
     )
 end
 
+"""
+    WoodburyKernel
+
+A kernel representing white noise and correlated noise including ECORR.
+
+This type has an `inner_kernel` attribute which represents the time-uncorrelated
+part of the timing noise. It can be a `WhiteNoiseKernel` if the only time-uncorrelated
+noise is white noise, or `EcorrKernel` if ECORR noise is also present.
+
+The `gp_components` attribute contains a collection of amplitude-marginalized Gaussian 
+noise components. These are treated as part of the covariance matrix. `WoodburyKernel.gp_components`
+and `TimingModel.components` must have no common elements.
+
+Reference:
+    [Johnson+ 2024](https://doi.org/10.1103/PhysRevD.109.103012)
+"""
 struct WoodburyKernel{InnerKernel<:Kernel,GPComponentsTuple<:Tuple} <: Kernel
     inner_kernel::InnerKernel
     gp_components::GPComponentsTuple

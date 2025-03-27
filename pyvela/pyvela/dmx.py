@@ -10,6 +10,9 @@ from pint.utils import find_prefix_bytime
 def get_dmx_mask(
     model: TimingModel, toas: TOAs, param_prefix: str = "DMX_"
 ) -> np.ndarray:
+    """Get a Vela-compatible DMX/CMX mask given a timing model.
+    The output is an ndarray containing the DMX/CMX index for each TOA.
+    Throws an exception if overlapping DMX ranges are found."""
     mask: List[int] = []
     for ii in range(len(toas)):
         t: Time = toas.table["mjd"][ii]

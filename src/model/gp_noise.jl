@@ -1,6 +1,14 @@
 export PowerlawRedNoiseGP,
     PowerlawDispersionNoiseGP, PowerlawChromaticNoiseGP, calc_noise_weights_inv
 
+"""
+    powerlaw
+
+Powerlaw spectral model for pulsar red noise.
+
+Reference:
+    [Lentati+ 2014](https://doi.org/10.1093/mnras/stt2122)
+"""
 function powerlaw(A, γ, f, f1)
     fyr = frequency(1 / 3600 / 24 / 365.25)
     denom = 12 * π^2 * fyr * fyr * fyr
@@ -49,7 +57,11 @@ end
     PowerlawRedNoiseGP
 
 A Fourier series Gaussian process representation of the achromatic red noise where the 
-power spectral density is assumed to be a power law.
+power spectral density is assumed to be a power law. Corresponds to `PLRedNoise` in 
+`PINT`.
+
+Reference:
+    [Lentati+ 2014](https://doi.org/10.1093/mnras/stt2122)
 """
 struct PowerlawRedNoiseGP{N} <: RedNoiseBase
     ln_js::NTuple{N,Float32}
@@ -86,7 +98,11 @@ show(io::IO, arn::PowerlawRedNoiseGP) =
     PowerlawDispersionNoiseGP
 
 A Fourier series Gaussian process representation of the dispersion noise where the 
-power spectral density is assumed to be a power law.
+power spectral density is assumed to be a power law. Corresponds to `PLDMNoise` in
+`PINT`.
+
+Reference:
+    [Lentati+ 2014](https://doi.org/10.1093/mnras/stt2122)
 """
 struct PowerlawDispersionNoiseGP{N} <: DispersionNoiseBase
     ln_js::NTuple{N,Float64}
@@ -130,7 +146,11 @@ show(io::IO, dmn::PowerlawDispersionNoiseGP) =
     PowerlawDispersionNoiseGP
 
 A Fourier series Gaussian process representation of the chromatic noise where the 
-power spectral density is assumed to be a power law.
+power spectral density is assumed to be a power law. Corresponds to `PLChromNoise`
+in PINT.
+
+Reference:
+    [Lentati+ 2014](https://doi.org/10.1093/mnras/stt2122)
 """
 struct PowerlawChromaticNoiseGP{N} <: ChromaticNoiseBase
     ln_js::NTuple{N,Float64}
