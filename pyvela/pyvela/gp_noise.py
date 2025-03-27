@@ -7,7 +7,7 @@ from pint.models.timing_model import DelayComponent
 
 class PLRedNoiseGP(DelayComponent):
     """A dummy PINT component that is used to translate `PLRedNoise` to a form
-    `Vela.jl` can handle."""
+    with unmarginalized amplitudes."""
 
     def __init__(self, plrednoise: PLRedNoise, epoch: Time):
         super().__init__()
@@ -56,12 +56,12 @@ class PLRedNoiseGP(DelayComponent):
         self.delay_funcs_component += [self.dummy_delay]
 
     def dummy_delay(self, toas, delays):
-        return 0 * u.s
+        raise NotImplementedError("This is a dummy component for use with Vela.jl")
 
 
 class PLDMNoiseGP(DelayComponent):
     """A dummy PINT component that is used to translate `PLDMNoise` to a form
-    `Vela.jl` can handle."""
+    with unmarginalized amplitudes."""
 
     def __init__(self, pldmnoise: PLDMNoise, epoch: Time):
         super().__init__()
@@ -110,12 +110,12 @@ class PLDMNoiseGP(DelayComponent):
         self.delay_funcs_component += [self.dummy_delay]
 
     def dummy_delay(self, toas, delays):
-        return 0 * u.s
+        raise NotImplementedError("This is a dummy component for use with Vela.jl")
 
 
 class PLChromNoiseGP(DelayComponent):
     """A dummy PINT component that is used to translate `PLDMNoise` to a form
-    `Vela.jl` can handle."""
+    with unmarginalized amplitudes."""
 
     def __init__(self, plchromnoise: PLChromNoise, epoch: Time):
         super().__init__()
@@ -164,4 +164,4 @@ class PLChromNoiseGP(DelayComponent):
         self.delay_funcs_component += [self.dummy_delay]
 
     def dummy_delay(self, toas, delays):
-        return 0 * u.s
+        raise NotImplementedError("This is a dummy component for use with Vela.jl")

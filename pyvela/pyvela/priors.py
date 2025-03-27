@@ -14,6 +14,9 @@ from .parameters import (
 from .toas import day_to_s
 from .vela import jl, vl
 
+# Some of these prior distributions are based on physical considerations.
+# Others are based on typical values found in millisecond pulsars. They
+# may not be valid for slow pulsars.
 DEFAULT_PRIOR_DISTS = {
     "PHOFF": jl.Uniform(-0.5, 0.5),
     "EFAC": jl.LogNormal(0.0, 0.25),
@@ -152,6 +155,9 @@ def get_default_priors(
 
 
 def process_custom_priors(custom_priors_raw: dict, model: TimingModel) -> dict:
+    """Generate a Dict[str, jl.Distribution] from the input prior dictionary, usually
+    read from a JSON file. This function unit conversions and the interpretation of
+    `upper`/`lower` attributes."""
     output_dict = {}
     for par in model.free_params:
         prior_info: dict

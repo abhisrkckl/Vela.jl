@@ -147,6 +147,7 @@ class SPNTA:
             self._check()
 
     def _check(self):
+        """Check if the computations work with the default values."""
         cube = np.random.rand(self.ndim)
         sample = self.prior_transform(cube)
         lnpr = self.lnprior(sample)
@@ -186,10 +187,12 @@ class SPNTA:
 
     @property
     def model(self):
+        """The `Vela.TimingModel` object."""
         return self.pulsar.model
 
     @property
     def toas(self):
+        """The `Vector{Vela.TOA}` or `Vector{Vela.WidebandTOA}` object."""
         return self.pulsar.toas
 
     @cached_property
@@ -241,6 +244,8 @@ class SPNTA:
         return vl.isa(self.model.kernel, vl.WoodburyKernel)
 
     def get_marginalized_gp_noise_realization(self, params: np.ndarray) -> np.ndarray:
+        """Get a realization of the marginalized GP noise given a set of parameters.
+        The length of `params` should be the same as the number of free parameters."""
         assert self.has_marginalized_gp_noise
         params_ = vl.read_params(self.model, params)
         y, Ndiag = vl._calc_resids_and_Ndiag(self.model, self.toas, params_)
@@ -299,6 +304,8 @@ class SPNTA:
         )
 
     def whitened_time_residuals(self, params: np.ndarray) -> np.ndarray:
+        """Get whitened time residuals using the given set of parameters. This is done by
+        subtracting the marginalized GP noise realizations from the time residuals."""
         return (
             self.time_residuals(params)
             - self.get_marginalized_gp_noise_realization(params)[: len(self.toas)]
@@ -320,6 +327,8 @@ class SPNTA:
         )
 
     def whitened_dm_residuals(self, params: np.ndarray) -> np.ndarray:
+        """Get whitened DM residuals using the given set of parameters. This is done by
+        subtracting the marginalized GP noise realizations from the DM residuals."""
         return (
             self.dm_residuals(params)
             - self.get_marginalized_gp_noise_realization(params)[len(self.toas) :]

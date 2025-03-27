@@ -292,6 +292,7 @@ def fix_params(model: TimingModel, toas: TOAs) -> None:
         2. Ensures that `PHOFF` is included and is free.
         3. Converts `H4` to `STIGMA`
         4. Sets the unset parameter values to 0 where possible.
+        5. Sets the red noise fundamental frequencies if applicable.
     """
 
     assert model["PEPOCH"].value is not None, "PEPOCH is not given in the par file."
@@ -365,8 +366,8 @@ def get_kernel(
     ecorr_toa_ranges: List[Tuple[int, int]],
     ecorr_indices: List[int],
 ):
-    """Construct a `Vela.Kernel` object. It may be a white noise kernel or
-    an ECORR kernel. Time-correlated noise kernels are not yet suppoted."""
+    """Construct a `Vela.Kernel` object. It may be a white noise kernel,
+    an ECORR kernel, or a general Woodbury kernel."""
     if not model.has_correlated_errors:
         return vl.WhiteNoiseKernel()
     elif not model.has_time_correlated_errors:
@@ -396,6 +397,7 @@ def get_kernel(
 
 
 def construct_woodbury_kernel(model: TimingModel, toas: TOAs):
+    """Construct a `WoodburyKernal` object given a timing model."""
     gp_components = []
     gp_basis_matrices = []
 

@@ -63,6 +63,7 @@ def get_scale_factor(param: Parameter):
 
 
 def get_unit_conversion_factor(param: Parameter):
+    """Get the scale factor that converts a parameter value from `PINT` units to `Vela` units."""
     scale_factor = get_scale_factor(param)
 
     dim = (

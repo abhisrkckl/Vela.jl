@@ -17,9 +17,13 @@ def parse_args(argv):
         prog="pyvela-compare",
         description="Compare residuals obtained using Vela.jl and PINT.",
     )
-    parser.add_argument("par_file")
-    parser.add_argument("tim_file")
-    parser.add_argument("-P", "--prior_file")
+    parser.add_argument("par_file", help="Input par file")
+    parser.add_argument("tim_file", help="Input tim file")
+    parser.add_argument(
+        "-P",
+        "--prior_file",
+        help="A JSON file containing the prior distributions for each free parameter.",
+    )
 
     return parser.parse_args(argv)
 
