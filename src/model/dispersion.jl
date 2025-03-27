@@ -27,11 +27,11 @@ end
 
 """
     DispersionPiecewise
-    
+
 Piecewise-constant representation of the dispersion measure.
 
-Corresponds to `DispersionDMX` in `PINT`. Does not support overlapping
-ranges.
+Corresponds to `DispersionDMX` in `PINT`. Overlapping DMX ranges
+are not supported.
 
 Reference:
     [Arzoumanian+ 2015](http://doi.org/10.1088/0004-637X/813/1/65)

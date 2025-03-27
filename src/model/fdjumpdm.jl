@@ -6,6 +6,7 @@ abstract type DispersionOffsetBase <: DispersionComponent end
     DispersionOffset
 
 System-dependent DM offsets (`FDJUMPDM`) with non-exclusive selection masks.
+Corresponds to `FDJumpDM` in `PINT`.
 
 Reference:
     [Susobhanan+ 2024](http://doi.org/10.3847/1538-4357/ad59f7)
