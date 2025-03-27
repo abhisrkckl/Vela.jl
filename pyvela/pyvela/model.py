@@ -371,6 +371,7 @@ def get_kernel(
     if "EcorrNoise" not in model.components:
         inner_kernel = vl.WhiteNoiseKernel()
     else:
+        assert not toas.wideband, "ECORR kernel is not supported for wideband TOAs."
         ecorr_mask0 = read_mask(
             toas, [model[ec] for ec in model.ECORRs if model.ECORRs[ec][0] is not None]
         )
@@ -390,6 +391,9 @@ def get_kernel(
     if not model.has_time_correlated_errors:
         return inner_kernel
     else:
+        assert (
+            not toas.wideband
+        ), "Woodbury kernel is not yet supported for wideband TOAs."
         return construct_woodbury_kernel(model, toas, inner_kernel)
 
 
