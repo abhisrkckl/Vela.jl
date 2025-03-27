@@ -13,7 +13,7 @@ the effects that are correlated across multiple `TOA`s are modeled as a `Kernel`
 Component
 ```
 
-Each component has a `correct_toa` method which produces a TOA correction.
+Each component has a `correct_toa()` method which produces a TOA correction.
 ```@docs
 correct_toa
 ```
@@ -22,13 +22,14 @@ correct_toa
 
 ## TOA corrections
 
-Such a correction can be one or more of the following:
-    1. A delay that modifies the TOA value
-    2. A phase correction that modifies the TOA phase
-    3. A Doppler correction that modifies the observing frequency and the pulsar spin frequency
-    4. An EFAC or EQUAD that modifies the TOA uncertainty
-    5. A DM correction that modifies the wideband DM measurement
-    6. A DMEFAC or DMEQUAD that modifies the wideband DM uncertainty
+A TOA correction as mentioned above can be one or more of the following:
+
+1. A delay that modifies the TOA value
+2. A phase correction that modifies the TOA phase
+3. A Doppler correction that modifies the observing frequency and the pulsar spin frequency
+4. An EFAC or EQUAD that modifies the TOA uncertainty
+5. A DM correction that modifies the wideband DM measurement
+6. A DMEFAC or DMEQUAD that modifies the wideband DM uncertainty
 
 The accumlated TOA corrections are represented by the `TOACorrection` and `WidebandTOACorrection`
 types, which are derived from `TOACorrectionBase`.
@@ -38,7 +39,7 @@ TOACorrection
 WidebandTOACorrection
 ```
 
-The following methods extract some of the intermediate-corrected quantities of interest.
+The following methods extract some of the corrected quantities of interest.
 ```@docs
 corrected_toa_value
 doppler_corrected_observing_frequency
@@ -89,7 +90,7 @@ In addition to a delay, `SolarSystem` also producess a Doppler correction which 
 observing frequency and the pulsar spin frequency. 
 
 This component barycenters the TOA. It will skip TOAs that are already barycentered, e.g., TOAs
-measured using space-based telescopes. The `is_barycentered` function checks whether a TOA has been
+measured using space-based telescopes. The `is_barycentered()` function checks whether a TOA has been
 barycentered.
 ```@docs
 is_barycentered
@@ -106,7 +107,7 @@ DispersionComponent
 
 `DispersionComponent`s provide a delay and a DM correction (for wideband TOAs), which are related by
 the equation ``\Delta_{\text{DM}} = K * \text{DM} / \nu^2``. The dispersion correction is computed via 
-the `dispersion_slope` function.
+the `dispersion_slope()` function.
 ```@docs
 dispersion_slope
 ```
@@ -135,7 +136,7 @@ PowerlawDispersionNoiseGP
 ```
 See also [Red noise models](@ref).
 
-`SolarWind` is a simple model for solar wind dispersion.
+`SolarWindDispersion` is a simple model for solar wind dispersion.
 ```@docs
 SolarWindDispersion
 ```
@@ -149,8 +150,8 @@ DispersionPiecewise
 `DispersionJump` and `DispersionOffset` represent two types of system-dependent dispersion 
 offsets.
 ```@docs
-DispersionJump
 DispersionOffset
+DispersionJump
 ```
 
 ### Chromatic delays
@@ -179,7 +180,7 @@ PowerlawChromaticNoiseGP
 See also [Red noise models](@ref).
 
 Chromatic variations can also be modeled as a simple piecewise-constant function using
-DMX parameters. This is available through the `ChromaticPiecewise` component.
+CMX parameters. This is available through the `ChromaticPiecewise` component.
 ```@docs
 ChromaticPiecewise
 ```
@@ -212,6 +213,7 @@ BinaryDDK
 BinaryDDS
 BinaryELL1
 BinaryELL1H
+BinaryELL1k
 ```
 
 ## Frequency-dependent delays
@@ -294,7 +296,7 @@ is roughly as follows:
 ## The TZR TOA
 The pulse phases are measured with respect to a fictitious fiducial TOA called the TZR TOA (TZR 
 stands for t_zero). This is represented using the `TOA` class, but is distinguished from physical 
-TOAs using the  `tzr` attribute. The `make_tzr_toa` function creates a TZR TOA and the `is_tzr` 
+TOAs using the  `tzr` attribute. The `make_tzr_toa()` function creates a TZR TOA and the `is_tzr()` 
 function checks whether a TOA is a TZR TOA. A TZR TOA is always narrowband.
 ```@docs
 make_tzr_toa

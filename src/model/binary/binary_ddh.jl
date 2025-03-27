@@ -1,6 +1,9 @@
 export BinaryDDH
 
-"""The Damour & Deruelle model for eccentric binaries with orthometric parametrization of
+"""
+    BinaryDDH
+
+The Damour & Deruelle model for eccentric binaries with orthometric parametrization of
 the Shapiro delay. Used for low to moderate inclination binaries.
 
 References:
