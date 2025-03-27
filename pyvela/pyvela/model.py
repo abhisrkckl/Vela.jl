@@ -366,8 +366,8 @@ def get_kernel(
     ecorr_toa_ranges: List[Tuple[int, int]],
     ecorr_indices: List[int],
 ):
-    """Construct a `Vela.Kernel` object. It may be a white noise kernel or
-    an ECORR kernel. Time-correlated noise kernels are not yet suppoted."""
+    """Construct a `Vela.Kernel` object. It may be a white noise kernel,  an ECORR kernel, or a
+    Woodbury kernel."""
     if "EcorrNoise" not in model.components:
         inner_kernel = vl.WhiteNoiseKernel()
     else:
@@ -394,6 +394,7 @@ def get_kernel(
 
 
 def construct_woodbury_kernel(model: TimingModel, toas: TOAs, inner_kernel):
+    """Construct a `Vela.WoodburyKernel` object from GP noise components."""
     gp_components = []
     gp_basis_matrices = []
 
