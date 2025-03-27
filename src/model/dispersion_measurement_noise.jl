@@ -1,6 +1,9 @@
 export DispersionMeasurementNoise, dmefac, dmequad2
 
-"""Modifications to the measured wideband DM uncertainties: DMEFACs and DMEQUADs.
+"""
+    DispersionMeasurementNoise
+
+Modifications to the measured wideband DM uncertainties: DMEFACs and DMEQUADs.
 Assumes that the DMEFACs & DMEQUADs are exclusive.
 
 Reference:

@@ -1,6 +1,9 @@
 export DispersionTaylor, DispersionPiecewise, dispersion_slope
 
-"""Taylor series representation of the dispersion measure.
+"""
+    DispersionTaylor
+
+Taylor series representation of the dispersion measure.
 
 Corresponds to `DispersionDM` in `PINT`.
 
@@ -22,7 +25,10 @@ function dispersion_slope(
     return dm
 end
 
-"""Piecewise-constant representation of the dispersion measure.
+"""
+    DispersionPiecewise
+    
+Piecewise-constant representation of the dispersion measure.
 
 Corresponds to `DispersionDMX` in `PINT`. Does not support overlapping
 ranges.
