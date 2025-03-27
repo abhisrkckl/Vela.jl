@@ -115,5 +115,4 @@ upper bounds for truncating the distribution (see [`truncated`](https://juliasta
 
 Note that the values above should be given in their "normal" units as they appear in the par files. 
 Specifically, the prior on M2 corresponds  to 0.1 ± 0.02 Msun, where the normal distribution is truncated 
-at a lower bound 0. A list of parameters and their parameters can be found 
-[here](https://nanograv-pint.readthedocs.io/en/latest/timingmodels.html#supported-parameters).
+at a lower bound 0. 
