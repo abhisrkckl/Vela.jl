@@ -17,13 +17,13 @@
 - Refactored parameter attribute functions.
 - `get_kernel()` now supports Woorbury kernel with ECORRs.
 - Big documentation update
+- Made `TOA` creation slightly faster
 ## Fixed
 - Priors in examples
 - Creation of ECORR mask in `get_kernel` in `pyvela` (This was mistakenly being created from EFACs)
 ## Removed
 - `pure_rotator.jlso` test data file
 - Stub for `Troposphere` component
-- Made `TOA` creation slightly faster
 
 # 0.0.8
 ## Added
