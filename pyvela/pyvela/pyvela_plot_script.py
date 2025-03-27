@@ -95,10 +95,12 @@ def main(argv=None):
         dres_w = (dres_w * u.Hz / DMconst).to_value(dmu)
         derr = (derr * u.Hz / DMconst).to_value(dmu)
     else:
-        print(residuals_data.shape)
         mjds, tres, tres_w, terr = residuals_data.T
 
-    true_values = read_true_values(args)[param_plot_mask]
+    true_values_all = read_true_values(args)
+    true_values = (
+        true_values_all[param_plot_mask] if true_values_all is not None else None
+    )
 
     fig = corner.corner(
         samples[:, param_plot_mask],

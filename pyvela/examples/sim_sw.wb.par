@@ -41,3 +41,4 @@ DMEPOCH            55000.0000000000000000
 DMJUMP            tel gbt        0.0 1 1e-2
 DMEFAC            tel gbt        1.5062639786777228 1 0.1
 DMEQUAD           tel gbt        1e-5 1 1e-7
+PHOFF                               0   1
