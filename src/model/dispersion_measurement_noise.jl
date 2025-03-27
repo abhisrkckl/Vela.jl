@@ -4,7 +4,8 @@ export DispersionMeasurementNoise, dmefac, dmequad2
     DispersionMeasurementNoise
 
 Modifications to the measured wideband DM uncertainties: DMEFACs and DMEQUADs.
-Assumes that the DMEFACs & DMEQUADs are exclusive.
+Assumes that the DMEFACs & DMEQUADs are exclusive. Corresponds to `ScaleDmErrors`
+in PINT.
 
 Reference:
     [Alam+ 2021](http://doi.org/10.3847/1538-4365/abc6a1)

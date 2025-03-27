@@ -1,8 +1,12 @@
 export MeasurementNoise, efac, equad2
 
-"""Modifications to the measured TOA uncertainties: 
+"""
+    MeasurementNoise
+
+Modifications to the measured TOA uncertainties: 
 EFACs (error factors) and EQUADs (errors added in quadrature).
-Assumes that the EFACs & EQUADs are exclusive.
+Assumes that the EFACs & EQUADs are exclusive. Corresponds to 
+`ScaleToaErrors` in `PINT`.
 
 Reference:
     [Lentati+ 2014](http://doi.org/10.1093/mnras/stt2122)
