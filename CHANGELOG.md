@@ -1,5 +1,11 @@
 # Unreleased
 ## Added
+## Changed
+## Fixed
+## Removed
+
+# 0.0.9
+## Added
 - Store `toas_pint` in `SPNTA` (This is `None` when a `JLSO` file is loaded.)
 - `get_num_timing_params()` function and `SPNTA.ntmdim` attribute
 - Marginalized GP noise using Woodbury lemma

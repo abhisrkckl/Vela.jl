@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pyvela"
-version = "0.0.8"
+version = "0.0.9"
 description = "Python interface for Vela.jl, a Bayesian pulsar timing and noise analysis package."
 keywords = ["astronomy", "astrophysics", "pulsar"]
 
