@@ -100,7 +100,7 @@ Prior distributions available in `Distributions.jl` can be represented as a `JSO
     "EQUAD": {
         "distribution": "LogUniform",
         "args": [1e-2, 2.0]
-    }
+    },
     "M2": {
         "distribution": "Normal",
         "args": [0.1, 0.02],
@@ -115,4 +115,4 @@ upper bounds for truncating the distribution (see [`truncated`](https://juliasta
 
 Note that the values above should be given in their "normal" units as they appear in the par files. 
 Specifically, the prior on M2 corresponds  to 0.1 ± 0.02 Msun, where the normal distribution is truncated 
-at a lower bound 0. 
+at a lower bound of 0. 
