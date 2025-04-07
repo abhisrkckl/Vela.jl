@@ -38,7 +38,7 @@ function _calc_resids_and_Ndiag(
     @inbounds for (j, wtoa) in enumerate(wtoas)
         cwtoa = correct_toa(model, wtoa, params)
         dphase = GQ{Float64}(phase_residual(wtoa.toa, cwtoa.toa_correction) - tzrphase)
-        ys[j] = dphase / doppler_shifted_spin_frequency(ctoa)
+        ys[j] = dphase / doppler_shifted_spin_frequency(cwtoa.toa_correction)
         ys[ntoas+j] = dm_residual(wtoa.dminfo, cwtoa.dm_correction)
         Ndiag[j] = scaled_toa_error_sqr(wtoa.toa, cwtoa.toa_correction)
         Ndiag[ntoas+j] = scaled_dm_error_sqr(wtoa.dminfo, cwtoa.dm_correction)
