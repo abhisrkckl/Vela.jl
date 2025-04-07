@@ -126,7 +126,7 @@ def main(argv=None):
     ax.axhline(0, ls="dotted", color="k")
     ax.set_ylabel("Time res (pre) (s)")
     ax.legend()
-    
+
     ax1 = ax.twinx()
     ax1.errorbar(
         mjds,
@@ -139,7 +139,7 @@ def main(argv=None):
         label="Post fit whitened",
     )
     ax1.legend()
-    ax1.set_ylabel("Time res (post) (s)") 
+    ax1.set_ylabel("Time res (post) (s)")
 
     if wb:
         plt.xticks([])
