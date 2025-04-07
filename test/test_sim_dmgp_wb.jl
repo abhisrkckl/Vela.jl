@@ -1,4 +1,4 @@
-@testset "sim3.gp_marg" begin
+@testset "sim_dmgp_marg" begin
     model, toas = Vela.load_pulsar_data("datafiles/sim_dmgp_wb.jlso")
 
     pepoch_mjd = value(model.epoch) / day_to_s
