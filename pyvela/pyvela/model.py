@@ -391,9 +391,6 @@ def get_kernel(
     if not model.has_time_correlated_errors:
         return inner_kernel
     else:
-        assert (
-            not toas.wideband
-        ), "Woodbury kernel is not yet supported for wideband TOAs."
         return construct_woodbury_kernel(model, toas, inner_kernel)
 
 
@@ -401,6 +398,11 @@ def construct_woodbury_kernel(model: TimingModel, toas: TOAs, inner_kernel):
     """Construct a `Vela.WoodburyKernel` object from GP noise components."""
     gp_components = []
     gp_basis_matrices = []
+
+    if toas.wideband:
+        assert (
+            "PLChromNoise" not in model.components
+        ), "PLChromNoise is not supported with wideband data."
 
     component_names = list(model.components.keys())
 
@@ -415,7 +417,18 @@ def construct_woodbury_kernel(model: TimingModel, toas: TOAs, inner_kernel):
     ):
         if gpcomp in component_names:
             gp_components.append(vela_gp_type(int(model[nharmpar].value)))
-            basis = model.components[gpcomp].get_noise_basis(toas)
+            toa_basis = model.components[gpcomp].get_noise_basis(toas)
+
+            if not toas.wideband:
+                basis = toa_basis
+            else:
+                if gpcomp == "PLDMNoise":
+                    freqs = model.barycentric_radio_freq(toas).to_value("Hz")
+                    dm_basis = toa_basis * freqs[:, None] ** 2
+                else:
+                    dm_basis = np.zeros_like(toa_basis)
+                basis = np.vstack((toa_basis, dm_basis))
+
             gp_basis_matrices.append(basis[:, ::2])
             gp_basis_matrices.append(basis[:, 1::2])
 
