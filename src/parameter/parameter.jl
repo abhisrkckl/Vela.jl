@@ -210,7 +210,7 @@ get_free_param_labels(param_handler::ParamHandler; delim::String = "\n")::Vector
     _get_free_param_attribute(
         param_handler,
         (mpar, param) -> (
-            isempty(param.original_units) ? string(param.name) :
+            isempty(param.original_units) || param.original_units=="1" ? string(param.name) :
             "$(string(param.name))$delim($(param.original_units))"
         ),
     )
