@@ -1,0 +1,52 @@
+# Created: 2025-04-07T10:18:14.350274
+# PINT_version: 1.1.1+170.g68c9a01e
+# User: Abhimanyu Susobhanan (abhimanyu)
+# Host: abhimanyu-HP-Envy-x360-2-in-1-Laptop-15-fh0xxx
+# OS: Linux-6.8.0-57-generic-x86_64-with-glibc2.39
+# Python: 3.12.2 | packaged by conda-forge | (main, Feb 16 2024, 20:50:58) [GCC 12.3.0]
+# Format: pint
+# read_time: 2025-04-07T10:17:49.401974
+# allow_tcb: True
+# convert_tcb: True
+# allow_T2: True
+# original_name: sim_dmgp_wb.par
+PSR                        J0500+1500_sim
+EPHEM                               DE440
+CLOCK                        TT(BIPM2021)
+UNITS                                 TDB
+START              49999.9999999431995487
+FINISH             60000.0000000527235648
+DILATEFREQ                              N
+DMDATA                                  Y
+NTOA                                  500
+CHI2                    562.8387732740655
+CHI2R                  3078.9832688774777
+TRES                74.053095553617632324
+DMRES             0.007815098930249813081
+RAJ                      5:00:00.00000038 1 0.00000393508066903911
+DECJ                    15:00:00.00020069 1 0.00033731033719504441
+PMRA                                  0.0
+PMDEC                                 0.0
+PX                                    0.0
+POSEPOCH           55000.0000000000000000
+F0                  100.00000000001569143 1 1.3762836956732092099e-10
+F1              -1.0000475375105143501e-15 1 1.2624377806061600948e-19
+F2                                    0.0
+PEPOCH             55000.0000000000000000
+PLANET_SHAPIRO                          N
+DM                  15.006696500559510218 1 4.4721359521989323602e-06
+DM1              0.0009869455384542735638 1 5.6471225687138944264e-07
+DM2                                   0.0 1 1e-8
+DMEPOCH            55000.0000000000000000
+TZRMJD             55000.0000000000000000
+TZRSITE                               gbt
+TZRFRQ                             1400.0
+PHOFF               0.0013953042317019712 1 0.27509036181331803
+TNREDAMP                            -13.0 1
+TNREDGAM                              4.0 1
+TNREDC                                 60
+EFAC            tel gbt                1.0 1
+DMEFAC          tel gbt                1.0 1
+TNDMAMP                             -13.0  1
+TNDMGAM                               3.0  1
+TNDMC                                  60
