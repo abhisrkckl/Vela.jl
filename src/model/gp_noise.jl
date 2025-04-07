@@ -53,6 +53,12 @@ function evaluate_powerlaw_red_noise_weights_inv(log10_A, γ, f1, ln_js)
     return weights_inv
 end
 
+function _calc_ln_js(Nlin, Nlog, logfac)
+    log_js_lin = map(log, 1:Nlin)
+    log_js_log = (1 / logfac) .^ (Nlog:-1:1)
+    return vcat(log_js_log, log_js_lin)
+end
+
 """
     PowerlawRedNoiseGP
 
@@ -66,7 +72,7 @@ Reference:
 struct PowerlawRedNoiseGP{N} <: RedNoiseBase
     ln_js::NTuple{N,Float32}
 
-    PowerlawRedNoiseGP(N::Int) = new{N}(Tuple(map(log, 1:N)))
+    PowerlawRedNoiseGP(Nlin::UInt, Nlog::UInt, logfac::Float64) = new{Nlin+Nlog}(Tuple(_calc_ln_js(Nlin, Nlog, logfac)))
 end
 
 is_gp_noise(::PowerlawRedNoiseGP) = true
@@ -107,7 +113,7 @@ Reference:
 struct PowerlawDispersionNoiseGP{N} <: DispersionNoiseBase
     ln_js::NTuple{N,Float64}
 
-    PowerlawDispersionNoiseGP(N::Int) = new{N}(Tuple(map(log, 1:N)))
+    PowerlawDispersionNoiseGP(Nlin::Int, Nlog::Int, logfac) = new{N}(Tuple(_calc_ln_js(Nlin, Nlog, logfac)))
 end
 
 is_gp_noise(::PowerlawDispersionNoiseGP) = true
@@ -155,7 +161,7 @@ Reference:
 struct PowerlawChromaticNoiseGP{N} <: ChromaticNoiseBase
     ln_js::NTuple{N,Float64}
 
-    PowerlawChromaticNoiseGP(N::Int) = new{N}(Tuple(map(log, 1:N)))
+    PowerlawChromaticNoiseGP(Nlin::Int, Nlog::Int, logfac) = new{N}(Tuple(_calc_ln_js(Nlin, Nlog, logfac)))
 end
 
 is_gp_noise(::PowerlawChromaticNoiseGP) = true
