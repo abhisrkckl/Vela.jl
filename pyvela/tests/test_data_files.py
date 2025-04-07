@@ -28,6 +28,7 @@ datasets = [
     "sim_dmx",
     "sim_cmx",
     "sim_ell1k",
+    "sim_dmgp_wb",
     "J0613-0200.sim",
     "J1208-5936.sim",
     "J2302+4442.sim",
