@@ -32,8 +32,9 @@ function _calc_resids_and_Ndiag(
     tzrphase = calc_tzr_phase(model, params)
 
     ntoas = length(wtoas)
-    ys = Vector{Float64}(undef, 2 * ntoas)
-    Ndiag = Vector{Float64}(undef, 2 * ntoas)
+    result_data = Vector{Float64}(undef, 4 * ntoas)
+    ys = @view result_data[1:(2*ntoas)]
+    Ndiag = @view result_data[(2*ntoas+1):end]
 
     @inbounds for (j, wtoa) in enumerate(wtoas)
         cwtoa = correct_toa(model, wtoa, params)
