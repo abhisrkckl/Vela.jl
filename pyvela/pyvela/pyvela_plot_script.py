@@ -106,7 +106,7 @@ def main(argv=None):
         samples[:, param_plot_mask],
         labels=plot_labels,
         label_kwargs={"fontsize": 9},
-        labelpad=0.1,
+        labelpad=0.2,
         max_n_ticks=3,
         plot_datapoints=False,
         hist_kwargs={"density": True},
@@ -119,52 +119,56 @@ def main(argv=None):
         ax.yaxis.get_offset_text().set_fontsize(8)
         ax.xaxis.get_offset_text().set_fontsize(8)
 
-    plt.subplot(5, 3, 3)
-    plt.errorbar(
-        mjds, tres, terr, marker="+", ls="", alpha=0.9, color="orange", label="Post-fit"
+    ax = plt.subplot(5, 2, 2)
+    ax.errorbar(
+        mjds, tres, terr, marker="+", ls="", alpha=1, color="orange", label="Pre-fit"
     )
-    if not np.allclose(tres, tres_w):
-        plt.errorbar(
-            mjds,
-            tres_w,
-            terr,
-            marker="+",
-            ls="",
-            alpha=0.4,
-            color="blue",
-            label="Whitened",
-        )
-    plt.axhline(0, ls="dotted", color="k")
-    plt.ylabel("Time res (s)")
-    plt.legend()
+    ax.axhline(0, ls="dotted", color="k")
+    ax.set_ylabel("Time res (pre) (s)")
+    ax.legend()
+    
+    ax1 = ax.twinx()
+    ax1.errorbar(
+        mjds,
+        tres_w,
+        terr,
+        marker="+",
+        ls="",
+        alpha=0.4,
+        color="blue",
+        label="Post fit whitened",
+    )
+    ax1.legend()
+    ax1.set_ylabel("Time res (post) (s)") 
 
     if wb:
         plt.xticks([])
-        plt.subplot(5, 3, 6)
-        plt.errorbar(
+        ax = plt.subplot(5, 2, 4)
+        ax.errorbar(
             mjds,
             dres,
             derr,
             marker="+",
             ls="",
-            alpha=0.9,
+            alpha=1,
             color="orange",
-            label="Post-fit",
+            label="Pre-fit",
         )
-        if not np.allclose(dres, dres_w):
-            plt.errorbar(
-                mjds,
-                dres_w,
-                derr,
-                marker="+",
-                ls="",
-                alpha=0.4,
-                color="blue",
-                label="Whitened",
-            )
-        plt.axhline(0, ls="dotted", color="k")
-        plt.ylabel("DM res (dmu)")
-        plt.legend()
+        ax.axhline(0, ls="dotted", color="k")
+        ax.set_ylabel("DM res (pre) (dmu)")
 
-    plt.xlabel("MJD - PEPOCH")
+        ax1 = ax.twinx()
+        ax1.errorbar(
+            mjds,
+            dres_w,
+            derr,
+            marker="+",
+            ls="",
+            alpha=0.4,
+            color="blue",
+            label="Post fit whitened",
+        )
+        ax1.set_ylabel("DM res (post) (dmu)")
+
+    ax.set_xlabel("MJD - PEPOCH")
     plt.show()
