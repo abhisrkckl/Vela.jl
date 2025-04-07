@@ -94,6 +94,9 @@ def pint_parameter_to_vela(param: Parameter, epoch_mjd: float, noise: bool):
     )
 
     original_units = str(param.units)
+    if original_units.strip() == "":
+        original_units = "1"
+
     unit_conversion_factor = get_unit_conversion_factor(param)
 
     if param.name != "F0":
