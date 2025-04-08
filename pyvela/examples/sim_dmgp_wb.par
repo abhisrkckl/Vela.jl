@@ -11,7 +11,7 @@
 # allow_T2: False
 PSR                        J0500+1500_sim
 EPHEM                               DE440
-CLOCK                        TT(BIPM2021)
+CLOCK                        TT(BIPM2023)
 UNITS                                 TDB
 START              49999.9999999431995487
 FINISH             60000.0000000527235648
@@ -37,18 +37,18 @@ TZRSITE                               gbt
 TZRFRQ                             1400.0
 PHOFF               -0.002605989248502294 1 0.0006986401529792232
 PLANET_SHAPIRO                          N
-DM                  15.015318307512164677 1 6.247355779106600255e-06
-DM1              0.0009860153359323497739 1 5.610739137854152583e-07
+DM                  15.015318307512164677 1 0.01
+DM1              0.0009860153359323497739 1 0.01
 DMEPOCH            55000.0000000000000000
 EFAC            tel gbt                       1.0 1 0.0
 DMEFAC          tel gbt                       1.0 1 0.0
 TNDMAMP                             -13.0 1 0.0
 TNDMGAM                               3.0 1 0.0
 TNDMC                                  60
-TNDMFLOG                                5
+TNDMFLOG                                2
 TNDMFLOG_FACTOR                       2.0
 TNREDAMP                            -13.0 1 0.0
 TNREDGAM                              4.0 1 0.0
 TNREDC                                 60
-TNREDFLOG                               4
+TNREDFLOG                               2
 TNREDFLOG_FACTOR                       2.0

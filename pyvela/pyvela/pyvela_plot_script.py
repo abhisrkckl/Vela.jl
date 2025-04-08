@@ -81,7 +81,7 @@ def main(argv=None):
     param_plot_mask = get_param_plot_mask(param_names, param_prefixes, args)
 
     plot_labels = [
-        f"{pname}\n{punit}"
+        f"{pname}\n{punit if punit != '1' else ''}"
         for pname, punit in zip(
             param_names[param_plot_mask], param_units[param_plot_mask]
         )
@@ -125,9 +125,10 @@ def main(argv=None):
     )
     ax.axhline(0, ls="dotted", color="k")
     ax.set_ylabel("Time res (pre) (s)")
-    ax.legend()
+    # ax.legend()
 
     ax1 = ax.twinx()
+    ax1.errorbar([], [], [], ls="", marker="+", color="orange", label="Pre-fit")
     ax1.errorbar(
         mjds,
         tres_w,
