@@ -105,7 +105,21 @@ def pint_components_to_vela(model: TimingModel, toas: TOAs):
     elif "DMWaveX" in component_names:
         components.append(vl.DMWaveX())
     elif "PLDMNoiseGP" in component_names:
-        components.append(vl.PowerlawDispersionNoiseGP(int(model["TNDMC"].value)))
+        components.append(
+            vl.PowerlawDispersionNoiseGP(
+                int(model["TNDMC"].value),
+                (
+                    int(model["TNDMFLOG"].value)
+                    if model["TNDMFLOG"].value is not None
+                    else 0
+                ),
+                (
+                    float(model["TNDMFLOG_FACTOR"].value)
+                    if model["TNDMFLOG_FACTOR"].value is not None
+                    else 2.0
+                ),
+            )
+        )
 
     if "FDJumpDM" in component_names:
         fdjumpdms = list(
@@ -140,7 +154,21 @@ def pint_components_to_vela(model: TimingModel, toas: TOAs):
     elif "CMWaveX" in component_names:
         components.append(vl.CMWaveX())
     elif "PLChromNoiseGP" in component_names:
-        components.append(vl.PowerlawChromaticNoiseGP(int(model.TNCHROMC.value)))
+        components.append(
+            vl.PowerlawChromaticNoiseGP(
+                int(model["TNCHROMC"].value),
+                (
+                    int(model["TNCHROMFLOG"].value)
+                    if model["TNCHROMFLOG"].value is not None
+                    else 0
+                ),
+                (
+                    float(model["TNCHROMFLOG_FACTOR"].value)
+                    if model["TNCHROMFLOG_FACTOR"].value is not None
+                    else 2.0
+                ),
+            )
+        )
 
     if model.BINARY.value is not None:
         assert (model["PB"].quantity is not None) != (
@@ -195,7 +223,21 @@ def pint_components_to_vela(model: TimingModel, toas: TOAs):
     if "WaveX" in component_names:
         components.append(vl.WaveX())
     elif "PLRedNoiseGP" in component_names:
-        components.append(vl.PowerlawRedNoiseGP(int(model["TNREDC"].value)))
+        components.append(
+            vl.PowerlawRedNoiseGP(
+                int(model["TNREDC"].value),
+                (
+                    int(model["TNREDFLOG"].value)
+                    if model["TNREDFLOG"].value is not None
+                    else 0
+                ),
+                (
+                    float(model["TNREDFLOG_FACTOR"].value)
+                    if model["TNREDFLOG_FACTOR"].value is not None
+                    else 2.0
+                ),
+            )
+        )
 
     if "Spindown" in component_names:
         components.append(vl.Spindown())
@@ -406,9 +448,11 @@ def construct_woodbury_kernel(model: TimingModel, toas: TOAs, inner_kernel):
 
     component_names = list(model.components.keys())
 
-    for gpcomp, nharmpar, vela_gp_type in zip(
+    for gpcomp, nharmpar, nlogharmpar, logfacpar, vela_gp_type in zip(
         ["PLRedNoise", "PLDMNoise", "PLChromNoise"],
         ["TNREDC", "TNDMC", "TNCHROMC"],
+        ["TNREDFLOG", "TNDMFLOG", "TNCHROMFLOG"],
+        ["TNREDFLOG_FACTOR", "TNDMFLOG_FACTOR", "TNCHROMFLOG_FACTOR"],
         [
             vl.PowerlawRedNoiseGP,
             vl.PowerlawDispersionNoiseGP,
@@ -416,7 +460,21 @@ def construct_woodbury_kernel(model: TimingModel, toas: TOAs, inner_kernel):
         ],
     ):
         if gpcomp in component_names:
-            gp_components.append(vela_gp_type(int(model[nharmpar].value)))
+            gp_components.append(
+                vela_gp_type(
+                    int(model[nharmpar].value),
+                    (
+                        int(model[nlogharmpar].value)
+                        if model[nlogharmpar].value is not None
+                        else 0
+                    ),
+                    (
+                        float(model[logfacpar].value)
+                        if model[logfacpar].value is not None
+                        else 2.0
+                    ),
+                )
+            )
             toa_basis = model.components[gpcomp].get_noise_basis(toas)
 
             if not toas.wideband:

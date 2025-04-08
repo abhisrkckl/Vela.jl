@@ -2,6 +2,7 @@
 ## Added
 - Support for wideband TOAs in `WoodburyKernel`
 - Symlink for `pyvela/examples` in the root directory
+- Support for log-spaced frequencies in Fourier GP components
 ## Changed
 - Residual plot in `pyvela-plot` script
 ## Fixed

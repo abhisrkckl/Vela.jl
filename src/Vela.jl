@@ -3,7 +3,7 @@ module Vela
 
 using GeometricUnits
 using DoubleFloats: Double64
-using LinearAlgebra: dot, Symmetric, cholesky!, ldiv!, logdet
+using LinearAlgebra: dot, Symmetric, cholesky!, ldiv!, logdet, isposdef
 using .Threads: @threads, @spawn, fetch, nthreads
 using Unrolled: @unroll
 using Distributions

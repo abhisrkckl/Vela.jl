@@ -141,6 +141,11 @@ function _gls_lnlike_serial(
     params::NamedTuple,
 )
     Σinv, MT_Ninv_y = _calc_Σinv__and__MT_Ninv_y(inner_kernel, M, Ndiag, Φinv, y, params)
+
+    if !isposdef(Σinv)
+        return -Inf
+    end
+
     y_Ninv_y, logdet_N = _calc_y_Ninv_y__and__logdet_N(inner_kernel, Ndiag, y, params)
 
     Σinv_cf = cholesky!(Σinv)

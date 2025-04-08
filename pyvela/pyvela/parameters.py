@@ -175,6 +175,12 @@ def pint_parameters_to_vela(model: TimingModel, noise_params: List[str]):
         "TNREDC",  # Included separately in the component
         "TNDMC",
         "TNCHROMC",
+        "TNREDFLOG",
+        "TNDMFLOG",
+        "TNCHROMFLOG",
+        "TNREDFLOG_FACTOR",
+        "TNDMFLOG_FACTOR",
+        "TNCHROMFLOG_FACTOR",
     ]
 
     assert all(psp not in ignore_params for psp in pseudo_single_params), (
