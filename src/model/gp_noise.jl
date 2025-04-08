@@ -7,7 +7,7 @@ export PowerlawRedNoiseGP,
 Powerlaw spectral model for pulsar red noise.
 
 Reference:
-    [Lentati+ 2014](https://doi.org/10.1093/mnras/stt2122)
+    [Lentati+ 2014](https://doi.org/10.1093/mnras/stt2122),
 """
 function powerlaw(A, γ, f, f1)
     fyr = frequency(1 / 3600 / 24 / 365.25)
@@ -25,9 +25,23 @@ function evaluate_powerlaw_red_noise_gp(log10_A, γ, αs, βs, f1, Δt, ln_js)
 
     σ1 = sqrt(powerlaw(A, γ, f1, f1))
 
-    exp_im_ϕj = exp_im_ϕ1
     result = dimensionless(0.0)
-    for (α, β, ln_j) in zip(αs, βs, ln_js)
+
+    # Handle log-spaced harmonics
+    nlog = findfirst(iszero, ln_js) - 1
+    for ii = 1:nlog
+        α, β, ln_j = αs[ii], βs[ii], ln_js[ii]
+        j = exp(ln_j)
+        jfac = exp(-(γ / 2) * ln_j)
+        sincosϕ = sincos(j * ϕ1)
+        result += jfac * dot((α, β), sincosϕ)
+    end
+
+    # Handle linearly spaced harmonics
+    ntot = length(ln_js)
+    exp_im_ϕj = exp_im_ϕ1
+    for ii = (nlog+1):ntot
+        α, β, ln_j = αs[ii], βs[ii], ln_js[ii]
         jfac = exp(-(γ / 2) * ln_j)
         sincosϕ = imag(exp_im_ϕj), real(exp_im_ϕj)
         result += jfac * dot((α, β), sincosϕ)
@@ -67,12 +81,14 @@ power spectral density is assumed to be a power law. Corresponds to `PLRedNoise`
 `PINT`.
 
 Reference:
-    [Lentati+ 2014](https://doi.org/10.1093/mnras/stt2122)
+    [Lentati+ 2014](https://doi.org/10.1093/mnras/stt2122),
+    [van Haasteren & Vallisneri 2014](https://doi.org/10.1093/mnras/stu2157)
 """
 struct PowerlawRedNoiseGP{N} <: RedNoiseBase
     ln_js::NTuple{N,Float32}
 
-    PowerlawRedNoiseGP(Nlin::UInt, Nlog::UInt, logfac::Float64) = new{Nlin+Nlog}(Tuple(_calc_ln_js(Nlin, Nlog, logfac)))
+    PowerlawRedNoiseGP(Nlin::Int, Nlog::Int, logfac::Float64) =
+        new{Nlin+Nlog}(Tuple(_calc_ln_js(Nlin, Nlog, logfac)))
 end
 
 is_gp_noise(::PowerlawRedNoiseGP) = true
@@ -108,12 +124,14 @@ power spectral density is assumed to be a power law. Corresponds to `PLDMNoise` 
 `PINT`.
 
 Reference:
-    [Lentati+ 2014](https://doi.org/10.1093/mnras/stt2122)
+    [Lentati+ 2014](https://doi.org/10.1093/mnras/stt2122),
+    [van Haasteren & Vallisneri 2014](https://doi.org/10.1093/mnras/stu2157)
 """
 struct PowerlawDispersionNoiseGP{N} <: DispersionNoiseBase
     ln_js::NTuple{N,Float64}
 
-    PowerlawDispersionNoiseGP(Nlin::Int, Nlog::Int, logfac) = new{N}(Tuple(_calc_ln_js(Nlin, Nlog, logfac)))
+    PowerlawDispersionNoiseGP(Nlin::Int, Nlog::Int, logfac) =
+        new{Nlin+Nlog}(Tuple(_calc_ln_js(Nlin, Nlog, logfac)))
 end
 
 is_gp_noise(::PowerlawDispersionNoiseGP) = true
@@ -156,12 +174,14 @@ power spectral density is assumed to be a power law. Corresponds to `PLChromNois
 in PINT.
 
 Reference:
-    [Lentati+ 2014](https://doi.org/10.1093/mnras/stt2122)
+    [Lentati+ 2014](https://doi.org/10.1093/mnras/stt2122),
+    [van Haasteren & Vallisneri 2014](https://doi.org/10.1093/mnras/stu2157)
 """
 struct PowerlawChromaticNoiseGP{N} <: ChromaticNoiseBase
     ln_js::NTuple{N,Float64}
 
-    PowerlawChromaticNoiseGP(Nlin::Int, Nlog::Int, logfac) = new{N}(Tuple(_calc_ln_js(Nlin, Nlog, logfac)))
+    PowerlawChromaticNoiseGP(Nlin::Int, Nlog::Int, logfac) =
+        new{Nlin+Nlog}(Tuple(_calc_ln_js(Nlin, Nlog, logfac)))
 end
 
 is_gp_noise(::PowerlawChromaticNoiseGP) = true
