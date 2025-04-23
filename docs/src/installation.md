@@ -50,3 +50,18 @@ A basic example (using the Python wrapper) can be run like this:
 ```
 (vela) $ ./run_example_emcee.py NGC6440E.par NGC6440E.tim
 ```
+
+## Updating `Vela.jl`
+
+To update a `Vela.jl` installation, do the following.
+```
+(vela) $ julia
+julia> import Pkg
+julia> Pkg.update(["GeometricUnits", "Vela"])
+julia> exit()
+```
+
+To update `pyvela`, run
+```
+(vela) $ pip install pyvela --upgrade
+```
