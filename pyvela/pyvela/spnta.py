@@ -2,6 +2,7 @@ from functools import cached_property
 import json
 from copy import deepcopy
 from typing import IO, Iterable, List
+import warnings
 
 import numpy as np
 from scipy.linalg import cho_factor, cho_solve
@@ -423,6 +424,10 @@ class SPNTA:
         spnta = cls.__new__(cls)
 
         setup_log(level="WARNING")
+
+        if not toas.planets:
+            warnings.warn("Computing planetary ephemerides...")
+            toas.compute_posvels(ephem=model["EPHEM"].value, planets=True)
 
         spnta.model_pint = deepcopy(model)
         spnta.model_pint_modified = model
