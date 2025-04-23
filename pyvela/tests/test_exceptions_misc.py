@@ -40,3 +40,10 @@ def test_dmx_exception():
     m["DMXR2_0001"].value = m["DMXR2_0002"].value
     with pytest.raises(ValueError):
         SPNTA.from_pint(m, t)
+
+
+def test_no_planets():
+    parfile, timfile = f"{datadir}/NGC6440E.par", f"{datadir}/NGC6440E.tim"
+    m, t = get_model_and_toas(parfile, timfile, planets=False)
+    spnta = SPNTA.from_pint(m, t)
+    assert spnta.toas_pint.planets
