@@ -23,4 +23,4 @@ Vela
 
 A Bayesian pulsar timing and noise analysis package.
 
-The documentation can be found [here](https://abhisrkckl.github.io/Vela.jl/dev).
+The documentation can be found `here <https://abhisrkckl.github.io/Vela.jl/dev>`_.
