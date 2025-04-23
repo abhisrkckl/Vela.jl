@@ -2,7 +2,8 @@
 ## Added
 - Support for wideband TOAs in `WoodburyKernel`
 - Symlink for `pyvela/examples` in the root directory
-- Instructions for updating `Vela.jl` and `pyvela` 
+- Instructions for updating `Vela.jl` and `pyvela`
+- arXiv link in README 
 ## Changed
 - Residual plot in `pyvela-plot` script
 ## Fixed
