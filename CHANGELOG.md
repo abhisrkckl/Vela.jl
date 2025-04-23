@@ -2,7 +2,10 @@
 ## Added
 - Support for wideband TOAs in `WoodburyKernel`
 - Symlink for `pyvela/examples` in the root directory
-- In `SPNTA.from_pint()`, compute planetary ephemerides if they are absent in the input `TOAs` object.  
+- Instructions for updating `Vela.jl` and `pyvela`
+- arXiv link in README
+- CITATION file
+- In `SPNTA.from_pint()`, compute planetary ephemerides if they are absent in the input `TOAs` object.
 ## Changed
 - Residual plot in `pyvela-plot` script
 ## Fixed

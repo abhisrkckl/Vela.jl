@@ -16,4 +16,11 @@ Vela
    :target: LICENSE
    :alt: License: GPLv3
 
+.. image:: https://img.shields.io/badge/arXiv-2412.15858-b31b1b.svg
+   :target: https://arxiv.org/abs/2412.15858
+   :alt: arXiv
+
+
 A Bayesian pulsar timing and noise analysis package.
+
+The documentation can be found `here <https://abhisrkckl.github.io/Vela.jl/dev>`_.
