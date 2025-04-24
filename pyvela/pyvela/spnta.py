@@ -94,7 +94,7 @@ class SPNTA:
         self,
         parfile: str,
         timfile: str,
-        marginalize_gp_noise: bool = False,
+        marginalize_gp_noise: bool = True,
         cheat_prior_scale: float = 100.0,
         custom_priors: str | IO | dict = {},
         check: bool = True,
@@ -416,7 +416,7 @@ class SPNTA:
         cls,
         model: TimingModel,
         toas: TOAs,
-        marginalize_gp_noise: bool = False,
+        marginalize_gp_noise: bool = True,
         cheat_prior_scale: float = 100.0,
         custom_priors: dict | str | IO = {},
     ) -> "SPNTA":

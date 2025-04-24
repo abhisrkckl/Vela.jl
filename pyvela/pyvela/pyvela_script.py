@@ -95,10 +95,9 @@ def parse_args(argv):
         help="A JSON file containing the prior distributions for each free parameter. (Ignored if `-J` option is used.)",
     )
     parser.add_argument(
-        "-M",
-        "--marg_gp_noise",
+        "--no_marg_gp_noise",
         action="store_true",
-        help="Analytically marginalize the correlated Gaussian noise amplitudes.",
+        help="Don't analytically marginalize the correlated Gaussian noise amplitudes.",
     )
     parser.add_argument(
         "-T",
@@ -109,7 +108,7 @@ def parse_args(argv):
     parser.add_argument(
         "-C",
         "--cheat_prior_scale",
-        default=50,
+        default=100,
         type=float,
         help="The scale factor by which the frequentist uncertainties are multiplied to "
         "get the 'cheat' prior distributions.",
@@ -300,7 +299,7 @@ def main(argv=None):
             args.tim_file,
             cheat_prior_scale=args.cheat_prior_scale,
             custom_priors=(args.prior_file if args.prior_file is not None else {}),
-            marginalize_gp_noise=args.marg_gp_noise,
+            marginalize_gp_noise=(not args.no_marg_gp_noise),
         )
         if args.jlso_file is None
         else SPNTA.load_jlso(args.jlso_file, args.par_file)
