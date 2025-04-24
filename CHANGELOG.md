@@ -10,6 +10,7 @@
 - Residual plot in `pyvela-plot` script
 - Made GP noise marginalization the default in `SPNTA`
 ## Fixed
+- Julia example script `run_example.jl`
 ## Removed
 
 # 0.0.9

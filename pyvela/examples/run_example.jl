@@ -1,23 +1,24 @@
+#!/usr/bin/env julia
+
+# This script demonstrates the use of `Vela` in Julia.
+# It needs several packages that are not dependencies of `Vela`.
+# Please install them separately.
+
 using Vela
 using AffineInvariantMCMC
-using PythonCall
 using PairPlots
 using CairoMakie
 using DataFrames
 using CSV
 
-const p2v = pyimport("pyvela")
-const corner = pyimport("corner")
-const plt = pyimport("matplotlib.pyplot")
-
 function main()
     parfile, timfile = ARGS
 
-    m, t = map(
-        pyconvert,
-        (TimingModel, Vector{TOA}),
-        p2v.read_model_and_toas(parfile, timfile),
-    )
+    # Vela doesn't know how to read par and tim files. 
+    # They must be converted into a JLSO file first. 
+    run(`pyvela-jlso $parfile $timfile -o __$parfile.jlso`)
+
+    m, t = Vela.load_pulsar_data("__$parfile.jlso")
 
     lnpost = get_lnpost_func(m, t)
     prior_transform = get_prior_transform_func(m)
