@@ -123,7 +123,6 @@ def main(argv=None):
     ax.errorbar(
         mjds, tres, terr, marker="+", ls="", alpha=1, color="orange", label="Pre-fit"
     )
-    ax.axhline(0, ls="dotted", color="k")
     ax.set_ylabel("Time res (pre) (s)")
     # ax.legend()
 
@@ -141,6 +140,7 @@ def main(argv=None):
     )
     ax1.legend()
     ax1.set_ylabel("Time res (post) (s)")
+    ax1.axhline(0, ls="dotted", color="k")
 
     if wb:
         plt.xticks([])
@@ -155,7 +155,7 @@ def main(argv=None):
             color="orange",
             label="Pre-fit",
         )
-        ax.axhline(0, ls="dotted", color="k")
+
         ax.set_ylabel("DM res (pre) (dmu)")
 
         ax1 = ax.twinx()
@@ -170,6 +170,7 @@ def main(argv=None):
             label="Post fit whitened",
         )
         ax1.set_ylabel("DM res (post) (dmu)")
+        ax1.axhline(0, ls="dotted", color="k")
 
     ax.set_xlabel("MJD - PEPOCH")
     plt.show()

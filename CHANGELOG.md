@@ -5,10 +5,13 @@
 - Support for log-spaced frequencies in Fourier GP components
 - Instructions for updating `Vela.jl` and `pyvela`
 - arXiv link in README
-- CITATION file 
+- CITATION file
+- In `SPNTA.from_pint()`, compute planetary ephemerides if they are absent in the input `TOAs` object.
 ## Changed
 - Residual plot in `pyvela-plot` script
+- Made GP noise marginalization the default in `SPNTA`
 ## Fixed
+- Julia example script `run_example.jl`
 ## Removed
 
 # 0.0.9

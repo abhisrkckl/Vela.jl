@@ -2,6 +2,7 @@ from functools import cached_property
 import json
 from copy import deepcopy
 from typing import IO, Iterable, List
+import warnings
 
 import numpy as np
 from scipy.linalg import cho_factor, cho_solve
@@ -93,7 +94,7 @@ class SPNTA:
         self,
         parfile: str,
         timfile: str,
-        marginalize_gp_noise: bool = False,
+        marginalize_gp_noise: bool = True,
         cheat_prior_scale: float = 100.0,
         custom_priors: str | IO | dict = {},
         check: bool = True,
@@ -415,7 +416,7 @@ class SPNTA:
         cls,
         model: TimingModel,
         toas: TOAs,
-        marginalize_gp_noise: bool = False,
+        marginalize_gp_noise: bool = True,
         cheat_prior_scale: float = 100.0,
         custom_priors: dict | str | IO = {},
     ) -> "SPNTA":
@@ -423,6 +424,10 @@ class SPNTA:
         spnta = cls.__new__(cls)
 
         setup_log(level="WARNING")
+
+        if not toas.planets:
+            warnings.warn("Computing planetary ephemerides...")
+            toas.compute_posvels(ephem=model["EPHEM"].value, planets=True)
 
         spnta.model_pint = deepcopy(model)
         spnta.model_pint_modified = model

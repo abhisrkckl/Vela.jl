@@ -52,6 +52,7 @@ def model_and_toas(request):
         parfile,
         timfile,
         custom_priors=custom_priors,
+        marginalize_gp_noise=False,
     )
 
     if (
