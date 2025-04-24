@@ -1,4 +1,4 @@
-from typing import IO
+from typing import IO, Optional
 import emcee
 import numpy as np
 from pint.fitter import Fitter
@@ -53,6 +53,8 @@ class VelaFitter(Fitter):
             else WidebandTOAResiduals(self.toas, self.model)
         )
 
+        self.samples: Optional[np.ndarray] = None
+
     @property
     def model(self):
         return self.spnta.model_pint
@@ -94,6 +96,8 @@ class VelaFitter(Fitter):
         sampler.run_mcmc(p0, nsteps, progress=True, progress_kwargs={"mininterval": 1})
         samples_raw = sampler.get_chain(flat=True, discard=burnin, thin=thin)
         samples = self.spnta.rescale_samples(samples_raw)
+
+        self.samples = samples
 
         param_uncertainties = np.std(samples, axis=0)
         params_median = np.median(samples, axis=0)
