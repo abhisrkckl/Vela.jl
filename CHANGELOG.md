@@ -9,6 +9,7 @@
 ## Changed
 - Residual plot in `pyvela-plot` script
 ## Fixed
+- Julia example script `run_example.jl`
 ## Removed
 
 # 0.0.9
