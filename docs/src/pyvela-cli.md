@@ -10,7 +10,7 @@ prior distributions, sampler, etc is not necessary. It has the followingb syntax
 ```
 $ pyvela -h
 
-usage: pyvela [-h] [-J JLSO_FILE] [-P PRIOR_FILE] [-M] [-T TRUTH] [-C CHEAT_PRIOR_SCALE] [-o OUTDIR] [-f] [-N NSTEPS] [-b BURNIN] [-t THIN] par_file [tim_file]
+usage: pyvela [-h] [-J JLSO_FILE] [-P PRIOR_FILE] [-T TRUTH] [-C CHEAT_PRIOR_SCALE] [-o OUTDIR] [-f] [-N NSTEPS] [-b BURNIN] [-t THIN] par_file [tim_file]
 
 A command line interface for the Vela.jl pulsar timing & noise analysis package. Uses emcee for sampling. This may not be appropriate for more complex datasets. Write your own scripts for such cases.
 
@@ -25,7 +25,6 @@ options:
                         files are faster to read and parse.
   -P PRIOR_FILE, --prior_file PRIOR_FILE
                         A JSON file containing the prior distributions for each free parameter. (Ignored if `-J` option is used.)
-  -M, --marg_gp_noise   Analytically marginalize the correlated Gaussian noise amplitudes.
   -T TRUTH, --truth TRUTH
                         Pulsar ephemeris file containing the true timing and noise parameter values. Relevant for simulation studies.
   -C CHEAT_PRIOR_SCALE, --cheat_prior_scale CHEAT_PRIOR_SCALE
