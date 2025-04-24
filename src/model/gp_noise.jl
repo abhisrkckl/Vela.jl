@@ -2,12 +2,12 @@ export PowerlawRedNoiseGP,
     PowerlawDispersionNoiseGP, PowerlawChromaticNoiseGP, calc_noise_weights_inv
 
 """
-    powerlaw
+    powerlaw(A, γ, f, f1)
 
 Powerlaw spectral model for pulsar red noise.
 
 Reference:
-    [Lentati+ 2014](https://doi.org/10.1093/mnras/stt2122),
+    [Lentati+ 2014](https://doi.org/10.1093/mnras/stt2122)
 """
 function powerlaw(A, γ, f, f1)
     fyr = frequency(1 / 3600 / 24 / 365.25)
@@ -15,6 +15,11 @@ function powerlaw(A, γ, f, f1)
     return A * A / denom * (fyr / f)^γ * f1
 end
 
+"""
+    evaluate_powerlaw_red_noise_gp
+
+Evaluate the power law Fourier-basis red noise delay/DM/CM.
+"""
 function evaluate_powerlaw_red_noise_gp(log10_A, γ, αs, βs, f1, Δt, ln_js)
     @assert length(αs) == length(βs) == length(ln_js)
 
@@ -51,6 +56,11 @@ function evaluate_powerlaw_red_noise_gp(log10_A, γ, αs, βs, f1, Δt, ln_js)
     return σ1 * result
 end
 
+"""
+    evaluate_powerlaw_red_noise_weights_inv(log10_A, γ, f1, ln_js)
+
+Evaluate the prior weights for a power law red noise.
+"""
 function evaluate_powerlaw_red_noise_weights_inv(log10_A, γ, f1, ln_js)
     A = exp10(log10_A)
 
@@ -67,6 +77,7 @@ function evaluate_powerlaw_red_noise_weights_inv(log10_A, γ, f1, ln_js)
     return weights_inv
 end
 
+"""Compute log(j) for a given number of linear and log-spaced harmonics."""
 function _calc_ln_js(Nlin, Nlog, logfac)
     log_js_lin = map(log, 1:Nlin)
     log_js_log = (1 / logfac) .^ (Nlog:-1:1)
