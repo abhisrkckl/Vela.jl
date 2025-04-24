@@ -63,7 +63,7 @@ class VelaFitter(Fitter):
     def toas(self):
         return self.spnta.toas_pint
 
-    def fit_toas(
+    def fit_toas_mcmc(
         self, nsteps: int = 6000, burnin: int = 2000, thin: int = 100, **kwargs
     ):
         """Fit the model to data.
@@ -118,3 +118,10 @@ class VelaFitter(Fitter):
             self.resids.update()
         else:
             self.resids.toa.update()
+
+    def fit_toas(self, mcmc:bool=False, **kwargs):
+        if mcmc:
+            self.fit_toas_mcmc(**kwargs)
+        else:
+            raise NotImplementedError
+            # self.fit_toas_maxpost(**kwargs)
