@@ -186,12 +186,12 @@ class VelaFitter(Fitter):
 
     def fit_toas(self, mcmc: bool = False, **kwargs):
         """Fit the model to data. The parameter estimation can be done by either sampling the
-        posterior distribution using MCMC or by maximizing the log-posterior. The former is 
-        more robust but the latter is faster. 
+        posterior distribution using MCMC or by maximizing the log-posterior. The former is
+        more robust but the latter is faster.
 
         The fitting methods are implemented in `fit_toas_mcmc()` and `fit_toas_maxpost()` methods.
         This function is just a wrapper around them.
-        
+
         Parameters
         ----------
         mcmc: bool
