@@ -8,6 +8,7 @@
 - In `SPNTA.from_pint()`, compute planetary ephemerides if they are absent in the input `TOAs` object.
 ## Changed
 - Residual plot in `pyvela-plot` script
+- Made GP noise marginalization the default in SPNTA
 ## Fixed
 ## Removed
 
