@@ -2,11 +2,11 @@
     kernel = WoodburyKernel(
         WhiteNoiseKernel(),
         (
-            PowerlawRedNoiseGP(10),
-            PowerlawDispersionNoiseGP(15),
-            PowerlawChromaticNoiseGP(5),
+            PowerlawRedNoiseGP(10, 4, 2.0),
+            PowerlawDispersionNoiseGP(15, 4, 2.0),
+            PowerlawChromaticNoiseGP(5, 4, 2.0),
         ),
-        randn(1000, 60),
+        randn(1000, 84),
     )
 
     params = (
@@ -22,15 +22,15 @@
         PLCHROMFREQ = frequency(1e-8),
     )
 
-    @test length(calc_noise_weights_inv(kernel, params)) == 60
+    @test length(calc_noise_weights_inv(kernel, params)) == 60 + 24
     @test all(calc_noise_weights_inv(kernel, params) .> 0)
 
-    @test calc_noise_weights_inv(kernel, params)[1:10] ==
-          calc_noise_weights_inv(kernel, params)[11:20]
-    @test calc_noise_weights_inv(kernel, params)[21:35] ==
-          calc_noise_weights_inv(kernel, params)[36:50]
-    @test calc_noise_weights_inv(kernel, params)[51:55] ==
-          calc_noise_weights_inv(kernel, params)[56:60]
+    @test calc_noise_weights_inv(kernel, params)[1:14] ==
+          calc_noise_weights_inv(kernel, params)[15:28]
+    @test calc_noise_weights_inv(kernel, params)[29:47] ==
+          calc_noise_weights_inv(kernel, params)[48:66]
+    @test calc_noise_weights_inv(kernel, params)[67:75] ==
+          calc_noise_weights_inv(kernel, params)[76:84]
 
     @testset "gls likelihood utils" begin
         y = randn(100)

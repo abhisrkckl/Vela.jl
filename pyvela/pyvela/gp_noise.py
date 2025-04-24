@@ -16,6 +16,8 @@ class PLRedNoiseGP(DelayComponent):
         self.add_param(plrednoise.TNREDGAM)
         self.add_param(plrednoise.TNREDC)
         self.add_param(plrednoise.PLREDFREQ)
+        self.add_param(plrednoise.TNREDFLOG)
+        self.add_param(plrednoise.TNREDFLOG_FACTOR)
 
         self.add_param(
             MJDParameter(
@@ -28,7 +30,12 @@ class PLRedNoiseGP(DelayComponent):
             )
         )
 
-        for ii in range(1, int(plrednoise.TNREDC.value) + 1):
+        Nharm = int(plrednoise.TNREDC.value) + (
+            int(plrednoise.TNREDFLOG.value)
+            if plrednoise.TNREDFLOG.value is not None
+            else 0
+        )
+        for ii in range(1, Nharm + 1):
             self.add_param(
                 prefixParameter(
                     parameter_type="float",
@@ -70,6 +77,8 @@ class PLDMNoiseGP(DelayComponent):
         self.add_param(pldmnoise.TNDMGAM)
         self.add_param(pldmnoise.TNDMC)
         self.add_param(pldmnoise.PLDMFREQ)
+        self.add_param(pldmnoise.TNDMFLOG)
+        self.add_param(pldmnoise.TNDMFLOG_FACTOR)
 
         self.add_param(
             MJDParameter(
@@ -82,7 +91,10 @@ class PLDMNoiseGP(DelayComponent):
             )
         )
 
-        for ii in range(1, int(pldmnoise.TNDMC.value) + 1):
+        Nharm = int(pldmnoise.TNDMC.value) + (
+            int(pldmnoise.TNDMFLOG.value) if pldmnoise.TNDMFLOG.value is not None else 0
+        )
+        for ii in range(1, Nharm + 1):
             self.add_param(
                 prefixParameter(
                     parameter_type="float",
@@ -124,6 +136,8 @@ class PLChromNoiseGP(DelayComponent):
         self.add_param(plchromnoise.TNCHROMGAM)
         self.add_param(plchromnoise.TNCHROMC)
         self.add_param(plchromnoise.PLCHROMFREQ)
+        self.add_param(plchromnoise.TNCHROMFLOG)
+        self.add_param(plchromnoise.TNCHROMFLOG_FACTOR)
 
         self.add_param(
             MJDParameter(
@@ -136,7 +150,12 @@ class PLChromNoiseGP(DelayComponent):
             )
         )
 
-        for ii in range(1, int(plchromnoise.TNCHROMC.value) + 1):
+        Nharm = int(plchromnoise.TNCHROMC.value) + (
+            int(plchromnoise.TNCHROMFLOG.value)
+            if plchromnoise.TNCHROMFLOG.value is not None
+            else 0
+        )
+        for ii in range(1, Nharm + 1):
             self.add_param(
                 prefixParameter(
                     parameter_type="float",
