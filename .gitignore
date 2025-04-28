@@ -195,3 +195,4 @@ pyvela_results
 __prior.json
 pyvela/examples/*_out/
 pyvela/examples/__chain.h5
+__*.h5

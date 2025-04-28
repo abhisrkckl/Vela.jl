@@ -116,3 +116,31 @@ upper bounds for truncating the distribution (see [`truncated`](https://juliasta
 Note that the values above should be given in their "normal" units as they appear in the par files. 
 Specifically, the prior on M2 corresponds  to 0.1 ± 0.02 Msun, where the normal distribution is truncated 
 at a lower bound of 0. 
+
+## Default priors
+
+The following table lists the parameters for which default prior distributions are available.
+More parameters will be added to this table in the future.
+
+| **Parameter** | **Description & Unit**                                                      | **Prior distribution**                                          | **Remarks**      |
+|:-------------:|:----------------------------------------------------------------------------|:----------------------------------------------------------------|:-----------------|
+| DMEFAC        | Wideband DM uncertainty correction (multiplicative)                         | `LogNormal[0, 0.25]`                                            |                  |
+| DMEQUAD       | Wideband DM uncertainty correction (added in quadrature) (pc/cm^3)          | `LogUniform[1e-8, 1e-2]`                                        |                  |
+| DMX_          | Piecewise-constant DM parameters (pc / cm^3)                                | `Normal[0, 1e-2]`                                               |                  |
+| EFAC          | TOA uncertainty correction (multiplicative)                                 | `LogNormal[0, 0.25]`                                            |                  |
+| EQUAD         | TOA uncertainty correction (added in quadrature) (μs)                       | `LogUniform[1e-3, 1e+2]`                                        |                  |
+| ECORR         | Correlation between narrowband TOAs measured from the same observation (μs) | `LogUniform[1e-3, 1e+2]`                                        |                  |
+| KIN           | Orbital inclination (deg)                                                   | `P(KIN) = sin(KIN)`                                             | 0 <= KIN <= 90.  |
+| KOM           | Longitude of ascending node (deg)                                           | `LogNormal[0, 360]`                                             |                  |
+| PHOFF         | Overall phase offset                                                        | `Uniform[-0.5, 0.5]`                                            |                  |
+| PX            | Parallax (mas)                                                              | `P(PX) = 3 / Rmax^3 / PX^4`                                     | 0 <= PX <= Rmax  |
+| SHAPMAX       | Log-scaled inclination parameter                                            | `P(SHAPMAX) = (1 - exp(-SHAPMAX)) / (sqrt(2 * exp(SHAPMAX) - 1))`| 0 <= SHAPMAX    |
+| SINI          | Orbital sine-inclination                                                    | `P(SINI) = SINI / sqrt(1 - SINI^2)`                             | 0 <= SINI <= 1   |
+| STIGMA        | Orthometric Shapiro delay parameter                                         | `P(STIGMA) = 4 * STIGMA / (1 + STIGMA^2)^2`                     | 0 <= STIGMA <= 1 |
+| TNCHROMAMP    | Chromatic noise log-amplitude                                               | `Uniform[-18, -9]`                                              |                  |
+| TNCHROMGAM    | Chromatic noise log-amplitude                                               | `Uniform[0, 7]`                                                 |                  |
+| TNDMAMP       | DM noise log-amplitude                                                      | `Uniform[-18, -9]`                                              |                  |
+| TNDMGAM       | DM noise spectral index                                                     | `Uniform[0, 7]`                                                 |                  |
+| TNREDAMP      | Spin noise log-amplitude                                                    | `Uniform[-18, -9]`                                              |                  |
+| TNREDGAM      | Spin noise spectral index                                                   | `Uniform[0, 7]`                                                 |                  |
+
