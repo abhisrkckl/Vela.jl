@@ -1,5 +1,8 @@
 export KINPriorDistribution,
-    SINIPriorDistribution, STIGMAPriorDistribution, SHAPMAXPriorDistribution
+    SINIPriorDistribution,
+    STIGMAPriorDistribution,
+    SHAPMAXPriorDistribution,
+    PXPriorDistribution
 
 abstract type CustomPriorDistribution <: ContinuousUnivariateDistribution end
 
