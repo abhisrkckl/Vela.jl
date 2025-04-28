@@ -1,4 +1,5 @@
 import numpy as np
+import astropy.units as u
 from pint import DMconst
 from pint.toa import TOAs
 
@@ -10,8 +11,12 @@ day_to_s = 86400
 def pint_toa_to_vela(toas: TOAs, idx: int, epoch_mjd: float):
     """Construct a `Vela.TOA` object from a `PINT` `TOAs` object and an index."""
 
-    assert toas.planets
-    assert toas.get_pulse_numbers() is not None
+    assert (
+        toas.planets
+    ), "Planerary ephemeris not found in `TOAs` object. Use `planets=True` while reading in the TOAs."
+    assert (
+        toas.get_pulse_numbers() is not None
+    ), "Pulse numbers not found in `TOAs` object. Call `toas.compute_pulse_numbers()`."
 
     tdb_ld = (toas.table["tdbld"].value[idx] - epoch_mjd) * day_to_s
     # tdb_ld1, tdb_ld2 = np.modf(tdb_ld)
@@ -25,41 +30,41 @@ def pint_toa_to_vela(toas: TOAs, idx: int, epoch_mjd: float):
     phase1, phase2 = np.modf(phase)
     phase = vl.dimensionless(vl.Double64(phase2, phase1))
 
-    err = vl.time(toas.get_errors()[idx].si.value)
-    freq = vl.frequency(toas.get_freqs()[idx].si.value)
+    err = vl.time(toas.get_errors()[idx].to_value(u.s))
+    freq = vl.frequency(toas.get_freqs()[idx].to_value(u.Hz))
 
     ssb_obs_pos = jl.map(
         vl.distance,
-        jl.Tuple(toas.table["ssb_obs_pos"].quantity[idx].to_value("lightsecond")),
+        jl.Tuple(toas.table["ssb_obs_pos"].quantity[idx].to_value(u.lightsecond)),
     )
     ssb_obs_vel = jl.map(
         vl.speed,
-        jl.Tuple(toas.table["ssb_obs_vel"].quantity[idx].to_value("lightsecond/s")),
+        jl.Tuple(toas.table["ssb_obs_vel"].quantity[idx].to_value(u.lightsecond / u.s)),
     )
     obs_sun_pos = jl.map(
         vl.distance,
-        jl.Tuple(toas.table["obs_sun_pos"].quantity[idx].to_value("lightsecond")),
+        jl.Tuple(toas.table["obs_sun_pos"].quantity[idx].to_value(u.lightsecond)),
     )
 
     obs_jupiter_pos = jl.map(
         vl.distance,
-        jl.Tuple(toas.table["obs_jupiter_pos"].quantity[idx].to_value("lightsecond")),
+        jl.Tuple(toas.table["obs_jupiter_pos"].quantity[idx].to_value(u.lightsecond)),
     )
     obs_saturn_pos = jl.map(
         vl.distance,
-        jl.Tuple(toas.table["obs_saturn_pos"].quantity[idx].to_value("lightsecond")),
+        jl.Tuple(toas.table["obs_saturn_pos"].quantity[idx].to_value(u.lightsecond)),
     )
     obs_venus_pos = jl.map(
         vl.distance,
-        jl.Tuple(toas.table["obs_venus_pos"].quantity[idx].to_value("lightsecond")),
+        jl.Tuple(toas.table["obs_venus_pos"].quantity[idx].to_value(u.lightsecond)),
     )
     obs_uranus_pos = jl.map(
         vl.distance,
-        jl.Tuple(toas.table["obs_uranus_pos"].quantity[idx].to_value("lightsecond")),
+        jl.Tuple(toas.table["obs_uranus_pos"].quantity[idx].to_value(u.lightsecond)),
     )
     obs_neptune_pos = jl.map(
         vl.distance,
-        jl.Tuple(toas.table["obs_neptune_pos"].quantity[idx].to_value("lightsecond")),
+        jl.Tuple(toas.table["obs_neptune_pos"].quantity[idx].to_value(u.lightsecond)),
     )
 
     ephem = vl.SolarSystemEphemeris(
@@ -80,7 +85,9 @@ def pint_wbtoa_to_vela(toas: TOAs, idx: int, epoch_mjd: float):
     """Construct a `Vela.WidebandTOA`s from a `PINT` `TOAs` object containing
     wideband data and an index."""
 
-    assert toas.is_wideband()
+    assert (
+        toas.is_wideband()
+    ), "Expected a wideband `TOAs` object here. Make sure that all TOAs have the `-ppdm` and `-ppdme` flags."
 
     vtoa = pint_toa_to_vela(toas, idx, epoch_mjd)
 

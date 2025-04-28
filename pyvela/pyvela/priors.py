@@ -2,7 +2,6 @@ from typing import List
 
 import numpy as np
 from astropy.time import Time
-
 from pint.models import TimingModel
 from pint.models.parameter import AngleParameter, MJDParameter, floatParameter
 
@@ -15,9 +14,14 @@ from .parameters import (
 from .toas import day_to_s
 from .vela import jl, vl
 
+# Some of these prior distributions are based on physical considerations.
+# Others are based on typical values found in millisecond pulsars. They
+# may not be valid for slow pulsars.
 DEFAULT_PRIOR_DISTS = {
     "PHOFF": jl.Uniform(-0.5, 0.5),
     "EFAC": jl.LogNormal(0.0, 0.25),
+    "EQUAD": jl.LogUniform(1e-9, 1e-4),
+    "ECORR": jl.LogUniform(1e-9, 1e-4),
     "KOM": jl.Uniform(0.0, 2 * jl.pi),
     "KIN": vl.KINPriorDistribution(),
     "SINI": vl.SINIPriorDistribution(),
@@ -53,7 +57,9 @@ def get_default_prior(
     distribution centered at the default value in the `model`, and a width that is
     `2 * cheat_prior_scale` times the uncertainty quoted in the model."""
 
-    assert param_name in model.free_params
+    assert (
+        param_name in model.free_params
+    ), "Refusing to construct prior for a non-free parameter."
 
     param = model[param_name]
 
@@ -78,9 +84,11 @@ def get_default_prior(
             else 0.0
         )
 
-        assert (
-            param.uncertainty is not None and param.uncertainty > 0
-        ), f"Uncertainty not given for {param_name}."
+        assert param.uncertainty is not None and param.uncertainty > 0, (
+            f"Unable to construct prior for {param_name}. This can be resolved by "
+            f"(a) defining a prior in the prior file or "
+            f"(b) providing the frequentist uncertainty in the par file so that a 'cheat' prior can be used."
+        )
         err = (param.uncertainty * scale_factor).si.value
 
         pmin = val - cheat_prior_scale * err
@@ -133,7 +141,10 @@ def get_default_priors(
     params_disallow_custom_priors = {"PLREDCOS_", "PLREDSIN_", "PLDMCOS_", "PLDMSIN_"}
     assert (
         len(params_disallow_custom_priors.intersection(custom_prior_dists.keys())) == 0
-    ), f"Custom priors cannot be set for the following parameters: {params_disallow_custom_priors.intersection(custom_prior_dists.keys())}"
+    ), (
+        f"Custom priors cannot be set for the following parameters: {params_disallow_custom_priors.intersection(custom_prior_dists.keys())}. "
+        f"The priors for these parameters are defined by the model."
+    )
 
     return tuple(
         get_default_prior(
@@ -144,7 +155,10 @@ def get_default_priors(
 
 
 def process_custom_priors(custom_priors_raw: dict, model: TimingModel) -> dict:
-    output_dict = dict()
+    """Generate a Dict[str, jl.Distribution] from the input prior dictionary, usually
+    read from a JSON file. This function unit conversions and the interpretation of
+    `upper`/`lower` attributes."""
+    output_dict = {}
     for par in model.free_params:
         prior_info: dict
         if par in custom_priors_raw:

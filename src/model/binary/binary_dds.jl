@@ -1,6 +1,9 @@
 export BinaryDDS
 
-"""The Damour & Deruelle model for eccentric binaries with an alternative parametrization of
+"""
+    BinaryDDS
+
+The Damour & Deruelle model for eccentric binaries with an alternative parametrization of
 Shapiro delay applicable to almost edge-on orbits.
 
 References:

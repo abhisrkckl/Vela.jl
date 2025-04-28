@@ -15,9 +15,13 @@ function correct_toa(
     return WidebandTOACorrection(wtoacorr.toa_correction, dmcorr)
 end
 
-"""System-dependent wideband DM offsets (`DMJUMP`) with non-exclusive selection masks.
+"""
+    DispersionJump
+    
+System-dependent wideband DM offsets (`DMJUMP`) with non-exclusive selection masks.
 
 Unlike an `FDJUMPDM`, a `DMJUMP` only provides a DM correction and no delay.
+Corresponds to `DispersionJump` in `PINT`.
 
 Reference:
     [Alam+ 2021](http://doi.org/10.3847/1538-4365/abc6a1)
@@ -46,7 +50,10 @@ function show(io::IO, dmjump::DispersionJump)
     print(io, "DispersionJump($num_jumps DMJUMPs)")
 end
 
-"""System-dependent wideband DM offsets (`DMJUMP`) with exclusive selection masks.
+"""
+    ExclusiveDispersionJump
+
+System-dependent wideband DM offsets (`DMJUMP`) with exclusive selection masks.
 Unlike an `FDJUMPDM`, a `DMJUMP` only provides a DM correction and no delay."""
 struct ExclusiveDispersionJump <: DispersionJumpBase
     jump_mask::Vector{UInt}

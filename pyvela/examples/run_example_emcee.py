@@ -16,11 +16,16 @@ parser = ArgumentParser()
 parser.add_argument("par_file")
 parser.add_argument("tim_file")
 parser.add_argument("-P", "--priors", default={})
+parser.add_argument("-M", "--marg_gp_noise", action="store_true")
 args = parser.parse_args()
 
 
 spnta = SPNTA(
-    args.par_file, args.tim_file, cheat_prior_scale=10, custom_priors=args.priors
+    args.par_file,
+    args.tim_file,
+    cheat_prior_scale=40,
+    custom_priors=args.priors,
+    marginalize_gp_noise=args.marg_gp_noise,
 )
 
 
@@ -30,16 +35,16 @@ shifts = [
 ]
 
 
-maxlike_params_v = np.array([spnta.maxlike_params])
+default_params_v = np.array([spnta.default_params])
 
 
-print(spnta.lnpost_vectorized(maxlike_params_v))
+print(spnta.lnpost_vectorized(default_params_v))
 print(
-    timeit("spnta.lnpost_vectorized(maxlike_params_v)", globals=globals(), number=1000)
+    timeit("spnta.lnpost_vectorized(default_params_v)", globals=globals(), number=1000)
 )
 
 
-nwalkers = spnta.ndim * 5
+nwalkers = spnta.ndim * 4
 p0 = np.array(
     [spnta.prior_transform(cube) for cube in np.random.rand(nwalkers, spnta.ndim)]
 )
@@ -84,12 +89,13 @@ rv = spnta.time_residuals(params_median)
 errs = spnta.scaled_toa_unceritainties(params_median)
 
 samples_for_plot = samples_v[:, param_plot_mask]
+labels_for_plot = np.array(spnta.param_labels)[param_plot_mask]
 fig = corner.corner(
     samples_for_plot,
-    labels=np.array(spnta.param_labels)[param_plot_mask],
+    labels=labels_for_plot,
     label_kwargs={"fontsize": 11},
-    range=[0.999] * spnta.ndim,
-    truths=(maxlike_params_v[0] / spnta.scale_factors)[param_plot_mask],
+    range=[0.999] * len(labels_for_plot),
+    truths=(default_params_v[0] / spnta.scale_factors)[param_plot_mask],
     plot_datapoints=False,
     hist_kwargs={"density": True},
     labelpad=0.3,
@@ -100,7 +106,7 @@ plt.suptitle(spnta.model.pulsar_name)
 
 plt.subplot(6, 3, 3)
 plt.errorbar(
-    spnta.get_mjds(),
+    spnta.mjds,
     rv,
     errs,
     ls="",

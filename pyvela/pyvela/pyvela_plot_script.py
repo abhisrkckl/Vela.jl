@@ -1,20 +1,29 @@
-from typing import Iterable
-import numpy as np
-import matplotlib.pyplot as plt
-import corner
 import json
 from argparse import ArgumentParser
+from typing import Iterable
+
+import corner
+import matplotlib.pyplot as plt
+import numpy as np
 from astropy import units as u
-from pint import dmu, DMconst
+from pint import DMconst, dmu
 
 
 def parse_args(argv):
     parser = ArgumentParser(
         prog="pyvela-plot",
-        description="Plot pyvela results.",
+        description="Create a corner plot from pyvela results.",
     )
-    parser.add_argument("result_dir")
-    parser.add_argument("-I", "--ignore_params", nargs="+", default=[])
+    parser.add_argument(
+        "result_dir", help="A directory containing the output of the `pyvela` script."
+    )
+    parser.add_argument(
+        "-I",
+        "--ignore_params",
+        nargs="+",
+        default=[],
+        help="Parameters to exclude from the corner plot.",
+    )
 
     return parser.parse_args(argv)
 
@@ -72,28 +81,32 @@ def main(argv=None):
     param_plot_mask = get_param_plot_mask(param_names, param_prefixes, args)
 
     plot_labels = [
-        f"{pname}\n{punit}"
+        f"{pname}\n{punit if punit != '1' else ''}"
         for pname, punit in zip(
             param_names[param_plot_mask], param_units[param_plot_mask]
         )
     ]
 
     residuals_data = np.genfromtxt(f"{args.result_dir}/residuals.txt")
-    wb = residuals_data.shape[1] == 5
+    wb = residuals_data.shape[1] == 7
     if wb:
-        mjds, tres, terr, dres, derr = residuals_data.T
+        mjds, tres, tres_w, terr, dres, dres_w, derr = residuals_data.T
         dres = (dres * u.Hz / DMconst).to_value(dmu)
+        dres_w = (dres_w * u.Hz / DMconst).to_value(dmu)
         derr = (derr * u.Hz / DMconst).to_value(dmu)
     else:
-        mjds, tres, terr = residuals_data.T
+        mjds, tres, tres_w, terr = residuals_data.T
 
-    true_values = read_true_values(args)[param_plot_mask]
+    true_values_all = read_true_values(args)
+    true_values = (
+        true_values_all[param_plot_mask] if true_values_all is not None else None
+    )
 
     fig = corner.corner(
         samples[:, param_plot_mask],
         labels=plot_labels,
         label_kwargs={"fontsize": 9},
-        labelpad=0.04 * len(param_plot_mask),
+        labelpad=0.2,
         max_n_ticks=3,
         plot_datapoints=False,
         hist_kwargs={"density": True},
@@ -106,15 +119,58 @@ def main(argv=None):
         ax.yaxis.get_offset_text().set_fontsize(8)
         ax.xaxis.get_offset_text().set_fontsize(8)
 
-    plt.subplot(5, 3, 3)
-    plt.errorbar(mjds, tres, terr, marker="+", ls="", alpha=0.9)
-    plt.axhline(0, ls="dotted", color="k")
-    plt.ylabel("Time res (s)")
+    ax = plt.subplot(5, 2, 2)
+    ax.errorbar(
+        mjds, tres, terr, marker="+", ls="", alpha=1, color="orange", label="Pre-fit"
+    )
+    ax.set_ylabel("Time res (pre) (s)")
+    # ax.legend()
+
+    ax1 = ax.twinx()
+    ax1.errorbar([], [], [], ls="", marker="+", color="orange", label="Pre-fit")
+    ax1.errorbar(
+        mjds,
+        tres_w,
+        terr,
+        marker="+",
+        ls="",
+        alpha=0.4,
+        color="blue",
+        label="Post fit whitened",
+    )
+    ax1.legend()
+    ax1.set_ylabel("Time res (post) (s)")
+    ax1.axhline(0, ls="dotted", color="k")
+
     if wb:
         plt.xticks([])
-        plt.subplot(5, 3, 6)
-        plt.errorbar(mjds, dres, derr, marker="+", ls="", alpha=0.9)
-        plt.axhline(0, ls="dotted", color="k")
-        plt.ylabel("DM res (dmu)")
-    plt.xlabel("MJD - PEPOCH")
+        ax = plt.subplot(5, 2, 4)
+        ax.errorbar(
+            mjds,
+            dres,
+            derr,
+            marker="+",
+            ls="",
+            alpha=1,
+            color="orange",
+            label="Pre-fit",
+        )
+
+        ax.set_ylabel("DM res (pre) (dmu)")
+
+        ax1 = ax.twinx()
+        ax1.errorbar(
+            mjds,
+            dres_w,
+            derr,
+            marker="+",
+            ls="",
+            alpha=0.4,
+            color="blue",
+            label="Post fit whitened",
+        )
+        ax1.set_ylabel("DM res (post) (dmu)")
+        ax1.axhline(0, ls="dotted", color="k")
+
+    ax.set_xlabel("MJD - PEPOCH")
     plt.show()

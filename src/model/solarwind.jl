@@ -1,6 +1,9 @@
 export SolarWind, SolarWindDispersion
 
-"""Compute the pulsar-Sun-observatory angle (ρ) and the observatory-sun distance.
+"""
+    sun_angle_and_distance
+
+Compute the pulsar-Sun-observatory angle (ρ) and the observatory-sun distance.
 This is different from the sun angle defined in PINT; that angle is π-ρ in our
 notation. This function assumes that the ssb_psr_pos has already been computed and
 is available in the CorrectedTOA object."""
@@ -13,11 +16,18 @@ function sun_angle_and_distance(toa::TOA, toacorr::TOACorrection)
     return acos(cos_ρ), r
 end
 
-"""Abstract base type for solar wind models."""
+"""
+    SolarWind
+
+Abstract base type for solar wind models."""
 abstract type SolarWind <: DispersionComponent end
 
-"""Solar wind model assuming a spherically symmetric distribution of electrons which
-falls off as an inverse-square function of the distance from the Sun.
+"""
+    SolarWindDispersion
+
+Solar wind model assuming a spherically symmetric distribution of electrons which
+falls off as an inverse-square function of the distance from the Sun. Corresponds
+to the `SolarWindDispersion` model in `PINT`.
 
 Reference:
     [Edwards+ 2006](http://doi.org/10.1111/j.1365-2966.2006.10870.x)

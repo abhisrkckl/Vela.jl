@@ -32,8 +32,19 @@
 
     @testset "param_handler" begin
         param_handler = model.param_handler
-        @test Set(get_free_param_names(param_handler)) ==
-              Set(["F0", "F1", "PHOFF", "ELONG", "ELAT", "DM", "DM1", "NE_SW"])
+        @test Set(get_free_param_names(param_handler)) == Set([
+            "F0",
+            "F1",
+            "PHOFF",
+            "ELONG",
+            "ELAT",
+            "DM",
+            "DM1",
+            "NE_SW",
+            "DMJUMP1",
+            "DMEFAC1",
+            "DMEQUAD1",
+        ])
         @test length(param_handler.multi_params) + length(param_handler.single_params) ==
               length(param_handler._default_params_tuple)
         @test length(get_free_param_names(param_handler)) ==
@@ -58,7 +69,7 @@
 
     @testset "components" begin
         components = model.components
-        @test length(components) == 5
+        @test length(components) == 7
 
         @test isa(components[1], SolarSystem)
         @test components[1].ecliptic_coordinates
@@ -69,17 +80,19 @@
 
         @test isa(components[3], DispersionTaylor)
 
-        @test isa(components[4], Spindown)
+        @test isa(components[4], ExclusiveDispersionJump)
 
-        @test isa(components[5], PhaseOffset)
+        @test isa(components[5], Spindown)
 
-        # @test all([!isa(c, Troposphere) for c in components])
+        @test isa(components[6], PhaseOffset)
+
+        @test isa(components[7], DispersionMeasurementNoise)
     end
 
     @testset "form_residuals" begin
         params = model.param_handler._default_params_tuple
         wres = form_residuals(model, wtoas, params)
-        @test all(abs(r[1]) < 3.5 * wtoa.toa.error for (r, wtoa) in zip(wres, wtoas))
+        @test all(abs(r[1]) < 4.1 * wtoa.toa.error for (r, wtoa) in zip(wres, wtoas))
         @test all(abs(r[2]) < 3.5 * wtoa.dminfo.error for (r, wtoa) in zip(wres, wtoas))
     end
 
@@ -92,7 +105,7 @@
         chi2_p = calc_chi2_p(parv)
         @test chi2_s ≈ chi2_p
 
-        @test calc_chi2_reduced(model, wtoas, parv) < 1.2
+        @test calc_chi2_reduced(model, wtoas, parv) < 1.5
     end
 
     @testset "calc_lnlike" begin

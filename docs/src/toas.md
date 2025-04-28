@@ -1,12 +1,12 @@
 # Pulse Times of Arrival (TOAs) 
 
 The TOA is the fundamental measurable quantity in *conventional* pulsar timing. They are measured
-my folding the time series observations using a known pulsar ephemeris, and then matching the 
+my [folding](https://en.wikipedia.org/wiki/Fast_folding_algorithm) the time series observations using a known pulsar ephemeris, and then matching the 
 resulting integrated pulse profile against a template. This procedure produces a TOA measurement
 (usually expressed as an MJD measured against the observatory clock) along with an uncertainty
 which is assumed to be Gaussian. The TOA measurements and uncertainties, along with some metadata 
 (such as observing frequency, observatory name, observatory reciever and backend information, etc)
-is saved in a text file known as a `tim` file. Often, multiple TOAs are measured from the same 
+is saved in a text file known as a [`tim`](https://nanograv-pint.readthedocs.io/en/latest/explanation.html#timing-files-tim) file. Often, multiple TOAs are measured from the same 
 observation by splitting it into multiple frequency sub-bands. This is known as narrowband timing.
 
 Alternatively, we can measure a TOA and a dispersion measure simultaneously from an observation 
@@ -29,9 +29,10 @@ WidebandTOA
 
 A `TOA` object contains the clock-corrected TOA value in the TDB timescale, uncertainty, and 
 observing frequency, along with the solar system ephemeris evaluated at that instance.
-The clock corrections from the observatory timescale to TDB and the solar system ephemeris
-computations are precomputed using `PINT`, which in turn uses `astropy` underneath. The solar
-system ephemerides are represented using the `SolarSystemEphemeris` type.
+The [clock corrections](https://nanograv-pint.readthedocs.io/en/latest/explanation.html#time-scales) 
+from the observatory timescale to TDB and the [solar system ephemeris](https://ssd.jpl.nasa.gov/orbits.html)
+computations are precomputed using `PINT`, which in turn uses [`astropy`](https://www.astropy.org/) underneath. 
+The evaluated solar system ephemerides are represented using the `SolarSystemEphemeris` type.
 
 ```@docs
 SolarSystemEphemeris

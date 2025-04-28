@@ -1,0 +1,54 @@
+# Created: 2025-04-07T13:07:55.839983
+# PINT_version: 1.1.1+170.g68c9a01e
+# User: Abhimanyu Susobhanan (abhimanyu)
+# Host: abhimanyu-HP-Envy-x360-2-in-1-Laptop-15-fh0xxx
+# OS: Linux-6.8.0-57-generic-x86_64-with-glibc2.39
+# Python: 3.12.2 | packaged by conda-forge | (main, Feb 16 2024, 20:50:58) [GCC 12.3.0]
+# Format: pint
+# read_time: 2025-04-07T13:07:11.122095
+# allow_tcb: False
+# convert_tcb: False
+# allow_T2: False
+PSR                        J0500+1500_sim
+EPHEM                               DE440
+CLOCK                        TT(BIPM2023)
+UNITS                                 TDB
+START              49999.9999999431995487
+FINISH             60000.0000000527235648
+DILATEFREQ                              N
+DMDATA                                  Y
+NTOA                                  500
+CHI2                    782.9880198338452
+CHI2R                   82.65363365888979
+TRES                18.185003860394780974
+DMRES            0.0012737872058924305568
+RAJ                      5:00:00.00000296 1 0.00000392916376763711
+DECJ                    15:00:00.00031166 1 0.00033719377806422168
+PMRA                                  0.0
+PMDEC                                 0.0
+PX                                    0.0
+POSEPOCH           55000.0000000000000000
+F0                  100.00000000000124904 1 1.11160738637733466265e-13
+F1              -1.0001103100757345781e-15 1 2.2459798125081363449e-20
+F2                                    0.0
+PEPOCH             55000.0000000000000000
+TZRMJD             55000.0000000000000000
+TZRSITE                               gbt
+TZRFRQ                             1400.0
+PHOFF               -0.002605989248502294 1 0.0006986401529792232
+PLANET_SHAPIRO                          N
+DM                  15.015318307512164677 1 0.01
+DM1              0.0009860153359323497739 1 0.01
+DMEPOCH            55000.0000000000000000
+EFAC            tel gbt                       1.0 1 0.0
+DMEFAC          tel gbt                       1.0 1 0.0
+TNDMAMP                             -13.0 1 0.0
+TNDMGAM                               3.0 1 0.0
+TNDMC                                  60
+TNDMFLOG                                2
+TNDMFLOG_FACTOR                       2.0
+TNREDAMP                            -13.0 1 0.0
+TNREDGAM                              4.0 1 0.0
+TNREDC                                 60
+TNREDFLOG                               2
+TNREDFLOG_FACTOR                       2.0

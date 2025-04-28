@@ -1,4 +1,4 @@
-export Kernel, WhiteNoiseKernel, EcorrKernel, EcorrGroup
+export Kernel, WhiteNoiseKernel, EcorrKernel, EcorrGroup, WoodburyKernel
 
 """
     Kernel
@@ -6,7 +6,10 @@ export Kernel, WhiteNoiseKernel, EcorrKernel, EcorrGroup
 Abstract base class of all likelihood kernels"""
 abstract type Kernel end
 
-"""A kernel representing only uncorrelated noise.
+"""
+    WhiteNoiseKernel
+
+A kernel representing only uncorrelated noise.
 The covariance matrix is diagonal.
 
 Reference:
@@ -22,10 +25,13 @@ struct EcorrGroup
     index::UInt
 end
 
-"""A kernel representing white noise and ECORR.
-The covariance matrix is block-diagonal.
+"""
+    EcorrKernel
 
+A kernel representing white noise and ECORR.
+The covariance matrix is block-diagonal.
 Assumes that the `TOA`s are sorted in the correct order.
+Not applicable for wideband TOAs.
 
 Reference:
     [Johnson+ 2024](https://doi.org/10.1103/PhysRevD.109.103012)
@@ -35,7 +41,50 @@ struct EcorrKernel <: Kernel
 end
 
 show(io::IO, ::MIME"text/plain", model::Kernel) = show(io, model)
-show(io::IO, ek::EcorrKernel) = print(
-    io,
-    "EcorrKernel($(length(unique(grp.index for grp in ek.ecorr_groups)) - 1) ECORRs, $(length(ek.ecorr_groups)) groups)",
-)
+function show(io::IO, ek::EcorrKernel)
+    ecorr_idxs = unique(grp.index for grp in ek.ecorr_groups)
+    noecorr_flag = 0 in ecorr_idxs
+    print(
+        io,
+        "EcorrKernel($(length(ecorr_idxs) - Int(noecorr_flag)) ECORRs, $(length(ek.ecorr_groups)) groups)",
+    )
+end
+
+"""
+    WoodburyKernel
+
+A kernel representing white noise and correlated noise including ECORR.
+
+This type has an `inner_kernel` attribute which represents the time-uncorrelated
+part of the timing noise. It can be a `WhiteNoiseKernel` if the only time-uncorrelated
+noise is white noise, or `EcorrKernel` if ECORR noise is also present.
+
+The `gp_components` attribute contains a collection of amplitude-marginalized Gaussian 
+noise components. These are treated as part of the covariance matrix. `WoodburyKernel.gp_components`
+and `TimingModel.components` must have no common elements.
+
+Reference:
+    [Johnson+ 2024](https://doi.org/10.1103/PhysRevD.109.103012)
+"""
+struct WoodburyKernel{InnerKernel<:Kernel,GPComponentsTuple<:Tuple} <: Kernel
+    inner_kernel::InnerKernel
+    gp_components::GPComponentsTuple
+    noise_basis::Matrix{Float64}
+
+    function WoodburyKernel(
+        inner_kernel::Kernel,
+        gp_components::Tuple,
+        noise_basis::Matrix{Float64},
+    )
+        @assert all(is_gp_noise.(gp_components))
+        @assert sum(get_gp_npars.(gp_components)) == size(noise_basis)[2]
+        return new{typeof(inner_kernel),typeof(gp_components)}(
+            inner_kernel,
+            gp_components,
+            noise_basis,
+        )
+    end
+end
+
+show(io::IO, wk::WoodburyKernel) =
+    print(io, "WoodburyKernel($(wk.inner_kernel), $(wk.gp_components))")

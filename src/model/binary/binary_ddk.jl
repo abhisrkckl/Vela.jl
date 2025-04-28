@@ -1,6 +1,9 @@
 export BinaryDDK
 
-"""The Damour & Deruelle model for eccentric binaries with Kopeikin corrections included,
+"""
+    BinaryDDK
+
+The Damour & Deruelle model for eccentric binaries with Kopeikin corrections included,
 which account for the apparent changes in the orbital elements due to proper motion and 
 parallax.
 

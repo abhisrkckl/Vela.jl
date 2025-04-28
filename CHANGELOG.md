@@ -1,5 +1,50 @@
 # Unreleased
 ## Added
+- Support for wideband TOAs in `WoodburyKernel`
+- Symlink for `pyvela/examples` in the root directory
+- Instructions for updating `Vela.jl` and `pyvela`
+- arXiv link in README
+- CITATION file
+- In `SPNTA.from_pint()`, compute planetary ephemerides if they are absent in the input `TOAs` object.
+- Support for log-spaced frequencies in Fourier GP components
+- Display default values in `$ pyvela --help`
+## Changed
+- Residual plot in `pyvela-plot` script
+- Made GP noise marginalization the default in `SPNTA`
+## Fixed
+- Julia example script `run_example.jl`
+- In `_gls_lnlike_serial`, return  -inf if `Σinv` is not positive definite.
+## Removed
+
+# 0.0.9
+## Added
+- Store `toas_pint` in `SPNTA` (This is `None` when a `JLSO` file is loaded.)
+- `get_num_timing_params()` function and `SPNTA.ntmdim` attribute
+- Marginalized GP noise using Woodbury lemma
+  - `WoodburyKernel` type with inner `WhiteNoiseKernel`
+  - `is_gp_noise()`, `get_gp_npars()`, and `calc_noise_weights_inv()` functions
+  - corresponding likelihood implementation
+  - `marginalize_gp_noise` option in `SPNTA` class and `pyvela` script
+  - Plot whitened residuals in `pyvela-script`
+  - `has_marginalized_gp_noise` property and `get_marginalized_gp_noise_realization()` and `whitened_time_residuals()` methods in `SPNTA`
+- `VelaFitter` class
+## Changed
+- Made some properties of `SPNTA` cached.
+- Store a deepcopy of `model_pint` instead of the mutated original in `SPNTA`. The mutated version is stored as `model_pint_modified`.
+- The parameter order now has timing parameters first and then noise parameters.
+- Refactored parameter attribute functions.
+- `get_kernel()` now supports Woorbury kernel with ECORRs.
+- Big documentation update
+- Made `TOA` creation slightly faster
+## Fixed
+- Priors in examples
+- Creation of ECORR mask in `get_kernel` in `pyvela` (This was mistakenly being created from EFACs)
+## Removed
+- `pure_rotator.jlso` test data file
+- Stub for `Troposphere` component
+
+# 0.0.8
+## Added
 - Use `HDFBackend` in `pyvela` script
 - `scaled_dm_uncertainties()` and `dm_residuals()` methods in `SPNTA` class
 - `pyvela-compare` script
@@ -10,6 +55,9 @@
 - More help messages in `pyvela` script
 - `pyvela-plot` script
 - `check` option in `SPNTA` constructor
+- Force rewrite (`-f`) option in `pyvela` script
+- Take JLSO files as input in the `pyvela` script (`-J` option)
+- Informative error messages in `assert` statements
 ## Changed
 - Renamed `SPNTA.maxlike_params` -> `SPNTA.default_params`
 - Throw an error if the output directory exists in `pyvela` script
@@ -17,6 +65,8 @@
 - Changed `par_tim-to-jlso.py` into an installable script `pyvela-jlso`.
 ## Fixed
 - Correctly avoid likelihood computation when the parameter is outside prior range.
+- Added `DoubleFloats`, `Distributions`, and `GeometricUnits` to installation instructions
+- Improved error message for missing prior info.
 ## Removed
 - `compare_residuals.py` example script
 - Separate `README` for `pyvela`

@@ -6,6 +6,7 @@ from pint import DMconst, dmu
 from pint.logging import setup as setup_log
 from pint.models import get_model_and_toas
 from pint.residuals import Residuals, WidebandTOAResiduals
+
 from pyvela import SPNTA
 
 setup_log(level="WARNING")
@@ -16,9 +17,13 @@ def parse_args(argv):
         prog="pyvela-compare",
         description="Compare residuals obtained using Vela.jl and PINT.",
     )
-    parser.add_argument("par_file")
-    parser.add_argument("tim_file")
-    parser.add_argument("-P", "--prior_file")
+    parser.add_argument("par_file", help="Input par file")
+    parser.add_argument("tim_file", help="Input tim file")
+    parser.add_argument(
+        "-P",
+        "--prior_file",
+        help="A JSON file containing the prior distributions for each free parameter.",
+    )
 
     return parser.parse_args(argv)
 
@@ -63,7 +68,6 @@ def main(argv=None):
         plt.ylabel("Time residuals (s)")
         plt.xlabel("MJD")
         plt.legend()
-        plt.show()
     else:
         res = WidebandTOAResiduals(t, m)
 
@@ -118,4 +122,5 @@ def main(argv=None):
         )
         plt.ylabel("DM residuals (dmu)")
         plt.xlabel("MJD")
-        plt.show()
+
+    plt.show()

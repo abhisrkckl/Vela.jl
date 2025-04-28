@@ -3,6 +3,13 @@
 
     pepoch_mjd = value(model.epoch) / day_to_s
 
+    @testset "model info" begin
+        @test model.pulsar_name == "J1748-2021E"
+        @test model.ephem == "DE440"
+        @test model.clock == "TT(BIPM2021)"
+        @test model.units == "TDB"
+    end
+
     @testset "file save" begin
         Vela.save_pulsar_data("__test.jlso", model, toas)
         @test isfile("__test.jlso")
@@ -52,13 +59,16 @@
     @testset "param_handler" begin
         param_handler = model.param_handler
         @test Set(get_free_param_names(param_handler)) ==
-              Set(["F0", "F1", "PHOFF", "RAJ", "DECJ", "DM"])
+              Set(["F0", "F1", "PHOFF", "RAJ", "DECJ", "DM", "EFAC1", "EQUAD1"])
+        @test get_num_timing_params(model) == 6
         @test length(param_handler.multi_params) + length(param_handler.single_params) ==
               length(param_handler._default_params_tuple)
         @test length(get_free_param_names(param_handler)) ==
               length(param_handler._free_indices)
         @test sizeof(param_handler._default_params_tuple) ==
               sizeof(GQ{0,Float64}) * length(param_handler._default_values)
+
+        @test length(get_free_param_labels(model)) == length(get_free_param_names(model))
 
         @test length(
             read_param_values_to_vector(
@@ -77,7 +87,7 @@
 
     @testset "components" begin
         components = model.components
-        @test length(components) == 4
+        @test length(components) == 5
 
         @test isa(components[1], SolarSystem)
         @test !components[1].ecliptic_coordinates
@@ -97,26 +107,52 @@
         # @test all([!isa(c, Troposphere) for c in components])
     end
 
+    @testset "repr" begin
+        @test startswith(string(toas[1]), "TOA")
+        display(toas)
+        display(toas[1])
+        # @test startswith(string(model.tzr_toa), "TZRTOA")
+        display(model.tzr_toa)
+        @test startswith(string(model), "TimingModel")
+        display(model)
+    end
+
     @testset "form_residuals" begin
         params = model.param_handler._default_params_tuple
         res = form_residuals(model, toas, params)
         @test all(abs(r) < 3 * toa.error for (r, toa) in zip(res, toas))
     end
 
+    @testset "_calc_resids_and_Ndiag" begin
+        params = model.param_handler._default_params_tuple
+        y, Ndiag = Vela._calc_resids_and_Ndiag(model, toas, params)
+        @test length(y) == length(Ndiag)
+        @test all(Ndiag .> 0)
+    end
+
     @testset "calc_chi2" begin
         calc_chi2_s = get_chi2_serial_func(model, toas)
         calc_chi2_p = get_chi2_parallel_func(model, toas)
+
+        calc_chi2 = get_chi2_func(model, toas)
+
         parv = read_param_values_to_vector(model.param_handler)
         # parnp = PyArray(parv)
         chi2_s = calc_chi2_s(parv)
         chi2_p = calc_chi2_p(parv)
         @test chi2_s / degrees_of_freedom(model, toas) < 1.2
         @test chi2_s ≈ chi2_p
+
+        params = model.param_handler._default_params_tuple
+        @test @ballocated(Vela.calc_chi2_serial($model, $toas, $params)) == 0
     end
 
     @testset "calc_lnlike" begin
         calc_lnlike_s = get_lnlike_serial_func(model, toas)
         calc_lnlike_p = get_lnlike_parallel_func(model, toas)
+
+        _ = get_lnlike_func(model, toas)
+
         params = model.param_handler._default_params_tuple
         parv = read_param_values_to_vector(model)
         # parnp = PyArray(parv)
@@ -125,7 +161,7 @@
         @test @ballocated(Vela.calc_lnlike_serial($model, $toas, $params)) == 0
 
         parv1 = read_param_values_to_vector(model.param_handler, params)
-        parv1[end] *= 2
+        parv1[end-2] *= 2
         @test calc_lnlike(model, toas, parv1) < calc_lnlike(model, toas, params)
     end
 

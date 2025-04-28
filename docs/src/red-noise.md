@@ -46,3 +46,15 @@ and [Chromatic delays](@ref)).
 
 Other types of spectral models such as free spectrum, t-process, broken powerlaw, running power law, etc are not
 yet implemented.
+
+By default, the noise amplitudes described above are treated as free parameters are sampled. However, this can
+sometimes lead to inefficient sampling due to [Neil's funnel](https://crackedbassoon.com/writing/funneling) effect.
+One way of avoiding this is to analytically marginalize the posterior distribution over the noise amplitudes.
+This can be achieved in `Vela.jl` by moving the Gaussian noise components (`PowerlawRedNoiseGP`, `PowerlawDispersionNoiseGP`, 
+`PowerlawChromaticNoiseGP`) from the `TimingModel` components tuple into a `WoodburyKernel`. The `is_gp_noise()` function
+identifies the components that support this operation.
+
+```@docs
+is_gp_noise
+
+```

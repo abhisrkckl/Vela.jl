@@ -1,26 +1,38 @@
+from functools import cached_property
 import json
 from copy import deepcopy
-from typing import IO, Iterable
+from typing import IO, Iterable, List
+import warnings
 
 import numpy as np
-
+from scipy.linalg import cho_factor, cho_solve
 from pint.binaryconvert import convert_binary
 from pint.logging import setup as setup_log
-from pint.models import TimingModel, get_model_and_toas
+from pint.models import TimingModel, get_model, get_model_and_toas
 from pint.toa import TOAs
 
 from .ecorr import ecorr_sort
-from .model import pint_model_to_vela
+from .model import fix_params, pint_model_to_vela
 from .priors import process_custom_priors
 from .toas import day_to_s, pint_toas_to_vela
 from .vela import jl, vl
 
 
 def convert_model_and_toas(
-    model: TimingModel, toas: TOAs, cheat_prior_scale=20, custom_priors={}
+    model: TimingModel,
+    toas: TOAs,
+    noise_params: List[str],
+    marginalize_gp_noise: bool,
+    cheat_prior_scale: float = 100.0,
+    custom_priors: dict = {},
 ):
     """Read a pair of par & tim files and create a `Vela.TimingModel` object and a
     Julia `Vector` of `TOA`s."""
+
+    fix_params(model, toas)
+
+    if not toas.planets:
+        toas.compute_posvels(planets=True)
 
     if "BinaryBT" in model.components:
         model = convert_binary(model, "DD")
@@ -36,10 +48,12 @@ def convert_model_and_toas(
         toas,
         cheat_prior_scale,
         custom_priors,
+        noise_params,
+        marginalize_gp_noise,
         ecorr_toa_ranges=ecorr_toa_ranges,
         ecorr_indices=ecorr_indices,
     )
-    toas_v = pint_toas_to_vela(toas, float(model.PEPOCH.value))
+    toas_v = pint_toas_to_vela(toas, float(model["PEPOCH"].value))
 
     return model_v, toas_v
 
@@ -80,7 +94,8 @@ class SPNTA:
         self,
         parfile: str,
         timfile: str,
-        cheat_prior_scale: float = 20,
+        marginalize_gp_noise: bool = True,
+        cheat_prior_scale: float = 100.0,
         custom_priors: str | IO | dict = {},
         check: bool = True,
         pint_kwargs: dict = {},
@@ -98,7 +113,9 @@ class SPNTA:
             add_tzr_to_model=True,
             **pint_kwargs,
         )
-        self.model_pint = model_pint
+        self.model_pint = deepcopy(model_pint)
+        self.model_pint_modified = model_pint
+        self.toas_pint = toas_pint
 
         # custom_priors_dict is in the "raw" format. The numbers may be
         # in "normal" units and have to be converted into internal units.
@@ -112,10 +129,15 @@ class SPNTA:
 
         custom_priors = process_custom_priors(self.custom_priors_dict, model_pint)
 
+        # Use the original PINT TimingModel object.
+        noise_params = self.model_pint.get_params_of_component_type("NoiseComponent")
+
         setup_log(level="WARNING")
         model, toas = convert_model_and_toas(
             model_pint,
             toas_pint,
+            noise_params,
+            marginalize_gp_noise,
             cheat_prior_scale=cheat_prior_scale,
             custom_priors=custom_priors,
         )
@@ -126,14 +148,22 @@ class SPNTA:
             self._check()
 
     def _check(self):
+        """Check if the computations work with the default values."""
         cube = np.random.rand(self.ndim)
         sample = self.prior_transform(cube)
         lnpr = self.lnprior(sample)
         lnl = self.lnlike(sample)
         lnp = self.lnpost(sample)
         lnpv = self.lnpost_vectorized(np.array([sample]))
-        assert all(np.isfinite([lnpr, lnl, lnp]))
-        assert np.isclose(lnp, lnpv)
+        assert all(np.isfinite([lnpr, lnl, lnp])), (
+            "The log-prior, log-likelihood, or log-posterior is non-finite at the default parameter values. "
+            "Please make sure that (1) default values are within the prior range, and (b) the default values "
+            "provide a phase-connected solution. If nothing is wrong, this may be a bug. Please report this."
+        )
+        assert np.isclose(lnp, lnpv), (
+            "The non-vectorized and vectorized versions of the log-posterior gives different results. "
+            "This is most likely a bug. Please report this."
+        )
 
     def lnlike(self, params: Iterable[float]) -> float:
         """Compute the log-likelihood function"""
@@ -158,39 +188,76 @@ class SPNTA:
 
     @property
     def model(self):
+        """The `Vela.TimingModel` object."""
         return self.pulsar.model
 
     @property
     def toas(self):
+        """The `Vector{Vela.TOA}` or `Vector{Vela.WidebandTOA}` object."""
         return self.pulsar.toas
 
-    @property
+    @cached_property
     def param_names(self) -> Iterable[str]:
+        """Free parameter names in the correct order. The names are same in both `Vela` and `PINT`,
+        but the order may be different."""
         return np.array(list(vl.get_free_param_names(self.pulsar.model)))
 
-    @property
+    @cached_property
     def param_labels(self) -> Iterable[str]:
+        """Free parameter labels containing parameter names and units."""
         return np.array(list(vl.get_free_param_labels(self.pulsar.model)))
 
-    @property
+    @cached_property
     def param_units(self) -> Iterable[str]:
+        """String representations of `PINT` units of free parameters. Tfhese strings are supported by
+        `astropy.units.`"""
         return np.array(list(vl.get_free_param_units(self.pulsar.model)))
 
-    @property
+    @cached_property
     def param_prefixes(self) -> Iterable[str]:
+        """Free parameter prefixes. For non-mask/prefix parameters the prefix is the same as
+        the parameter name."""
         return np.array(list(vl.get_free_param_prefixes(self.pulsar.model)))
 
-    @property
+    @cached_property
     def scale_factors(self) -> Iterable[float]:
+        """Scale factors for converting free parameters from `PINT` units to `Vela` units."""
         return np.array(vl.get_scale_factors(self.pulsar.model))
 
-    @property
+    @cached_property
     def default_params(self) -> Iterable[str]:
+        """Default parameter values taken from the par file."""
         return np.array(vl.read_param_values_to_vector(self.pulsar.model))
 
-    @property
+    @cached_property
     def ndim(self) -> int:
+        """Number of free parameters."""
         return len(self.param_names)
+
+    @cached_property
+    def ntmdim(self) -> int:
+        """Number of free timing model parameters (does not include noise parameters)."""
+        return vl.get_num_timing_params(self.pulsar.model)
+
+    @cached_property
+    def has_marginalized_gp_noise(self) -> bool:
+        """Whether the model contains marginalized correlated Gaussian noise processes."""
+        return vl.isa(self.model.kernel, vl.WoodburyKernel)
+
+    def get_marginalized_gp_noise_realization(self, params: np.ndarray) -> np.ndarray:
+        """Get a realization of the marginalized GP noise given a set of parameters.
+        The length of `params` should be the same as the number of free parameters."""
+        assert self.has_marginalized_gp_noise
+        params_ = vl.read_params(self.model, params)
+        y, Ndiag = vl._calc_resids_and_Ndiag(self.model, self.toas, params_)
+        M = np.array(self.model.kernel.noise_basis)
+        Phiinv = np.array(vl.calc_noise_weights_inv(self.model.kernel, params_))
+        Ninv_M = M / np.array(Ndiag)[:, None]
+        MT_Ninv_y = y @ Ninv_M
+        Sigmainv = np.diag(Phiinv) + M.T @ Ninv_M
+        Sigmainv_cf = cho_factor(Sigmainv)
+        ahat = cho_solve(Sigmainv_cf, MT_Ninv_y)
+        return M @ ahat
 
     def rescale_samples(self, samples: np.ndarray) -> np.ndarray:
         """Rescale the samples from Vela's internal units to common units"""
@@ -200,13 +267,15 @@ class SPNTA:
         """Write the model and TOAs as a JLSO file"""
         vl.save_pulsar_data(filename, self.pulsar.model, self.pulsar.toas)
 
-    def is_wideband(self) -> bool:
+    @cached_property
+    def wideband(self) -> bool:
         """Whether the TOAs are wideband."""
         return jl.isa(self.pulsar.toas[0], vl.WidebandTOA)
 
-    def get_mjds(self) -> np.ndarray:
+    @cached_property
+    def mjds(self) -> np.ndarray:
         """Get the MJDs of each TOA."""
-        if self.is_wideband():
+        if self.wideband:
             return np.array(
                 [
                     jl.Float64(vl.value(wtoa.toa.value)) / day_to_s
@@ -222,22 +291,32 @@ class SPNTA:
         """Get the timing residuals (s) for a given set of parameters."""
         params = vl.read_params(self.pulsar.model, params)
         return np.array(
-            list(
+            [
+                vl.value(wr[0])
+                for wr in vl.form_residuals(self.pulsar.model, self.pulsar.toas, params)
+            ]
+            if self.wideband
+            else list(
                 map(
                     vl.value,
                     vl.form_residuals(self.pulsar.model, self.pulsar.toas, params),
                 )
             )
-            if not self.is_wideband()
-            else [
-                vl.value(wr[0])
-                for wr in vl.form_residuals(self.pulsar.model, self.pulsar.toas, params)
-            ]
+        )
+
+    def whitened_time_residuals(self, params: np.ndarray) -> np.ndarray:
+        """Get whitened time residuals using the given set of parameters. This is done by
+        subtracting the marginalized GP noise realizations from the time residuals."""
+        return (
+            self.time_residuals(params)
+            - self.get_marginalized_gp_noise_realization(params)[: len(self.toas)]
+            if self.has_marginalized_gp_noise
+            else self.time_residuals(params)
         )
 
     def dm_residuals(self, params: np.ndarray) -> np.ndarray:
         """Get the DM residuals (s) for a given set of parameters (wideband only)."""
-        assert self.is_wideband(), "This method is only defined for wideband datasets."
+        assert self.wideband, "This method is only defined for wideband datasets."
 
         params = vl.read_params(self.pulsar.model, params)
 
@@ -246,6 +325,16 @@ class SPNTA:
                 vl.value(wr[1])
                 for wr in vl.form_residuals(self.pulsar.model, self.pulsar.toas, params)
             ]
+        )
+
+    def whitened_dm_residuals(self, params: np.ndarray) -> np.ndarray:
+        """Get whitened DM residuals using the given set of parameters. This is done by
+        subtracting the marginalized GP noise realizations from the DM residuals."""
+        return (
+            self.dm_residuals(params)
+            - self.get_marginalized_gp_noise_realization(params)[len(self.toas) :]
+            if self.has_marginalized_gp_noise
+            else self.dm_residuals(params)
         )
 
     def scaled_toa_unceritainties(self, params: np.ndarray) -> np.ndarray:
@@ -259,9 +348,9 @@ class SPNTA:
         return np.sqrt(
             [
                 vl.value(
-                    vl.scaled_toa_error_sqr(tvi, ctoa)
-                    if not self.is_wideband()
-                    else vl.scaled_toa_error_sqr(tvi.toa, ctoa.toa_correction)
+                    vl.scaled_toa_error_sqr(tvi.toa, ctoa.toa_correction)
+                    if self.wideband
+                    else vl.scaled_toa_error_sqr(tvi, ctoa)
                 )
                 for (tvi, ctoa) in zip(self.pulsar.toas, ctoas)
             ]
@@ -269,7 +358,7 @@ class SPNTA:
 
     def scaled_dm_unceritainties(self, params: np.ndarray) -> np.ndarray:
         """Get the scaled DM uncertainties (s) for a given set of parameters (wideband only)."""
-        assert self.is_wideband(), "This method is only defined for wideband datasets."
+        assert self.wideband, "This method is only defined for wideband datasets."
 
         params = vl.read_params(self.pulsar.model, params)
 
@@ -288,7 +377,7 @@ class SPNTA:
         """Compute the model DM (dmu) for a given set of parameters."""
         params = vl.read_params(self.pulsar.model, params)
 
-        if not self.is_wideband():
+        if not self.wideband:
             dms = np.zeros(len(self.pulsar.toas))
             for ii, toa in enumerate(self.pulsar.toas):
                 ctoa = vl.TOACorrection()
@@ -310,12 +399,15 @@ class SPNTA:
         return dms * dmu_conversion_factor
 
     @classmethod
-    def load_jlso(cls, filename: str) -> "SPNTA":
+    def load_jlso(cls, jlsoname: str, parfile: str) -> "SPNTA":
         """Construct an `SPNTA` object from a JLSO file"""
         spnta = cls.__new__(cls)
-        model, toas = vl.load_pulsar_data(filename)
-        spnta.jlsofile = filename
+        model, toas = vl.load_pulsar_data(jlsoname)
+        spnta.jlsofile = jlsoname
         spnta.pulsar = vl.Pulsar(model, toas)
+        spnta.model_pint = get_model(parfile)
+        spnta.model_pint_modified = None
+        spnta.toas_pint = None
         spnta._check()
         return spnta
 
@@ -324,7 +416,8 @@ class SPNTA:
         cls,
         model: TimingModel,
         toas: TOAs,
-        cheat_prior_scale: float = 20,
+        marginalize_gp_noise: bool = True,
+        cheat_prior_scale: float = 100.0,
         custom_priors: dict | str | IO = {},
     ) -> "SPNTA":
         """Construct an `SPNTA` object from PINT `TimingModel` and `TOAs` objects"""
@@ -332,7 +425,13 @@ class SPNTA:
 
         setup_log(level="WARNING")
 
-        spnta.model_pint = model
+        if not toas.planets:
+            warnings.warn("Computing planetary ephemerides...")
+            toas.compute_posvels(ephem=model["EPHEM"].value, planets=True)
+
+        spnta.model_pint = deepcopy(model)
+        spnta.model_pint_modified = model
+        spnta.toas_pint = toas
 
         # custom_priors_dict is in the "raw" format. The numbers may be
         # in "normal" units and have to be converted into internal units.
@@ -346,9 +445,14 @@ class SPNTA:
 
         custom_priors = process_custom_priors(custom_priors_dict, model)
 
+        # Use the original PINT TimingModel object.
+        noise_params = spnta.model_pint.get_params_of_component_type("NoiseComponent")
+
         model_v, toas_v = convert_model_and_toas(
             model,
             toas,
+            noise_params,
+            marginalize_gp_noise,
             cheat_prior_scale=cheat_prior_scale,
             custom_priors=custom_priors,
         )
@@ -360,7 +464,7 @@ class SPNTA:
 
     def update_pint_model(self, samples: np.ndarray) -> TimingModel:
         """Return an updated PINT `TimingModel` based on posterior samples."""
-        mp: TimingModel = deepcopy(self.model_pint)
+        mp: TimingModel = deepcopy(self.model_pint_modified)
 
         scaled_samples = self.rescale_samples(samples)
 

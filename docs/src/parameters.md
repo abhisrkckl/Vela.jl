@@ -20,7 +20,19 @@ appropriate structure by the `read_params` function. The opposite can be achieve
 `read_param_values_to_vector` function. The information needed to do these transformations 
 is stored in the `ParamHandler` type.
 ```@docs
+ParamHandler
 read_params
 read_param_values_to_vector
-ParamHandler
 ```
+
+We also provide utility functions for getting ordered lists of parameter names, prefixes, units, etc. 
+(in the `PINT` convention).
+```@docs
+get_free_param_names
+get_free_param_prefixes
+get_free_param_units
+get_free_param_labels
+get_scale_factors
+```
+
+A list of parameters and their units can be found [here](https://nanograv-pint.readthedocs.io/en/latest/timingmodels.html#supported-parameters).

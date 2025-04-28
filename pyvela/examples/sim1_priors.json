@@ -1,12 +1,6 @@
 {
     "EQUAD": {
         "distribution": "LogUniform",
-        "args": [1e-8, 2e-6]
-    },
-    "RAJ": {
-        "distribution": "Normal",
-        "args": [5.0, 1.5e-8],
-        "lower": 0.0,
-        "upper": 24.0
+        "args": [1e-6, 2.0]
     }
 }

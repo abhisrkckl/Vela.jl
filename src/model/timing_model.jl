@@ -1,9 +1,9 @@
 export TimingModel, correct_toa
 
-"""The pulsar timing & noise model.
+"""
+    TimingModel
 
-Supports both narrowband and wideband timing.
-
+The pulsar timing & noise model. Supports both narrowband and wideband timing.
 Corresponds to `TimingModel` in `PINT`.
 
 References:
@@ -61,6 +61,7 @@ get_free_param_names(model::TimingModel) = get_free_param_names(model.param_hand
 get_free_param_units(model::TimingModel) = get_free_param_units(model.param_handler)
 get_free_param_labels(model::TimingModel) = get_free_param_labels(model.param_handler)
 get_free_param_prefixes(model::TimingModel) = get_free_param_prefixes(model.param_handler)
+get_num_timing_params(model::TimingModel) = get_num_timing_params(model.param_handler)
 
 read_param_values_to_vector(model::TimingModel) =
     read_param_values_to_vector(model.param_handler)

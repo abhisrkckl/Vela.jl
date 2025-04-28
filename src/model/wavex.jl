@@ -7,7 +7,11 @@ Abstract base type for achromatic red noise components.
 """
 abstract type RedNoiseBase <: DelayComponent end
 
-"""An unconstrained Fourier series representation of the achromatic red noise.
+"""
+    WaveX
+
+An unconstrained Fourier series representation of the achromatic red noise.
+Corresponds to the `WaveX` component in `PINT`.
 
 Reference:
     [Susobhanan+ 2024](http://doi.org/10.3847/1538-4357/ad59f7)
@@ -55,6 +59,7 @@ abstract type DispersionNoiseBase <: DispersionComponent end
     DMWaveX
 
 An unconstrained Fourier series representation of the dispersion noise.
+Corresponds to the `DMWaveX` component in `PINT`.
 
 Reference:
     [Susobhanan+ 2024](http://doi.org/10.3847/1538-4357/ad59f7)
@@ -82,6 +87,7 @@ abstract type ChromaticNoiseBase <: ChromaticComponent end
     CMWaveX
     
 A Fourier series representation of the variable-index chromatic red noise.
+Corresponds to the `CMWaveX` component in `PINT`.
 
 Reference:
     [Susobhanan+ 2024](http://doi.org/10.3847/1538-4357/ad59f7)

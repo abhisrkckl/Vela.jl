@@ -1,7 +1,6 @@
 export PhaseOffset, phase
 
 """Phase offset between measured TOAs and the TZR TOA.
-
 Corresponds to `PhaseOffset` in `PINT`.
 
 Reference:

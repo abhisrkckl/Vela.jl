@@ -1,11 +1,14 @@
 export BinaryELL1k
 
-"""A binary model representing a nearly circular orbit with large advance of 
+"""
+    BinaryELL1k
+    
+A binary model representing a nearly circular orbit with large advance of 
 periapsis. The difference between this model and ELL1 is that this model features
 an exact treatment of advance of periapsis whereas ELL1 uses a linear approximation. 
 
 Reference:
-    [Susobhanan+ 2018](https://doi.org/10.1093/mnras/sty2177),
+    [Susobhanan+ 2018](https://doi.org/10.1093/mnras/sty2177)
 """
 struct BinaryELL1k <: BinaryELL1Base
     use_fbx::Bool

@@ -63,12 +63,13 @@ def get_scale_factor(param: Parameter):
 
 
 def get_unit_conversion_factor(param: Parameter):
+    """Get the scale factor that converts a parameter value from `PINT` units to `Vela` units."""
     scale_factor = get_scale_factor(param)
 
     dim = (
-        compute_effective_dimensionality(param.quantity, scale_factor)
-        if not isinstance(param.quantity, Time)
-        else 1
+        1
+        if isinstance(param.quantity, Time)
+        else compute_effective_dimensionality(param.quantity, scale_factor)
     )
 
     return (param.units * scale_factor / u.s**dim).to_value(
@@ -76,7 +77,7 @@ def get_unit_conversion_factor(param: Parameter):
     )
 
 
-def pint_parameter_to_vela(param: Parameter, epoch_mjd: float):
+def pint_parameter_to_vela(param: Parameter, epoch_mjd: float, noise: bool):
     """Construct a `Vela.Parameter` object from a `PINT` `Parameter` object."""
 
     scale_factor = get_scale_factor(param)
@@ -87,12 +88,15 @@ def pint_parameter_to_vela(param: Parameter, epoch_mjd: float):
     )
 
     dim = (
-        compute_effective_dimensionality(param.quantity, scale_factor)
-        if not isinstance(param.quantity, Time)
-        else 1
+        1
+        if isinstance(param.quantity, Time)
+        else compute_effective_dimensionality(param.quantity, scale_factor)
     )
 
     original_units = str(param.units)
+    if original_units.strip() == "":
+        original_units = "1"
+
     unit_conversion_factor = get_unit_conversion_factor(param)
 
     if param.name != "F0":
@@ -102,6 +106,7 @@ def pint_parameter_to_vela(param: Parameter, epoch_mjd: float):
             param.frozen,
             original_units,
             unit_conversion_factor,
+            noise,
         )
     else:
         return vl.Parameter(
@@ -110,10 +115,13 @@ def pint_parameter_to_vela(param: Parameter, epoch_mjd: float):
             param.frozen,
             original_units,
             unit_conversion_factor,
+            noise,
         )
 
 
-def _get_multiparam_elements(model: TimingModel, multi_param_names: List[str]):
+def _get_multiparam_elements(
+    model: TimingModel, multi_param_names: List[str], noise: bool
+):
     """Construct a Julia `Vector` of `Vela.Parameter` objects from a list of
     `PINT` parameter names. This is usually done for `prefixParameters` and
     `maskParameters`."""
@@ -125,7 +133,9 @@ def _get_multiparam_elements(model: TimingModel, multi_param_names: List[str]):
         if pxparam.value is None:
             break
 
-        elements.append(pint_parameter_to_vela(pxparam, float(model.PEPOCH.value)))
+        elements.append(
+            pint_parameter_to_vela(pxparam, float(model["PEPOCH"].value), noise)
+        )
 
     return jl.Vector[vl.Parameter](elements)
 
@@ -135,7 +145,7 @@ def _get_multiparam_elements(model: TimingModel, multi_param_names: List[str]):
 pseudo_single_params = ["DM", "CM", "NE_SW"]
 
 
-def pint_parameters_to_vela(model: TimingModel):
+def pint_parameters_to_vela(model: TimingModel, noise_params: List[str]):
     """Convert the parameters in a `PINT` `TimingModel` to their `Vela` representation.
 
     Single parameters are represented as `Vela.Parameter` objects.
@@ -165,13 +175,22 @@ def pint_parameters_to_vela(model: TimingModel):
         "TNREDC",  # Included separately in the component
         "TNDMC",
         "TNCHROMC",
+        "TNREDFLOG",
+        "TNDMFLOG",
+        "TNCHROMFLOG",
+        "TNREDFLOG_FACTOR",
+        "TNDMFLOG_FACTOR",
+        "TNCHROMFLOG_FACTOR",
     ]
 
-    assert all(psp not in ignore_params for psp in pseudo_single_params)
+    assert all(psp not in ignore_params for psp in pseudo_single_params), (
+        f"Pseudo-single parameters cannot be ignored. This is most likely a bug. "
+        f"Ignored parameters are {ignore_params} and pseudo-single parameters are {pseudo_single_params}"
+    )
     assert all(
         psp not in model or not hasattr(model[psp], "prefix")
         for psp in pseudo_single_params
-    )
+    ), f"Pseudo-single parameters cannot have the `prefix` attribute. The pseudo-single parameters are {pseudo_single_params}."
 
     # Process single parameters
     single_params = []
@@ -196,15 +215,20 @@ def pint_parameters_to_vela(model: TimingModel):
         ):
             continue
 
-        single_params.append(pint_parameter_to_vela(param, float(model.PEPOCH.value)))
+        single_params.append(
+            pint_parameter_to_vela(
+                param, float(model["PEPOCH"].value), (param_name in noise_params)
+            )
+        )
 
     single_params.append(
         vl.Parameter(
             jl.Symbol("F_"),
-            vl.GQ[-1](to_jldd(model.F0.quantity.si.value).hi),
+            vl.GQ[-1](to_jldd(model["F0"].quantity.si.value).hi),
             True,
             str(model.F0.units),
             1.0,
+            False,
         )
     )
     single_params = jl.Vector[vl.Parameter](single_params)
@@ -218,7 +242,9 @@ def pint_parameters_to_vela(model: TimingModel):
                 model.get_prefix_mapping(param_name).values()
             )
 
-            elements = _get_multiparam_elements(model, prefix_param_names)
+            elements = _get_multiparam_elements(
+                model, prefix_param_names, (param_name in noise_params)
+            )
 
             multi_params.append(vl.MultiParameter(jl.Symbol(param_name), elements))
             processed_multi_params.append(param_name)
@@ -240,7 +266,9 @@ def pint_parameters_to_vela(model: TimingModel):
 
         prefix_param_names = list(model.get_prefix_mapping(param.prefix).values())
 
-        elements = _get_multiparam_elements(model, prefix_param_names)
+        elements = _get_multiparam_elements(
+            model, prefix_param_names, (param_name in noise_params)
+        )
 
         multi_params.append(vl.MultiParameter(jl.Symbol(param.prefix), elements))
         processed_multi_params.append(param.prefix)
@@ -252,7 +280,7 @@ def pint_parameters_to_vela(model: TimingModel):
             for fdj in model.components["FDJump"].fdjumps
             if model[fdj].quantity is not None
         ]
-        elements = _get_multiparam_elements(model, fdjump_names)
+        elements = _get_multiparam_elements(model, fdjump_names, False)
         multi_params.append(vl.MultiParameter(jl.Symbol("FDJUMP"), elements))
 
     multi_params = jl.Vector[vl.MultiParameter](multi_params)

@@ -5,10 +5,15 @@
 
 Please note that `Vela.jl` is only tested against Python 3.12 and Julia 1.10 in Ubuntu at present.
 
-If you don't have Julia installed, please install it following the instructions found 
+If you don't have Julia installed, please install it using `juliaup` following the instructions found 
 [here](https://julialang.org/downloads/).
 
-Now install the Python dependencies and set the environment variables. The most important one is
+!!! warning
+    Some of the dependencies don't work properly if Julia isn't installed using `juliaup`.
+    Specifically, avoid installing Julia using `conda`. The following instructions are for
+    installing the Python dependencies *only*.
+
+Now, install the Python dependencies and set the environment variables. The most important one is
 `PYTHON_JULIACALL_HANDLE_SIGNALS`. If it is not set properly you'll get segmentation faults.
 ```
 (base) $ # Setup conda environment
@@ -21,12 +26,16 @@ Now install the Python dependencies and set the environment variables. The most 
 (vela) $ conda env config vars set JULIA_CONDAPKG_BACKEND="Null"
 ```
 
-Now install the Julia packages.
+The number of threads available to `Vela.jl` for parallel processing can be controlled 
+using the environment variables `JULIA_NUM_THREADS` (for direct use from Julia) or 
+`PYTHON_JULIACALL_THREADS` (for use from within Python).
+
+Now, install the Julia packages.
 ```
 (vela) $ julia
 julia> import Pkg
-julia> Pkg.add(["LocalRegistry", "JuliaFormatter", "BenchmarkTools", "PythonCall"])
 julia> Pkg.Registry.add(url="https://github.com/abhisrkckl/julia_registry")
+julia> Pkg.add(["LocalRegistry", "JuliaFormatter", "BenchmarkTools", "PythonCall", "Distributions", "DoubleFloats", "GeometricUnits"])
 julia> Pkg.add(url="https://github.com/abhisrkckl/Vela.jl")
 julia> exit()
 ```
@@ -36,12 +45,23 @@ Install the Python interface `pyvela`.
 (vela) $ pip install git+https://github.com/abhisrkckl/Vela.jl
 ```
 
-The number of threads available to `Vela.jl` for parallel processing can be controlled 
-using the environment variables `JULIA_NUM_THREADS` (for direct use from Julia) or 
-`PYTHON_JULIACALL_THREADS` (for use from within Python).
-
 The `pyvela/examples` directory provides several example datasets and scripts.
 A basic example (using the Python wrapper) can be run like this:
 ```
 (vela) $ ./run_example_emcee.py NGC6440E.par NGC6440E.tim
+```
+
+## Updating `Vela.jl`
+
+To update a `Vela.jl` installation, do the following.
+```
+(vela) $ julia
+julia> import Pkg
+julia> Pkg.update(["GeometricUnits", "Vela"])
+julia> exit()
+```
+
+To update `pyvela`, run
+```
+(vela) $ pip install pyvela --upgrade
 ```

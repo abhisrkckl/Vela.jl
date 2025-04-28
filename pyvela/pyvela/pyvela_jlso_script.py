@@ -32,6 +32,11 @@ def parse_args(argv):
         "get the 'cheat' prior distributions.",
     )
     parser.add_argument(
+        "--no_marginalize_gp_noise",
+        action="store_true",
+        help="Don't analytically marginalize the correlated Gaussian noise amplitudes.",
+    )
+    parser.add_argument(
         "-o",
         "--outfile",
         help="The output file name. Will replace an existing file.",
@@ -49,5 +54,6 @@ def main(argv=None):
         args.tim_file,
         cheat_prior_scale=args.cheat_prior_scale,
         custom_priors=(args.prior_file if args.prior_file is not None else {}),
+        marginalize_gp_noise=(not args.no_marginalize_gp_noise),
     )
     spnta.save_jlso(args.outfile)
