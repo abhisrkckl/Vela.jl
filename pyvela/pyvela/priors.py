@@ -18,7 +18,7 @@ from .toas import day_to_s
 from .vela import jl, vl
 
 dmunit = (DMconst * dmu).to_value(u.Hz)
-Rmax = (52850 * u.lightyear * const.c).to_value(u.s)  # Radius of the Galaxy
+Rmax = (52850 * u.lightyear / const.c).to_value(u.s)  # Radius of the Galaxy
 
 # Some of these prior distributions are based on physical considerations.
 # Others are based on typical values found in millisecond pulsars. They
