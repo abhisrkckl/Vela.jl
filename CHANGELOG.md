@@ -9,6 +9,7 @@
 - Support for log-spaced frequencies in Fourier GP components
 - Save MCMC samples in `VelaFitter`
 - Maximum-posterior fitting in `VelaFitter`
+- Display default values in `$ pyvela --help`
 ## Changed
 - Residual plot in `pyvela-plot` script
 - Made GP noise marginalization the default in `SPNTA`
