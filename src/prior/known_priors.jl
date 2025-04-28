@@ -67,3 +67,18 @@ support(::SHAPMAXPriorDistribution) = RealInterval(0.0, Inf)
 pdf_expr(::SHAPMAXPriorDistribution, S) = (1 - exp(-S)) / (sqrt(2 * exp(S) - 1))
 cdf_expr(::SHAPMAXPriorDistribution, S) = 1 - exp(-S) * sqrt(2 * exp(S) - 1)
 quantile(::SHAPMAXPriorDistribution, q) = log((sqrt(2q - q^2) + 1) / (q - 1)^2)
+
+
+"""
+    PXPriorDistribution
+
+Distribution of PX = 1/R where R is the pulsar distance, when the pulsar position is 
+distributed uniformly within a sphere of radius Rmax.
+"""
+struct PXPriorDistribution <: CustomPriorDistribution
+    Rmax::Float64
+end
+support(pxp::PXPriorDistribution) = RealInterval(1/pxp.Rmax, Inf)
+pdf_expr(pxp::PXPriorDistribution, x) = 3 / (pxp.Rmax^3 * x^4)
+cdf_expr(pxp::PXPriorDistribution, x) = 1 - 1 / (x * pxp.Rmax)^3
+quantile(pxp::PXPriorDistribution, q) = 1 / (pxp.Rmax * cbrt(1-q))
