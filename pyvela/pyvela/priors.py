@@ -18,7 +18,7 @@ from .toas import day_to_s
 from .vela import jl, vl
 
 dmunit = (DMconst * dmu).to_value(u.Hz)
-Rmax = (52850 * u.lightyear * const.c).to_value(u.s) # Radius of the Galaxy
+Rmax = (52850 * u.lightyear * const.c).to_value(u.s)  # Radius of the Galaxy
 
 # Some of these prior distributions are based on physical considerations.
 # Others are based on typical values found in millisecond pulsars. They
@@ -34,7 +34,7 @@ DEFAULT_PRIOR_DISTS = {
     "STIGMA": vl.STIGMAPriorDistribution(),
     "SHAPMAX": vl.SHAPMAXPriorDistribution(),
     "DMEFAC": jl.LogNormal(0.0, 0.25),
-    "DMEQUAD": jl.LogUniform(1e-8*dmunit, 1e-2*dmunit),
+    "DMEQUAD": jl.LogUniform(1e-8 * dmunit, 1e-2 * dmunit),
     "PLREDCOS_": jl.Normal(),
     "PLREDSIN_": jl.Normal(),
     "TNREDAMP": jl.Uniform(-18.0, -9.0),
