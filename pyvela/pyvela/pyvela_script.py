@@ -5,7 +5,7 @@ import os
 import platform
 import shutil
 import sys
-from argparse import ArgumentParser
+from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 from copy import deepcopy
 from warnings import warn
 
@@ -70,6 +70,7 @@ def parse_args(argv):
         " noise analysis package. Uses emcee for sampling. This may not be "
         "appropriate for more complex datasets. Write your own scripts for "
         "such cases.",
+        formatter_class=ArgumentDefaultsHelpFormatter,
     )
     parser.add_argument(
         "par_file",
