@@ -19,7 +19,7 @@ requires-python = ">=3.10"
 dependencies = [
     "numpy>=2.1",
     "astropy>=6.1",
-    "pint-pulsar>=1.1",
+    "pint-pulsar>=1.1.3",
     "juliacall>=0.9",
     "emcee",
     "h5py",
