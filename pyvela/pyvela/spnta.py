@@ -476,3 +476,22 @@ class SPNTA:
                 mp[pname].uncertainty_value = param_err
 
         return mp
+
+    def full_prior_dict(self):
+        result = {}
+        for prior, pname, punit in zip(self.model.priors, self.param_names, self.param_units):
+            ptype = str(prior.source_type)
+            dname = str(vl.distr_name(prior))
+            dargs = vl.distr_args(prior)
+            result.update(
+                {
+                    pname : {
+                        "distribution": dname,
+                        "args": dargs,
+                        "type": ptype,
+                        "unit": punit,
+                    }
+                }
+            )
+
+        return result
