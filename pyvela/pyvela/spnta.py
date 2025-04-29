@@ -513,16 +513,21 @@ class SPNTA:
             ptype = str(prior.source_type)
             dname = str(vl.distr_name(prior))
             dargs = vl.distr_args(prior)
-            result.update(
-                {
-                    pname: {
-                        "distribution": dname,
-                        "args": dargs,
-                        "type": ptype,
-                        "unit": punit,
-                    }
+            prior_dict = {
+                pname: {
+                    "distribution": dname,
+                    "args": dargs,
+                    "type": ptype,
+                    "unit": punit,
                 }
-            )
+            }
+            if jl.isa(prior.distribution, vl.Truncated):
+                if prior.distribution.upper is not None:
+                    prior_dict["upper"] = prior.distribution.upper
+                if prior.distribution.lower is not None:
+                    prior_dict["lower"] = prior.distribution.lower
+            
+            result.update(prior_dict)
 
         return result
 
@@ -625,3 +630,65 @@ class SPNTA:
             res_arr[:, 6] = derr
 
         np.savetxt(f"{outdir}/residuals.txt", res_arr)
+
+    def save_results(
+        self,
+        outdir: str,
+        samples_raw: np.ndarray,
+        sampler_info: dict = {},
+        truth_par_file: Optional[str] = None,
+    ):
+        samples = self.rescale_samples(samples_raw)
+
+        with open(f"{outdir}/samples_raw.npy", "wb") as f:
+            np.save(f, samples_raw)
+        with open(f"{outdir}/samples.npy", "wb") as f:
+            np.save(f, samples)
+
+        param_uncertainties = np.std(samples_raw, axis=0)
+
+        params_median = np.median(samples_raw, axis=0)
+        np.savetxt(f"{outdir}/params_median.txt", params_median)
+        self.save_new_parfile(
+            params_median,
+            param_uncertainties,
+            f"{outdir}/{self.model.pulsar_name}.median.par",
+        )
+
+        self.save_resids(params_median, outdir)
+
+        np.savetxt(f"{outdir}/param_default_values.txt", self.default_params)
+        np.savetxt(f"{outdir}/param_names.txt", self.param_names, fmt="%s")
+        np.savetxt(f"{outdir}/param_prefixes.txt", self.param_prefixes, fmt="%s")
+        np.savetxt(f"{outdir}/param_units.txt", self.param_units, fmt="%s")
+        np.savetxt(f"{outdir}/param_scale_factors.txt", self.scale_factors)
+
+        if truth_par_file is not None:
+            np.savetxt(
+                f"{outdir}/param_true_values.txt", get_true_values(self, truth_par_file)
+            )
+
+        with open(f"{outdir}/prior_info.json", "w") as prior_info_file:
+            print(self.full_prior_dict())
+            # json.dump(self.full_prior_dict(), prior_info_file, indent=4)
+
+        summary_info = self.info_dict(sampler_info, truth_par_file)
+        with open(f"{outdir}/summary.json", "w") as summary_file:
+            json.dump(summary_info, summary_file, indent=4)
+
+
+def get_true_values(spnta: SPNTA, truth_par_file: str):
+    true_model = get_model(truth_par_file)
+    return (
+        np.array(
+            [
+                (
+                    (true_model[par].value if par != "F0" else 0.0)
+                    if par in true_model
+                    else np.nan
+                )
+                for par in spnta.param_names
+            ]
+        )
+        * spnta.scale_factors
+    )

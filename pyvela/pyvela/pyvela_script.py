@@ -153,33 +153,6 @@ def prepare_outdir(args):
         shutil.copy(args.truth, args.outdir)
 
 
-def get_true_values(spnta: SPNTA, args):
-    true_model = pint.models.get_model(args.truth)
-    return (
-        np.array(
-            [
-                (
-                    (true_model[par].value if par != "F0" else 0.0)
-                    if par in true_model
-                    else np.nan
-                )
-                for par in spnta.param_names
-            ]
-        )
-        * spnta.scale_factors
-    )
-
-
-def save_spnta_attrs(spnta: SPNTA, args):
-    np.savetxt(f"{args.outdir}/param_names.txt", spnta.param_names, fmt="%s")
-    np.savetxt(f"{args.outdir}/param_prefixes.txt", spnta.param_prefixes, fmt="%s")
-    np.savetxt(f"{args.outdir}/param_units.txt", spnta.param_units, fmt="%s")
-    np.savetxt(f"{args.outdir}/param_scale_factors.txt", spnta.scale_factors)
-
-    if args.truth is not None:
-        np.savetxt(f"{args.outdir}/param_true_values.txt", get_true_values(spnta, args))
-
-
 def main(argv=None):
     args = parse_args(argv)
     validate_input(args)
@@ -197,8 +170,6 @@ def main(argv=None):
         else SPNTA.load_jlso(args.jlso_file, args.par_file)
     )
 
-    save_spnta_attrs(spnta, args)
-
     nwalkers = spnta.ndim * 5
     p0 = np.array(
         [spnta.prior_transform(cube) for cube in np.random.rand(nwalkers, spnta.ndim)]
@@ -214,32 +185,14 @@ def main(argv=None):
     )
     sampler.run_mcmc(p0, args.nsteps, progress=True, progress_kwargs={"mininterval": 1})
     samples_raw = sampler.get_chain(flat=True, discard=args.burnin, thin=args.thin)
-    samples = spnta.rescale_samples(samples_raw)
 
-    with open(f"{args.outdir}/samples_raw.npy", "wb") as f:
-        np.save(f, samples_raw)
-    with open(f"{args.outdir}/samples.npy", "wb") as f:
-        np.save(f, samples)
-
-    param_uncertainties = np.std(samples_raw, axis=0)
-
-    params_median = np.median(samples_raw, axis=0)
-    np.savetxt(f"{args.outdir}/params_median.txt", params_median)
-    spnta.save_new_parfile(
-        params_median,
-        param_uncertainties,
-        f"{args.outdir}/{spnta.model.pulsar_name}.median.par",
+    spnta.save_results(
+        args.outdir,
+        samples_raw,
+        {
+            "nsteps": args.nsteps,
+            "burnin": args.burnin,
+            "thin": args.thin,
+        },
+        args.truth,
     )
-
-    spnta.save_resids(params_median, args.outdir)
-
-    np.savetxt(f"{args.outdir}/param_default_values.txt", spnta.default_params)
-
-    sampler_info = {
-        "nsteps": args.nsteps,
-        "burnin": args.burnin,
-        "thin": args.thin,
-    }
-    summary_info = spnta.info_dict(sampler_info=sampler_info, truth_par_file=args.truth)
-    with open(f"{args.outdir}/summary.json", "w") as summary_file:
-        json.dump(summary_info, summary_file, indent=4)

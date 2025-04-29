@@ -37,6 +37,7 @@ Returns a callable that evaluates the prior transform given a point within a uni
 get_prior_transform_func(model::TimingModel) = cube -> prior_transform(model, cube)
 
 distr_args(d::Distribution) = ntuple(i -> getfield(d, i), fieldcount(typeof(d)))
+distr_args(d::Truncated) = distr_args(d.untruncated)
 distr_args(p::Prior) = distr_args(p.distribution)
 
 distr_name(d::Distribution) = typeof(d).name.name
