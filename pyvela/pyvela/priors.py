@@ -2,8 +2,11 @@ from typing import List
 
 import numpy as np
 from astropy.time import Time
+import astropy.units as u
+import astropy.constants as const
 from pint.models import TimingModel
 from pint.models.parameter import AngleParameter, MJDParameter, floatParameter
+from pint import DMconst, dmu
 
 from .parameters import (
     fdjump_rx,
@@ -13,6 +16,9 @@ from .parameters import (
 )
 from .toas import day_to_s
 from .vela import jl, vl
+
+dmunit = (DMconst * dmu).to_value(u.Hz)
+Rmax = (52850 * u.lightyear / const.c).to_value(u.s)  # Radius of the Galaxy
 
 # Some of these prior distributions are based on physical considerations.
 # Others are based on typical values found in millisecond pulsars. They
@@ -28,6 +34,7 @@ DEFAULT_PRIOR_DISTS = {
     "STIGMA": vl.STIGMAPriorDistribution(),
     "SHAPMAX": vl.SHAPMAXPriorDistribution(),
     "DMEFAC": jl.LogNormal(0.0, 0.25),
+    "DMEQUAD": jl.LogUniform(1e-8 * dmunit, 1e-2 * dmunit),
     "PLREDCOS_": jl.Normal(),
     "PLREDSIN_": jl.Normal(),
     "TNREDAMP": jl.Uniform(-18.0, -9.0),
@@ -40,6 +47,8 @@ DEFAULT_PRIOR_DISTS = {
     "PLCHROMSIN_": jl.Normal(),
     "TNCHROMAMP": jl.Uniform(-18.0, -9.0),
     "TNCHROMGAM": jl.Uniform(0.0, 7.0),
+    "DMX_": jl.Normal(0, 1e-2 * dmunit),
+    "PX": vl.PXPriorDistribution(Rmax),
 }
 
 

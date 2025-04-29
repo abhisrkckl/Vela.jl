@@ -34,15 +34,15 @@
     end
 
     @testset "custom priors" begin
-        Dists = [
-            KINPriorDistribution,
-            SINIPriorDistribution,
-            STIGMAPriorDistribution,
-            SHAPMAXPriorDistribution,
+        Rmax = 1.66778354e12 # Radius of the Galaxy in s
+        dists = [
+            KINPriorDistribution(),
+            SINIPriorDistribution(),
+            STIGMAPriorDistribution(),
+            SHAPMAXPriorDistribution(),
+            PXPriorDistribution(Rmax),
         ]
-        for Dist in Dists
-            d = Dist()
-
+        for d in dists
             xl = minimum(d) - 1
             if isfinite(xl)
                 @test pdf(d, xl) == 0
@@ -55,7 +55,9 @@
                 @test cdf(d, xh) == 1
             end
 
-            xin = 0.5
+            xin = quantile(d, 0.5)
+            @test isfinite(xin)
+
             @test pdf(d, xin) > 0
             @test 0 < cdf(d, xin) < 1
             @test isfinite(logpdf(d, xin))
@@ -63,7 +65,6 @@
 
             @test quantile(d, 0.0) == minimum(d)
             @test quantile(d, 1.0) == maximum(d)
-            @test isfinite(quantile(d, 0.5))
         end
     end
 
