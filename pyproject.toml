@@ -22,6 +22,7 @@ dependencies = [
     "pint-pulsar>=1.1",
     "juliacall>=0.9",
     "emcee",
+    "h5py",
     "corner",
     "matplotlib"
 ]
