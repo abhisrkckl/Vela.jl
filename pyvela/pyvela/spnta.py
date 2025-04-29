@@ -526,7 +526,7 @@ class SPNTA:
                     prior_dict["upper"] = prior.distribution.upper
                 if prior.distribution.lower is not None:
                     prior_dict["lower"] = prior.distribution.lower
-            
+
             result.update(prior_dict)
 
         return result
