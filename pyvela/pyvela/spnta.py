@@ -114,7 +114,7 @@ class SPNTA:
             **pint_kwargs,
         )
         self.model_pint = deepcopy(model_pint)
-        self.model_pint_modified = model_pint
+        self.model_pint_original = model_pint
         self.toas_pint = toas_pint
 
         # custom_priors_dict is in the "raw" format. The numbers may be
@@ -406,7 +406,7 @@ class SPNTA:
         spnta.jlsofile = jlsoname
         spnta.pulsar = vl.Pulsar(model, toas)
         spnta.model_pint = get_model(parfile)
-        spnta.model_pint_modified = None
+        spnta.model_pint_original = deepcopy(spnta.model_pint)
         spnta.toas_pint = None
         spnta._check()
         return spnta
@@ -430,7 +430,7 @@ class SPNTA:
             toas.compute_posvels(ephem=model["EPHEM"].value, planets=True)
 
         spnta.model_pint = deepcopy(model)
-        spnta.model_pint_modified = model
+        spnta.model_pint_original = model
         spnta.toas_pint = toas
 
         # custom_priors_dict is in the "raw" format. The numbers may be
@@ -464,7 +464,7 @@ class SPNTA:
 
     def update_pint_model(self, samples: np.ndarray) -> TimingModel:
         """Return an updated PINT `TimingModel` based on posterior samples."""
-        mp: TimingModel = deepcopy(self.model_pint_modified)
+        mp: TimingModel = deepcopy(self.model_pint_original)
 
         scaled_samples = self.rescale_samples(samples)
 

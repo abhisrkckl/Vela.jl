@@ -241,8 +241,8 @@ def save_new_parfile(
     param_errs = spnta.rescale_samples(param_uncertainties)
 
     model1 = (
-        deepcopy(spnta.model_pint_modified)
-        if spnta.model_pint_modified is not None
+        deepcopy(spnta.model_pint_original)
+        if spnta.model_pint_original is not None
         else spnta.model_pint
     )
     for pname, pval, perr in zip(spnta.param_names, param_vals, param_errs):
