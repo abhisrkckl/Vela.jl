@@ -180,61 +180,6 @@ def save_spnta_attrs(spnta: SPNTA, args):
         np.savetxt(f"{args.outdir}/param_true_values.txt", get_true_values(spnta, args))
 
 
-def save_new_parfile(
-    spnta: SPNTA, params: np.ndarray, param_uncertainties: np.ndarray, filename: str
-):
-    param_vals = spnta.rescale_samples(params)
-    param_errs = spnta.rescale_samples(param_uncertainties)
-
-    model1 = (
-        deepcopy(spnta.model_pint_modified)
-        if spnta.model_pint_modified is not None
-        else spnta.model_pint
-    )
-    for pname, pval, perr in zip(spnta.param_names, param_vals, param_errs):
-        if pname in model1:
-            model1[pname].value = (
-                pval
-                if pname != "F0"
-                else (
-                    np.longdouble(spnta.model.param_handler._default_params_tuple.F_.x)
-                    + pval
-                )
-            )
-            model1[pname].uncertainty_value = perr
-        else:
-            warn(f"Parameter {pname} not found in the PINT TimingModel!")
-
-    model1.write_parfile(filename)
-
-
-def save_resids(spnta: SPNTA, params: np.ndarray, outdir: str) -> None:
-    wb = spnta.wideband
-
-    ntoas = len(spnta.toas)
-    mjds = spnta.mjds
-    tres = spnta.time_residuals(params)
-    tres_w = spnta.whitened_time_residuals(params)
-    terr = spnta.scaled_toa_unceritainties(params)
-
-    res_arr = np.zeros((ntoas, 3 * (1 + int(wb)) + 1))
-    res_arr[:, 0] = mjds
-    res_arr[:, 1] = tres
-    res_arr[:, 2] = tres_w
-    res_arr[:, 3] = terr
-
-    if wb:
-        dres = spnta.dm_residuals(params)
-        dres_w = spnta.whitened_dm_residuals(params)
-        derr = spnta.scaled_dm_unceritainties(params)
-
-        res_arr[:, 4] = dres
-        res_arr[:, 5] = dres_w
-        res_arr[:, 6] = derr
-
-    np.savetxt(f"{outdir}/residuals.txt", res_arr)
-
-
 def main(argv=None):
     args = parse_args(argv)
     validate_input(args)
@@ -278,30 +223,15 @@ def main(argv=None):
 
     param_uncertainties = np.std(samples_raw, axis=0)
 
-    params_maxpost = sampler.chain[
-        *np.unravel_index(
-            np.argmax(sampler.get_log_prob().T), sampler.get_log_prob().T.shape
-        ),
-        :,
-    ]
-    np.savetxt(f"{args.outdir}/params_maxpost.txt", params_maxpost)
-    save_new_parfile(
-        spnta,
-        params_maxpost,
-        param_uncertainties,
-        f"{args.outdir}/{spnta.model.pulsar_name}.maxpost.par",
-    )
-
     params_median = np.median(samples_raw, axis=0)
     np.savetxt(f"{args.outdir}/params_median.txt", params_median)
-    save_new_parfile(
-        spnta,
+    spnta.save_new_parfile(
         params_median,
         param_uncertainties,
         f"{args.outdir}/{spnta.model.pulsar_name}.median.par",
     )
 
-    save_resids(spnta, params_median, args.outdir)
+    spnta.save_resids(params_median, args.outdir)
 
     np.savetxt(f"{args.outdir}/param_default_values.txt", spnta.default_params)
 

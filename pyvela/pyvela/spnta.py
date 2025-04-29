@@ -570,3 +570,58 @@ class SPNTA:
         }
 
         return info_dict
+
+    def save_new_parfile(
+        self, params: np.ndarray, param_uncertainties: np.ndarray, filename: str
+    ):
+        param_vals = self.rescale_samples(params)
+        param_errs = self.rescale_samples(param_uncertainties)
+
+        model1 = (
+            deepcopy(self.model_pint_modified)
+            if self.model_pint_modified is not None
+            else self.model_pint
+        )
+        for pname, pval, perr in zip(self.param_names, param_vals, param_errs):
+            if pname in model1:
+                model1[pname].value = (
+                    pval
+                    if pname != "F0"
+                    else (
+                        np.longdouble(
+                            self.model.param_handler._default_params_tuple.F_.x
+                        )
+                        + pval
+                    )
+                )
+                model1[pname].uncertainty_value = perr
+            else:
+                warnings.warn(f"Parameter {pname} not found in the PINT TimingModel!")
+
+        model1.write_parfile(filename)
+
+    def save_resids(self, params: np.ndarray, outdir: str) -> None:
+        wb = self.wideband
+
+        ntoas = len(self.toas)
+        mjds = self.mjds
+        tres = self.time_residuals(params)
+        tres_w = self.whitened_time_residuals(params)
+        terr = self.scaled_toa_unceritainties(params)
+
+        res_arr = np.zeros((ntoas, 3 * (1 + int(wb)) + 1))
+        res_arr[:, 0] = mjds
+        res_arr[:, 1] = tres
+        res_arr[:, 2] = tres_w
+        res_arr[:, 3] = terr
+
+        if wb:
+            dres = self.dm_residuals(params)
+            dres_w = self.whitened_dm_residuals(params)
+            derr = self.scaled_dm_unceritainties(params)
+
+            res_arr[:, 4] = dres
+            res_arr[:, 5] = dres_w
+            res_arr[:, 6] = derr
+
+        np.savetxt(f"{outdir}/residuals.txt", res_arr)
