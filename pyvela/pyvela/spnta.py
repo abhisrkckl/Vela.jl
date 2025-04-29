@@ -1,10 +1,19 @@
+import datetime
 from functools import cached_property
+import getpass
 import json
 from copy import deepcopy
-from typing import IO, Iterable, List
+import os
+import platform
+import sys
+from typing import IO, Dict, Iterable, List, Optional
 import warnings
 
+import astropy
+import emcee
 import numpy as np
+import pint
+import pyvela
 from scipy.linalg import cho_factor, cho_solve
 from pint.binaryconvert import convert_binary
 from pint.logging import setup as setup_log
@@ -102,6 +111,10 @@ class SPNTA:
     ):
         self.parfile = parfile
         self.timfile = timfile
+        self.jlsofile: Optional[str] = None
+        self.custom_prior_file: Optional[str] = None
+
+        self.cheat_prior_scale: Optional[float] = cheat_prior_scale
 
         setup_log(level="WARNING")
         model_pint, toas_pint = get_model_and_toas(
@@ -122,6 +135,7 @@ class SPNTA:
         if isinstance(custom_priors, dict):
             self.custom_priors_dict = custom_priors
         elif isinstance(custom_priors, str):
+            self.custom_prior_file = custom_priors
             with open(custom_priors) as custom_priors_file:
                 self.custom_priors_dict = json.load(custom_priors_file)
         else:
@@ -403,7 +417,13 @@ class SPNTA:
         """Construct an `SPNTA` object from a JLSO file"""
         spnta = cls.__new__(cls)
         model, toas = vl.load_pulsar_data(jlsoname)
+
         spnta.jlsofile = jlsoname
+        spnta.parfile = parfile
+        spnta.timfile = None
+        spnta.custom_prior_file = None
+        spnta.cheat_prior_scale = None
+
         spnta.pulsar = vl.Pulsar(model, toas)
         spnta.model_pint = get_model(parfile)
         spnta.model_pint_modified = None
@@ -433,11 +453,19 @@ class SPNTA:
         spnta.model_pint_modified = model
         spnta.toas_pint = toas
 
+        spnta.parfile = model.name
+        spnta.timfile = toas.filename
+        spnta.custom_prior_file = None
+        spnta.jlsofile = None
+
+        spnta.cheat_prior_scale = cheat_prior_scale
+
         # custom_priors_dict is in the "raw" format. The numbers may be
         # in "normal" units and have to be converted into internal units.
         if isinstance(custom_priors, dict):
             custom_priors_dict = custom_priors
         elif isinstance(custom_priors, str):
+            spnta.custom_prior_file = custom_priors
             with open(custom_priors) as custom_priors_file:
                 custom_priors_dict = json.load(custom_priors_file)
         else:
@@ -497,3 +525,48 @@ class SPNTA:
             )
 
         return result
+
+    def info_dict(self, sampler_info: Dict = {}, truth_par_file: Optional[str] = None):
+        info_dict = {
+            "input": {
+                "par_file": (
+                    os.path.basename(self.parfile) if self.parfile is not None else None
+                ),
+                "tim_file": (
+                    os.path.basename(self.timfile) if self.timfile is not None else None
+                ),
+                "jlso_file": (
+                    os.path.basename(self.jlsofile)
+                    if self.jlsofile is not None
+                    else None
+                ),
+                "custom_prior_file": (
+                    os.path.basename(self.custom_prior_file)
+                    if self.custom_prior_file is not None
+                    else None
+                ),
+                "cheat_prior_scale": self.cheat_prior_scale,
+                "truth_par_file": (
+                    os.path.basename(truth_par_file)
+                    if truth_par_file is not None
+                    else None
+                ),
+            },
+            "sampler": sampler_info,
+            "env": {
+                "launch_time": datetime.datetime.now().isoformat(),
+                "user": getpass.getuser(),
+                "host": platform.node(),
+                "os": platform.platform(),
+                "julia_threads": vl.nthreads(),
+                "python": sys.version,
+                "julia": str(vl.VERSION),
+                "pyvela": pyvela.__version__,
+                "pint": pint.__version__,
+                "emcee": emcee.__version__,
+                "numpy": np.__version__,
+                "astropy": astropy.__version__,
+            },
+        }
+
+        return info_dict

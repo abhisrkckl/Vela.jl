@@ -1,10 +1,6 @@
-import datetime
-import getpass
 import json
 import os
-import platform
 import shutil
-import sys
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 from copy import deepcopy
 from warnings import warn
@@ -14,53 +10,7 @@ import numpy as np
 import pint
 import pint.models
 
-import pyvela
 from pyvela import SPNTA
-from pyvela import Vela as vl
-
-
-def info_dict(args):
-    info_dict = {
-        "input": {
-            "par_file": (
-                os.path.basename(args.par_file) if args.par_file is not None else None
-            ),
-            "tim_file": (
-                os.path.basename(args.tim_file) if args.tim_file is not None else None
-            ),
-            "jlso_file": (
-                os.path.basename(args.jlso_file) if args.jlso_file is not None else None
-            ),
-            "prior_file": (
-                os.path.basename(args.prior_file)
-                if args.prior_file is not None
-                else None
-            ),
-            "cheat_prior_scale": args.cheat_prior_scale,
-        },
-        "sampler": {
-            "nsteps": args.nsteps,
-            "burnin": args.burnin,
-            "thin": args.thin,
-        },
-        "env": {
-            "launch_time": datetime.datetime.now().isoformat(),
-            "user": getpass.getuser(),
-            "host": platform.node(),
-            "os": platform.platform(),
-            "julia_threads": vl.nthreads(),
-            "python": sys.version,
-            "julia": str(vl.VERSION),
-            "pyvela": pyvela.__version__,
-            "pint": pint.__version__,
-            "emcee": emcee.__version__,
-        },
-    }
-
-    if args.truth is not None:
-        info_dict["input"]["truth_par_file"] = os.path.basename(args.truth)
-
-    return info_dict
 
 
 def parse_args(argv):
@@ -198,10 +148,6 @@ def prepare_outdir(args):
 
     if args.prior_file is not None:
         shutil.copy(args.prior_file, args.outdir)
-
-    summary_info = info_dict(args)
-    with open(f"{args.outdir}/summary.json", "w") as summary_file:
-        json.dump(summary_info, summary_file, indent=4)
 
     if args.truth is not None:
         shutil.copy(args.truth, args.outdir)
@@ -358,3 +304,12 @@ def main(argv=None):
     save_resids(spnta, params_median, args.outdir)
 
     np.savetxt(f"{args.outdir}/param_default_values.txt", spnta.default_params)
+
+    sampler_info = {
+        "nsteps": args.nsteps,
+        "burnin": args.burnin,
+        "thin": args.thin,
+    }
+    summary_info = spnta.info_dict(sampler_info=sampler_info, truth_par_file=args.truth)
+    with open(f"{args.outdir}/summary.json", "w") as summary_file:
+        json.dump(summary_info, summary_file, indent=4)
