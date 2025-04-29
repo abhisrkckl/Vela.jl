@@ -9,6 +9,8 @@
         @test !isfinite(lnprior(phoff_prior, bad_params))
         @test prior_transform(phoff_prior, 0.5) == 0
         @test Vela.param_name(phoff_prior) == :PHOFF
+        @test Vela.distr_args(phoff_prior) == (-0.5, 0.5)
+        @test Vela.distr_name(phoff_prior) == :Uniform
 
         f0_prior = SimplePriorMulti{:F,UInt(1)}(
             truncated(Normal(100.0, 1e-7); lower = 0.0),
