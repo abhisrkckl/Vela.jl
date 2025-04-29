@@ -86,6 +86,10 @@ end
 
     include("test_sim_dmgp_wb.jl")
 
+    @testset "version" begin
+        @test length(Vela.pkg_version()) > 0
+    end
+
     @testset "formatting" begin
         @test format(Vela)
     end
