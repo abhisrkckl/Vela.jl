@@ -24,9 +24,13 @@
     phoff = Parameter(:PHOFF, dimensionless(0.0), false, "", 1.0, false)
     ph = ParamHandler([pepoch, phoff], [f_mpar])
 
-    phoff_prior = SimplePrior{:PHOFF}(Uniform(-0.5, 0.5))
-    f0_prior = SimplePriorMulti{:F,UInt(1)}(truncated(Normal(100.0, 1e-7); lower = 0.0))
-    f1_prior = SimplePriorMulti{:F,UInt(2)}(Uniform(-1.01e-14, -0.9e-14))
+    phoff_prior = SimplePrior{:PHOFF}(Uniform(-0.5, 0.5), Vela.USER_DEFINED_PRIOR)
+    f0_prior = SimplePriorMulti{:F,UInt(1)}(
+        truncated(Normal(100.0, 1e-7); lower = 0.0),
+        Vela.USER_DEFINED_PRIOR,
+    )
+    f1_prior =
+        SimplePriorMulti{:F,UInt(2)}(Uniform(-1.01e-14, -0.9e-14), Vela.USER_DEFINED_PRIOR)
 
     @testset "white noise kernel" begin
         wn_kernel = WhiteNoiseKernel()
@@ -66,8 +70,10 @@
         ecorr_mpar = MultiParameter(:ECORR, [ecorr1, ecorr2])
         ph = ParamHandler([pepoch, phoff], [f_mpar, ecorr_mpar])
 
-        ecorr1_prior = SimplePriorMulti{:ECORR,UInt(1)}(Uniform(1e-9, 1e-5))
-        ecorr2_prior = SimplePriorMulti{:ECORR,UInt(1)}(Uniform(1e-9, 1e-5))
+        ecorr1_prior =
+            SimplePriorMulti{:ECORR,UInt(1)}(Uniform(1e-9, 1e-5), Vela.USER_DEFINED_PRIOR)
+        ecorr2_prior =
+            SimplePriorMulti{:ECORR,UInt(1)}(Uniform(1e-9, 1e-5), Vela.USER_DEFINED_PRIOR)
         priors = (phoff_prior, f0_prior, f1_prior, ecorr1_prior, ecorr2_prior)
 
         m2 = TimingModel(
