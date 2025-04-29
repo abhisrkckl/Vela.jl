@@ -1,4 +1,4 @@
-"""Python interface for Vela.jl"""
+"""Python interface for Vela.jl, a Bayesian pulsar timing and noise analysis package."""
 
 from importlib import metadata
 
