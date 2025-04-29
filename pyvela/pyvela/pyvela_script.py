@@ -262,33 +262,6 @@ def save_new_parfile(
     model1.write_parfile(filename)
 
 
-def save_resids(spnta: SPNTA, params: np.ndarray, outdir: str) -> None:
-    wb = spnta.wideband
-
-    ntoas = len(spnta.toas)
-    mjds = spnta.mjds
-    tres = spnta.time_residuals(params)
-    tres_w = spnta.whitened_time_residuals(params)
-    terr = spnta.scaled_toa_unceritainties(params)
-
-    res_arr = np.zeros((ntoas, 3 * (1 + int(wb)) + 1))
-    res_arr[:, 0] = mjds
-    res_arr[:, 1] = tres
-    res_arr[:, 2] = tres_w
-    res_arr[:, 3] = terr
-
-    if wb:
-        dres = spnta.dm_residuals(params)
-        dres_w = spnta.whitened_dm_residuals(params)
-        derr = spnta.scaled_dm_unceritainties(params)
-
-        res_arr[:, 4] = dres
-        res_arr[:, 5] = dres_w
-        res_arr[:, 6] = derr
-
-    np.savetxt(f"{outdir}/residuals.txt", res_arr)
-
-
 def main(argv=None):
     args = parse_args(argv)
     validate_input(args)
@@ -355,6 +328,6 @@ def main(argv=None):
         f"{args.outdir}/{spnta.model.pulsar_name}.median.par",
     )
 
-    save_resids(spnta, params_median, args.outdir)
+    spnta.save_resids(params_median, f"{args.outdir}/residuals.txt")
 
     np.savetxt(f"{args.outdir}/param_default_values.txt", spnta.default_params)

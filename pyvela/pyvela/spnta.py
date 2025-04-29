@@ -102,6 +102,7 @@ class SPNTA:
     ):
         self.parfile = parfile
         self.timfile = timfile
+        self.jlsofile = None
 
         setup_log(level="WARNING")
         model_pint, toas_pint = get_model_and_toas(
@@ -143,6 +144,9 @@ class SPNTA:
         )
 
         self.pulsar = vl.Pulsar(model, toas)
+
+        self.custom_priors = custom_priors
+        self.cheat_prior_scale = cheat_prior_scale
 
         if check:
             self._check()
@@ -476,3 +480,29 @@ class SPNTA:
                 mp[pname].uncertainty_value = param_err
 
         return mp
+
+    def save_resids(self, params: np.ndarray, filename: str) -> None:
+        wb = self.wideband
+
+        ntoas = len(self.toas)
+        mjds = self.mjds
+        tres = self.time_residuals(params)
+        tres_w = self.whitened_time_residuals(params)
+        terr = self.scaled_toa_unceritainties(params)
+
+        res_arr = np.zeros((ntoas, 3 * (1 + int(wb)) + 1))
+        res_arr[:, 0] = mjds
+        res_arr[:, 1] = tres
+        res_arr[:, 2] = tres_w
+        res_arr[:, 3] = terr
+
+        if wb:
+            dres = self.dm_residuals(params)
+            dres_w = self.whitened_dm_residuals(params)
+            derr = self.scaled_dm_unceritainties(params)
+
+            res_arr[:, 4] = dres
+            res_arr[:, 5] = dres_w
+            res_arr[:, 6] = derr
+
+        np.savetxt(filename, res_arr)
