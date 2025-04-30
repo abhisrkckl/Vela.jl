@@ -14,6 +14,7 @@
 ## Changed
 - Residual plot in `pyvela-plot` script
 - Made GP noise marginalization the default in `SPNTA`
+- Made plotting modular
 ## Fixed
 - Julia example script `run_example.jl`
 - In `_gls_lnlike_serial`, return  -inf if `Σinv` is not positive definite.

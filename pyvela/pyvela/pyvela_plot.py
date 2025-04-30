@@ -38,7 +38,7 @@ def get_param_plot_mask(
     ]
 
 
-def read_true_values(result_dir):
+def read_true_values(result_dir: str) -> np.ndarray:
     with open(f"{result_dir}/summary.json", "r") as summary_file:
         summary = json.load(summary_file)
 
@@ -51,7 +51,12 @@ def read_true_values(result_dir):
     return true_values_raw / scale_factors
 
 
-def plot(result_dir, ignore_params=[], out=None, labelpad=0.2):
+def plot(
+    result_dir: str,
+    ignore_params: Iterable[str] = [],
+    out: str = None,
+    labelpad: float = 0.2,
+):
 
     samples = np.load(f"{result_dir}/samples.npy")
     param_names = np.genfromtxt(f"{result_dir}/param_names.txt", dtype=str)
