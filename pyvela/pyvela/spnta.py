@@ -715,9 +715,30 @@ class SPNTA:
         with open(f"{outdir}/prior_info.json", "w") as prior_info_file:
             json.dump(self.full_prior_dict(), prior_info_file, indent=4)
 
+        self._save_prior_evals(samples, f"{outdir}/prior_evals.npy")
+
         summary_info = self.info_dict(sampler_info, truth_par_file)
         with open(f"{outdir}/summary.json", "w") as summary_file:
             json.dump(summary_info, summary_file, indent=4)
+
+    def _single_param_prior(self, param_idx: int, value: float):
+        prior = self.model.priors[param_idx]
+        scale_factor = self.scale_factors[param_idx]
+        return vl.pdf(prior.distribution, value * scale_factor)
+
+    def _save_prior_evals(self, samples: np.ndarray, filename: str):
+        """Save the prior PDF evaluated at uniformly spaced points within the
+        posterior range."""
+        nn = 1000
+        result = np.empty((nn, 2 * self.ndim))
+
+        for ii in range(self.ndim):
+            xs = np.linspace(np.min(samples[:, ii]), np.max(samples[:, ii]), nn)
+            ys = np.array([self._single_param_prior(ii, x) for x in xs])
+            result[:, 2 * ii] = xs
+            result[:, 2 * ii + 1] = ys
+
+        np.save(filename, result)
 
 
 def get_true_values(spnta: SPNTA, truth_par_file: str):
