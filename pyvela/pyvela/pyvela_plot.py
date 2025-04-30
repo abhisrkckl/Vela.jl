@@ -31,7 +31,7 @@ def get_param_plot_mask(
         "CMWXCOS_",
     }
     ignore_params = ignore_params_default.union(ignore_params)
-    if include_params is None:
+    if (include_params is None) or (include_params == []):
         return [
             idx
             for idx, (pname, pprefix) in enumerate(zip(param_names, param_prefixes))

@@ -29,7 +29,7 @@ def parse_args(argv):
         "-P",
         "--include_params",
         nargs="+",
-        default=[],
+        default=None,
         help="Parameters to include in the corner plot (will include only these).",
     )
     parser.add_argument("-o", "--out", default=None, help="Output file for plot")
