@@ -10,7 +10,7 @@
 - Display default values in `$ pyvela --help`
 - Check that `Vela` and `pyvela` have the same version.
 - `PriorSourceType` enum, `source_type` attribute in `Prior` types
-- `SPNTA.full_prior_dict()` method
+- `SPNTA.full_prior_dict()` and `SPNTA.save_results()` method
 ## Changed
 - Residual plot in `pyvela-plot` script
 - Made GP noise marginalization the default in `SPNTA`

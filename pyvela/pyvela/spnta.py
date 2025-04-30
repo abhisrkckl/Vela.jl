@@ -637,7 +637,40 @@ class SPNTA:
         samples_raw: np.ndarray,
         sampler_info: dict = {},
         truth_par_file: Optional[str] = None,
-    ):
+    ) -> None:
+        """Given the posterior samples, save the results into an output directory.
+        `pyvela` script uses this function to save the results.
+
+        `outdir` is the output directory to which the results will be saved.
+
+        `samples_raw` is the burned-in and thinned MCMC chain obtained from the sampler.
+        If these samples have associated importance weights (e.g., from nested sampling), 
+        please resample them before passing into this method such that each sample has 
+        equal weight.
+
+        `sampler_info` is a dictionary containing sampler configuration information. It will 
+        be saved as-is into the summary file.
+
+        `truth_par_file` is the original par file that was used to simulate a dataset. This is
+        only applicable for simulated datasets.
+
+        The following files are saved.
+            
+            1. `samples_raw.npy` - Samples in Vela's internal units (numpy format)
+            2. `samples.npy` - Samples in 'normal' units (numpy format)
+            3. `params_median.txt` - Parameter median values
+            4. `params_std.txt` - Parameter standard deviations
+            5. `<PSRNAME>.median.par` - par file containing median parameter values and standard deviations (PINT format)
+            6. `residuals.txt` - Residuals (time for narrowband, time & DM for wideband) computed using median parameter values
+            7. `param_default_values.txt` - Default parameter values taken from the input par file
+            8. `param_names.txt` - Parameter names (PINT format)
+            9. `param_prefixes.txt` - Parameter prefixes (PINT format)
+            10. `param_units.txt` - Parameter unit strings (astropy format)
+            11. `param_scale_factors.txt` - Scale factors that convert parameter values from Vela's internal units to 'normal' units
+            12. `param_true_values.txt` - Parameter values used for simulation, taken from the 'truth' par file
+            13. `prior_info.json` - Prior distributions on all free parameters (JSON format)
+            14. `summary.json` - Information about the machine, environment, sampler, and input (JSON format)
+        """
         samples = self.rescale_samples(samples_raw)
 
         with open(f"{outdir}/samples_raw.npy", "wb") as f:
@@ -646,9 +679,9 @@ class SPNTA:
             np.save(f, samples)
 
         param_uncertainties = np.std(samples_raw, axis=0)
-
         params_median = np.median(samples_raw, axis=0)
         np.savetxt(f"{outdir}/params_median.txt", params_median)
+        np.savetxt(f"{outdir}/params_std.txt", param_uncertainties)
         self.save_new_parfile(
             params_median,
             param_uncertainties,
@@ -678,6 +711,8 @@ class SPNTA:
 
 
 def get_true_values(spnta: SPNTA, truth_par_file: str):
+    """Read free parameter values from the "truth" par file containing
+    original parameter values used for simulating a dataset."""
     true_model = get_model(truth_par_file)
     return (
         np.array(
