@@ -517,6 +517,7 @@ class SPNTA:
             ptype = str(prior.source_type)
             dname = str(vl.distr_name(prior))
             dargs = vl.unscale_prior_args(
+                getattr(jl.Distributions, dname),
                 vl.distr_args(prior),
                 scale_factor,
             )
@@ -714,8 +715,7 @@ class SPNTA:
             )
 
         with open(f"{outdir}/prior_info.json", "w") as prior_info_file:
-            print(self.full_prior_dict())
-            # json.dump(self.full_prior_dict(), prior_info_file, indent=4)
+            json.dump(self.full_prior_dict(), prior_info_file, indent=4)
 
         summary_info = self.info_dict(sampler_info, truth_par_file)
         with open(f"{outdir}/summary.json", "w") as summary_file:
