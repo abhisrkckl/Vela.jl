@@ -41,4 +41,5 @@ distr_args(d::Truncated) = distr_args(d.untruncated)
 distr_args(p::Prior) = distr_args(p.distribution)
 
 distr_name(d::Distribution) = typeof(d).name.name
+distr_name(d::Truncated) = distr_name(d.untruncated)
 distr_name(p::Prior) = distr_name(p.distribution)

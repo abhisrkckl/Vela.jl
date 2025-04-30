@@ -512,7 +512,7 @@ class SPNTA:
         for prior, pname, punit in zip(
             self.model.priors, self.param_names, self.param_units
         ):
-            scale_factor = get_unit_conversion_factor(self.model_pint[pname])
+            scale_factor = get_unit_conversion_factor(self.model_pint_modified[pname])
 
             ptype = str(prior.source_type)
             dname = str(vl.distr_name(prior))
