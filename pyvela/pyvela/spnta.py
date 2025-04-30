@@ -506,6 +506,7 @@ class SPNTA:
         return mp
 
     def full_prior_dict(self):
+        """Returns a dictionary containing prior information for all parameters."""
         result = {}
         for prior, pname, punit in zip(
             self.model.priors, self.param_names, self.param_units
@@ -532,6 +533,8 @@ class SPNTA:
         return result
 
     def info_dict(self, sampler_info: Dict = {}, truth_par_file: Optional[str] = None):
+        """Returns a dictionary containing information about the machine, environment, sampler,
+        input, etc."""
         info_dict = {
             "input": {
                 "par_file": (
@@ -579,6 +582,7 @@ class SPNTA:
     def save_new_parfile(
         self, params: np.ndarray, param_uncertainties: np.ndarray, filename: str
     ):
+        """Save a new par file given a set of parameters and uncertainties."""
         param_vals = self.rescale_samples(params)
         param_errs = self.rescale_samples(param_uncertainties)
 
@@ -605,7 +609,9 @@ class SPNTA:
 
         model1.write_parfile(filename)
 
-    def save_resids(self, params: np.ndarray, outdir: str) -> None:
+    def save_resids(self, params: np.ndarray, filename: str) -> None:
+        """Save the residuals and scaled uncertainties into a text file
+        given a set of parameters."""
         wb = self.wideband
 
         ntoas = len(self.toas)
@@ -629,7 +635,7 @@ class SPNTA:
             res_arr[:, 5] = dres_w
             res_arr[:, 6] = derr
 
-        np.savetxt(f"{outdir}/residuals.txt", res_arr)
+        np.savetxt(filename, res_arr)
 
     def save_results(
         self,
@@ -644,18 +650,18 @@ class SPNTA:
         `outdir` is the output directory to which the results will be saved.
 
         `samples_raw` is the burned-in and thinned MCMC chain obtained from the sampler.
-        If these samples have associated importance weights (e.g., from nested sampling), 
-        please resample them before passing into this method such that each sample has 
+        If these samples have associated importance weights (e.g., from nested sampling),
+        please resample them before passing into this method such that each sample has
         equal weight.
 
-        `sampler_info` is a dictionary containing sampler configuration information. It will 
+        `sampler_info` is a dictionary containing sampler configuration information. It will
         be saved as-is into the summary file.
 
         `truth_par_file` is the original par file that was used to simulate a dataset. This is
         only applicable for simulated datasets.
 
         The following files are saved.
-            
+
             1. `samples_raw.npy` - Samples in Vela's internal units (numpy format)
             2. `samples.npy` - Samples in 'normal' units (numpy format)
             3. `params_median.txt` - Parameter median values
@@ -688,7 +694,7 @@ class SPNTA:
             f"{outdir}/{self.model.pulsar_name}.median.par",
         )
 
-        self.save_resids(params_median, outdir)
+        self.save_resids(params_median, f"{outdir}/residuals.txt")
 
         np.savetxt(f"{outdir}/param_default_values.txt", self.default_params)
         np.savetxt(f"{outdir}/param_names.txt", self.param_names, fmt="%s")

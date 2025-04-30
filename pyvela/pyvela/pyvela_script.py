@@ -190,9 +190,12 @@ def main(argv=None):
         args.outdir,
         samples_raw,
         {
+            "sampler": "emcee",
+            "nwalkers": nwalkers,
             "nsteps": args.nsteps,
             "burnin": args.burnin,
             "thin": args.thin,
+            "vectorized": True,
         },
         args.truth,
     )
