@@ -506,14 +506,12 @@ class SPNTA:
 
         return mp
 
-    def full_prior_dict(self):
+    def full_prior_dict(self, scaled: bool = True):
         """Returns a dictionary containing prior information for all parameters."""
         result = {}
-        for prior, pname, punit in zip(
-            self.model.priors, self.param_names, self.param_units
+        for prior, pname, punit, scale_factor in zip(
+            self.model.priors, self.param_names, self.param_units, self.scale_factors
         ):
-            scale_factor = get_unit_conversion_factor(self.model_pint_modified[pname])
-
             ptype = str(prior.source_type)
             dname = str(vl.distr_name(prior))
             dargs = vl.unscale_prior_args(
