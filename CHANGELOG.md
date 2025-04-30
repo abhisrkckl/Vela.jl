@@ -10,11 +10,13 @@
 - Display default values in `$ pyvela --help`
 - Check that `Vela` and `pyvela` have the same version.
 - `PriorSourceType` enum, `source_type` attribute in `Prior` types
-- `SPNTA.full_prior_dict()` and `SPNTA.save_results()` method
+- `SPNTA.full_prior_dict()` and `SPNTA.save_results()` methods
+- `unscale_prior_args()` function
+- Save the full prior information along with the results
 ## Changed
 - Residual plot in `pyvela-plot` script
 - Made GP noise marginalization the default in `SPNTA`
-- Move `info_dict`, `save_new_parfile`, `save_resids` from `pyvela_script` to `SPNTA`
+- Move `info_dict()`, `save_new_parfile()`, `save_resids()` from `pyvela_script` to `SPNTA`
 ## Fixed
 - Julia example script `run_example.jl`
 - In `_gls_lnlike_serial`, return  -inf if `Σinv` is not positive definite.
