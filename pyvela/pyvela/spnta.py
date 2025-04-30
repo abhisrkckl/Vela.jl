@@ -680,7 +680,8 @@ class SPNTA:
             11. `param_scale_factors.txt` - Scale factors that convert parameter values from Vela's internal units to 'normal' units
             12. `param_true_values.txt` - Parameter values used for simulation, taken from the 'truth' par file
             13. `prior_info.json` - Prior distributions on all free parameters (JSON format)
-            14. `summary.json` - Information about the machine, environment, sampler, and input (JSON format)
+            14. `prior_evals.npy` - Prior distributions evaluated in the posterior range for plotting (numpy format)
+            15. `summary.json` - Information about the machine, environment, sampler, and input (JSON format)
         """
         samples = self.rescale_samples(samples_raw)
 
