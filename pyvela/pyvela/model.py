@@ -339,6 +339,7 @@ def fix_params(model: TimingModel, toas: TOAs) -> None:
 
     assert model["PEPOCH"].value is not None, "PEPOCH is not given in the par file."
 
+    # Set all missing epochs.
     for param in model.params:
         if (
             param.endswith("EPOCH")
@@ -347,12 +348,13 @@ def fix_params(model: TimingModel, toas: TOAs) -> None:
         ):
             model[param].quantity = model["PEPOCH"].quantity
 
+    # PHOFF is compulsory.
     if "PhaseOffset" not in model.components:
         model.add_component(PhaseOffset())
-
     model["PHOFF"].frozen = False
     model["PHOFF"].uncertainty_value = 0.1
 
+    # Replace H4 by STIGMA
     if (
         "H4" in model
         and model["H4"].quantity is not None
@@ -362,6 +364,7 @@ def fix_params(model: TimingModel, toas: TOAs) -> None:
         model["STIGMA"].frozen = model["H4"].frozen
         model["H4"].frozen = True
 
+    # Zero out missing parameters if possible
     zeroable_params = [
         "M2",
         "SINI",
@@ -376,6 +379,30 @@ def fix_params(model: TimingModel, toas: TOAs) -> None:
     for p in zeroable_params:
         if p in model and model[p].quantity is None:
             model[p].value = 0
+
+    # Replace RN* parameters by TNRED* parameters.
+    if "PLRedNoise" in model.components:
+        if model["TNREDAMP"].value is None:
+            if model["RNAMP"].value is not None:
+                fac = (86400.0 * 365.24 * 1e6) / (2.0 * np.pi * np.sqrt(3.0))
+                model["TNREDAMP"].value = np.log10(fac * model["RNAMP"].value)
+                model["TNREDAMP"].frozen = model["RNAMP"].frozen
+                model["RNAMP"].value = None
+                model["RNAMP"].frozen = True
+            else:
+                raise ValueError("One of TNREDAMP or RNAMP must be given.")
+
+        if model["TNREDGAM"].value is None:
+            if model["RNIDX"].value is not None:
+                model["TNREDGAM"].value = -model["RNIDX"].value
+                model["TNREDGAM"].frozen = model["RNIDX"].frozen
+                model["RNIDX"].value = None
+                model["RNIDX"].frozen = True
+            else:
+                raise ValueError("One of TNREDGAM or RNIDX must be given.")
+
+        if model["TNREDC"].value is None:
+            model["TNREDC"].value = 30  # same default as PINT.
 
     # Set the scale factor for noise hyperparameters if they are in the model.
     for noise_type in ["RED", "DM", "CHROM"]:
