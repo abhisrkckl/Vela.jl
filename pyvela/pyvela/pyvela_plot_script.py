@@ -24,6 +24,10 @@ def parse_args(argv):
         default=[],
         help="Parameters to exclude from the corner plot.",
     )
+    parser.add_argument("-o", "--out", default=None, help="Output file for plot")
+    parser.add_argument(
+        "--labelpad", default=0.2, type=float, help="Padding for plot labels"
+    )
 
     return parser.parse_args(argv)
 
@@ -106,7 +110,7 @@ def main(argv=None):
         samples[:, param_plot_mask],
         labels=plot_labels,
         label_kwargs={"fontsize": 9},
-        labelpad=0.2,
+        labelpad=args.labelpad,
         max_n_ticks=3,
         plot_datapoints=False,
         hist_kwargs={"density": True},
@@ -173,4 +177,7 @@ def main(argv=None):
         ax1.axhline(0, ls="dotted", color="k")
 
     ax.set_xlabel("MJD - PEPOCH")
-    plt.show()
+    if args.out is None:
+        plt.show()
+    else:
+        plt.savefig(args.out)
