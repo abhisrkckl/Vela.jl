@@ -11,7 +11,8 @@ from pint import DMconst, dmu
 def get_param_plot_mask(
     param_names: Iterable[str],
     param_prefixes: Iterable[str],
-    ignore_params: Iterable[str],
+    ignore_params: Iterable[str] = [],
+    include_params: Iterable[str] = None,
 ) -> np.ndarray:
     ignore_params_default = {
         "PHOFF",
@@ -30,11 +31,16 @@ def get_param_plot_mask(
         "CMWXCOS_",
     }
     ignore_params = ignore_params_default.union(ignore_params)
-
+    if include_params is None:
+        return [
+            idx
+            for idx, (pname, pprefix) in enumerate(zip(param_names, param_prefixes))
+            if (pname not in ignore_params and pprefix not in ignore_params)
+        ]
     return [
         idx
         for idx, (pname, pprefix) in enumerate(zip(param_names, param_prefixes))
-        if (pname not in ignore_params and pprefix not in ignore_params)
+        if (pname in include_params or pprefix in include_params)
     ]
 
 
@@ -54,6 +60,7 @@ def read_true_values(result_dir: str) -> np.ndarray:
 def plot(
     result_dir: str,
     ignore_params: Iterable[str] = [],
+    include_params: Iterable[str] = None,
     out: str = None,
     labelpad: float = 0.2,
 ):
@@ -64,7 +71,9 @@ def plot(
     with open(f"{result_dir}/param_units.txt", "r") as f:
         param_units = np.array([s.strip() for s in f.readlines()])
 
-    param_plot_mask = get_param_plot_mask(param_names, param_prefixes, ignore_params)
+    param_plot_mask = get_param_plot_mask(
+        param_names, param_prefixes, ignore_params, include_params=include_params
+    )
 
     plot_labels = [
         f"{pname}\n{punit if punit != '1' else ''}"

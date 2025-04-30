@@ -9,8 +9,9 @@
 - Support for log-spaced frequencies in Fourier GP components
 - Display default values in `$ pyvela --help`
 - Check that `Vela` and `pyvela` have the same version.
-- Can save the plot output from `plot-vela`
-- Can specify the label padding in `plot-vela`
+- Can save the plot output from `pyvela-plot`
+- Can specify the label padding in `pyvela-plot`
+- Can specify only the parameters to include in `pyvela-plot`
 ## Changed
 - Residual plot in `pyvela-plot` script
 - Made GP noise marginalization the default in `SPNTA`

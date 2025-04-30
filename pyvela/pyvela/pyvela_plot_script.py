@@ -25,6 +25,13 @@ def parse_args(argv):
         default=[],
         help="Parameters to exclude from the corner plot.",
     )
+    parser.add_argument(
+        "-P",
+        "--include_params",
+        nargs="+",
+        default=[],
+        help="Parameters to include in the corner plot (will include only these).",
+    )
     parser.add_argument("-o", "--out", default=None, help="Output file for plot")
     parser.add_argument(
         "--labelpad", default=0.2, type=float, help="Padding for plot labels"
@@ -38,6 +45,7 @@ def main(argv=None):
     pyvela_plot.plot(
         args.result_dir,
         ignore_params=args.ignore_params,
+        include_params=args.include_params,
         out=args.out,
         labelpad=args.labelpad,
     )
