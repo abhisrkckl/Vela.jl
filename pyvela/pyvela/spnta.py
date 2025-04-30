@@ -22,6 +22,7 @@ from pint.toa import TOAs
 
 from .ecorr import ecorr_sort
 from .model import fix_params, pint_model_to_vela
+from .parameters import get_unit_conversion_factor
 from .priors import process_custom_priors
 from .toas import day_to_s, pint_toas_to_vela
 from .vela import jl, vl
@@ -511,9 +512,14 @@ class SPNTA:
         for prior, pname, punit in zip(
             self.model.priors, self.param_names, self.param_units
         ):
+            scale_factor = get_unit_conversion_factor(self.model_pint[pname])
+
             ptype = str(prior.source_type)
             dname = str(vl.distr_name(prior))
-            dargs = vl.distr_args(prior)
+            dargs = vl.unscale_prior_args(
+                vl.distr_args(prior),
+                scale_factor,
+            )
             prior_dict = {
                 pname: {
                     "distribution": dname,
@@ -524,9 +530,9 @@ class SPNTA:
             }
             if jl.isa(prior.distribution, vl.Truncated):
                 if prior.distribution.upper is not None:
-                    prior_dict["upper"] = prior.distribution.upper
+                    prior_dict["upper"] = prior.distribution.upper / scale_factor
                 if prior.distribution.lower is not None:
-                    prior_dict["lower"] = prior.distribution.lower
+                    prior_dict["lower"] = prior.distribution.lower / scale_factor
 
             result.update(prior_dict)
 
