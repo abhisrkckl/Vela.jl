@@ -3,22 +3,32 @@
         params = (PHOFF = dimensionless(0.1), F = (frequency(100.0), GQ{-2}(-1e-14)))
         bad_params = (PHOFF = dimensionless(1.1), F = (frequency(-200.0), GQ{-2}(-2e-14)))
 
-        phoff_prior = SimplePrior{:PHOFF}(Uniform(-0.5, 0.5))
+        phoff_prior = SimplePrior{:PHOFF}(Uniform(-0.5, 0.5), Vela.USER_DEFINED_PRIOR)
         @test isfinite(lnprior(phoff_prior, params))
         @test @ballocated(lnprior($phoff_prior, $params)) == 0
         @test !isfinite(lnprior(phoff_prior, bad_params))
         @test prior_transform(phoff_prior, 0.5) == 0
         @test Vela.param_name(phoff_prior) == :PHOFF
+        @test Vela.distr_args(phoff_prior) == (-0.5, 0.5)
+        @test Vela.distr_name(phoff_prior) == :Uniform
 
-        f0_prior = SimplePriorMulti{:F,UInt(1)}(truncated(Normal(100.0, 1e-7); lower = 0.0))
+        f0_prior = SimplePriorMulti{:F,UInt(1)}(
+            truncated(Normal(100.0, 1e-7); lower = 0.0),
+            Vela.USER_DEFINED_PRIOR,
+        )
         @test isfinite(lnprior(f0_prior, params))
         @test @ballocated(lnprior($f0_prior, $params)) == 0
         @test !isfinite(lnprior(f0_prior, bad_params))
         @test prior_transform(f0_prior, 0.5) ≈ 100.0
         @test Vela.param_name(f0_prior) == :F
         @test Vela.param_index(f0_prior) == 1
+        @test Vela.distr_args(f0_prior) == (100.0, 1e-7)
+        @test Vela.distr_name(f0_prior) == :Normal
 
-        f1_prior = SimplePriorMulti{:F,UInt(2)}(Uniform(-1.01e-14, -0.9e-14))
+        f1_prior = SimplePriorMulti{:F,UInt(2)}(
+            Uniform(-1.01e-14, -0.9e-14),
+            Vela.USER_DEFINED_PRIOR,
+        )
         @test isfinite(lnprior(f1_prior, params))
         @test @ballocated(lnprior($f1_prior, $params)) == 0
         @test !isfinite(lnprior(f1_prior, bad_params))
@@ -114,6 +124,7 @@
             @test all(map(isfinite, Vela.prior_scaling(D, args)))
         end
 
-        @test scale_prior_args(Uniform, args, 2.0) == (2.0, 4.0)
+        @test Vela.scale_prior_args(Uniform, args, 2.0) == (2.0, 4.0)
+        @test Vela.unscale_prior_args(Uniform, args, 1 / 2.0) == (2.0, 4.0)
     end
 end

@@ -31,6 +31,8 @@
             ss = SolarSystem(ecl, planet_shapiro)
             @test ss.ecliptic_coordinates == ecl && ss.planet_shapiro == planet_shapiro
 
+            @test !is_gp_noise(ss)
+
             ctoa1 = correct_toa(ss, toa, ctoa, params)
 
             @test @ballocated(correct_toa($ss, $toa, $ctoa, $params)) == 0

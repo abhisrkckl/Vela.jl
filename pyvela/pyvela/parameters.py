@@ -20,9 +20,11 @@ from .vela import jl, to_jldd, vl
 fdjump_rx = re.compile("^FD(\\d+)JUMP(\\d+)")
 
 
-def get_scale_factor(param: Parameter):
-    """Get the scale factor that converts a given parameter value from the `PINT`
-    units to the `Vela` units.
+def get_scale_factor(param: Parameter) -> float:
+    """Get the scale factor that converts a given parameter from the `PINT`
+    units to a unit of dimensionality [T^n]. This function is used by
+    `get_unit_conversion_factor()` to compute the factor that converts a qualtity
+    from `PINT` units to `Vela` units.
 
     In `Vela`'s internal representation, all quantities have dimensions of [T^n]
     with units of second^n for some n∈ℕ. This is because all measurable quantities
@@ -62,7 +64,7 @@ def get_scale_factor(param: Parameter):
         raise ValueError(f"Unable to estimate scale factor for {param.name}.")
 
 
-def get_unit_conversion_factor(param: Parameter):
+def get_unit_conversion_factor(param: Parameter) -> float:
     """Get the scale factor that converts a parameter value from `PINT` units to `Vela` units."""
     scale_factor = get_scale_factor(param)
 

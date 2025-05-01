@@ -8,13 +8,21 @@
 - In `SPNTA.from_pint()`, compute planetary ephemerides if they are absent in the input `TOAs` object.
 - Support for log-spaced frequencies in Fourier GP components
 - Display default values in `$ pyvela --help`
+- Check that `Vela` and `pyvela` have the same version.
+- `PriorSourceType` enum, `source_type` attribute in `Prior` types
+- `SPNTA.full_prior_dict()` and `SPNTA.save_results()` methods
+- `unscale_prior_args()` function
+- Save the full prior information along with the results
+- Plot priors in `pyvela-plot`
 ## Changed
 - Residual plot in `pyvela-plot` script
 - Made GP noise marginalization the default in `SPNTA`
+- Move `info_dict()`, `save_new_parfile()`, `save_resids()` from `pyvela_script` to `SPNTA`
 ## Fixed
 - Julia example script `run_example.jl`
 - In `_gls_lnlike_serial`, return  -inf if `Σinv` is not positive definite.
 ## Removed
+- Saving maximum-posterior par file in `pyvela` script
 
 # 0.0.9
 ## Added

@@ -10,6 +10,7 @@ using Distributions
 import Distributions:
     pdf, logpdf, cdf, logcdf, quantile, support, minimum, maximum, insupport
 import JLSO
+import PkgVersion
 
 export GQ
 
@@ -65,5 +66,7 @@ include("likelihood/gls_ecorr_likelihood.jl")
 include("likelihood/posterior.jl")
 include("pulsar/pulsar.jl")
 include("readwrite/readwrite.jl")
+
+pkg_version() = string(PkgVersion.Version(Vela))
 
 end

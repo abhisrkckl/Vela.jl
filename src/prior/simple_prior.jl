@@ -1,4 +1,6 @@
-export SimplePrior, SimplePriorMulti
+export SimplePrior, SimplePriorMulti, PriorSourceType
+
+@enum PriorSourceType DEFAULT_PRIOR CHEAT_PRIOR USER_DEFINED_PRIOR
 
 abstract type SimplePriorBase <: Prior end
 
@@ -14,11 +16,12 @@ A univariate prior for a single `Parameter`.
 """
 struct SimplePrior{name,D<:Distribution} <: SimplePriorBase
     distribution::D
+    source_type::PriorSourceType
 end
 
-function SimplePrior{name}(distr::Distribution) where {name}
+function SimplePrior{name}(distr::Distribution, source_type::PriorSourceType) where {name}
     @assert name isa Symbol
-    return SimplePrior{name,typeof(distr)}(distr)
+    return SimplePrior{name,typeof(distr)}(distr, source_type)
 end
 
 param_name(::SimplePrior{name,D}) where {name,D<:Distribution} = name
@@ -32,12 +35,16 @@ A univariate prior for a single parameter belonging to a `MultiParameter`.
 """
 struct SimplePriorMulti{name,index,D<:Distribution} <: SimplePriorBase
     distribution::D
+    source_type::PriorSourceType
 end
 
-function SimplePriorMulti{name,index}(distr::Distribution) where {name,index}
+function SimplePriorMulti{name,index}(
+    distr::Distribution,
+    source_type::PriorSourceType,
+) where {name,index}
     @assert name isa Symbol
     @assert index isa Integer && index >= 0
-    return SimplePriorMulti{name,index,typeof(distr)}(distr)
+    return SimplePriorMulti{name,index,typeof(distr)}(distr, source_type)
 end
 
 param_name(::SimplePriorMulti{name,index,D}) where {name,index,D<:Distribution} = name
