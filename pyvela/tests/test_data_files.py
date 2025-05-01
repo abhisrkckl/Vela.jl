@@ -1,11 +1,13 @@
 import os
 import time
 from typing import Tuple
+from io import StringIO
 
 import numpy as np
 import pytest
-from pint.models import get_model_and_toas, TimingModel
+from pint.models import get_model_and_toas, get_model, TimingModel
 from pint.toa import TOAs
+from pint.simulation import make_fake_toas_uniform
 
 from pyvela.model import fix_params, fix_red_noise_components
 from pyvela.parameters import fdjump_rx
@@ -236,3 +238,30 @@ def test_gp_model_marg(dataset):
         spnta1.lnpost(spnta1.default_params),
         spnta1.lnpost_vectorized(np.array([spnta1.default_params]))[0],
     )
+
+
+def test_rnamp_rngam():
+    par = """
+        RAJ     05:00:00    1
+        DECJ    15:00:00    1
+        PEPOCH  55000
+        F0      100         1
+        F1      -1e-15      1
+        DM      15          1
+        RNAMP   1e-15       1
+        RNIDX   -3          1
+    """
+    m = get_model(StringIO(par))
+    t = make_fake_toas_uniform(
+        startMJD=54000,
+        endMJD=55000,
+        ntoas=100,
+        model=m,
+        add_correlated_noise=True,
+        add_noise=True,
+    )
+    fix_params(m, t)
+    # assert m["RNAMP"].quantity is None and m["RNIDX"].quantity is None
+    assert m["RNAMP"].frozen and m["RNIDX"].frozen
+    assert m["TNREDAMP"].quantity is not None and m["TNREDGAM"].quantity is not None
+    assert not m["TNREDAMP"].frozen and not m["TNREDGAM"].frozen

@@ -387,7 +387,7 @@ def fix_params(model: TimingModel, toas: TOAs) -> None:
                 fac = (86400.0 * 365.24 * 1e6) / (2.0 * np.pi * np.sqrt(3.0))
                 model["TNREDAMP"].value = np.log10(fac * model["RNAMP"].value)
                 model["TNREDAMP"].frozen = model["RNAMP"].frozen
-                model["RNAMP"].value = None
+                # model["RNAMP"].quantity = None
                 model["RNAMP"].frozen = True
             else:
                 raise ValueError("One of TNREDAMP or RNAMP must be given.")
@@ -396,7 +396,7 @@ def fix_params(model: TimingModel, toas: TOAs) -> None:
             if model["RNIDX"].value is not None:
                 model["TNREDGAM"].value = -model["RNIDX"].value
                 model["TNREDGAM"].frozen = model["RNIDX"].frozen
-                model["RNIDX"].value = None
+                # model["RNIDX"].quantity = None
                 model["RNIDX"].frozen = True
             else:
                 raise ValueError("One of TNREDGAM or RNIDX must be given.")
