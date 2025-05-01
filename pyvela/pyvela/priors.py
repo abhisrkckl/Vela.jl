@@ -76,12 +76,16 @@ def get_default_prior(
 
     if param_name in custom_prior_dists:
         pdist = custom_prior_dists[param_name]
+        source = vl.USER_DEFINED_PRIOR
     elif hasattr(param, "prefix") and param.prefix in custom_prior_dists:
         pdist = custom_prior_dists[param.prefix]
+        source = vl.USER_DEFINED_PRIOR
     elif param_name in DEFAULT_PRIOR_DISTS:
         pdist = DEFAULT_PRIOR_DISTS[param_name]
+        source = vl.DEFAULT_PRIOR
     elif hasattr(param, "prefix") and param.prefix in DEFAULT_PRIOR_DISTS:
         pdist = DEFAULT_PRIOR_DISTS[param.prefix]
+        source = vl.DEFAULT_PRIOR
     else:
         val = (
             (
@@ -104,6 +108,7 @@ def get_default_prior(
         pmax = val + cheat_prior_scale * err
 
         pdist = jl.Uniform(pmin, pmax)
+        source = vl.CHEAT_PRIOR
 
     if (
         isinstance(param, (floatParameter, MJDParameter, AngleParameter))
@@ -111,7 +116,7 @@ def get_default_prior(
         and not hasattr(param, "prefix")
     ):
         pname = jl.Symbol(param_name)
-        return vl.SimplePrior[pname](pdist)
+        return vl.SimplePrior[pname](pdist, source)
     elif hasattr(param, "prefix") and fdjump_rx.match(param.name):
         pname = jl.Symbol("FDJUMP")
         fdjump_names = [
@@ -120,22 +125,22 @@ def get_default_prior(
             if model[fdj].quantity is not None
         ]
         index = fdjump_names.index(param.name) + 1
-        return vl.SimplePriorMulti[pname, index](pdist)
+        return vl.SimplePriorMulti[pname, index](pdist, source)
     elif hasattr(param, "prefix") and param.prefix not in pseudo_single_params:
         pname = jl.Symbol(param.prefix)
         index = (
             list(model.get_prefix_mapping(param.prefix).values()).index(param_name) + 1
         )
-        return vl.SimplePriorMulti[pname, index](pdist)
+        return vl.SimplePriorMulti[pname, index](pdist, source)
     elif param_name in pseudo_single_params:
         pname = jl.Symbol(param_name)
-        return vl.SimplePriorMulti[pname, 1](pdist)
+        return vl.SimplePriorMulti[pname, 1](pdist, source)
     elif param.prefix in pseudo_single_params:
         pname = jl.Symbol(param.prefix)
         index = (
             list(model.get_prefix_mapping(param.prefix).values()).index(param_name) + 2
         )
-        return vl.SimplePriorMulti[pname, index](pdist)
+        return vl.SimplePriorMulti[pname, index](pdist, source)
 
 
 def get_default_priors(

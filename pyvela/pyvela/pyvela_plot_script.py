@@ -32,6 +32,9 @@ def parse_args(argv):
         default=None,
         help="Parameters to include in the corner plot (will include only these).",
     )
+    parser.add_argument(
+        "--priors", action="store_true", default=False, help="Plot priors?"
+    )
     parser.add_argument("-o", "--out", default=None, help="Output file for plot")
     parser.add_argument(
         "--labelpad", default=0.2, type=float, help="Padding for plot labels"
@@ -47,5 +50,6 @@ def main(argv=None):
         ignore_params=args.ignore_params,
         include_params=args.include_params,
         out=args.out,
+        plot_priors=args.priors,
         labelpad=args.labelpad,
     )

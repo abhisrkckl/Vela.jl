@@ -1,10 +1,19 @@
+import datetime
 from functools import cached_property
+import getpass
 import json
 from copy import deepcopy
-from typing import IO, Iterable, List
+import os
+import platform
+import sys
+from typing import IO, Dict, Iterable, List, Optional
 import warnings
 
+import astropy
+import emcee
 import numpy as np
+import pint
+import pyvela
 from scipy.linalg import cho_factor, cho_solve
 from pint.binaryconvert import convert_binary
 from pint.logging import setup as setup_log
@@ -13,6 +22,7 @@ from pint.toa import TOAs
 
 from .ecorr import ecorr_sort
 from .model import fix_params, pint_model_to_vela
+from .parameters import get_unit_conversion_factor
 from .priors import process_custom_priors
 from .toas import day_to_s, pint_toas_to_vela
 from .vela import jl, vl
@@ -102,6 +112,10 @@ class SPNTA:
     ):
         self.parfile = parfile
         self.timfile = timfile
+        self.jlsofile: Optional[str] = None
+        self.custom_prior_file: Optional[str] = None
+
+        self.cheat_prior_scale: Optional[float] = cheat_prior_scale
 
         setup_log(level="WARNING")
         model_pint, toas_pint = get_model_and_toas(
@@ -122,6 +136,7 @@ class SPNTA:
         if isinstance(custom_priors, dict):
             self.custom_priors_dict = custom_priors
         elif isinstance(custom_priors, str):
+            self.custom_prior_file = custom_priors
             with open(custom_priors) as custom_priors_file:
                 self.custom_priors_dict = json.load(custom_priors_file)
         else:
@@ -403,7 +418,13 @@ class SPNTA:
         """Construct an `SPNTA` object from a JLSO file"""
         spnta = cls.__new__(cls)
         model, toas = vl.load_pulsar_data(jlsoname)
+
         spnta.jlsofile = jlsoname
+        spnta.parfile = parfile
+        spnta.timfile = None
+        spnta.custom_prior_file = None
+        spnta.cheat_prior_scale = None
+
         spnta.pulsar = vl.Pulsar(model, toas)
         spnta.model_pint = get_model(parfile)
         spnta.model_pint_modified = None
@@ -433,11 +454,19 @@ class SPNTA:
         spnta.model_pint_modified = model
         spnta.toas_pint = toas
 
+        spnta.parfile = model.name
+        spnta.timfile = toas.filename
+        spnta.custom_prior_file = None
+        spnta.jlsofile = None
+
+        spnta.cheat_prior_scale = cheat_prior_scale
+
         # custom_priors_dict is in the "raw" format. The numbers may be
         # in "normal" units and have to be converted into internal units.
         if isinstance(custom_priors, dict):
             custom_priors_dict = custom_priors
         elif isinstance(custom_priors, str):
+            spnta.custom_prior_file = custom_priors
             with open(custom_priors) as custom_priors_file:
                 custom_priors_dict = json.load(custom_priors_file)
         else:
@@ -476,3 +505,257 @@ class SPNTA:
                 mp[pname].uncertainty_value = param_err
 
         return mp
+
+    def full_prior_dict(self, scaled: bool = True):
+        """Returns a dictionary containing prior information for all parameters."""
+        result = {}
+        for prior, pname, punit, scale_factor in zip(
+            self.model.priors, self.param_names, self.param_units, self.scale_factors
+        ):
+            ptype = str(prior.source_type)
+            dname = str(vl.distr_name(prior))
+            dargs = vl.unscale_prior_args(
+                getattr(jl.Distributions, dname),
+                vl.distr_args(prior),
+                scale_factor,
+            )
+            prior_dict = {
+                pname: {
+                    "distribution": dname,
+                    "args": dargs,
+                    "type": ptype,
+                    "unit": punit,
+                }
+            }
+            if jl.isa(prior.distribution, vl.Truncated):
+                if prior.distribution.upper is not None:
+                    prior_dict["upper"] = prior.distribution.upper / scale_factor
+                if prior.distribution.lower is not None:
+                    prior_dict["lower"] = prior.distribution.lower / scale_factor
+
+            result.update(prior_dict)
+
+        return result
+
+    def info_dict(self, sampler_info: Dict = {}, truth_par_file: Optional[str] = None):
+        """Returns a dictionary containing information about the machine, environment, sampler,
+        input, etc."""
+        info_dict = {
+            "input": {
+                "par_file": (
+                    os.path.basename(self.parfile) if self.parfile is not None else None
+                ),
+                "tim_file": (
+                    os.path.basename(self.timfile) if self.timfile is not None else None
+                ),
+                "jlso_file": (
+                    os.path.basename(self.jlsofile)
+                    if self.jlsofile is not None
+                    else None
+                ),
+                "custom_prior_file": (
+                    os.path.basename(self.custom_prior_file)
+                    if self.custom_prior_file is not None
+                    else None
+                ),
+                "cheat_prior_scale": self.cheat_prior_scale,
+                "truth_par_file": (
+                    os.path.basename(truth_par_file)
+                    if truth_par_file is not None
+                    else None
+                ),
+            },
+            "sampler": sampler_info,
+            "env": {
+                "launch_time": datetime.datetime.now().isoformat(),
+                "user": getpass.getuser(),
+                "host": platform.node(),
+                "os": platform.platform(),
+                "julia_threads": vl.nthreads(),
+                "python": sys.version,
+                "julia": str(vl.VERSION),
+                "pyvela": pyvela.__version__,
+                "pint": pint.__version__,
+                "emcee": emcee.__version__,
+                "numpy": np.__version__,
+                "astropy": astropy.__version__,
+            },
+        }
+
+        return info_dict
+
+    def save_new_parfile(
+        self, params: np.ndarray, param_uncertainties: np.ndarray, filename: str
+    ):
+        """Save a new par file given a set of parameters and uncertainties."""
+        param_vals = self.rescale_samples(params)
+        param_errs = self.rescale_samples(param_uncertainties)
+
+        model1 = (
+            deepcopy(self.model_pint_modified)
+            if self.model_pint_modified is not None
+            else self.model_pint
+        )
+        for pname, pval, perr in zip(self.param_names, param_vals, param_errs):
+            if pname in model1:
+                model1[pname].value = (
+                    pval
+                    if pname != "F0"
+                    else (
+                        np.longdouble(
+                            self.model.param_handler._default_params_tuple.F_.x
+                        )
+                        + pval
+                    )
+                )
+                model1[pname].uncertainty_value = perr
+            else:
+                warnings.warn(f"Parameter {pname} not found in the PINT TimingModel!")
+
+        model1.write_parfile(filename)
+
+    def save_resids(self, params: np.ndarray, filename: str) -> None:
+        """Save the residuals and scaled uncertainties into a text file
+        given a set of parameters."""
+        wb = self.wideband
+
+        ntoas = len(self.toas)
+        mjds = self.mjds
+        tres = self.time_residuals(params)
+        tres_w = self.whitened_time_residuals(params)
+        terr = self.scaled_toa_unceritainties(params)
+
+        res_arr = np.zeros((ntoas, 3 * (1 + int(wb)) + 1))
+        res_arr[:, 0] = mjds
+        res_arr[:, 1] = tres
+        res_arr[:, 2] = tres_w
+        res_arr[:, 3] = terr
+
+        if wb:
+            dres = self.dm_residuals(params)
+            dres_w = self.whitened_dm_residuals(params)
+            derr = self.scaled_dm_unceritainties(params)
+
+            res_arr[:, 4] = dres
+            res_arr[:, 5] = dres_w
+            res_arr[:, 6] = derr
+
+        np.savetxt(filename, res_arr)
+
+    def save_results(
+        self,
+        outdir: str,
+        samples_raw: np.ndarray,
+        sampler_info: dict = {},
+        truth_par_file: Optional[str] = None,
+    ) -> None:
+        """Given the posterior samples, save the results into an output directory.
+        `pyvela` script uses this function to save the results.
+
+        `outdir` is the output directory to which the results will be saved.
+
+        `samples_raw` is the burned-in and thinned MCMC chain obtained from the sampler.
+        If these samples have associated importance weights (e.g., from nested sampling),
+        please resample them before passing into this method such that each sample has
+        equal weight.
+
+        `sampler_info` is a dictionary containing sampler configuration information. It will
+        be saved as-is into the summary file.
+
+        `truth_par_file` is the original par file that was used to simulate a dataset. This is
+        only applicable for simulated datasets.
+
+        The following files are saved.
+
+            1. `samples_raw.npy` - Samples in Vela's internal units (numpy format)
+            2. `samples.npy` - Samples in 'normal' units (numpy format)
+            3. `params_median.txt` - Parameter median values
+            4. `params_std.txt` - Parameter standard deviations
+            5. `<PSRNAME>.median.par` - par file containing median parameter values and standard deviations (PINT format)
+            6. `residuals.txt` - Residuals (time for narrowband, time & DM for wideband) computed using median parameter values
+            7. `param_default_values.txt` - Default parameter values taken from the input par file
+            8. `param_names.txt` - Parameter names (PINT format)
+            9. `param_prefixes.txt` - Parameter prefixes (PINT format)
+            10. `param_units.txt` - Parameter unit strings (astropy format)
+            11. `param_scale_factors.txt` - Scale factors that convert parameter values from Vela's internal units to 'normal' units
+            12. `param_true_values.txt` - Parameter values used for simulation, taken from the 'truth' par file
+            13. `prior_info.json` - Prior distributions on all free parameters (JSON format)
+            14. `prior_evals.npy` - Prior distributions evaluated in the posterior range for plotting (numpy format)
+            15. `summary.json` - Information about the machine, environment, sampler, and input (JSON format)
+        """
+        samples = self.rescale_samples(samples_raw)
+
+        with open(f"{outdir}/samples_raw.npy", "wb") as f:
+            np.save(f, samples_raw)
+        with open(f"{outdir}/samples.npy", "wb") as f:
+            np.save(f, samples)
+
+        param_uncertainties = np.std(samples_raw, axis=0)
+        params_median = np.median(samples_raw, axis=0)
+        np.savetxt(f"{outdir}/params_median.txt", params_median)
+        np.savetxt(f"{outdir}/params_std.txt", param_uncertainties)
+        self.save_new_parfile(
+            params_median,
+            param_uncertainties,
+            f"{outdir}/{self.model.pulsar_name}.median.par",
+        )
+
+        self.save_resids(params_median, f"{outdir}/residuals.txt")
+
+        np.savetxt(f"{outdir}/param_default_values.txt", self.default_params)
+        np.savetxt(f"{outdir}/param_names.txt", self.param_names, fmt="%s")
+        np.savetxt(f"{outdir}/param_prefixes.txt", self.param_prefixes, fmt="%s")
+        np.savetxt(f"{outdir}/param_units.txt", self.param_units, fmt="%s")
+        np.savetxt(f"{outdir}/param_scale_factors.txt", self.scale_factors)
+
+        if truth_par_file is not None:
+            np.savetxt(
+                f"{outdir}/param_true_values.txt", get_true_values(self, truth_par_file)
+            )
+
+        with open(f"{outdir}/prior_info.json", "w") as prior_info_file:
+            json.dump(self.full_prior_dict(), prior_info_file, indent=4)
+
+        self._save_prior_evals(samples, f"{outdir}/prior_evals.npy")
+
+        summary_info = self.info_dict(sampler_info, truth_par_file)
+        with open(f"{outdir}/summary.json", "w") as summary_file:
+            json.dump(summary_info, summary_file, indent=4)
+
+    def _single_param_prior(self, param_idx: int, value: float):
+        prior = self.model.priors[param_idx]
+        scale_factor = self.scale_factors[param_idx]
+        return vl.pdf(prior.distribution, value * scale_factor)
+
+    def _save_prior_evals(self, samples: np.ndarray, filename: str):
+        """Save the prior PDF evaluated at uniformly spaced points within the
+        posterior range."""
+        nn = 1000
+        result = np.empty((nn, 2 * self.ndim))
+
+        for ii in range(self.ndim):
+            xs = np.linspace(np.min(samples[:, ii]), np.max(samples[:, ii]), nn)
+            ys = np.array([self._single_param_prior(ii, x) for x in xs])
+            result[:, 2 * ii] = xs
+            result[:, 2 * ii + 1] = ys
+
+        np.save(filename, result)
+
+
+def get_true_values(spnta: SPNTA, truth_par_file: str):
+    """Read free parameter values from the "truth" par file containing
+    original parameter values used for simulating a dataset."""
+    true_model = get_model(truth_par_file)
+    return (
+        np.array(
+            [
+                (
+                    (true_model[par].value if par != "F0" else 0.0)
+                    if par in true_model
+                    else np.nan
+                )
+                for par in spnta.param_names
+            ]
+        )
+        * spnta.scale_factors
+    )
