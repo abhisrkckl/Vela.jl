@@ -15,6 +15,7 @@
 - `SPNTA.full_prior_dict()` and `SPNTA.save_results()` methods
 - `unscale_prior_args()` function
 - Save the full prior information along with the results
+- Plot priors in `pyvela-plot`
 ## Changed
 - Residual plot in `pyvela-plot` script
 - Made GP noise marginalization the default in `SPNTA`

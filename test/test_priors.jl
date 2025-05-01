@@ -22,6 +22,8 @@
         @test prior_transform(f0_prior, 0.5) ≈ 100.0
         @test Vela.param_name(f0_prior) == :F
         @test Vela.param_index(f0_prior) == 1
+        @test Vela.distr_args(f0_prior) == (100.0, 1e-7)
+        @test Vela.distr_name(f0_prior) == :Normal
 
         f1_prior = SimplePriorMulti{:F,UInt(2)}(
             Uniform(-1.01e-14, -0.9e-14),
@@ -122,6 +124,7 @@
             @test all(map(isfinite, Vela.prior_scaling(D, args)))
         end
 
-        @test scale_prior_args(Uniform, args, 2.0) == (2.0, 4.0)
+        @test Vela.scale_prior_args(Uniform, args, 2.0) == (2.0, 4.0)
+        @test Vela.unscale_prior_args(Uniform, args, 1 / 2.0) == (2.0, 4.0)
     end
 end
