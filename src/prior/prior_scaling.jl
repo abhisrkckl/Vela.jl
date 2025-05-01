@@ -1,5 +1,3 @@
-export scale_prior_args
-
 prior_scaling(::Type{Arcsine}, args) = map(oneunit, args)
 
 prior_scaling(::Type{Beta}, args) = map(zero, args)

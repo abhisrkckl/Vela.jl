@@ -60,7 +60,10 @@ def read_true_values(args):
     with open(f"{args.result_dir}/summary.json", "r") as summary_file:
         summary = json.load(summary_file)
 
-    if "truth_par_file" not in summary["input"]:
+    if (
+        "truth_par_file" not in summary["input"]
+        or summary["input"]["truth_par_file"] is None
+    ):
         return None
 
     true_values_raw = np.genfromtxt(f"{args.result_dir}/param_true_values.txt")
@@ -118,6 +121,15 @@ def main(argv=None):
         ax.tick_params(axis="both", labelsize=8)
         ax.yaxis.get_offset_text().set_fontsize(8)
         ax.xaxis.get_offset_text().set_fontsize(8)
+
+    # Plot the pre-evaluated priors
+    prior_evals = np.load(f"{args.result_dir}/prior_evals.npy")
+    nplots = len(param_plot_mask)
+    for jj, ii in enumerate(param_plot_mask):
+        plt.subplot(nplots, nplots, jj * (nplots + 1) + 1)
+        xs = prior_evals[:, 2 * ii]
+        ys = prior_evals[:, 2 * ii + 1]
+        plt.plot(xs, ys)
 
     ax = plt.subplot(5, 2, 2)
     ax.errorbar(
