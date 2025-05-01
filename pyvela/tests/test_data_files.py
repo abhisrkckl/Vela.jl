@@ -265,3 +265,4 @@ def test_rnamp_rngam():
     assert m["RNAMP"].frozen and m["RNIDX"].frozen
     assert m["TNREDAMP"].quantity is not None and m["TNREDGAM"].quantity is not None
     assert not m["TNREDAMP"].frozen and not m["TNREDGAM"].frozen
+    assert m["TNREDC"].value == 30
