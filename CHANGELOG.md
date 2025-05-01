@@ -14,6 +14,7 @@
 - `unscale_prior_args()` function
 - Save the full prior information along with the results
 - Convert `RNAMP` and `RNIDX` to `TNREDAMP` and `TNREDGAM`
+- Plot priors in `pyvela-plot`
 ## Changed
 - Residual plot in `pyvela-plot` script
 - Made GP noise marginalization the default in `SPNTA`
