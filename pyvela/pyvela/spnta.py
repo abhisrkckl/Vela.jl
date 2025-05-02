@@ -41,9 +41,6 @@ def convert_model_and_toas(
 
     fix_params(model, toas)
 
-    if not toas.planets:
-        toas.compute_posvels(planets=True)
-
     if "BinaryBT" in model.components:
         model = convert_binary(model, "DD")
 
