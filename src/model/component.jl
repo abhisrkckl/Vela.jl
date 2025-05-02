@@ -25,7 +25,7 @@ function correct_toa end
 
 Whether a component represents a correlated Gaussian noise process.
 """
-is_gp_noise(::Component) = false
+is_gp_noise(::Component) = false # COV_EXCL_LINE
 
 """
     PhaseComponent

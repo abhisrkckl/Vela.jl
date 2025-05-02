@@ -22,7 +22,7 @@ function _calc_y_Ninv_y__and__logdet_N(
             r_u += y[ii] / Ndiag[ii]
             u_u += 1 / Ndiag[ii]
             logdet_N += log(Ndiag[ii])
-        end
+        end # COV_EXCL_LINE
 
         denom = (1 + w * u_u)
         y_Ninv_y += r_r - w * r_u * r_u / denom
@@ -48,19 +48,19 @@ function _calc_Ninv_M(
         Q = 0.0
         @simd for i in toa_range
             Q += 1 / Ndiag[i]
-        end
+        end # COV_EXCL_LINE
 
         for p = 1:Npar
             P_p = 0.0
             @simd for i in toa_range
                 P_p += M[i, p] / Ndiag[i]
-            end
+            end # COV_EXCL_LINE
 
             R = w * P_p / (1 + w * Q)
 
             @simd for i in toa_range
                 A[i, p] = (M[i, p] - R) / Ndiag[i]
-            end
+            end # COV_EXCL_LINE
         end
     end
 

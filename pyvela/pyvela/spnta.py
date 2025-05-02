@@ -41,9 +41,6 @@ def convert_model_and_toas(
 
     fix_params(model, toas)
 
-    if not toas.planets:
-        toas.compute_posvels(planets=True)
-
     if "BinaryBT" in model.components:
         model = convert_binary(model, "DD")
 
@@ -259,20 +256,20 @@ class SPNTA:
         """Whether the model contains marginalized correlated Gaussian noise processes."""
         return vl.isa(self.model.kernel, vl.WoodburyKernel)
 
-    def get_marginalized_gp_noise_realization(self, params: np.ndarray) -> np.ndarray:
-        """Get a realization of the marginalized GP noise given a set of parameters.
-        The length of `params` should be the same as the number of free parameters."""
-        assert self.has_marginalized_gp_noise
-        params_ = vl.read_params(self.model, params)
-        y, Ndiag = vl._calc_resids_and_Ndiag(self.model, self.toas, params_)
-        M = np.array(self.model.kernel.noise_basis)
-        Phiinv = np.array(vl.calc_noise_weights_inv(self.model.kernel, params_))
-        Ninv_M = M / np.array(Ndiag)[:, None]
-        MT_Ninv_y = y @ Ninv_M
-        Sigmainv = np.diag(Phiinv) + M.T @ Ninv_M
-        Sigmainv_cf = cho_factor(Sigmainv)
-        ahat = cho_solve(Sigmainv_cf, MT_Ninv_y)
-        return M @ ahat
+    # def get_marginalized_gp_noise_realization(self, params: np.ndarray) -> np.ndarray:
+    #     """Get a realization of the marginalized GP noise given a set of parameters.
+    #     The length of `params` should be the same as the number of free parameters."""
+    #     assert self.has_marginalized_gp_noise
+    #     params_ = vl.read_params(self.model, params)
+    #     y, Ndiag = vl._calc_resids_and_Ndiag(self.model, self.toas, params_)
+    #     M = np.array(self.model.kernel.noise_basis)
+    #     Phiinv = np.array(vl.calc_noise_weights_inv(self.model.kernel, params_))
+    #     Ninv_M = M / np.array(Ndiag)[:, None]
+    #     MT_Ninv_y = y @ Ninv_M
+    #     Sigmainv = np.diag(Phiinv) + M.T @ Ninv_M
+    #     Sigmainv_cf = cho_factor(Sigmainv)
+    #     ahat = cho_solve(Sigmainv_cf, MT_Ninv_y)
+    #     return M @ ahat
 
     def rescale_samples(self, samples: np.ndarray) -> np.ndarray:
         """Rescale the samples from Vela's internal units to common units"""
@@ -610,7 +607,9 @@ class SPNTA:
                 )
                 model1[pname].uncertainty_value = perr
             else:
-                warnings.warn(f"Parameter {pname} not found in the PINT TimingModel!")
+                warnings.warn(
+                    f"Parameter {pname} not found in the PINT TimingModel!"
+                )  # pragma: no cover
 
         model1.write_parfile(filename)
 

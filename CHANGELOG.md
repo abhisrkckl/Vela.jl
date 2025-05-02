@@ -2,6 +2,7 @@
 ## Added
 ## Changed
 ## Fixed
+- Mark Julia lines wrongly missed in coverage with COV_EXCL_LINE to make the coverage % more accurate
 ## Removed
 
 # 0.0.10
