@@ -97,6 +97,13 @@ def parse_args(argv):
         type=int,
         help="Thinning factor for MCMC chains",
     )
+    parser.add_argument(
+        "-r",
+        "--restart",
+        default=False,
+        action="store_true",
+        help="Restart from an existing run?",
+    )
 
     return parser.parse_args(argv)
 
@@ -134,22 +141,28 @@ def validate_input(args):
 
 
 def prepare_outdir(args):
-    if args.force_rewrite and os.path.isdir(args.outdir):
+    if args.force_rewrite and os.path.isdir(args.outdir) and not args.restart:
         shutil.rmtree(args.outdir)
 
-    os.mkdir(args.outdir)
+    if not args.restart and not os.path.isdir(args.outdir):
+        os.mkdir(args.outdir)
 
-    shutil.copy(args.par_file, args.outdir)
+    if not os.path.exists(f"{args.outdir}/args.par_file"):
+        shutil.copy(args.par_file, args.outdir)
 
     if args.jlso_file is None:
-        shutil.copy(args.tim_file, args.outdir)
+        if not os.path.exists(f"{args.outdir}/args.tim_file"):
+            shutil.copy(args.tim_file, args.outdir)
     else:
-        shutil.copy(args.jlso_file, args.outdir)
+        if not os.path.exists(f"{args.outdir}/args.jlso_file"):
+            shutil.copy(args.jlso_file, args.outdir)
 
-    if args.prior_file is not None:
+    if args.prior_file is not None and not os.path.exists(
+        f"{args.outdir}/args.prior_file"
+    ):
         shutil.copy(args.prior_file, args.outdir)
 
-    if args.truth is not None:
+    if args.truth is not None and not os.path.exists(f"{args.outdir}/args.truth"):
         shutil.copy(args.truth, args.outdir)
 
 
@@ -183,7 +196,15 @@ def main(argv=None):
         vectorize=True,
         backend=emcee.backends.HDFBackend(f"{args.outdir}/chain.h5"),
     )
-    sampler.run_mcmc(p0, args.nsteps, progress=True, progress_kwargs={"mininterval": 1})
+    if not args.restart:
+        sampler.run_mcmc(
+            p0, args.nsteps, progress=True, progress_kwargs={"mininterval": 1}
+        )
+    else:
+        sampler.run_mcmc(
+            None, args.nsteps, progress=True, progress_kwargs={"mininterval": 1}
+        )
+
     samples_raw = sampler.get_chain(flat=True, discard=args.burnin, thin=args.thin)
 
     spnta.save_results(
