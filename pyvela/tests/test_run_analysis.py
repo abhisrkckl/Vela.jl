@@ -94,6 +94,7 @@ def test_script(dataset):
     assert os.path.isfile(f"{outdir}/samples.npy")
 
     pyvela_plot_script.main([f"{outdir}/", "--priors"])
+    pyvela_plot_script.main([f"{outdir}/", "--include_params", "F0", "F1"])
 
 
 @pytest.mark.parametrize("dataset", ["NGC6440E", "sim_sw.wb"])
