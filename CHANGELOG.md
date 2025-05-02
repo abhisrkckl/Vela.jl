@@ -26,6 +26,7 @@
 - Convert `RNAMP` and `RNIDX` to `TNREDAMP` and `TNREDGAM`
 - Plot priors in `pyvela-plot`
 - Script/function to resample existing chain
+- Saving autocorrelation lengths of chains
 ## Changed
 - Residual plot in `pyvela-plot` script
 - Made GP noise marginalization the default in `SPNTA`
