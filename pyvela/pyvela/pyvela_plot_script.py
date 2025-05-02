@@ -42,7 +42,7 @@ def main(argv=None):
         args.result_dir,
         ignore_params=args.ignore_params,
         include_params=args.include_params,
-        out=args.out,
+        outfile=args.out,
         plot_priors=args.priors,
         labelpad=args.labelpad,
     )
