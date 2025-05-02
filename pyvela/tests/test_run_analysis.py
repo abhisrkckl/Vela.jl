@@ -24,6 +24,12 @@ prior_str = """
             "distribution": "Normal",
             "args": [0.0, 1.0],
             "lower": 0.0
+        },
+        "PHOFF": {
+            "distribution": "Normal",
+            "args": [0.0, 0.25],
+            "lower": -0.5,
+            "upper": 0.5
         }
     }
 """
@@ -34,7 +40,7 @@ def test_analysis_NGC6440E_emcee():
     dataset = "NGC6440E"
     parfile, timfile = f"{datadir}/{dataset}.par", f"{datadir}/{dataset}.tim"
 
-    mp, tp = get_model_and_toas(parfile, timfile, planets=True)
+    mp, tp = get_model_and_toas(parfile, timfile)
 
     spnta = SPNTA.from_pint(
         mp,
@@ -87,7 +93,10 @@ def test_script(dataset):
     assert os.path.isfile(f"{outdir}/samples_raw.npy")
     assert os.path.isfile(f"{outdir}/samples.npy")
 
-    pyvela_plot_script.main([f"{outdir}/"])
+    pyvela_plot_script.main([f"{outdir}/", "--priors"]),
+    pyvela_plot_script.main(
+        [f"{outdir}/", "--include_params", "F0", "F1", "-o", "__plot.pdf"]
+    )
 
 
 @pytest.mark.parametrize("dataset", ["NGC6440E", "sim_sw.wb"])

@@ -130,6 +130,8 @@ def test_data(model_and_toas: Tuple[SPNTA, TimingModel, TOAs]):
 
     assert spnta.full_prior_dict().keys() == set(spnta.param_names)
 
+    assert spnta.ntmdim <= spnta.ndim
+
 
 def test_chi2(model_and_toas: Tuple[SPNTA, TimingModel, TOAs]):
     spnta, m, t = model_and_toas
