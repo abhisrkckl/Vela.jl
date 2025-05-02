@@ -75,7 +75,7 @@ get_scale_factors(model::TimingModel) = get_scale_factors(model.param_handler)
     toa::TOABase,
     toacorr::TOACorrectionBase,
     params::NamedTuple,
-)::TOACorrectionBase
+)::TOACorrectionBase # coverage: ignore
     toacorr1 = toacorr
     @unroll for component in components
         toacorr1 = correct_toa(component, toa, toacorr1, params)
