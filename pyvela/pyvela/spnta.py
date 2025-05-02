@@ -610,7 +610,9 @@ class SPNTA:
                 )
                 model1[pname].uncertainty_value = perr
             else:
-                warnings.warn(f"Parameter {pname} not found in the PINT TimingModel!")
+                warnings.warn(
+                    f"Parameter {pname} not found in the PINT TimingModel!"
+                )  # pragma: no cover
 
         model1.write_parfile(filename)
 

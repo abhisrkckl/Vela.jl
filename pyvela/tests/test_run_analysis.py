@@ -24,6 +24,12 @@ prior_str = """
             "distribution": "Normal",
             "args": [0.0, 1.0],
             "lower": 0.0
+        },
+        "PHOFF": {
+            "distribution": "Normal",
+            "args": [0.0, 0.25],
+            "lower": -0.5,
+            "upper": 0.5,
         }
     }
 """
@@ -69,6 +75,8 @@ def test_script(dataset):
     datadir = f"{os.path.dirname(os.path.realpath(__file__))}/datafiles"
     parfile, timfile = f"{datadir}/{dataset}.par", f"{datadir}/{dataset}.tim"
     outdir = f"_{dataset}_out"
+
+    os.mkdir(outdir)
 
     prior_file = "__prior.json"
     with open(prior_file, "w") as pf:
