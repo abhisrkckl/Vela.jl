@@ -1,5 +1,11 @@
 # Unreleased
 ## Added
+## Changed
+## Fixed
+## Removed
+
+# 0.0.10
+## Added
 - Support for wideband TOAs in `WoodburyKernel`
 - Symlink for `pyvela/examples` in the root directory
 - Instructions for updating `Vela.jl` and `pyvela`
@@ -11,6 +17,9 @@
 - Maximum-posterior fitting in `VelaFitter`
 - Display default values in `$ pyvela --help`
 - Check that `Vela` and `pyvela` have the same version.
+- Can save the plot output from `pyvela-plot`
+- Can specify the label padding in `pyvela-plot`
+- Can specify only the parameters to include in `pyvela-plot`
 - `PriorSourceType` enum, `source_type` attribute in `Prior` types
 - `SPNTA.full_prior_dict()` and `SPNTA.save_results()` methods
 - `unscale_prior_args()` function
@@ -18,6 +27,9 @@
 - Convert `RNAMP` and `RNIDX` to `TNREDAMP` and `TNREDGAM`
 - Plot priors in `pyvela-plot`
 ## Changed
+- Residual plot in `pyvela-plot` script
+- Made GP noise marginalization the default in `SPNTA`
+- Made plotting modular
 - Residual plot in `pyvela-plot` script
 - Made GP noise marginalization the default in `SPNTA`
 - Move `info_dict()`, `save_new_parfile()`, `save_resids()` from `pyvela_script` to `SPNTA`

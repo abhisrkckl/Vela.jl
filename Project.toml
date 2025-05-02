@@ -1,7 +1,7 @@
 name = "Vela"
 uuid = "e20ed1ff-b155-4b65-a650-1609b657a8ad"
 authors = ["Abhimanyu Susobhanan <abhimanyu.susobhanan@nanograv.org>"]
-version = "0.0.9"
+version = "0.0.10"
 
 [deps]
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
