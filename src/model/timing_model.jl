@@ -70,12 +70,12 @@ read_param_values_to_vector(model::TimingModel, params::NamedTuple) =
 
 get_scale_factors(model::TimingModel) = get_scale_factors(model.param_handler)
 
-@unroll function correct_toa(
+@unroll function correct_toa( # coverage: ignore
     components::Tuple,
     toa::TOABase,
     toacorr::TOACorrectionBase,
     params::NamedTuple,
-)::TOACorrectionBase # coverage: ignore
+)::TOACorrectionBase
     toacorr1 = toacorr
     @unroll for component in components
         toacorr1 = correct_toa(component, toa, toacorr1, params)
