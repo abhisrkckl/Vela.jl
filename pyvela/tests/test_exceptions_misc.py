@@ -34,10 +34,18 @@ def test_open_prior_file():
     assert all(pr1 == pr2 for pr1, pr2 in zip(spnta1.model.priors, spnta2.model.priors))
 
 
-def test_dmx_exception():
+def test_dmx_exception_exclusive():
     parfile, timfile = f"{datadir}/sim_dmx.par", f"{datadir}/sim_dmx.tim"
     m, t = get_model_and_toas(parfile, timfile, planets=True)
     m["DMXR2_0001"].value = m["DMXR2_0002"].value
+    with pytest.raises(ValueError):
+        SPNTA.from_pint(m, t)
+
+
+def test_dmx_exception_exhaustive():
+    parfile, timfile = f"{datadir}/sim_dmx.par", f"{datadir}/sim_dmx.tim"
+    m, t = get_model_and_toas(parfile, timfile, planets=True)
+    m["DMXR1_0001"].value += 2
     with pytest.raises(ValueError):
         SPNTA.from_pint(m, t)
 
