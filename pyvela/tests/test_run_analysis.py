@@ -29,7 +29,7 @@ prior_str = """
             "distribution": "Normal",
             "args": [0.0, 0.25],
             "lower": -0.5,
-            "upper": 0.5,
+            "upper": 0.5
         }
     }
 """
