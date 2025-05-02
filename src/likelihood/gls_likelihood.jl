@@ -60,7 +60,7 @@ function _calc_y_Ninv_y__and__logdet_N(
     y_Ninv_y = 0.0
     @inbounds @simd for j = 1:Ntoa
         y_Ninv_y += y[j] * y[j] / Ndiag[j]
-    end # coverage: ignore
+    end # COV_EXCL_LINE
 
     logdet_N = sum(log, Ndiag)
 
@@ -91,7 +91,7 @@ function _calc_Σinv__and__MT_Ninv_y(
             Σinv_qp = (p == q) ? Φinv[p] : zero(Φinv[p])
             @simd for j = 1:Ntoa
                 Σinv_qp += M[j, p] * Ninv_M[j, q]
-            end # coverage: ignore
+            end # COV_EXCL_LINE
 
             # Only upper triangular elements are populated.
             # The rest contain garbage.
@@ -104,7 +104,7 @@ function _calc_Σinv__and__MT_Ninv_y(
         up = zero(X)
         @simd for j = 1:Ntoa
             up += Ninv_M[j, p] * y[j]
-        end # coverage: ignore
+        end # COV_EXCL_LINE
         u[p] = up
     end
 
@@ -126,7 +126,7 @@ function _calc_Ninv_M(
     @inbounds for p = 1:Npar
         @simd for j = 1:Ntoa
             Ninv_M[j, p] = M[j, p] / Ndiag[j]
-        end # coverage: ignore
+        end # COV_EXCL_LINE
     end
 
     return Ninv_M
@@ -143,7 +143,7 @@ function _gls_lnlike_serial(
     Σinv, MT_Ninv_y = _calc_Σinv__and__MT_Ninv_y(inner_kernel, M, Ndiag, Φinv, y, params)
 
     if !isposdef(Σinv)
-        return -Inf # coverage: ignore
+        return -Inf # COV_EXCL_LINE
     end
 
     y_Ninv_y, logdet_N = _calc_y_Ninv_y__and__logdet_N(inner_kernel, Ndiag, y, params)
