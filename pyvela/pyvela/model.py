@@ -468,7 +468,7 @@ def construct_woodbury_kernel(model: TimingModel, toas: TOAs, inner_kernel):
     gp_components = []
     gp_basis_matrices = []
 
-    if toas.wideband: # pragma: no cover
+    if toas.wideband:  # pragma: no cover
         assert (
             "PLChromNoise" not in model.components
         ), "PLChromNoise is not supported with wideband data."
