@@ -20,7 +20,7 @@ function calc_lnpost_vectorized(
     result = Vector{Float64}(undef, nparamss)
     @threads :static for ii = 1:nparamss
         result[ii] = calc_lnpost_serial(model, toas, paramss[ii, :])
-    end
+    end # coverage: ignore
     return result
 end
 
@@ -41,6 +41,6 @@ function get_lnpost_func(
     elseif nthreads() == 1
         params -> calc_lnpost_serial(model, toas, params)
     else
-        params -> calc_lnpost(model, toas, params)
+        params -> calc_lnpost(model, toas, params) # coverage: ignore
     end
 end
