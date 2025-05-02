@@ -1,12 +1,5 @@
-import json
 from argparse import ArgumentParser
-from typing import Iterable
 
-import corner
-import matplotlib.pyplot as plt
-import numpy as np
-from astropy import units as u
-from pint import DMconst, dmu
 from pyvela import pyvela_plot
 
 
