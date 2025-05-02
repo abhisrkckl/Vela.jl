@@ -76,8 +76,6 @@ def test_script(dataset):
     parfile, timfile = f"{datadir}/{dataset}.par", f"{datadir}/{dataset}.tim"
     outdir = f"_{dataset}_out"
 
-    os.mkdir(outdir)
-
     prior_file = "__prior.json"
     with open(prior_file, "w") as pf:
         print(prior_str, file=pf)
