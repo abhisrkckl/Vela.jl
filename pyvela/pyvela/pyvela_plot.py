@@ -65,7 +65,7 @@ def plot(
     ignore_params: Iterable[str] = [],
     include_params: Iterable[str] = None,
     plot_priors: bool = False,
-    out: str = None,
+    outfile: str = None,
     labelpad: float = 0.2,
 ):
 
@@ -182,7 +182,7 @@ def plot(
         ax1.axhline(0, ls="dotted", color="k")
 
     ax.set_xlabel("MJD - PEPOCH")
-    if out is None:
+    if outfile is None:
         plt.show()
     else:
-        plt.savefig(out)
+        plt.savefig(outfile)

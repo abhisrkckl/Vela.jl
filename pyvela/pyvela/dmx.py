@@ -20,7 +20,10 @@ def get_dmx_mask(
         if np.isscalar(idxs):
             mask.append(int(idxs))
         elif len(idxs) == 0:
-            mask.append(0)
+            # mask.append(0)
+            raise ValueError(
+                f"TOA number {ii} ({str(t)}) does not belong to a {param_prefix} range."
+            )
         else:
             raise ValueError(
                 f"Multiple {param_prefix} ranges found for TOA number {ii} ({str(t)})."

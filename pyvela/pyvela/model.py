@@ -197,7 +197,7 @@ def pint_components_to_vela(model: TimingModel, toas: TOAs):
         else:
             raise NotImplementedError(
                 f"BINARY {model.BINARY.value} not (yet?) implemented."
-            )
+            )  # pragma: no cover
 
     if "FD" in component_names:
         components.append(vl.FrequencyDependent())
@@ -389,7 +389,7 @@ def fix_params(model: TimingModel, toas: TOAs) -> None:
                 model["TNREDAMP"].frozen = model["RNAMP"].frozen
                 # model["RNAMP"].quantity = None
                 model["RNAMP"].frozen = True
-            else:
+            else:  # pragma: no cover
                 raise ValueError("One of TNREDAMP or RNAMP must be given.")
 
         if model["TNREDGAM"].value is None:
@@ -398,7 +398,7 @@ def fix_params(model: TimingModel, toas: TOAs) -> None:
                 model["TNREDGAM"].frozen = model["RNIDX"].frozen
                 # model["RNIDX"].quantity = None
                 model["RNIDX"].frozen = True
-            else:
+            else:  # pragma: no cover
                 raise ValueError("One of TNREDGAM or RNIDX must be given.")
 
         if model["TNREDC"].value is None:
@@ -468,7 +468,7 @@ def construct_woodbury_kernel(model: TimingModel, toas: TOAs, inner_kernel):
     gp_components = []
     gp_basis_matrices = []
 
-    if toas.wideband:
+    if toas.wideband:  # pragma: no cover
         assert (
             "PLChromNoise" not in model.components
         ), "PLChromNoise is not supported with wideband data."
