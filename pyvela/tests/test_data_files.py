@@ -132,6 +132,8 @@ def test_data(model_and_toas: Tuple[SPNTA, TimingModel, TOAs]):
 
     assert spnta.ntmdim <= spnta.ndim
 
+    assert spnta.has_ecorr_noise == ("EcorrNoise" in spnta.model_pint.components)
+
 
 def test_chi2(model_and_toas: Tuple[SPNTA, TimingModel, TOAs]):
     spnta, m, t = model_and_toas
@@ -168,6 +170,14 @@ def test_prior(model_and_toas):
     assert calc_lnprior(spnta.default_params) == calc_lnprior(
         spnta.model.param_handler._default_params_tuple
     )
+
+
+def test_gp_realization(model_and_toas):
+    spnta: SPNTA
+    spnta, _, _ = model_and_toas
+    if spnta.has_marginalized_gp_noise:
+        y_gp = spnta.get_marginalized_gp_noise_realization(spnta.default_params)
+        assert np.all(np.isfinite(y_gp))
 
 
 # def test_alloc(model_and_toas):
