@@ -126,7 +126,8 @@ def plot(
             plt.subplot(nplots, nplots, jj * (nplots + 1) + 1)
             xs = prior_evals[:, 2 * ii]
             ys = prior_evals[:, 2 * ii + 1]
-            plt.plot(xs, ys)
+            # normalize the prior to match the plotted histogram
+            plt.plot(xs, ys / np.trapz(ys, xs))
 
     ax = plt.subplot(5, 2, 2)
     ax.errorbar(
