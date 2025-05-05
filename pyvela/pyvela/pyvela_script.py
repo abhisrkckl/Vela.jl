@@ -152,22 +152,23 @@ def prepare_outdir(args):
     if not os.path.exists(f"{args.outdir}/{os.path.basename(args.par_file)}"):
         shutil.copy(args.par_file, args.outdir)
 
-    if args.jlso_file is None:
-        if not os.path.exists(f"{args.outdir}/{os.path.basename(args.tim_file)}"):
-            shutil.copy(args.tim_file, args.outdir)
-    else:
-        if not os.path.exists(f"{args.outdir}/{os.path.basename(args.jlso_file)}"):
-            shutil.copy(args.jlso_file, args.outdir)
+    if not args.resume:
+        if args.jlso_file is None:
+            if not os.path.exists(f"{args.outdir}/{os.path.basename(args.tim_file)}"):
+                shutil.copy(args.tim_file, args.outdir)
+        else:
+            if not os.path.exists(f"{args.outdir}/{os.path.basename(args.jlso_file)}"):
+                shutil.copy(args.jlso_file, args.outdir)
 
-    if args.prior_file is not None and not os.path.exists(
-        f"{args.outdir}/{os.path.basename(args.prior_file)}"
-    ):
-        shutil.copy(args.prior_file, args.outdir)
+        if args.prior_file is not None and not os.path.exists(
+            f"{args.outdir}/{os.path.basename(args.prior_file)}"
+        ):
+            shutil.copy(args.prior_file, args.outdir)
 
-    if args.truth is not None and not os.path.exists(
-        f"{args.outdir}/{os.path.basename(args.truth)}"
-    ):
-        shutil.copy(args.truth, args.outdir)
+        if args.truth is not None and not os.path.exists(
+            f"{args.outdir}/{os.path.basename(args.truth)}"
+        ):
+            shutil.copy(args.truth, args.outdir)
 
 
 def main(argv=None):
