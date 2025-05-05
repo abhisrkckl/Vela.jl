@@ -102,7 +102,7 @@ def parse_args(argv):
         "--restart",
         default=False,
         action="store_true",
-        help="Restart from an existing run?",
+        help="Restart from an existing run",
     )
 
     return parser.parse_args(argv)
@@ -135,6 +135,8 @@ def validate_input(args):
         args.truth
     ), f"Truth par file {args.truth} not found.  Make sure the path is correct."
 
+    if args.restart:
+        args.force_rewrite = True
     assert args.force_rewrite or not os.path.isdir(
         args.outdir
     ), f"The output directory {args.outdir} already exists! Use `-f` option to force overwrite."
@@ -147,28 +149,48 @@ def prepare_outdir(args):
     if not args.restart and not os.path.isdir(args.outdir):
         os.mkdir(args.outdir)
 
-    if not os.path.exists(f"{args.outdir}/args.par_file"):
+    if not os.path.exists(f"{args.outdir}/{os.path.basename(args.par_file)}"):
         shutil.copy(args.par_file, args.outdir)
 
     if args.jlso_file is None:
-        if not os.path.exists(f"{args.outdir}/args.tim_file"):
+        if not os.path.exists(f"{args.outdir}/{os.path.basename(args.tim_file)}"):
             shutil.copy(args.tim_file, args.outdir)
     else:
-        if not os.path.exists(f"{args.outdir}/args.jlso_file"):
+        if not os.path.exists(f"{args.outdir}/{os.path.basename(args.jlso_file)}"):
             shutil.copy(args.jlso_file, args.outdir)
 
     if args.prior_file is not None and not os.path.exists(
-        f"{args.outdir}/args.prior_file"
+        f"{args.outdir}/{os.path.basename(args.prior_file)}"
     ):
         shutil.copy(args.prior_file, args.outdir)
 
-    if args.truth is not None and not os.path.exists(f"{args.outdir}/args.truth"):
+    if args.truth is not None and not os.path.exists(
+        f"{args.outdir}/{os.path.basename(args.truth)}"
+    ):
         shutil.copy(args.truth, args.outdir)
 
 
 def main(argv=None):
     args = parse_args(argv)
     validate_input(args)
+    if args.restart:
+        # copy info from the prior run into the current arguments
+        # to make sure they agree
+        with open(f"{args.outdir}/summary.json") as summary_file:
+            summary_info = json.load(summary_file)
+        args.par_file = f'{args.outdir}/{summary_info["input"]["par_file"]}'
+        args.tim_file = f'{args.outdir}/{summary_info["input"]["tim_file"]}'
+        args.cheat_prior_scale = summary_info["input"]["cheat_prior_scale"]
+        args.prior_fie = (
+            f'{args.outdir}/{summary_info["input"]["custom_prior_file"]}'
+            if summary_info["input"]["custom_prior_file"] is not None
+            else None
+        )
+        args.jlso_file = (
+            f'{args.outdir}/{summary_info["input"]["jlso_file"]}'
+            if summary_info["input"]["jlso_file"] is not None
+            else None
+        )
     prepare_outdir(args)
 
     spnta = (
