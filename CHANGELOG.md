@@ -2,6 +2,7 @@
 ## Added
 - `SPNTA.has_ecorr` property
 - Maximum-posterior fitting in `VelaFitter`
+- Put the pulsar name as title in the result plot.
 ## Changed
 ## Fixed
 - Mark Julia lines wrongly missed in coverage with COV_EXCL_LINE to make the coverage % more accurate

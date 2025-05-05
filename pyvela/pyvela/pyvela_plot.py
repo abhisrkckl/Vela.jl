@@ -1,11 +1,12 @@
 import json
-from typing import Iterable
+from typing import Iterable, Optional
 
 import corner
 import matplotlib.pyplot as plt
 import numpy as np
 from astropy import units as u
 from pint import DMconst, dmu
+from pint.models import get_model
 
 
 def get_param_plot_mask(
@@ -58,6 +59,15 @@ def read_true_values(result_dir):
     scale_factors = np.genfromtxt(f"{result_dir}/param_scale_factors.txt")
 
     return true_values_raw / scale_factors
+
+
+def get_psrname(result_dir: str) -> Optional[str]:
+    with open(f"{result_dir}/summary.json") as summary_file:
+        summary = json.load(summary_file)
+
+    parfile = summary["input"]["par_file"]
+    model = get_model(f"{result_dir}/{parfile}")
+    return model["PSR"].value
 
 
 def plot(
@@ -129,7 +139,7 @@ def plot(
             # normalize the prior to match the plotted histogram
             plt.plot(xs, ys / np.trapz(ys, xs))
 
-    ax = plt.subplot(5, 2, 2)
+    ax = plt.subplot(5, 3, 3)
     ax.errorbar(
         mjds, tres, terr, marker="+", ls="", alpha=1, color="orange", label="Pre-fit"
     )
@@ -154,7 +164,7 @@ def plot(
 
     if wb:
         plt.xticks([])
-        ax = plt.subplot(5, 2, 4)
+        ax = plt.subplot(5, 3, 6)
         ax.errorbar(
             mjds,
             dres,
@@ -183,6 +193,11 @@ def plot(
         ax1.axhline(0, ls="dotted", color="k")
 
     ax.set_xlabel("MJD - PEPOCH")
+
+    psrname = get_psrname(result_dir)
+    if psrname is not None:
+        plt.suptitle(psrname, y=0.98, x=0.4)
+
     if outfile is None:
         plt.show()
     else:
