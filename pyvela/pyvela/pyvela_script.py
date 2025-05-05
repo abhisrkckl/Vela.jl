@@ -135,7 +135,7 @@ def validate_input(args):
         args.truth
     ), f"Truth par file {args.truth} not found.  Make sure the path is correct."
 
-    if args.restart:
+    if args.resume:
         args.force_rewrite = True
     assert args.force_rewrite or not os.path.isdir(
         args.outdir
@@ -143,10 +143,10 @@ def validate_input(args):
 
 
 def prepare_outdir(args):
-    if args.force_rewrite and os.path.isdir(args.outdir) and not args.restart:
+    if args.force_rewrite and os.path.isdir(args.outdir) and not args.resume:
         shutil.rmtree(args.outdir)
 
-    if not args.restart and not os.path.isdir(args.outdir):
+    if not args.resume and not os.path.isdir(args.outdir):
         os.mkdir(args.outdir)
 
     if not os.path.exists(f"{args.outdir}/{os.path.basename(args.par_file)}"):
@@ -173,7 +173,7 @@ def prepare_outdir(args):
 def main(argv=None):
     args = parse_args(argv)
     validate_input(args)
-    if args.restart:
+    if args.resume:
         # copy info from the prior run into the current arguments
         # to make sure they agree
         with open(f"{args.outdir}/summary.json") as summary_file:
@@ -218,7 +218,7 @@ def main(argv=None):
         vectorize=True,
         backend=emcee.backends.HDFBackend(f"{args.outdir}/chain.h5"),
     )
-    if not args.restart:
+    if not args.resume:
         sampler.run_mcmc(
             p0, args.nsteps, progress=True, progress_kwargs={"mininterval": 1}
         )
