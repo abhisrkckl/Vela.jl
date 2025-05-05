@@ -99,10 +99,10 @@ def parse_args(argv):
     )
     parser.add_argument(
         "-r",
-        "--restart",
+        "--resume",
         default=False,
         action="store_true",
-        help="Restart from an existing run",
+        help="Resume from an existing run",
     )
 
     return parser.parse_args(argv)
