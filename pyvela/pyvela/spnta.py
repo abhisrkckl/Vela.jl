@@ -518,10 +518,19 @@ class SPNTA:
         ):
             ptype = str(prior.source_type)
             dname = str(vl.distr_name(prior))
-            dargs = vl.unscale_prior_args(
-                getattr(jl.Distributions, dname),
-                vl.distr_args(prior),
-                scale_factor,
+            dtype = (
+                getattr(jl.Distributions, dname)
+                if hasattr(jl.Distributions, dname)
+                else getattr(vl, dname)
+            )
+            dargs = (
+                vl.unscale_prior_args(
+                    dtype,
+                    vl.distr_args(prior),
+                    scale_factor,
+                )
+                if hasattr(jl.Distributions, dname)
+                else vl.distr_args(prior)
             )
             prior_dict = {
                 pname: {
