@@ -4,6 +4,7 @@
 - Script/function to resample existing chain
 - Saving autocorrelation lengths of chains
 - `SPNTA.has_ecorr` property
+- Put the pulsar name as title in the result plot.
 ## Changed
 - Normalize the prior plot in `pyvela-plot` to improve visibility
 ## Fixed
