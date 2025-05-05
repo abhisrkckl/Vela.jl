@@ -256,6 +256,13 @@ class SPNTA:
         """Whether the model contains marginalized correlated Gaussian noise processes."""
         return vl.isa(self.model.kernel, vl.WoodburyKernel)
 
+    @cached_property
+    def has_ecorr_noise(self) -> bool:
+        return vl.isa(self.model.kernel, vl.EcorrKernel) or (
+            self.has_marginalized_gp_noise
+            and vl.isa(self.model.kernel.inner_kernel, vl.EcorrKernel)
+        )
+
     def get_marginalized_gp_noise_realization(self, params: np.ndarray) -> np.ndarray:
         """Get a realization of the marginalized GP noise given a set of parameters.
         The length of `params` should be the same as the number of free parameters."""

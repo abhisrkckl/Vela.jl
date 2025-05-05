@@ -132,6 +132,8 @@ def test_data(model_and_toas: Tuple[SPNTA, TimingModel, TOAs]):
 
     assert spnta.ntmdim <= spnta.ndim
 
+    assert spnta.has_ecorr_noise == ("EcorrNoise" in spnta.model_pint.components)
+
 
 def test_chi2(model_and_toas: Tuple[SPNTA, TimingModel, TOAs]):
     spnta, m, t = model_and_toas
