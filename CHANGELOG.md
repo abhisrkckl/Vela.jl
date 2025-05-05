@@ -3,6 +3,7 @@
 - Can restart emcee from a prior chain
 - Script/function to resample existing chain
 - Saving autocorrelation lengths of chains
+- `SPNTA.has_ecorr` property
 ## Changed
 - Normalize the prior plot in `pyvela-plot` to improve visibility
 ## Fixed
