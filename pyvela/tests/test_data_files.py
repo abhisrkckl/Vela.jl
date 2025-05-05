@@ -170,6 +170,14 @@ def test_prior(model_and_toas):
     )
 
 
+def test_gp_realization(model_and_toas):
+    spnta: SPNTA
+    spnta, _, _ = model_and_toas
+    if spnta.has_marginalized_gp_noise:
+        y_gp = spnta.get_marginalized_gp_noise_realization(spnta.default_params)
+        assert np.all(np.isfinite(y_gp))
+
+
 # def test_alloc(model_and_toas):
 #     spnta: SPNTA
 #     spnta, _, _ = model_and_toas
