@@ -27,6 +27,8 @@
 - Save the full prior information along with the results
 - Convert `RNAMP` and `RNIDX` to `TNREDAMP` and `TNREDGAM`
 - Plot priors in `pyvela-plot`
+- Script/function to resample existing chain
+- Saving autocorrelation lengths of chains
 ## Changed
 - Residual plot in `pyvela-plot` script
 - Made GP noise marginalization the default in `SPNTA`
@@ -34,6 +36,7 @@
 - Residual plot in `pyvela-plot` script
 - Made GP noise marginalization the default in `SPNTA`
 - Move `info_dict()`, `save_new_parfile()`, `save_resids()` from `pyvela_script` to `SPNTA`
+- Prior plotting is now normalized
 ## Fixed
 - Julia example script `run_example.jl`
 - In `_gls_lnlike_serial`, return  -inf if `Σinv` is not positive definite.
