@@ -66,7 +66,7 @@ def get_psrname(result_dir: str) -> Optional[str]:
         summary = json.load(summary_file)
 
     parfile = summary["input"]["par_file"]
-    model = get_model(parfile)
+    model = get_model(f"{result_dir}/{parfile}")
     return model["PSR"].value
 
 
@@ -139,7 +139,7 @@ def plot(
             # normalize the prior to match the plotted histogram
             plt.plot(xs, ys / np.trapz(ys, xs))
 
-    ax = plt.subplot(5, 2, 2)
+    ax = plt.subplot(5, 3, 3)
     ax.errorbar(
         mjds, tres, terr, marker="+", ls="", alpha=1, color="orange", label="Pre-fit"
     )
@@ -164,7 +164,7 @@ def plot(
 
     if wb:
         plt.xticks([])
-        ax = plt.subplot(5, 2, 4)
+        ax = plt.subplot(5, 3, 6)
         ax.errorbar(
             mjds,
             dres,
@@ -196,7 +196,7 @@ def plot(
 
     psrname = get_psrname(result_dir)
     if psrname is not None:
-        plt.suptitle(psrname)
+        plt.suptitle(psrname, y=0.98, x=0.4)
 
     if outfile is None:
         plt.show()
