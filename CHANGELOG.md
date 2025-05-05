@@ -1,6 +1,7 @@
 # Unreleased
 ## Added
 - `SPNTA.has_ecorr` property
+- Maximum-posterior fitting in `VelaFitter`
 ## Changed
 ## Fixed
 - Mark Julia lines wrongly missed in coverage with COV_EXCL_LINE to make the coverage % more accurate
@@ -16,7 +17,6 @@
 - In `SPNTA.from_pint()`, compute planetary ephemerides if they are absent in the input `TOAs` object.
 - Support for log-spaced frequencies in Fourier GP components
 - Save MCMC samples in `VelaFitter`
-- Maximum-posterior fitting in `VelaFitter`
 - Display default values in `$ pyvela --help`
 - Check that `Vela` and `pyvela` have the same version.
 - Can save the plot output from `pyvela-plot`
