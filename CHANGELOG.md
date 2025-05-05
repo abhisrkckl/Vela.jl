@@ -3,8 +3,10 @@
 - `SPNTA.has_ecorr` property
 - Put the pulsar name as title in the result plot.
 ## Changed
+- Default PX prior now uses the diameter of the Galaxy as the maximum distance.
 ## Fixed
 - Mark Julia lines wrongly missed in coverage with COV_EXCL_LINE to make the coverage % more accurate
+- Make `SPNTA.full_prior_dict()` work properly when "known" priors defined by Vela are used.
 ## Removed
 
 # 0.0.10
