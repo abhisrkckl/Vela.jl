@@ -97,6 +97,13 @@ def parse_args(argv):
         type=int,
         help="Thinning factor for MCMC chains",
     )
+    parser.add_argument(
+        "-r",
+        "--resume",
+        default=False,
+        action="store_true",
+        help="Resume from an existing run",
+    )
 
     return parser.parse_args(argv)
 
@@ -128,34 +135,63 @@ def validate_input(args):
         args.truth
     ), f"Truth par file {args.truth} not found.  Make sure the path is correct."
 
+    if args.resume:
+        args.force_rewrite = True
     assert args.force_rewrite or not os.path.isdir(
         args.outdir
     ), f"The output directory {args.outdir} already exists! Use `-f` option to force overwrite."
 
 
 def prepare_outdir(args):
-    if args.force_rewrite and os.path.isdir(args.outdir):
+    if args.force_rewrite and os.path.isdir(args.outdir) and not args.resume:
         shutil.rmtree(args.outdir)
 
-    os.mkdir(args.outdir)
+    if not args.resume and not os.path.isdir(args.outdir):
+        os.mkdir(args.outdir)
 
-    shutil.copy(args.par_file, args.outdir)
+    if not os.path.exists(f"{args.outdir}/{os.path.basename(args.par_file)}"):
+        shutil.copy(args.par_file, args.outdir)
 
-    if args.jlso_file is None:
-        shutil.copy(args.tim_file, args.outdir)
-    else:
-        shutil.copy(args.jlso_file, args.outdir)
+    if not args.resume:
+        if args.jlso_file is None:
+            if not os.path.exists(f"{args.outdir}/{os.path.basename(args.tim_file)}"):
+                shutil.copy(args.tim_file, args.outdir)
+        else:
+            if not os.path.exists(f"{args.outdir}/{os.path.basename(args.jlso_file)}"):
+                shutil.copy(args.jlso_file, args.outdir)
 
-    if args.prior_file is not None:
-        shutil.copy(args.prior_file, args.outdir)
+        if args.prior_file is not None and not os.path.exists(
+            f"{args.outdir}/{os.path.basename(args.prior_file)}"
+        ):
+            shutil.copy(args.prior_file, args.outdir)
 
-    if args.truth is not None:
-        shutil.copy(args.truth, args.outdir)
+        if args.truth is not None and not os.path.exists(
+            f"{args.outdir}/{os.path.basename(args.truth)}"
+        ):
+            shutil.copy(args.truth, args.outdir)
 
 
 def main(argv=None):
     args = parse_args(argv)
     validate_input(args)
+    if args.resume:
+        # copy info from the prior run into the current arguments
+        # to make sure they agree
+        with open(f"{args.outdir}/summary.json") as summary_file:
+            summary_info = json.load(summary_file)
+        args.par_file = f'{args.outdir}/{summary_info["input"]["par_file"]}'
+        args.tim_file = f'{args.outdir}/{summary_info["input"]["tim_file"]}'
+        args.cheat_prior_scale = summary_info["input"]["cheat_prior_scale"]
+        args.prior_fie = (
+            f'{args.outdir}/{summary_info["input"]["custom_prior_file"]}'
+            if summary_info["input"]["custom_prior_file"] is not None
+            else None
+        )
+        args.jlso_file = (
+            f'{args.outdir}/{summary_info["input"]["jlso_file"]}'
+            if summary_info["input"]["jlso_file"] is not None
+            else None
+        )
     prepare_outdir(args)
 
     spnta = (
@@ -183,7 +219,15 @@ def main(argv=None):
         vectorize=True,
         backend=emcee.backends.HDFBackend(f"{args.outdir}/chain.h5"),
     )
-    sampler.run_mcmc(p0, args.nsteps, progress=True, progress_kwargs={"mininterval": 1})
+    if not args.resume:
+        sampler.run_mcmc(
+            p0, args.nsteps, progress=True, progress_kwargs={"mininterval": 1}
+        )
+    else:
+        sampler.run_mcmc(
+            None, args.nsteps, progress=True, progress_kwargs={"mininterval": 1}
+        )
+
     samples_raw = sampler.get_chain(flat=True, discard=args.burnin, thin=args.thin)
 
     spnta.save_results(
