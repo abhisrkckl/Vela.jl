@@ -48,7 +48,7 @@ DEFAULT_PRIOR_DISTS = {
     "TNCHROMAMP": jl.Uniform(-18.0, -9.0),
     "TNCHROMGAM": jl.Uniform(0.0, 7.0),
     "DMX_": jl.Normal(0, 1e-2 * dmunit),
-    "PX": vl.PXPriorDistribution(Rmax),
+    "PX": vl.PXPriorDistribution(2 * Rmax),
 }
 
 
