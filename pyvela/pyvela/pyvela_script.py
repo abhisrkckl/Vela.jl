@@ -207,8 +207,13 @@ def main(argv=None):
     )
 
     nwalkers = spnta.ndim * 5
-    p0 = np.array(
+    p0_ = np.array(
         [spnta.prior_transform(cube) for cube in np.random.rand(nwalkers, spnta.ndim)]
+    )
+    p0 = (
+        (5 * spnta.default_params + p0_) / 6
+        if np.isfinite(spnta.lnpost(spnta.default_params))
+        else p0_
     )
 
     sampler = emcee.EnsembleSampler(
