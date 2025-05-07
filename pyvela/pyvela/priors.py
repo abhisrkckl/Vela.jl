@@ -86,6 +86,22 @@ def get_default_prior(
     elif hasattr(param, "prefix") and param.prefix in DEFAULT_PRIOR_DISTS:
         pdist = DEFAULT_PRIOR_DISTS[param.prefix]
         source = vl.DEFAULT_PRIOR
+    elif param_name in ["TASC", "T0"]:
+        # Both are `MJDParameter`s
+        val = (param.value - epoch_mjd) * day_to_s
+        PB = float(model.pb()[0].to_value(u.s))
+        pmin = val - PB / 2
+        pmax = val + PB / 2
+        pdist = jl.Uniform(pmin, pmax)
+        source = vl.DEFAULT_PRIOR
+    elif hasattr(param, "prefix") and param.prefix in ["JUMP"]:
+        # JUMP phase should be in [-0.5, 0.5]
+        val = param.quantity.to_value(u.s)
+        P = float((1 / model["F0"].quantity).to_value(u.s))
+        pmin = val - P / 2
+        pmax = val + P / 2
+        pdist = jl.Uniform(pmin, pmax)
+        source = vl.DEFAULT_PRIOR
     else:
         val = (
             (
