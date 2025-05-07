@@ -2,13 +2,9 @@ import json
 import os
 import shutil
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
-from copy import deepcopy
-from warnings import warn
 
 import emcee
 import numpy as np
-import pint
-import pint.models
 
 from pyvela import SPNTA
 
@@ -104,6 +100,14 @@ def parse_args(argv):
         action="store_true",
         help="Resume from an existing run",
     )
+    parser.add_argument(
+        "-s",
+        "--initial_sample_spread",
+        default=0.3,
+        type=float,
+        help="Spread of the starting samples around the default parameter values. "
+        "Must be > 0 and <= 1. 0 represents no spread and 1 represents prior draws.",
+    )
 
     return parser.parse_args(argv)
 
@@ -140,6 +144,10 @@ def validate_input(args):
     assert args.force_rewrite or not os.path.isdir(
         args.outdir
     ), f"The output directory {args.outdir} already exists! Use `-f` option to force overwrite."
+
+    assert (
+        args.initial_sample_spread > 0 and args.initial_sample_spread <= 1
+    ), "initial_sample_spread must be > 0 and <= 1."
 
 
 def prepare_outdir(args):
@@ -207,11 +215,13 @@ def main(argv=None):
     )
 
     nwalkers = spnta.ndim * 5
+
     p0_ = np.array(
         [spnta.prior_transform(cube) for cube in np.random.rand(nwalkers, spnta.ndim)]
     )
+    s = args.initial_sample_spread
     p0 = (
-        (5 * spnta.default_params + p0_) / 6
+        ((1 - s) * spnta.default_params + s * p0_)
         if np.isfinite(spnta.lnpost(spnta.default_params))
         else p0_
     )
@@ -220,7 +230,7 @@ def main(argv=None):
         nwalkers,
         spnta.ndim,
         spnta.lnpost_vectorized,
-        # moves=[emcee.moves.StretchMove(), emcee.moves.DESnookerMove()],
+        moves=[emcee.moves.StretchMove(), emcee.moves.DESnookerMove()],
         vectorize=True,
         backend=emcee.backends.HDFBackend(f"{args.outdir}/chain.h5"),
     )
