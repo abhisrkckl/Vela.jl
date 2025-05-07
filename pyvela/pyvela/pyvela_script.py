@@ -215,7 +215,7 @@ def main(argv=None):
         nwalkers,
         spnta.ndim,
         spnta.lnpost_vectorized,
-        # moves=[emcee.moves.StretchMove(), emcee.moves.DESnookerMove()],
+        moves=[emcee.moves.StretchMove(), emcee.moves.DESnookerMove()],
         vectorize=True,
         backend=emcee.backends.HDFBackend(f"{args.outdir}/chain.h5"),
     )
