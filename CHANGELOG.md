@@ -14,6 +14,8 @@
 ## Fixed
 - Mark Julia lines wrongly missed in coverage with COV_EXCL_LINE to make the coverage % more accurate
 - Make `SPNTA.full_prior_dict()` work properly when "known" priors defined by Vela are used.
+- Write the correct value of TASC and T0 to the output par file in `SPNTA.save_new_parfile()`.
+- Correct parameter scaling for prior plots
 ## Removed
 
 # 0.0.10
