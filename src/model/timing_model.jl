@@ -62,6 +62,8 @@ get_free_param_units(model::TimingModel) = get_free_param_units(model.param_hand
 get_free_param_labels(model::TimingModel) = get_free_param_labels(model.param_handler)
 get_free_param_prefixes(model::TimingModel) = get_free_param_prefixes(model.param_handler)
 get_num_timing_params(model::TimingModel) = get_num_timing_params(model.param_handler)
+get_marginalized_param_names(model::TimingModel) =
+    get_marginalized_param_names(model.kernel)
 
 read_param_values_to_vector(model::TimingModel) =
     read_param_values_to_vector(model.param_handler)
