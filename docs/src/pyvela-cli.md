@@ -10,7 +10,7 @@ prior distributions, sampler, etc is not necessary. It has the followingb syntax
 ```
 $ pyvela -h
 
-usage: pyvela [-h] [-J JLSO_FILE] [-P PRIOR_FILE] [-T TRUTH] [-C CHEAT_PRIOR_SCALE] [-o OUTDIR] [-f] [-N NSTEPS] [-b BURNIN] [-t THIN] par_file [tim_file]
+usage: pyvela [-h] [-J JLSO_FILE] [-P PRIOR_FILE] [-T TRUTH] [-C CHEAT_PRIOR_SCALE] [-o OUTDIR] [-f] [-N NSTEPS] [-b BURNIN] [-t THIN] [-s INITIAL_SAMPLE_SPREAD] par_file [tim_file]
 
 A command line interface for the Vela.jl pulsar timing & noise analysis package. Uses emcee for sampling. This may not be appropriate for more complex datasets. Write your own scripts for such cases.
 
@@ -37,6 +37,9 @@ options:
   -b BURNIN, --burnin BURNIN
                         Burn-in length for MCMC chains
   -t THIN, --thin THIN  Thinning factor for MCMC chains
+  -s INITIAL_SAMPLE_SPREAD, --initial_sample_spread INITIAL_SAMPLE_SPREAD
+                        Spread of the starting samples around the default parameter values. Must be > 0 and <= 1. 
+                        0 represents no spread and 1 represents prior draws. (default: 0.3)
 ```
 
 This command created saves the MCMC chain and related metadata into an output directory. This includes the following files. The parameter order in all of these files is the same.
@@ -44,18 +47,22 @@ This command created saves the MCMC chain and related metadata into an output di
   - `summary.json` : A `JSON` file containing information about the inputs and the system environment. Useful for debugging.
   - The input `par` and `tim` files
   - The "truth" `par` file (optional, only relevant for simulations)
+  - The input `JSON` file containing user defined priors.
+  - `prior_info.json`: `JSON` file containing the prior distribution for all parameters, including user-defined, default, and 'cheat' priors.
   - `samples.npy` : The `numpy` format file containing the flattened and burned-in MCMC chain. This can be read using [`numpy.load()`](https://numpy.org/doc/stable/reference/generated/numpy.load.html).
   - `samples_raw.npy` : Same as `samples.npy`, but the quantities here are in `Vela.jl`'s internal units.
   - `param_names.txt` : An ordered list of free model parameter names following the `PINT` conventions.
   - `param_prefixes.txt` : An ordered list of free model parameter prefixes following the `PINT` conventions.
   - `param_scale_factors.txt` : An ordered list of scale factors which convert parameter values from `PINT` units to `Vela.jl`'s internal units. The values in `samples.npy` and `samples_raw.npy` are related by these scale factors.
-  - `params_maxpost.txt` : Maximum-posterior sample found in the MCMC chain (May not be the same as the mode of the posterior distribution)
   - `params_median.txt` : The posterior median sample estimated from the MCMC chain
+  - `params_std.txt` : The parameter standard deviations estimated from the MCMC chain
   - `param_units.txt` : Parameter units represented as `astropy.units`-compatible strings. Empty rows represent dimensionless quantities.
   - `param_default_values.txt` : "Pre-fit" values taken from the input par file.
-  - `<PSR>.maxpost.par` : A "post-fit" `par` file containing the maximum-posterior values taken from the MCMC chain.
+  - `param_autocorr.txt`: MCMC autocorrelation length for each free parameter.
   - `<PSR>.median.par` : A "post-fit" `par` file containing the posterior median values taken from the MCMC chain.
-  - `residuals.txt` : Post-fit residuals computed using the posterior median values
+  - `residuals.txt` : Post-fit residuals computed using the posterior median values.
+  - `prior_evals.npy`: The prior distributions evaluated within the posterior distribution range. Used for plotting.
+  - `chain.h5` : HDF5 file containing all samples.
 
 ## `pyvela-plot` script
 
