@@ -5,7 +5,8 @@
 - Saving autocorrelation lengths of chains
 - `SPNTA.has_ecorr` property
 - Put the pulsar name as title in the result plot.
-- Better default priors for T0, TASC, and JUMP.
+- Default priors for T0, TASC, JUMP, M2, and H3.
+- Comments about the source of default priors.
 ## Changed
 - Normalize the prior plot in `pyvela-plot` to improve visibility
 - Default PX prior now uses the diameter of the Galaxy as the maximum distance.

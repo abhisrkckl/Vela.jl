@@ -17,38 +17,51 @@ from .parameters import (
 from .toas import day_to_s
 from .vela import jl, vl
 
-dmunit = (DMconst * dmu).to_value(u.Hz)
-Rmax = (52850 * u.lightyear / const.c).to_value(u.s)  # Radius of the Galaxy
+dmunit = (DMconst * dmu).to_value(u.Hz)  # DM unit in geometric units
+Rmax = (52850 * u.lightyear / const.c).to_value(
+    u.s
+)  # Radius of the Galaxy in geometric units
+Msun = (const.G * u.Msun / const.c**3).to_value(u.s)  # Solar mass in geometric units
 
 # Some of these prior distributions are based on physical considerations.
 # Others are based on typical values found in millisecond pulsars. They
 # may not be valid for slow pulsars.
 DEFAULT_PRIOR_DISTS = {
-    "PHOFF": jl.Uniform(-0.5, 0.5),
-    "EFAC": jl.LogNormal(0.0, 0.25),
-    "EQUAD": jl.LogUniform(1e-9, 1e-4),
-    "ECORR": jl.LogUniform(1e-9, 1e-4),
-    "KOM": jl.Uniform(0.0, 2 * jl.pi),
-    "KIN": vl.KINPriorDistribution(),
-    "SINI": vl.SINIPriorDistribution(),
-    "STIGMA": vl.STIGMAPriorDistribution(),
-    "SHAPMAX": vl.SHAPMAXPriorDistribution(),
-    "DMEFAC": jl.LogNormal(0.0, 0.25),
-    "DMEQUAD": jl.LogUniform(1e-8 * dmunit, 1e-2 * dmunit),
-    "PLREDCOS_": jl.Normal(),
-    "PLREDSIN_": jl.Normal(),
-    "TNREDAMP": jl.Uniform(-18.0, -9.0),
-    "TNREDGAM": jl.Uniform(0.0, 7.0),
-    "PLDMCOS_": jl.Normal(),
-    "PLDMSIN_": jl.Normal(),
-    "TNDMAMP": jl.Uniform(-18.0, -9.0),
-    "TNDMGAM": jl.Uniform(0.0, 7.0),
-    "PLCHROMCOS_": jl.Normal(),
-    "PLCHROMSIN_": jl.Normal(),
-    "TNCHROMAMP": jl.Uniform(-18.0, -9.0),
-    "TNCHROMGAM": jl.Uniform(0.0, 7.0),
-    "DMX_": jl.Normal(0, 1e-2 * dmunit),
-    "PX": vl.PXPriorDistribution(2 * Rmax),
+    "PHOFF": jl.Uniform(
+        -0.5, 0.5
+    ),  # Assumes phase connection and an appropriate TZRMJD value.
+    "EFAC": jl.LogNormal(0.0, 0.25),  # Should be close to 1 most of the time.
+    "EQUAD": jl.LogUniform(1e-9, 1e-4),  # Ballpark range based on PTA pulsars
+    "ECORR": jl.LogUniform(1e-9, 1e-4),  # Ballpark range based on PTA pulsars
+    "KOM": jl.Uniform(0.0, 2 * jl.pi),  # Physical prior
+    "KIN": vl.KINPriorDistribution(),  # cos(ι) is uniformly distributed in [0,1]
+    "SINI": vl.SINIPriorDistribution(),  # cos(ι) is uniformly distributed in [0,1]
+    "STIGMA": vl.STIGMAPriorDistribution(),  # cos(ι) is uniformly distributed in [0,1]
+    "SHAPMAX": vl.SHAPMAXPriorDistribution(),  # cos(ι) is uniformly distributed in [0,1]
+    "DMEFAC": jl.LogNormal(0.0, 0.25),  # Should be close to 1 most of the time.
+    "DMEQUAD": jl.LogUniform(
+        1e-8 * dmunit, 1e-2 * dmunit
+    ),  # Ballpark range based on PTA pulsars
+    "PLREDCOS_": jl.Normal(),  # Prior is part of the parameter definition
+    "PLREDSIN_": jl.Normal(),  # Prior is part of the parameter definition
+    "TNREDAMP": jl.Uniform(-18.0, -9.0),  # Ballpark range based on PTA pulsars
+    "TNREDGAM": jl.Uniform(0.0, 7.0),  # Ballpark range based on PTA pulsars
+    "PLDMCOS_": jl.Normal(),  # Prior is part of the parameter definition
+    "PLDMSIN_": jl.Normal(),  # Prior is part of the parameter definition
+    "TNDMAMP": jl.Uniform(-18.0, -9.0),  # Ballpark range based on PTA pulsars
+    "TNDMGAM": jl.Uniform(0.0, 7.0),  # Ballpark range based on PTA pulsars
+    "PLCHROMCOS_": jl.Normal(),  # Prior is part of the parameter definition
+    "PLCHROMSIN_": jl.Normal(),  # Prior is part of the parameter definition
+    "TNCHROMAMP": jl.Uniform(-18.0, -9.0),  # Ballpark range based on PTA pulsars
+    "TNCHROMGAM": jl.Uniform(0.0, 7.0),  # Ballpark range based on PTA pulsars
+    "DMX_": jl.Normal(0, 1e-2 * dmunit),  # Ballpark range based on PTA pulsars
+    "PX": vl.PXPriorDistribution(
+        2 * Rmax
+    ),  # Uniformly distributed within a sphere of radius 2*Rmax.
+    "M2": jl.LogUniform(1e-9 * Msun, 100 * Msun),  # Between a moon and a massive star.
+    "H3": jl.LogUniform(
+        1e-9 * Msun, 100 * Msun
+    ),  # Same range as M2 because H3 = M2 * STIGMA**3 and STIGMA ∈ [0,1].
 }
 
 
@@ -88,6 +101,8 @@ def get_default_prior(
         source = vl.DEFAULT_PRIOR
     elif param_name in ["TASC", "T0"]:
         # Both are `MJDParameter`s
+        # The binary model is periodic in TASC/T0 with an approximate period of PB.
+        # This prior picks one period.
         val = (param.value - epoch_mjd) * day_to_s
         PB = float(model.pb()[0].to_value(u.s))
         pmin = val - PB / 2
@@ -95,13 +110,15 @@ def get_default_prior(
         pdist = jl.Uniform(pmin, pmax)
         source = vl.DEFAULT_PRIOR
     elif hasattr(param, "prefix") and param.prefix in ["JUMP"]:
-        # JUMP phase should be in [-0.5, 0.5]
+        # JUMP phase will be in [-0.5, 0.5] if the TOAs are phase connected.
         P = float((1 / model["F0"].quantity).to_value(u.s))
         pmin = -P / 2
         pmax = P / 2
         pdist = jl.Uniform(pmin, pmax)
         source = vl.DEFAULT_PRIOR
     else:
+        # "Cheat" priors.
+        # Must be careful while using these.
         val = (
             (
                 (param.value - epoch_mjd) * day_to_s
