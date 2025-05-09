@@ -130,6 +130,7 @@ More parameters will be added to this table in the future.
 | EFAC          | TOA uncertainty correction (multiplicative)                                 | `LogNormal[0, 0.25]`                                            |                  |
 | EQUAD         | TOA uncertainty correction (added in quadrature) (μs)                       | `LogUniform[1e-3, 1e+2]`                                        |                  |
 | ECORR         | Correlation between narrowband TOAs measured from the same observation (μs) | `LogUniform[1e-3, 1e+2]`                                        |                  |
+| JUMP          | Instrumental time jump                                                      | `Uniform[-1/(2*F0), 1/(2*F0)]`                                  |                  |
 | KIN           | Orbital inclination (deg)                                                   | `P(KIN) = sin(KIN)`                                             | 0 <= KIN <= 90.  |
 | KOM           | Longitude of ascending node (deg)                                           | `LogNormal[0, 360]`                                             |                  |
 | PHOFF         | Overall phase offset                                                        | `Uniform[-0.5, 0.5]`                                            |                  |
@@ -137,6 +138,8 @@ More parameters will be added to this table in the future.
 | SHAPMAX       | Log-scaled inclination parameter                                            | `P(SHAPMAX) = (1 - exp(-SHAPMAX)) / (sqrt(2 * exp(SHAPMAX) - 1))`| 0 <= SHAPMAX    |
 | SINI          | Orbital sine-inclination                                                    | `P(SINI) = SINI / sqrt(1 - SINI^2)`                             | 0 <= SINI <= 1   |
 | STIGMA        | Orthometric Shapiro delay parameter                                         | `P(STIGMA) = 4 * STIGMA / (1 + STIGMA^2)^2`                     | 0 <= STIGMA <= 1 |
+| T0            | Epoch of periapsis passage                                                  | `Uniform[T0_1 - PB/2, T0_1 + PB/2]`                             | T0_1 is the default value of T0. |
+| TASC          | Epoch of acending node passage                                              | `Uniform[TASC_1 - PB/2, TASC_1 + PB/2]`                         | TASC_1 is the default value of TASC. |
 | TNCHROMAMP    | Chromatic noise log-amplitude                                               | `Uniform[-18, -9]`                                              |                  |
 | TNCHROMGAM    | Chromatic noise log-amplitude                                               | `Uniform[0, 7]`                                                 |                  |
 | TNDMAMP       | DM noise log-amplitude                                                      | `Uniform[-18, -9]`                                              |                  |
