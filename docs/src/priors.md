@@ -138,7 +138,7 @@ More parameters will be added to this table in the future.
 | SINI          | Orbital sine-inclination                                                    | `P(SINI) = SINI / sqrt(1 - SINI^2)`                             | 0 <= SINI <= 1   |
 | STIGMA        | Orthometric Shapiro delay parameter                                         | `P(STIGMA) = 4 * STIGMA / (1 + STIGMA^2)^2`                     | 0 <= STIGMA <= 1 |
 | TNCHROMAMP    | Chromatic noise log-amplitude                                               | `Uniform[-18, -9]`                                              |                  |
-| TNCHROMGAM    | Chromatic noise log-amplitude                                               | `Uniform[0, 7]`                                                 |                  |
+| TNCHROMGAM    | Chromatic noise spectral index                                              | `Uniform[0, 7]`                                                 |                  |
 | TNDMAMP       | DM noise log-amplitude                                                      | `Uniform[-18, -9]`                                              |                  |
 | TNDMGAM       | DM noise spectral index                                                     | `Uniform[0, 7]`                                                 |                  |
 | TNREDAMP      | Spin noise log-amplitude                                                    | `Uniform[-18, -9]`                                              |                  |
