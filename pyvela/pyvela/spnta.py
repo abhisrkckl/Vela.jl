@@ -278,9 +278,9 @@ class SPNTA:
         ahat = cho_solve(Sigmainv_cf, MT_Ninv_y)
         return M @ ahat
 
-    def rescale_samples(self, samples: np.ndarray) -> np.ndarray:
+    def rescale_samples(self, samples_raw: np.ndarray) -> np.ndarray:
         """Rescale the samples from Vela's internal units to common units"""
-        return samples / self.scale_factors
+        return samples_raw / self.scale_factors
 
     def save_jlso(self, filename: str) -> None:
         """Write the model and TOAs as a JLSO file"""
@@ -611,16 +611,14 @@ class SPNTA:
         )
         for pname, pval, perr in zip(self.param_names, param_vals, param_errs):
             if pname in model1:
-                model1[pname].value = (
-                    pval
-                    if pname != "F0"
-                    else (
-                        np.longdouble(
-                            self.model.param_handler._default_params_tuple.F_.x
-                        )
-                        + pval
+                if pname == "F0":
+                    model1[pname].value = pval + np.longdouble(
+                        self.model.param_handler._default_params_tuple.F_.x
                     )
-                )
+                elif pname in ["TASC", "T0"]:
+                    model1[pname].value = pval + self.model.epoch.x / day_to_s
+                else:
+                    model1[pname].value = pval
                 model1[pname].uncertainty_value = perr
             else:
                 warnings.warn(
@@ -736,7 +734,7 @@ class SPNTA:
         with open(f"{outdir}/prior_info.json", "w") as prior_info_file:
             json.dump(self.full_prior_dict(), prior_info_file, indent=4)
 
-        self._save_prior_evals(samples, f"{outdir}/prior_evals.npy")
+        self._save_prior_evals(samples_raw, f"{outdir}/prior_evals.npy")
 
         summary_info = self.info_dict(sampler_info, truth_par_file)
         with open(f"{outdir}/summary.json", "w") as summary_file:
@@ -744,17 +742,16 @@ class SPNTA:
 
     def _single_param_prior(self, param_idx: int, value: float):
         prior = self.model.priors[param_idx]
-        scale_factor = self.scale_factors[param_idx]
-        return vl.pdf(prior.distribution, value * scale_factor)
+        return vl.pdf(prior.distribution, value)
 
-    def _save_prior_evals(self, samples: np.ndarray, filename: str):
+    def _save_prior_evals(self, samples_raw: np.ndarray, filename: str):
         """Save the prior PDF evaluated at uniformly spaced points within the
         posterior range."""
         nn = 1000
         result = np.empty((nn, 2 * self.ndim))
 
         for ii in range(self.ndim):
-            xs = np.linspace(np.min(samples[:, ii]), np.max(samples[:, ii]), nn)
+            xs = np.linspace(np.min(samples_raw[:, ii]), np.max(samples_raw[:, ii]), nn)
             ys = np.array([self._single_param_prior(ii, x) for x in xs])
             result[:, 2 * ii] = xs
             result[:, 2 * ii + 1] = ys
