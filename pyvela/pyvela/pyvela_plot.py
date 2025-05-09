@@ -84,6 +84,7 @@ def plot(
     param_prefixes = np.genfromtxt(f"{result_dir}/param_prefixes.txt", dtype=str)
     with open(f"{result_dir}/param_units.txt", "r") as f:
         param_units = np.array([s.strip() for s in f.readlines()])
+    scale_factors = np.genfromtxt(f"{result_dir}/param_scale_factors.txt")
 
     param_plot_mask = get_param_plot_mask(
         param_names, param_prefixes, ignore_params, include_params=include_params
@@ -134,7 +135,7 @@ def plot(
         nplots = len(param_plot_mask)
         for jj, ii in enumerate(param_plot_mask):
             plt.subplot(nplots, nplots, jj * (nplots + 1) + 1)
-            xs = prior_evals[:, 2 * ii]
+            xs = prior_evals[:, 2 * ii] / scale_factors[ii]
             ys = prior_evals[:, 2 * ii + 1]
             # normalize the prior to match the plotted histogram
             plt.plot(xs, ys / np.trapz(ys, xs))
