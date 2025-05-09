@@ -6,9 +6,13 @@
 - `SPNTA.has_ecorr` property
 - Maximum-posterior fitting in `VelaFitter`
 - Put the pulsar name as title in the result plot.
+- Default priors for T0, TASC, JUMP, M2, and H3.
+- Comments about the source of default priors.
 ## Changed
 - Normalize the prior plot in `pyvela-plot` to improve visibility
 - Default PX prior now uses the diameter of the Galaxy as the maximum distance.
+- Choose the starting samples in `pyvela` script closer to the default values.
+- Updated documentation for `pyvela` script.
 ## Fixed
 - Mark Julia lines wrongly missed in coverage with COV_EXCL_LINE to make the coverage % more accurate
 - Make `SPNTA.full_prior_dict()` work properly when "known" priors defined by Vela are used.
