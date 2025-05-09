@@ -197,3 +197,4 @@ pyvela/examples/*_out/
 pyvela/examples/__chain.h5
 __*.h5
 *_out
+__*.pdf

@@ -141,7 +141,7 @@ More parameters will be added to this table in the future.
 | T0            | Epoch of periapsis passage                                                  | `Uniform[T0_1 - PB/2, T0_1 + PB/2]`                             | T0_1 is the default value of T0. |
 | TASC          | Epoch of acending node passage                                              | `Uniform[TASC_1 - PB/2, TASC_1 + PB/2]`                         | TASC_1 is the default value of TASC. |
 | TNCHROMAMP    | Chromatic noise log-amplitude                                               | `Uniform[-18, -9]`                                              |                  |
-| TNCHROMGAM    | Chromatic noise log-amplitude                                               | `Uniform[0, 7]`                                                 |                  |
+| TNCHROMGAM    | Chromatic noise spectral index                                              | `Uniform[0, 7]`                                                 |                  |
 | TNDMAMP       | DM noise log-amplitude                                                      | `Uniform[-18, -9]`                                              |                  |
 | TNDMGAM       | DM noise spectral index                                                     | `Uniform[0, 7]`                                                 |                  |
 | TNREDAMP      | Spin noise log-amplitude                                                    | `Uniform[-18, -9]`                                              |                  |
