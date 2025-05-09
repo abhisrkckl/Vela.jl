@@ -4,6 +4,7 @@
 - Script/function to resample existing chain
 - Saving autocorrelation lengths of chains
 - `SPNTA.has_ecorr` property
+- Maximum-posterior fitting in `VelaFitter`
 - Put the pulsar name as title in the result plot.
 - Default priors for T0, TASC, JUMP, M2, and H3.
 - Comments about the source of default priors.
@@ -26,6 +27,7 @@
 - CITATION file
 - In `SPNTA.from_pint()`, compute planetary ephemerides if they are absent in the input `TOAs` object.
 - Support for log-spaced frequencies in Fourier GP components
+- Save MCMC samples in `VelaFitter`
 - Display default values in `$ pyvela --help`
 - Check that `Vela` and `pyvela` have the same version.
 - Can save the plot output from `pyvela-plot`
