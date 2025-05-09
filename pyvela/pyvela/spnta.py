@@ -263,6 +263,10 @@ class SPNTA:
             and vl.isa(self.model.kernel.inner_kernel, vl.EcorrKernel)
         )
 
+    @cached_property
+    def marginalized_param_names(self) -> List[str]:
+        return vl.get_marginalized_param_names(self.model)
+
     def get_marginalized_gp_noise_realization(self, params: np.ndarray) -> np.ndarray:
         """Get a realization of the marginalized GP noise given a set of parameters.
         The length of `params` should be the same as the number of free parameters."""

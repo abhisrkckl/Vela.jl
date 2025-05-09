@@ -134,6 +134,10 @@ def test_data(model_and_toas: Tuple[SPNTA, TimingModel, TOAs]):
 
     assert spnta.has_ecorr_noise == ("EcorrNoise" in spnta.model_pint.components)
 
+    assert (len(spnta.marginalized_param_names) > 0) == vl.isa(
+        spnta.model.kernel, vl.WoodburyKernel
+    )
+
 
 def test_chi2(model_and_toas: Tuple[SPNTA, TimingModel, TOAs]):
     spnta, m, t = model_and_toas
