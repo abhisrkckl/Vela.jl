@@ -433,6 +433,7 @@ class SPNTA:
         spnta.timfile = None
         spnta.custom_prior_file = None
         spnta.cheat_prior_scale = None
+        spnta.starttime = datetime.datetime.now().isoformat()
 
         spnta.pulsar = vl.Pulsar(model, toas)
         spnta.model_pint = get_model(parfile)
@@ -467,6 +468,7 @@ class SPNTA:
         spnta.timfile = toas.filename
         spnta.custom_prior_file = None
         spnta.jlsofile = None
+        spnta.starttime = datetime.datetime.now().isoformat()
 
         spnta.cheat_prior_scale = cheat_prior_scale
 
