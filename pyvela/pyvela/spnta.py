@@ -111,6 +111,7 @@ class SPNTA:
         self.timfile = timfile
         self.jlsofile: Optional[str] = None
         self.custom_prior_file: Optional[str] = None
+        self.starttime = datetime.datetime.now().isoformat()
 
         self.cheat_prior_scale: Optional[float] = cheat_prior_scale
 
@@ -584,7 +585,8 @@ class SPNTA:
             },
             "sampler": sampler_info,
             "env": {
-                "launch_time": datetime.datetime.now().isoformat(),
+                "launch_time": self.starttime,
+                "stop_time": datetime.datetime.now().isoformat(),
                 "user": getpass.getuser(),
                 "host": platform.node(),
                 "os": platform.platform(),
