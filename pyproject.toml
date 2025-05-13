@@ -10,7 +10,7 @@ keywords = ["astronomy", "astrophysics", "pulsar"]
 
 authors = [
     {name = "Abhimanyu Susobhanan", email = "abhisrkckl@gmail.com"},
-    {name = "David Kaplan", email = "kaplan@uwm.edu>"}
+    {name = "David Kaplan"}
 ]
 maintainers = [
     {name = "Abhimanyu Susobhanan", email = "abhisrkckl@gmail.com"}

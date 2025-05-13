@@ -1,6 +1,9 @@
 name = "Vela"
 uuid = "e20ed1ff-b155-4b65-a650-1609b657a8ad"
-authors = ["Abhimanyu Susobhanan <abhimanyu.susobhanan@nanograv.org>", "David Kaplan <kaplan@uwm.edu>"]
+authors = [
+    "Abhimanyu Susobhanan <abhimanyu.susobhanan@nanograv.org>", 
+    "David Kaplan"
+]
 version = "0.0.10"
 
 [deps]
