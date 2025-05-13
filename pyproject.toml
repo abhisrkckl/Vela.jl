@@ -9,7 +9,8 @@ description = "Python interface for Vela.jl, a Bayesian pulsar timing and noise 
 keywords = ["astronomy", "astrophysics", "pulsar"]
 
 authors = [
-    {name = "Abhimanyu Susobhanan", email = "abhisrkckl@gmail.com"}
+    {name = "Abhimanyu Susobhanan", email = "abhisrkckl@gmail.com"},
+    {name = "David Kaplan", email = "kaplan@uwm.edu>"}
 ]
 maintainers = [
     {name = "Abhimanyu Susobhanan", email = "abhisrkckl@gmail.com"}
