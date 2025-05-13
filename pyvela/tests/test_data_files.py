@@ -76,7 +76,7 @@ def test_read_data(dataset):
     parfile, timfile = f"{datadir}/{dataset}.par", f"{datadir}/{dataset}.tim"
     m, t = get_model_and_toas(parfile, timfile, planets=True)
     model, toas = convert_model_and_toas(
-        m, t, m.get_params_of_component_type("NoiseComponent"), False
+        m, t, m.get_params_of_component_type("NoiseComponent"), False, []
     )
     assert len(toas) == len(t)
     assert len(model.components) <= len(m.components)
@@ -284,3 +284,27 @@ def test_rnamp_rngam():
     assert m["TNREDAMP"].quantity is not None and m["TNREDGAM"].quantity is not None
     assert not m["TNREDAMP"].frozen and not m["TNREDGAM"].frozen
     assert m["TNREDC"].value == 30
+
+
+def test_analytic_marginalize_params():
+    par = """
+        RAJ     05:00:00    1
+        DECJ    15:00:00    1
+        PEPOCH  55000
+        F0      100         1
+        F1      -1e-15      1
+        DM      15          1
+        PHOFF   0           1
+    """
+    m = get_model(StringIO(par))
+    t = make_fake_toas_uniform(
+        startMJD=54000,
+        endMJD=55000,
+        ntoas=100,
+        model=m,
+        # add_correlated_noise=True,
+        add_noise=True,
+    )
+    fix_params(m, t)
+
+    spnta = SPNTA.from_pint(m, t)
