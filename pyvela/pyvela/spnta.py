@@ -22,7 +22,6 @@ from pint.toa import TOAs
 
 from .ecorr import ecorr_sort
 from .model import fix_params, pint_model_to_vela
-from .parameters import get_unit_conversion_factor
 from .priors import process_custom_priors
 from .toas import day_to_s, pint_toas_to_vela
 from .vela import jl, vl
@@ -33,6 +32,7 @@ def convert_model_and_toas(
     toas: TOAs,
     noise_params: List[str],
     marginalize_gp_noise: bool,
+    analytic_marginalized_params: List[str],
     cheat_prior_scale: float = 100.0,
     custom_priors: dict = {},
 ):
@@ -43,6 +43,10 @@ def convert_model_and_toas(
 
     if "BinaryBT" in model.components:
         model = convert_binary(model, "DD")
+
+    assert set(analytic_marginalized_params).issubset(
+        model.free_params
+    ), "analytic_marginalized_params must be a subset of the model's free parameters."
 
     if "EcorrNoise" in model.components:
         assert not toas.is_wideband(), "ECORR is not supported for wideband data."
@@ -57,6 +61,7 @@ def convert_model_and_toas(
         custom_priors,
         noise_params,
         marginalize_gp_noise,
+        analytic_marginalized_params,
         ecorr_toa_ranges=ecorr_toa_ranges,
         ecorr_indices=ecorr_indices,
     )
@@ -102,6 +107,7 @@ class SPNTA:
         parfile: str,
         timfile: str,
         marginalize_gp_noise: bool = True,
+        analytic_marginalized_params: List[str] = [],
         cheat_prior_scale: float = 100.0,
         custom_priors: str | IO | dict = {},
         check: bool = True,
@@ -151,6 +157,7 @@ class SPNTA:
             toas_pint,
             noise_params,
             marginalize_gp_noise,
+            analytic_marginalized_params,
             cheat_prior_scale=cheat_prior_scale,
             custom_priors=custom_priors,
         )
@@ -448,6 +455,7 @@ class SPNTA:
         model: TimingModel,
         toas: TOAs,
         marginalize_gp_noise: bool = True,
+        analytic_marginalized_params: List[str] = [],
         cheat_prior_scale: float = 100.0,
         custom_priors: dict | str | IO = {},
     ) -> "SPNTA":
@@ -493,6 +501,7 @@ class SPNTA:
             toas,
             noise_params,
             marginalize_gp_noise,
+            analytic_marginalized_params,
             cheat_prior_scale=cheat_prior_scale,
             custom_priors=custom_priors,
         )

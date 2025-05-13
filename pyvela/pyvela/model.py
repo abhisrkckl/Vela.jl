@@ -434,8 +434,9 @@ def get_kernel(
     toas: TOAs,
     ecorr_toa_ranges: List[Tuple[int, int]],
     ecorr_indices: List[int],
+    analytic_marginalized_params: List[str],
 ):
-    """Construct a `Vela.Kernel` object. It may be a white noise kernel,  an ECORR kernel, or a
+    """Construct a `Vela.Kernel` object. It may be a white noise kernel, an ECORR kernel, or a
     Woodbury kernel."""
     if "EcorrNoise" not in model.components:
         inner_kernel = vl.WhiteNoiseKernel()
@@ -553,6 +554,7 @@ def pint_model_to_vela(
     custom_prior_dists: dict,
     noise_params: List[str],
     marginalize_gp_noise: bool,
+    analytic_marginalized_params: List[str],
     ecorr_toa_ranges: Optional[List[Tuple[int, int]]] = None,
     ecorr_indices: Optional[List[Tuple[int]]] = None,
 ):
@@ -579,7 +581,9 @@ def pint_model_to_vela(
 
     components = pint_components_to_vela(model, toas)
 
-    single_params, multi_params = pint_parameters_to_vela(model, noise_params)
+    single_params, multi_params = pint_parameters_to_vela(
+        model, noise_params, analytic_marginalized_params
+    )
     param_handler = vl.ParamHandler(single_params, multi_params)
 
     free_params = vl.get_free_param_names(param_handler)
@@ -592,7 +596,9 @@ def pint_model_to_vela(
     tzr_toa.compute_pulse_numbers(model)
     tzr_toa = pint_toa_to_vela(tzr_toa, -1, epoch_mjd)
 
-    kernel = get_kernel(model, toas, ecorr_toa_ranges, ecorr_indices)
+    kernel = get_kernel(
+        model, toas, ecorr_toa_ranges, ecorr_indices, analytic_marginalized_params
+    )
 
     return vl.TimingModel(
         pulsar_name,
