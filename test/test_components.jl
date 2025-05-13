@@ -26,4 +26,6 @@
     include("test_white_noise.jl")
 
     include("test_gp_noise.jl")
+
+    include("test_marginalized_timing_model.jl")
 end

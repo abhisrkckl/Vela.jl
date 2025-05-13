@@ -24,3 +24,6 @@ is_gp_noise(::MarginalizedTimingModel) = true # COV_EXCL_LINE
 get_gp_npars(mtm::MarginalizedTimingModel) = length(mtm.prior_weights_inv)
 get_marginalized_param_names(mtm::MarginalizedTimingModel) = mtm.marginalized_param_names
 calc_noise_weights_inv(mtm::MarginalizedTimingModel, ::NamedTuple) = mtm.prior_weights_inv
+
+show(io::IO, mtm::MarginalizedTimingModel) =
+    print(io, "MarginalizedTimingModel($(length(mtm.prior_weights_inv)) parameters)")
