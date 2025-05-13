@@ -44,10 +44,6 @@ def convert_model_and_toas(
     if "BinaryBT" in model.components:
         model = convert_binary(model, "DD")
 
-    assert set(analytic_marginalized_params).issubset(
-        model.free_params
-    ), "analytic_marginalized_params must be a subset of the model's free parameters."
-
     if "EcorrNoise" in model.components:
         assert not toas.is_wideband(), "ECORR is not supported for wideband data."
         toas, ecorr_toa_ranges, ecorr_indices = ecorr_sort(model, toas)
