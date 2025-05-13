@@ -111,6 +111,7 @@ class SPNTA:
         self.timfile = timfile
         self.jlsofile: Optional[str] = None
         self.custom_prior_file: Optional[str] = None
+        self.starttime = datetime.datetime.now().isoformat()
 
         self.cheat_prior_scale: Optional[float] = cheat_prior_scale
 
@@ -432,6 +433,7 @@ class SPNTA:
         spnta.timfile = None
         spnta.custom_prior_file = None
         spnta.cheat_prior_scale = None
+        spnta.starttime = datetime.datetime.now().isoformat()
 
         spnta.pulsar = vl.Pulsar(model, toas)
         spnta.model_pint = get_model(parfile)
@@ -466,6 +468,7 @@ class SPNTA:
         spnta.timfile = toas.filename
         spnta.custom_prior_file = None
         spnta.jlsofile = None
+        spnta.starttime = datetime.datetime.now().isoformat()
 
         spnta.cheat_prior_scale = cheat_prior_scale
 
@@ -584,7 +587,8 @@ class SPNTA:
             },
             "sampler": sampler_info,
             "env": {
-                "launch_time": datetime.datetime.now().isoformat(),
+                "launch_time": self.starttime,
+                "stop_time": datetime.datetime.now().isoformat(),
                 "user": getpass.getuser(),
                 "host": platform.node(),
                 "os": platform.platform(),
