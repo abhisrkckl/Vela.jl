@@ -8,7 +8,7 @@ import pytest
 from pint.models import get_model_and_toas, get_model, TimingModel
 from pint.toa import TOAs
 from pint.simulation import make_fake_toas_uniform
-from pint.fitter import WLSFitter
+from pint.fitter import WLSFitter, WidebandDownhillFitter
 
 from pyvela.model import fix_params, fix_red_noise_components
 from pyvela.parameters import fdjump_rx
@@ -317,3 +317,49 @@ def test_analytic_marginalize_params():
         ftr.model, ftr.toas, analytic_marginalized_params=["F0", "PHOFF", "JUMP"]
     )
     assert set(spnta.param_names) == {"RAJ", "DECJ", "DM", "F1"}
+    assert np.shape(spnta.model.kernel.noise_basis) == (len(t), 4)
+    assert set(spnta.marginalized_param_names) == {"F0", "PHOFF", "JUMP1", "JUMP2"}
+
+
+def test_analytic_marginalize_params_wb():
+    par = """
+        RAJ     05:00:00    1
+        DECJ    15:00:00    1
+        PEPOCH  55000
+        F0      100         1
+        F1      -1e-15      1
+        DM      15          1
+        PHOFF   0           1
+        JUMP mjd 53999 54100 0.1 1
+        JUMP mjd 54100.1 54500 0.15 1
+        DMJUMP mjd 53999 54500 0.001 1
+    """
+    m = get_model(StringIO(par))
+    t = make_fake_toas_uniform(
+        startMJD=54000,
+        endMJD=55000,
+        ntoas=100,
+        model=m,
+        # add_correlated_noise=True,
+        add_noise=True,
+        wideband=True,
+    )
+    fix_params(m, t)
+
+    ftr = WidebandDownhillFitter(t, m)
+    ftr.fit_toas(maxiter=3)
+
+    spnta = SPNTA.from_pint(
+        ftr.model,
+        ftr.toas,
+        analytic_marginalized_params=["F0", "PHOFF", "JUMP", "DMJUMP"],
+    )
+    assert set(spnta.param_names) == {"RAJ", "DECJ", "DM", "F1"}
+    assert np.shape(spnta.model.kernel.noise_basis) == (len(t) * 2, 5)
+    assert set(spnta.marginalized_param_names) == {
+        "F0",
+        "PHOFF",
+        "JUMP1",
+        "JUMP2",
+        "DMJUMP1",
+    }
