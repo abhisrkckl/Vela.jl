@@ -47,6 +47,13 @@ def parse_args(argv):
         help="Don't analytically marginalize the correlated Gaussian noise amplitudes.",
     )
     parser.add_argument(
+        "-A",
+        "--analytic_marg",
+        nargs="+",
+        default=[],
+        help="Parameters to analytically marginalze (only some parameters are allowed).",
+    )
+    parser.add_argument(
         "-T",
         "--truth",
         help="Pulsar ephemeris file containing the true timing and noise parameter values. "
@@ -209,6 +216,7 @@ def main(argv=None):
             cheat_prior_scale=args.cheat_prior_scale,
             custom_priors=(args.prior_file if args.prior_file is not None else {}),
             marginalize_gp_noise=(not args.no_marg_gp_noise),
+            analytic_marginalized_params=args.analytic_marg,
         )
         if args.jlso_file is None
         else SPNTA.load_jlso(args.jlso_file, args.par_file)

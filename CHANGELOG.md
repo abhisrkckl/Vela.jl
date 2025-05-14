@@ -9,6 +9,9 @@
 - Comments about the source of default priors.
 - `SPNTA.marginalized_param_names()` method and `get_marginalized_param_names()` function
 - Summary file has start and stop times
+- Analytic marginalization of (approximately) linear timing parameters
+- `SPNTA.save_results()` now saves analytic marginalized parameter names
+- `--analytic_marg` option in `pyvela` script
 ## Changed
 - Normalize the prior plot in `pyvela-plot` to improve visibility
 - Default PX prior now uses the diameter of the Galaxy as the maximum distance.
@@ -19,6 +22,7 @@
 - Make `SPNTA.full_prior_dict()` work properly when "known" priors defined by Vela are used.
 - Write the correct value of TASC and T0 to the output par file in `SPNTA.save_new_parfile()`.
 - Correct parameter scaling for prior plots
+- Don't fail plotting if `get_psrname()` fails
 ## Removed
 
 # 0.0.10

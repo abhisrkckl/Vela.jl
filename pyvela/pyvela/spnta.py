@@ -22,7 +22,6 @@ from pint.toa import TOAs
 
 from .ecorr import ecorr_sort
 from .model import fix_params, pint_model_to_vela
-from .parameters import get_unit_conversion_factor
 from .priors import process_custom_priors
 from .toas import day_to_s, pint_toas_to_vela
 from .vela import jl, vl
@@ -33,6 +32,7 @@ def convert_model_and_toas(
     toas: TOAs,
     noise_params: List[str],
     marginalize_gp_noise: bool,
+    analytic_marginalized_params: List[str],
     cheat_prior_scale: float = 100.0,
     custom_priors: dict = {},
 ):
@@ -57,6 +57,7 @@ def convert_model_and_toas(
         custom_priors,
         noise_params,
         marginalize_gp_noise,
+        analytic_marginalized_params,
         ecorr_toa_ranges=ecorr_toa_ranges,
         ecorr_indices=ecorr_indices,
     )
@@ -102,6 +103,7 @@ class SPNTA:
         parfile: str,
         timfile: str,
         marginalize_gp_noise: bool = True,
+        analytic_marginalized_params: List[str] = [],
         cheat_prior_scale: float = 100.0,
         custom_priors: str | IO | dict = {},
         check: bool = True,
@@ -151,6 +153,7 @@ class SPNTA:
             toas_pint,
             noise_params,
             marginalize_gp_noise,
+            analytic_marginalized_params,
             cheat_prior_scale=cheat_prior_scale,
             custom_priors=custom_priors,
         )
@@ -448,6 +451,7 @@ class SPNTA:
         model: TimingModel,
         toas: TOAs,
         marginalize_gp_noise: bool = True,
+        analytic_marginalized_params: List[str] = [],
         cheat_prior_scale: float = 100.0,
         custom_priors: dict | str | IO = {},
     ) -> "SPNTA":
@@ -493,6 +497,7 @@ class SPNTA:
             toas,
             noise_params,
             marginalize_gp_noise,
+            analytic_marginalized_params,
             cheat_prior_scale=cheat_prior_scale,
             custom_priors=custom_priors,
         )
@@ -733,6 +738,11 @@ class SPNTA:
         np.savetxt(f"{outdir}/param_units.txt", self.param_units, fmt="%s")
         np.savetxt(f"{outdir}/param_scale_factors.txt", self.scale_factors)
         np.savetxt(f"{outdir}/param_autocorr.txt", param_autocorr)
+        np.savetxt(
+            f"{outdir}/marginalized_param_names.txt",
+            self.marginalized_param_names,
+            fmt="%s",
+        )
 
         if truth_par_file is not None:
             np.savetxt(

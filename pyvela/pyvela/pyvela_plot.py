@@ -62,12 +62,15 @@ def read_true_values(result_dir):
 
 
 def get_psrname(result_dir: str) -> Optional[str]:
-    with open(f"{result_dir}/summary.json") as summary_file:
-        summary = json.load(summary_file)
+    try:
+        with open(f"{result_dir}/summary.json") as summary_file:
+            summary = json.load(summary_file)
 
-    parfile = summary["input"]["par_file"]
-    model = get_model(f"{result_dir}/{parfile}")
-    return model["PSR"].value
+        parfile = summary["input"]["par_file"]
+        model = get_model(f"{result_dir}/{parfile}")
+        return model["PSR"].value
+    except:
+        return ""
 
 
 def plot(
