@@ -333,7 +333,7 @@ def validate_analytic_marginalized_params(
     Only phase parameters with approximately constant design matrix entries can
     be analytically marginalized."""
     allowed_names = ["PHOFF"]
-    allowed_prefixes = ["F", "JUMP", "DMJUMP"]
+    allowed_prefixes = ["F", "JUMP", "DMJUMP", "DMX_"]
     for pname in analytic_marginalized_params:
         assert (
             pname in allowed_names
