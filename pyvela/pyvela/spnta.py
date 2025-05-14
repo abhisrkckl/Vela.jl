@@ -738,6 +738,9 @@ class SPNTA:
         np.savetxt(f"{outdir}/param_units.txt", self.param_units, fmt="%s")
         np.savetxt(f"{outdir}/param_scale_factors.txt", self.scale_factors)
         np.savetxt(f"{outdir}/param_autocorr.txt", param_autocorr)
+        np.savetxt(
+            f"{outdir}/marginalized_param_names.txt", self.marginalized_param_names
+        )
 
         if truth_par_file is not None:
             np.savetxt(
