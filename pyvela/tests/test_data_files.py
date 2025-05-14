@@ -8,7 +8,7 @@ import pytest
 from pint.models import get_model_and_toas, get_model, TimingModel
 from pint.toa import TOAs
 from pint.simulation import make_fake_toas_uniform
-from pint.fitter import WLSFitter, WidebandDownhillFitter
+from pint.fitter import WLSFitter, GLSFitter, WidebandDownhillFitter
 
 from pyvela.model import fix_params, fix_red_noise_components
 from pyvela.parameters import fdjump_rx
@@ -285,6 +285,46 @@ def test_rnamp_rngam():
     assert m["TNREDAMP"].quantity is not None and m["TNREDGAM"].quantity is not None
     assert not m["TNREDAMP"].frozen and not m["TNREDGAM"].frozen
     assert m["TNREDC"].value == 30
+
+
+def test_wideband_dmgp():
+    par = """
+        RAJ     05:00:00    1
+        DECJ    15:00:00    1
+        PEPOCH  55000
+        F0      100         1
+        F1      -1e-15      1
+        PHOFF   0           1
+        DM      15          1
+        TNDMAMP -15
+        TNDMGAM 3
+        TNDMC   8
+    """
+    m = get_model(StringIO(par))
+    t = make_fake_toas_uniform(
+        startMJD=54000,
+        endMJD=55000,
+        ntoas=100,
+        model=m,
+        add_correlated_noise=True,
+        add_noise=True,
+        wideband=True,
+    )
+
+    ftr = GLSFitter(t, m)
+    ftr.fit_toas(maxiter=3)
+
+    ftr.model["TNDMAMP"].frozen = False
+    ftr.model["TNDMGAM"].frozen = False
+
+    spnta = SPNTA.from_pint(
+        ftr.model, ftr.toas, analytic_marginalized_params=["F", "PHOFF"]
+    )
+    assert set(spnta.param_names) == {"RAJ", "DECJ", "DM", "TNDMAMP", "TNDMGAM"}
+    assert np.shape(spnta.model.kernel.noise_basis) == (len(t) * 2, 19)
+    assert set(spnta.marginalized_param_names).issuperset({"F0", "F1", "PHOFF"})
+    assert len(spnta.marginalized_param_names) == 19
+    assert np.isfinite(spnta.lnpost(spnta.default_params))
 
 
 def test_analytic_marginalize_params():
