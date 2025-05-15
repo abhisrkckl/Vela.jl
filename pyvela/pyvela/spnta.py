@@ -117,6 +117,8 @@ class SPNTA:
 
         self.cheat_prior_scale: Optional[float] = cheat_prior_scale
 
+        self.analytic_marginalized_params = analytic_marginalized_params
+
         setup_log(level="WARNING")
         model_pint, toas_pint = get_model_and_toas(
             parfile,
@@ -475,6 +477,7 @@ class SPNTA:
         spnta.starttime = datetime.datetime.now().isoformat()
 
         spnta.cheat_prior_scale = cheat_prior_scale
+        spnta.analytic_marginalized_params = analytic_marginalized_params
 
         # custom_priors_dict is in the "raw" format. The numbers may be
         # in "normal" units and have to be converted into internal units.
@@ -584,6 +587,7 @@ class SPNTA:
                     else None
                 ),
                 "cheat_prior_scale": self.cheat_prior_scale,
+                "analytic_marginalized_params": self.analytic_marginalized_params,
                 "truth_par_file": (
                     os.path.basename(truth_par_file)
                     if truth_par_file is not None

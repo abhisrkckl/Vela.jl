@@ -197,6 +197,7 @@ def main(argv=None):
         args.par_file = f'{args.outdir}/{summary_info["input"]["par_file"]}'
         args.tim_file = f'{args.outdir}/{summary_info["input"]["tim_file"]}'
         args.cheat_prior_scale = summary_info["input"]["cheat_prior_scale"]
+        args.analytic_marg = summary_info["input"]["analytic_marginalized_params"]
         args.prior_fie = (
             f'{args.outdir}/{summary_info["input"]["custom_prior_file"]}'
             if summary_info["input"]["custom_prior_file"] is not None
