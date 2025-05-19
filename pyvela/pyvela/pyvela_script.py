@@ -123,13 +123,14 @@ def validate_input(args):
     assert os.path.isfile(
         args.par_file
     ), f"Invalid par file {args.par_file}. Make sure that the path is correct."
+
     assert (
         args.tim_file is not None or args.jlso_file is not None
     ), "Either a tim file or a JLSO file must be provided."
+
     assert (
         args.tim_file is None or args.jlso_file is None
-    ), "Both a tim file and a JLSO file can't be provided together."
-
+    ), "Both a tim file and a JLSO file can't be provided together."  # Change this
     if args.jlso_file is None:
         assert args.tim_file is not None and os.path.isfile(
             args.tim_file
@@ -142,48 +143,55 @@ def validate_input(args):
     assert args.prior_file is None or os.path.isfile(
         args.prior_file
     ), f"Prior file {args.prior_file} not found. Make sure the path is correct."
+
     assert args.truth is None or os.path.isfile(
         args.truth
-    ), f"Truth par file {args.truth} not found.  Make sure the path is correct."
+    ), f"Truth par file {args.truth} not found. Make sure the path is correct."
 
-    if args.resume:
-        args.force_rewrite = True
-    assert args.force_rewrite or not os.path.isdir(
-        args.outdir
+    assert not (
+        not args.resume and not args.force_rewrite and os.path.isdir(args.outdir)
     ), f"The output directory {args.outdir} already exists! Use `-f` option to force overwrite."
+
+    assert not (
+        args.resume and args.force_rewrite
+    ), "--resume and --force_rewrite cannot be used together."
+
+    assert not (
+        args.resume and not os.path.isdir(args.outdir)
+    ), f"{args.outdir} doesn't exist. Cannot resume!"
 
     assert (
         args.initial_sample_spread > 0 and args.initial_sample_spread <= 1
     ), "initial_sample_spread must be > 0 and <= 1."
 
 
-def prepare_outdir(args):
-    if args.force_rewrite and os.path.isdir(args.outdir) and not args.resume:
-        shutil.rmtree(args.outdir)
+# def prepare_outdir(args):
+#     if args.force_rewrite and os.path.isdir(args.outdir) and not args.resume:
+#         shutil.rmtree(args.outdir)
 
-    if not args.resume and not os.path.isdir(args.outdir):
-        os.mkdir(args.outdir)
+#     if not args.resume and not os.path.isdir(args.outdir):
+#         os.mkdir(args.outdir)
 
-    if not os.path.exists(f"{args.outdir}/{os.path.basename(args.par_file)}"):
-        shutil.copy(args.par_file, args.outdir)
+#     if not os.path.exists(f"{args.outdir}/{os.path.basename(args.par_file)}"):
+#         shutil.copy(args.par_file, args.outdir)
 
-    if not args.resume:
-        if args.jlso_file is None:
-            if not os.path.exists(f"{args.outdir}/{os.path.basename(args.tim_file)}"):
-                shutil.copy(args.tim_file, args.outdir)
-        else:
-            if not os.path.exists(f"{args.outdir}/{os.path.basename(args.jlso_file)}"):
-                shutil.copy(args.jlso_file, args.outdir)
+#     if not args.resume:
+#         if args.jlso_file is None:
+#             if not os.path.exists(f"{args.outdir}/{os.path.basename(args.tim_file)}"):
+#                 shutil.copy(args.tim_file, args.outdir)
+#         else:
+#             if not os.path.exists(f"{args.outdir}/{os.path.basename(args.jlso_file)}"):
+#                 shutil.copy(args.jlso_file, args.outdir)
 
-        if args.prior_file is not None and not os.path.exists(
-            f"{args.outdir}/{os.path.basename(args.prior_file)}"
-        ):
-            shutil.copy(args.prior_file, args.outdir)
+#         if args.prior_file is not None and not os.path.exists(
+#             f"{args.outdir}/{os.path.basename(args.prior_file)}"
+#         ):
+#             shutil.copy(args.prior_file, args.outdir)
 
-        if args.truth is not None and not os.path.exists(
-            f"{args.outdir}/{os.path.basename(args.truth)}"
-        ):
-            shutil.copy(args.truth, args.outdir)
+#         if args.truth is not None and not os.path.exists(
+#             f"{args.outdir}/{os.path.basename(args.truth)}"
+#         ):
+#             shutil.copy(args.truth, args.outdir)
 
 
 def main(argv=None):
@@ -207,7 +215,7 @@ def main(argv=None):
             if summary_info["input"]["jlso_file"] is not None
             else None
         )
-    prepare_outdir(args)
+    # prepare_outdir(args)
 
     spnta = (
         SPNTA(
@@ -221,6 +229,9 @@ def main(argv=None):
         if args.jlso_file is None
         else SPNTA.load_jlso(args.jlso_file, args.par_file)
     )
+
+    if not args.resume or args.force_rewrite:
+        spnta.prepare_outdir(args.outdir, args.truth)
 
     nwalkers = spnta.ndim * 5
 
