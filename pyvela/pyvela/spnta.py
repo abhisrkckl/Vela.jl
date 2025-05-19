@@ -5,6 +5,7 @@ import json
 from copy import deepcopy
 import os
 import platform
+import shutil
 import sys
 from typing import IO, Dict, Iterable, List, Optional
 import warnings
@@ -134,12 +135,13 @@ class SPNTA:
         # custom_priors_dict is in the "raw" format. The numbers may be
         # in "normal" units and have to be converted into internal units.
         if isinstance(custom_priors, dict):
-            self.custom_priors_dict = custom_priors
+            self.custom_priors_dict: dict = custom_priors
         elif isinstance(custom_priors, str):
             self.custom_prior_file = custom_priors
             with open(custom_priors) as custom_priors_file:
                 self.custom_priors_dict = json.load(custom_priors_file)
         else:
+            # Assumes `custom_priors` is an IO object.
             self.custom_priors_dict = json.load(custom_priors)
 
         custom_priors = process_custom_priors(self.custom_priors_dict, model_pint)
@@ -426,14 +428,14 @@ class SPNTA:
         return dms * dmu_conversion_factor
 
     @classmethod
-    def load_jlso(cls, jlsoname: str, parfile: str) -> "SPNTA":
+    def load_jlso(cls, jlsoname: str, parfile: str, timfile: str = None) -> "SPNTA":
         """Construct an `SPNTA` object from a JLSO file"""
         spnta = cls.__new__(cls)
         model, toas = vl.load_pulsar_data(jlsoname)
 
         spnta.jlsofile = jlsoname
         spnta.parfile = parfile
-        spnta.timfile = None
+        spnta.timfile = timfile
         spnta.custom_prior_file = None
         spnta.cheat_prior_scale = None
         spnta.starttime = datetime.datetime.now().isoformat()
@@ -668,12 +670,41 @@ class SPNTA:
 
         np.savetxt(filename, res_arr)
 
+    def prepare_outdir(self, outdir: str, truth_parfile: Optional[str] = None):
+        if os.path.isdir(outdir):
+            shutil.rmtree(outdir)
+            os.mkdir(outdir)
+
+        shutil.copy(self.parfile, outdir)
+
+        if self.timfile is not None:
+            shutil.copy(self.timfile, outdir)
+
+        if self.jlsofile is None:
+            jlsofile = f"{outdir}/{self.model.pulsar_name}.jlso"
+            self.save_jlso(jlsofile)
+            self.jlsofile = jlsofile
+        else:
+            shutil.copy(self.jlsofile, outdir)
+
+        if len(self.custom_priors_dict) > 0:
+            if self.custom_prior_file is not None:
+                shutil.copy(self.custom_prior_file, outdir)
+            else:
+                prior_file = f"{outdir}/{self.model.pulsar_name}_priors.json"
+                with open(prior_file, "w") as pf:
+                    json.dump(pf, self.custom_priors_dict, indent=4)
+
+        if truth_parfile is not None:
+            shutil.copy(truth_parfile, outdir)
+
     def save_results(
         self,
         outdir: str,
         samples_raw: np.ndarray,
         sampler_info: dict = {},
         truth_par_file: Optional[str] = None,
+        rewrite: bool = False,
     ) -> None:
         """Given the posterior samples, save the results into an output directory.
         `pyvela` script uses this function to save the results.
@@ -710,6 +741,9 @@ class SPNTA:
             15. `prior_evals.npy` - Prior distributions evaluated in the posterior range for plotting (numpy format)
             16. `summary.json` - Information about the machine, environment, sampler, and input (JSON format)
         """
+        if rewrite or not os.path.isdir(outdir):
+            self.prepare_outdir(outdir, truth_par_file)
+
         samples = self.rescale_samples(samples_raw)
 
         with open(f"{outdir}/samples_raw.npy", "wb") as f:
