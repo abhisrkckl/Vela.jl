@@ -675,7 +675,8 @@ class SPNTA:
         exists it will be overwritten."""
         if os.path.isdir(outdir):
             shutil.rmtree(outdir)
-            os.mkdir(outdir)
+
+        os.mkdir(outdir)
 
         shutil.copy(self.parfile, outdir)
 
