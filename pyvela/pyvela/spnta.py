@@ -670,7 +670,9 @@ class SPNTA:
 
         np.savetxt(filename, res_arr)
 
-    def prepare_outdir(self, outdir: str, truth_parfile: Optional[str] = None):
+    def _prepare_outdir(self, outdir: str, truth_parfile: Optional[str] = None):
+        """Prepare the directory for storing `pyvela` output. If the directory already
+        exists it will be overwritten."""
         if os.path.isdir(outdir):
             shutil.rmtree(outdir)
             os.mkdir(outdir)
@@ -694,6 +696,7 @@ class SPNTA:
                 prior_file = f"{outdir}/{self.model.pulsar_name}_priors.json"
                 with open(prior_file, "w") as pf:
                     json.dump(pf, self.custom_priors_dict, indent=4)
+                self.custom_prior_file = prior_file
 
         if truth_parfile is not None:
             shutil.copy(truth_parfile, outdir)
@@ -704,7 +707,7 @@ class SPNTA:
         samples_raw: np.ndarray,
         sampler_info: dict = {},
         truth_par_file: Optional[str] = None,
-        rewrite: bool = False,
+        delete_outdir_if_exists: bool = False,
     ) -> None:
         """Given the posterior samples, save the results into an output directory.
         `pyvela` script uses this function to save the results.
@@ -741,8 +744,8 @@ class SPNTA:
             15. `prior_evals.npy` - Prior distributions evaluated in the posterior range for plotting (numpy format)
             16. `summary.json` - Information about the machine, environment, sampler, and input (JSON format)
         """
-        if rewrite or not os.path.isdir(outdir):
-            self.prepare_outdir(outdir, truth_par_file)
+        if delete_outdir_if_exists or not os.path.isdir(outdir):
+            self._prepare_outdir(outdir, truth_par_file)
 
         samples = self.rescale_samples(samples_raw)
 
