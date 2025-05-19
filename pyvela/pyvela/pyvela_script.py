@@ -230,8 +230,10 @@ def main(argv=None):
         else SPNTA.load_jlso(args.jlso_file, args.par_file)
     )
 
-    if not args.resume or args.force_rewrite:
-        spnta.prepare_outdir(args.outdir, args.truth)
+    if not args.resume:
+        # The validation takes care of error messages.
+        # Getting this far means that it's safe to do this.
+        spnta._prepare_outdir(args.outdir, args.truth)
 
     nwalkers = spnta.ndim * 5
 
