@@ -17,6 +17,8 @@
 - Default PX prior now uses the diameter of the Galaxy as the maximum distance.
 - Choose the starting samples in `pyvela` script closer to the default values.
 - Updated documentation for `pyvela` script.
+- `SPNTA.load_jlso` also takes a tim file as argument (only for reference)
+- tim file is now a mandatory input for `pyvela` script.
 ## Fixed
 - Mark Julia lines wrongly missed in coverage with COV_EXCL_LINE to make the coverage % more accurate
 - Make `SPNTA.full_prior_dict()` work properly when "known" priors defined by Vela are used.

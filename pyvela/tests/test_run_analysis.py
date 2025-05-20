@@ -129,5 +129,5 @@ def test_jlso_script(dataset):
     assert os.path.isfile(jlsofile)
 
     outdir = f"_{dataset}_jlso_out"
-    args = f"{parfile} -J {jlsofile} -T {parfile} -o {outdir} -f".split()
+    args = f"{parfile} {timfile} -J {jlsofile} -T {parfile} -o {outdir} -f".split()
     pyvela_script.main(args)
