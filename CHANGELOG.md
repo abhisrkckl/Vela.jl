@@ -8,14 +8,29 @@
 - Put the pulsar name as title in the result plot.
 - Default priors for T0, TASC, JUMP, M2, and H3.
 - Comments about the source of default priors.
+- `SPNTA.marginalized_param_names()` method and `get_marginalized_param_names()` function
+- Summary file has start and stop times
+- Analytic marginalization of (approximately) linear timing parameters
+- `SPNTA.save_results()` now saves analytic marginalized parameter names
+- `--analytic_marg` option in `pyvela` script
+- `--analytic_marg all` option in `pyvela` script
+- Add FD and FDJUMP to analytically marginalizable parameters
 ## Changed
 - Normalize the prior plot in `pyvela-plot` to improve visibility
 - Default PX prior now uses the diameter of the Galaxy as the maximum distance.
 - Choose the starting samples in `pyvela` script closer to the default values.
 - Updated documentation for `pyvela` script.
+- `SPNTA.load_jlso` also takes a tim file as argument (only for reference)
+- tim file is now a mandatory input for `pyvela` script.
+- `pyvela` script now writes out a JLSO file into the output directory.
+- Read data from `JLSO` file while resuming `pyvela` script (also fixes parameter order).
+- Read data from `JLSO` file in `pyvela-rethin` script (also fixes handling of analytic marginalized parameters).
 ## Fixed
 - Mark Julia lines wrongly missed in coverage with COV_EXCL_LINE to make the coverage % more accurate
 - Make `SPNTA.full_prior_dict()` work properly when "known" priors defined by Vela are used.
+- Write the correct value of TASC and T0 to the output par file in `SPNTA.save_new_parfile()`.
+- Correct parameter scaling for prior plots
+- Don't fail plotting if `get_psrname()` fails
 ## Removed
 
 # 0.0.10

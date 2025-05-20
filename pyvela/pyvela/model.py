@@ -5,10 +5,11 @@ import astropy.units as u
 from pint.models import PhaseOffset, TimingModel
 from pint.models.parameter import MJDParameter, maskParameter, floatParameter
 from pint.toa import TOAs
+from pint import DMconst
 
 from .dmx import get_dmx_mask
 from .gp_noise import PLChromNoiseGP, PLDMNoiseGP, PLRedNoiseGP
-from .parameters import pint_parameters_to_vela
+from .parameters import pint_parameters_to_vela, get_unit_conversion_factor
 from .priors import get_default_priors
 from .toas import day_to_s, pint_toa_to_vela
 from .vela import jl, vl
@@ -434,8 +435,9 @@ def get_kernel(
     toas: TOAs,
     ecorr_toa_ranges: List[Tuple[int, int]],
     ecorr_indices: List[int],
+    analytic_marginalized_params: List[str],
 ):
-    """Construct a `Vela.Kernel` object. It may be a white noise kernel,  an ECORR kernel, or a
+    """Construct a `Vela.Kernel` object. It may be a white noise kernel, an ECORR kernel, or a
     Woodbury kernel."""
     if "EcorrNoise" not in model.components:
         inner_kernel = vl.WhiteNoiseKernel()
@@ -457,13 +459,29 @@ def get_kernel(
         )
         inner_kernel = vl.EcorrKernel(ecorr_groups)
 
-    if not model.has_time_correlated_errors:
+    marg_pnames = [
+        pname
+        for pname in model.free_params
+        if pname in analytic_marginalized_params
+        or (
+            hasattr(model[pname], "prefix")
+            and model[pname].prefix in analytic_marginalized_params
+        )
+    ]
+    if not model.has_time_correlated_errors and len(marg_pnames) == 0:
         return inner_kernel
     else:
-        return construct_woodbury_kernel(model, toas, inner_kernel)
+        return construct_woodbury_kernel(
+            model, toas, inner_kernel, analytic_marginalized_params
+        )
 
 
-def construct_woodbury_kernel(model: TimingModel, toas: TOAs, inner_kernel):
+def construct_woodbury_kernel(
+    model: TimingModel,
+    toas: TOAs,
+    inner_kernel,
+    analytic_marginalized_params: List[str],
+):
     """Construct a `Vela.WoodburyKernel` object from GP noise components."""
     gp_components = []
     gp_basis_matrices = []
@@ -517,6 +535,54 @@ def construct_woodbury_kernel(model: TimingModel, toas: TOAs, inner_kernel):
             gp_basis_matrices.append(basis[:, ::2])
             gp_basis_matrices.append(basis[:, 1::2])
 
+    if len(analytic_marginalized_params) > 0:
+        delay = model.delay(toas)
+
+        anl_marg_param_names = []
+        for pname in model.free_params:
+            if pname in analytic_marginalized_params or (
+                hasattr(model[pname], "prefix")
+                and model[pname].prefix in analytic_marginalized_params
+            ):
+                anl_marg_param_names.append(pname)
+                scale_factor = get_unit_conversion_factor(
+                    model[pname]
+                ) * get_unit_conversion_factor(model["F0"])
+                toa_design_matrix = (
+                    np.array(
+                        [
+                            (
+                                -model.d_phase_d_param(toas, delay, pname)
+                                / model["F0"].quantity
+                            )
+                            .to(u.s / model[pname].units)
+                            .value
+                        ]
+                    ).astype(float)
+                    / scale_factor
+                )
+
+                if not toas.wideband:
+                    design_matrix = toa_design_matrix.T
+                else:
+                    dm_design_matrix = (
+                        np.array(
+                            [
+                                (DMconst * model.d_dm_d_param(toas, pname))
+                                .to(u.Hz / model[pname].units)
+                                .value
+                            ]
+                        ).astype(float)
+                        / scale_factor
+                    )
+                    design_matrix = np.vstack((toa_design_matrix.T, dm_design_matrix.T))
+
+                gp_basis_matrices.append(design_matrix)
+
+        weights = np.ones(len(anl_marg_param_names)) * 1e40
+
+        gp_components.append(vl.MarginalizedTimingModel(weights, anl_marg_param_names))
+
     gp_basis = np.hstack(gp_basis_matrices).astype(float)
 
     return vl.WoodburyKernel(
@@ -553,6 +619,7 @@ def pint_model_to_vela(
     custom_prior_dists: dict,
     noise_params: List[str],
     marginalize_gp_noise: bool,
+    analytic_marginalized_params: List[str],
     ecorr_toa_ranges: Optional[List[Tuple[int, int]]] = None,
     ecorr_indices: Optional[List[Tuple[int]]] = None,
 ):
@@ -579,7 +646,9 @@ def pint_model_to_vela(
 
     components = pint_components_to_vela(model, toas)
 
-    single_params, multi_params = pint_parameters_to_vela(model, noise_params)
+    single_params, multi_params = pint_parameters_to_vela(
+        model, noise_params, analytic_marginalized_params
+    )
     param_handler = vl.ParamHandler(single_params, multi_params)
 
     free_params = vl.get_free_param_names(param_handler)
@@ -592,7 +661,9 @@ def pint_model_to_vela(
     tzr_toa.compute_pulse_numbers(model)
     tzr_toa = pint_toa_to_vela(tzr_toa, -1, epoch_mjd)
 
-    kernel = get_kernel(model, toas, ecorr_toa_ranges, ecorr_indices)
+    kernel = get_kernel(
+        model, toas, ecorr_toa_ranges, ecorr_indices, analytic_marginalized_params
+    )
 
     return vl.TimingModel(
         pulsar_name,

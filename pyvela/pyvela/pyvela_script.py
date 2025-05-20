@@ -7,6 +7,10 @@ import emcee
 import numpy as np
 
 from pyvela import SPNTA
+from pyvela.parameters import (
+    analytic_marginalizable_names,
+    analytic_marginalizable_prefixes,
+)
 
 
 def parse_args(argv):
@@ -26,8 +30,6 @@ def parse_args(argv):
     parser.add_argument(
         "tim_file",
         help="The pulsar TOA file. Should be readable using PINT. Either this or a JLSO file (-J) should be provided.",
-        default=None,
-        nargs="?",
     )
     parser.add_argument(
         "-J",
@@ -45,6 +47,13 @@ def parse_args(argv):
         "--no_marg_gp_noise",
         action="store_true",
         help="Don't analytically marginalize the correlated Gaussian noise amplitudes.",
+    )
+    parser.add_argument(
+        "-A",
+        "--analytic_marg",
+        nargs="+",
+        default=[],
+        help="Parameters to analytically marginalze (only some parameters are allowed).",
     )
     parser.add_argument(
         "-T",
@@ -116,18 +125,11 @@ def validate_input(args):
     assert os.path.isfile(
         args.par_file
     ), f"Invalid par file {args.par_file}. Make sure that the path is correct."
-    assert (
-        args.tim_file is not None or args.jlso_file is not None
-    ), "Either a tim file or a JLSO file must be provided."
-    assert (
-        args.tim_file is None or args.jlso_file is None
-    ), "Both a tim file and a JLSO file can't be provided together."
+    assert os.path.isfile(
+        args.tim_file
+    ), f"Invalid tim file {args.tim_file}. Make sure that the path is correct."
 
-    if args.jlso_file is None:
-        assert args.tim_file is not None and os.path.isfile(
-            args.tim_file
-        ), f"Invalid tim file {args.tim_file}. Make sure that the path is correct."
-    else:
+    if args.jlso_file is not None:
         assert os.path.isfile(
             args.jlso_file
         ), f"Invalid JLSO file {args.jlso_file}. Make sure that the path is correct."
@@ -160,28 +162,28 @@ def prepare_outdir(args):
     if not os.path.exists(f"{args.outdir}/{os.path.basename(args.par_file)}"):
         shutil.copy(args.par_file, args.outdir)
 
-    if not args.resume:
-        if args.jlso_file is None:
-            if not os.path.exists(f"{args.outdir}/{os.path.basename(args.tim_file)}"):
-                shutil.copy(args.tim_file, args.outdir)
-        else:
-            if not os.path.exists(f"{args.outdir}/{os.path.basename(args.jlso_file)}"):
-                shutil.copy(args.jlso_file, args.outdir)
+    if not os.path.exists(f"{args.outdir}/{os.path.basename(args.tim_file)}"):
+        shutil.copy(args.tim_file, args.outdir)
 
-        if args.prior_file is not None and not os.path.exists(
-            f"{args.outdir}/{os.path.basename(args.prior_file)}"
-        ):
-            shutil.copy(args.prior_file, args.outdir)
+    if args.jlso_file is not None and not os.path.exists(
+        f"{args.outdir}/{os.path.basename(args.jlso_file)}"
+    ):
+        shutil.copy(args.jlso_file, args.outdir)
 
-        if args.truth is not None and not os.path.exists(
-            f"{args.outdir}/{os.path.basename(args.truth)}"
-        ):
-            shutil.copy(args.truth, args.outdir)
+    if args.prior_file is not None and not os.path.exists(
+        f"{args.outdir}/{os.path.basename(args.prior_file)}"
+    ):
+        shutil.copy(args.prior_file, args.outdir)
+
+    if args.truth is not None and not os.path.exists(
+        f"{args.outdir}/{os.path.basename(args.truth)}"
+    ):
+        shutil.copy(args.truth, args.outdir)
 
 
 def main(argv=None):
     args = parse_args(argv)
-    validate_input(args)
+
     if args.resume:
         # copy info from the prior run into the current arguments
         # to make sure they agree
@@ -190,16 +192,24 @@ def main(argv=None):
         args.par_file = f'{args.outdir}/{summary_info["input"]["par_file"]}'
         args.tim_file = f'{args.outdir}/{summary_info["input"]["tim_file"]}'
         args.cheat_prior_scale = summary_info["input"]["cheat_prior_scale"]
+        args.analytic_marg = summary_info["input"]["analytic_marginalized_params"]
         args.prior_fie = (
             f'{args.outdir}/{summary_info["input"]["custom_prior_file"]}'
             if summary_info["input"]["custom_prior_file"] is not None
             else None
         )
-        args.jlso_file = (
-            f'{args.outdir}/{summary_info["input"]["jlso_file"]}'
-            if summary_info["input"]["jlso_file"] is not None
-            else None
+        args.jlso_file = f'{args.outdir}/{summary_info["input"]["jlso_file"]}'
+
+    if "all" in args.analytic_marg:
+        assert (
+            len(args.analytic_marg) == 1
+        ), "Other parameters cannot be specified when `-A all` is given."
+        args.analytic_marg = (
+            analytic_marginalizable_names + analytic_marginalizable_prefixes
         )
+
+    validate_input(args)
+
     prepare_outdir(args)
 
     spnta = (
@@ -209,10 +219,23 @@ def main(argv=None):
             cheat_prior_scale=args.cheat_prior_scale,
             custom_priors=(args.prior_file if args.prior_file is not None else {}),
             marginalize_gp_noise=(not args.no_marg_gp_noise),
+            analytic_marginalized_params=args.analytic_marg,
         )
         if args.jlso_file is None
-        else SPNTA.load_jlso(args.jlso_file, args.par_file)
+        else SPNTA.load_jlso(
+            args.jlso_file,
+            args.par_file,
+            args.tim_file,
+            custom_prior_file=args.prior_file,
+            cheat_prior_scale=args.cheat_prior_scale,
+            analytic_marginalized_params=args.analytic_marg,
+        )
     )
+
+    if not args.resume and spnta.jlsofile is None:
+        jlsofile = f"{args.outdir}/_{spnta.model.pulsar_name}.jlso"
+        spnta.save_jlso(jlsofile)
+        spnta.jlsofile = jlsofile
 
     nwalkers = spnta.ndim * 5
 
