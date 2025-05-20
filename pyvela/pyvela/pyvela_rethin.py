@@ -29,5 +29,5 @@ def rethin_samples(result_dir: str, thin: int, burnin: int):
             "thin": thin,
             "vectorized": True,
         },
-        summary_info["sampler"]["truth_par_file"],
+        f"{result_dir}/{summary_info["input"]["truth_par_file"]}",
     )

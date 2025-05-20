@@ -21,6 +21,7 @@
 - tim file is now a mandatory input for `pyvela` script.
 - `pyvela` script now writes out a JLSO file into the output directory.
 - Read data from `JLSO` file while resuming `pyvela` script (also fixes parameter order).
+- Read data from `JLSO` file in `pyvela-rethin` script (also fixes handling of analytic marginalized parameters).
 ## Fixed
 - Mark Julia lines wrongly missed in coverage with COV_EXCL_LINE to make the coverage % more accurate
 - Make `SPNTA.full_prior_dict()` work properly when "known" priors defined by Vela are used.
