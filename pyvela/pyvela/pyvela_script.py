@@ -7,6 +7,10 @@ import emcee
 import numpy as np
 
 from pyvela import SPNTA
+from pyvela.parameters import (
+    analytic_marginalizable_names,
+    analytic_marginalizable_prefixes,
+)
 
 
 def parse_args(argv):
@@ -195,6 +199,14 @@ def main(argv=None):
             else None
         )
         args.jlso_file = f'{args.outdir}/{summary_info["input"]["jlso_file"]}'
+
+    if "all" in args.analytic_marg:
+        assert (
+            len(args.analytic_marg) == 1
+        ), "Other parameters cannot be specified when `-A all` is given."
+        args.analytic_marg = (
+            analytic_marginalizable_names + analytic_marginalizable_prefixes
+        )
 
     validate_input(args)
 
