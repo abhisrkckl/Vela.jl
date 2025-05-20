@@ -158,23 +158,22 @@ def prepare_outdir(args):
     if not os.path.exists(f"{args.outdir}/{os.path.basename(args.par_file)}"):
         shutil.copy(args.par_file, args.outdir)
 
-    if not args.resume:
-        if args.jlso_file is None:
-            if not os.path.exists(f"{args.outdir}/{os.path.basename(args.tim_file)}"):
-                shutil.copy(args.tim_file, args.outdir)
-        else:
-            if not os.path.exists(f"{args.outdir}/{os.path.basename(args.jlso_file)}"):
-                shutil.copy(args.jlso_file, args.outdir)
+    if not os.path.exists(f"{args.outdir}/{os.path.basename(args.tim_file)}"):
+        shutil.copy(args.tim_file, args.outdir)
 
-        if args.prior_file is not None and not os.path.exists(
-            f"{args.outdir}/{os.path.basename(args.prior_file)}"
-        ):
-            shutil.copy(args.prior_file, args.outdir)
+    if not os.path.exists(f"{args.outdir}/{os.path.basename(args.jlso_file)}"):
+        if args.jlso_file is not None:
+            shutil.copy(args.jlso_file, args.outdir)
 
-        if args.truth is not None and not os.path.exists(
-            f"{args.outdir}/{os.path.basename(args.truth)}"
-        ):
-            shutil.copy(args.truth, args.outdir)
+    if args.prior_file is not None and not os.path.exists(
+        f"{args.outdir}/{os.path.basename(args.prior_file)}"
+    ):
+        shutil.copy(args.prior_file, args.outdir)
+
+    if args.truth is not None and not os.path.exists(
+        f"{args.outdir}/{os.path.basename(args.truth)}"
+    ):
+        shutil.copy(args.truth, args.outdir)
 
 
 def main(argv=None):
@@ -212,6 +211,11 @@ def main(argv=None):
         if args.jlso_file is None
         else SPNTA.load_jlso(args.jlso_file, args.par_file, args.tim_file)
     )
+
+    if not args.resume and spnta.jlsofile is None:
+        jlsofile = f"{args.outdir}/_{spnta.model.pulsar_name}.jlso"
+        spnta.save_jlso(jlsofile)
+        spnta.jlsofile = jlsofile
 
     nwalkers = spnta.ndim * 5
 
