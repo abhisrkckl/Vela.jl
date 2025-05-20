@@ -12,6 +12,7 @@ from pyvela import (
     pyvela_jlso_script,
     pyvela_plot_script,
     pyvela_script,
+    pyvela_rethin_script,
 )
 from pyvela.spnta import SPNTA
 
@@ -106,6 +107,9 @@ def test_script(dataset):
         assert os.path.isfile(f"{outdir}/{summary['input']["par_file"]}")
         assert os.path.isfile(f"{outdir}/{summary['input']["tim_file"]}")
         assert os.path.isfile(f"{outdir}/{summary['input']["jlso_file"]}")
+
+    rethin_args = f"{outdir} -b 600 -t 10".split()
+    pyvela_rethin_script.main(rethin_args)
 
     pyvela_plot_script.main([f"{outdir}/", "--priors"])
     pyvela_plot_script.main(
