@@ -161,9 +161,10 @@ def prepare_outdir(args):
     if not os.path.exists(f"{args.outdir}/{os.path.basename(args.tim_file)}"):
         shutil.copy(args.tim_file, args.outdir)
 
-    if not os.path.exists(f"{args.outdir}/{os.path.basename(args.jlso_file)}"):
-        if args.jlso_file is not None:
-            shutil.copy(args.jlso_file, args.outdir)
+    if args.jlso_file is not None and not os.path.exists(
+        f"{args.outdir}/{os.path.basename(args.jlso_file)}"
+    ):
+        shutil.copy(args.jlso_file, args.outdir)
 
     if args.prior_file is not None and not os.path.exists(
         f"{args.outdir}/{os.path.basename(args.prior_file)}"
@@ -192,11 +193,8 @@ def main(argv=None):
             if summary_info["input"]["custom_prior_file"] is not None
             else None
         )
-        args.jlso_file = (
-            f'{args.outdir}/{summary_info["input"]["jlso_file"]}'
-            if summary_info["input"]["jlso_file"] is not None
-            else None
-        )
+        args.jlso_file = f'{args.outdir}/{summary_info["input"]["jlso_file"]}'
+
     prepare_outdir(args)
 
     spnta = (
