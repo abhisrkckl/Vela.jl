@@ -84,6 +84,18 @@ function _calc_ln_js(Nlin, Nlog, logfac)
     return vcat(log_js_log, log_js_lin)
 end
 
+function marginalized_param_names_for_gp_noise(prefix::String, N::Int)
+    # This must match the convention used in `construct_woodbury_kernel()`
+    # and `pint.models.noise_model.create_fourier_design_matrix()`.
+    pnames = String[]
+    for fname in ("SIN", "COS")
+        for ii = 1:N
+            push!(pnames, "$(prefix)$(fname)_$(lpad(ii, 4, "0"))")
+        end
+    end
+    return pnames
+end
+
 """
     PowerlawRedNoiseGP
 
@@ -104,6 +116,8 @@ end
 
 is_gp_noise(::PowerlawRedNoiseGP) = true # COV_EXCL_LINE
 get_gp_npars(arn::PowerlawRedNoiseGP) = 2 * length(arn.ln_js)
+get_marginalized_param_names(arn::PowerlawRedNoiseGP) =
+    marginalized_param_names_for_gp_noise("PLRED", length(arn.ln_js))
 
 delay(arn::PowerlawRedNoiseGP, toa::TOA, toacorr::TOACorrection, params::NamedTuple) =
     evaluate_powerlaw_red_noise_gp(
@@ -147,6 +161,8 @@ end
 
 is_gp_noise(::PowerlawDispersionNoiseGP) = true # COV_EXCL_LINE
 get_gp_npars(dmn::PowerlawDispersionNoiseGP) = 2 * length(dmn.ln_js)
+get_marginalized_param_names(dmn::PowerlawDispersionNoiseGP) =
+    marginalized_param_names_for_gp_noise("PLDM", length(dmn.ln_js))
 
 function dispersion_slope(
     dmn::PowerlawDispersionNoiseGP,
@@ -197,6 +213,8 @@ end
 
 is_gp_noise(::PowerlawChromaticNoiseGP) = true # COV_EXCL_LINE
 get_gp_npars(crn::PowerlawChromaticNoiseGP) = 2 * length(crn.ln_js)
+get_marginalized_param_names(crn::PowerlawChromaticNoiseGP) =
+    marginalized_param_names_for_gp_noise("PLCHROM", length(crn.ln_js))
 
 function chromatic_slope(
     crn::PowerlawChromaticNoiseGP,

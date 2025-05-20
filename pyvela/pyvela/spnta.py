@@ -22,7 +22,6 @@ from pint.toa import TOAs
 
 from .ecorr import ecorr_sort
 from .model import fix_params, pint_model_to_vela
-from .parameters import get_unit_conversion_factor
 from .priors import process_custom_priors
 from .toas import day_to_s, pint_toas_to_vela
 from .vela import jl, vl
@@ -33,6 +32,7 @@ def convert_model_and_toas(
     toas: TOAs,
     noise_params: List[str],
     marginalize_gp_noise: bool,
+    analytic_marginalized_params: List[str],
     cheat_prior_scale: float = 100.0,
     custom_priors: dict = {},
 ):
@@ -57,6 +57,7 @@ def convert_model_and_toas(
         custom_priors,
         noise_params,
         marginalize_gp_noise,
+        analytic_marginalized_params,
         ecorr_toa_ranges=ecorr_toa_ranges,
         ecorr_indices=ecorr_indices,
     )
@@ -102,6 +103,7 @@ class SPNTA:
         parfile: str,
         timfile: str,
         marginalize_gp_noise: bool = True,
+        analytic_marginalized_params: List[str] = [],
         cheat_prior_scale: float = 100.0,
         custom_priors: str | IO | dict = {},
         check: bool = True,
@@ -111,8 +113,10 @@ class SPNTA:
         self.timfile = timfile
         self.jlsofile: Optional[str] = None
         self.custom_prior_file: Optional[str] = None
+        self.starttime = datetime.datetime.now().isoformat()
 
         self.cheat_prior_scale: Optional[float] = cheat_prior_scale
+        self.analytic_marginalized_params = analytic_marginalized_params
 
         setup_log(level="WARNING")
         model_pint, toas_pint = get_model_and_toas(
@@ -150,6 +154,7 @@ class SPNTA:
             toas_pint,
             noise_params,
             marginalize_gp_noise,
+            analytic_marginalized_params,
             cheat_prior_scale=cheat_prior_scale,
             custom_priors=custom_priors,
         )
@@ -263,6 +268,10 @@ class SPNTA:
             and vl.isa(self.model.kernel.inner_kernel, vl.EcorrKernel)
         )
 
+    @cached_property
+    def marginalized_param_names(self) -> List[str]:
+        return vl.get_marginalized_param_names(self.model)
+
     def get_marginalized_gp_noise_realization(self, params: np.ndarray) -> np.ndarray:
         """Get a realization of the marginalized GP noise given a set of parameters.
         The length of `params` should be the same as the number of free parameters."""
@@ -278,9 +287,9 @@ class SPNTA:
         ahat = cho_solve(Sigmainv_cf, MT_Ninv_y)
         return M @ ahat
 
-    def rescale_samples(self, samples: np.ndarray) -> np.ndarray:
+    def rescale_samples(self, samples_raw: np.ndarray) -> np.ndarray:
         """Rescale the samples from Vela's internal units to common units"""
-        return samples / self.scale_factors
+        return samples_raw / self.scale_factors
 
     def save_jlso(self, filename: str) -> None:
         """Write the model and TOAs as a JLSO file"""
@@ -418,16 +427,26 @@ class SPNTA:
         return dms * dmu_conversion_factor
 
     @classmethod
-    def load_jlso(cls, jlsoname: str, parfile: str) -> "SPNTA":
+    def load_jlso(
+        cls,
+        jlsoname: str,
+        parfile: str,
+        timfile: str,
+        custom_prior_file: Optional[str] = None,
+        cheat_prior_scale: Optional[float] = None,
+        analytic_marginalized_params: List[str] = [],
+    ) -> "SPNTA":
         """Construct an `SPNTA` object from a JLSO file"""
         spnta = cls.__new__(cls)
         model, toas = vl.load_pulsar_data(jlsoname)
 
         spnta.jlsofile = jlsoname
         spnta.parfile = parfile
-        spnta.timfile = None
-        spnta.custom_prior_file = None
-        spnta.cheat_prior_scale = None
+        spnta.timfile = timfile
+        spnta.custom_prior_file = custom_prior_file
+        spnta.cheat_prior_scale = cheat_prior_scale
+        spnta.analytic_marginalized_params = analytic_marginalized_params
+        spnta.starttime = datetime.datetime.now().isoformat()
 
         spnta.pulsar = vl.Pulsar(model, toas)
         spnta.model_pint = get_model(parfile)
@@ -442,6 +461,7 @@ class SPNTA:
         model: TimingModel,
         toas: TOAs,
         marginalize_gp_noise: bool = True,
+        analytic_marginalized_params: List[str] = [],
         cheat_prior_scale: float = 100.0,
         custom_priors: dict | str | IO = {},
     ) -> "SPNTA":
@@ -462,8 +482,10 @@ class SPNTA:
         spnta.timfile = toas.filename
         spnta.custom_prior_file = None
         spnta.jlsofile = None
+        spnta.starttime = datetime.datetime.now().isoformat()
 
         spnta.cheat_prior_scale = cheat_prior_scale
+        spnta.analytic_marginalized_params = analytic_marginalized_params
 
         # custom_priors_dict is in the "raw" format. The numbers may be
         # in "normal" units and have to be converted into internal units.
@@ -486,6 +508,7 @@ class SPNTA:
             toas,
             noise_params,
             marginalize_gp_noise,
+            analytic_marginalized_params,
             cheat_prior_scale=cheat_prior_scale,
             custom_priors=custom_priors,
         )
@@ -572,6 +595,7 @@ class SPNTA:
                     else None
                 ),
                 "cheat_prior_scale": self.cheat_prior_scale,
+                "analytic_marginalized_params": self.analytic_marginalized_params,
                 "truth_par_file": (
                     os.path.basename(truth_par_file)
                     if truth_par_file is not None
@@ -580,7 +604,8 @@ class SPNTA:
             },
             "sampler": sampler_info,
             "env": {
-                "launch_time": datetime.datetime.now().isoformat(),
+                "launch_time": self.starttime,
+                "stop_time": datetime.datetime.now().isoformat(),
                 "user": getpass.getuser(),
                 "host": platform.node(),
                 "os": platform.platform(),
@@ -611,16 +636,14 @@ class SPNTA:
         )
         for pname, pval, perr in zip(self.param_names, param_vals, param_errs):
             if pname in model1:
-                model1[pname].value = (
-                    pval
-                    if pname != "F0"
-                    else (
-                        np.longdouble(
-                            self.model.param_handler._default_params_tuple.F_.x
-                        )
-                        + pval
+                if pname == "F0":
+                    model1[pname].value = pval + np.longdouble(
+                        self.model.param_handler._default_params_tuple.F_.x
                     )
-                )
+                elif pname in ["TASC", "T0"]:
+                    model1[pname].value = pval + self.model.epoch.x / day_to_s
+                else:
+                    model1[pname].value = pval
                 model1[pname].uncertainty_value = perr
             else:
                 warnings.warn(
@@ -727,6 +750,11 @@ class SPNTA:
         np.savetxt(f"{outdir}/param_units.txt", self.param_units, fmt="%s")
         np.savetxt(f"{outdir}/param_scale_factors.txt", self.scale_factors)
         np.savetxt(f"{outdir}/param_autocorr.txt", param_autocorr)
+        np.savetxt(
+            f"{outdir}/marginalized_param_names.txt",
+            self.marginalized_param_names,
+            fmt="%s",
+        )
 
         if truth_par_file is not None:
             np.savetxt(
@@ -736,7 +764,7 @@ class SPNTA:
         with open(f"{outdir}/prior_info.json", "w") as prior_info_file:
             json.dump(self.full_prior_dict(), prior_info_file, indent=4)
 
-        self._save_prior_evals(samples, f"{outdir}/prior_evals.npy")
+        self._save_prior_evals(samples_raw, f"{outdir}/prior_evals.npy")
 
         summary_info = self.info_dict(sampler_info, truth_par_file)
         with open(f"{outdir}/summary.json", "w") as summary_file:
@@ -744,17 +772,16 @@ class SPNTA:
 
     def _single_param_prior(self, param_idx: int, value: float):
         prior = self.model.priors[param_idx]
-        scale_factor = self.scale_factors[param_idx]
-        return vl.pdf(prior.distribution, value * scale_factor)
+        return vl.pdf(prior.distribution, value)
 
-    def _save_prior_evals(self, samples: np.ndarray, filename: str):
+    def _save_prior_evals(self, samples_raw: np.ndarray, filename: str):
         """Save the prior PDF evaluated at uniformly spaced points within the
         posterior range."""
         nn = 1000
         result = np.empty((nn, 2 * self.ndim))
 
         for ii in range(self.ndim):
-            xs = np.linspace(np.min(samples[:, ii]), np.max(samples[:, ii]), nn)
+            xs = np.linspace(np.min(samples_raw[:, ii]), np.max(samples_raw[:, ii]), nn)
             ys = np.array([self._single_param_prior(ii, x) for x in xs])
             result[:, 2 * ii] = xs
             result[:, 2 * ii + 1] = ys

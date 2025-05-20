@@ -1,4 +1,5 @@
-export Kernel, WhiteNoiseKernel, EcorrKernel, EcorrGroup, WoodburyKernel
+export Kernel,
+    WhiteNoiseKernel, EcorrKernel, EcorrGroup, WoodburyKernel, get_marginalized_param_names
 
 """
     Kernel
@@ -17,6 +18,8 @@ Reference:
     [Alam+ 2021](http://doi.org/10.3847/1538-4365/abc6a1)
 """
 struct WhiteNoiseKernel <: Kernel end
+
+get_marginalized_param_names(::WhiteNoiseKernel) = String[]
 
 """Range of TOAs belonging to an ECORR block."""
 struct EcorrGroup
@@ -39,6 +42,8 @@ Reference:
 struct EcorrKernel <: Kernel
     ecorr_groups::Vector{EcorrGroup}
 end
+
+get_marginalized_param_names(::EcorrKernel) = String[]
 
 show(io::IO, ::MIME"text/plain", model::Kernel) = show(io, model)
 function show(io::IO, ek::EcorrKernel)
@@ -85,6 +90,9 @@ struct WoodburyKernel{InnerKernel<:Kernel,GPComponentsTuple<:Tuple} <: Kernel
         )
     end
 end
+
+get_marginalized_param_names(wk::WoodburyKernel) =
+    vcat([get_marginalized_param_names(gp) for gp in wk.gp_components]...)
 
 show(io::IO, wk::WoodburyKernel) =
     print(io, "WoodburyKernel($(wk.inner_kernel), $(wk.gp_components))")

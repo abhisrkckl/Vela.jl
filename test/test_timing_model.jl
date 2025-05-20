@@ -51,6 +51,7 @@
             priors,
         )
         @test get_free_param_names(m1) == ["PHOFF", "F0", "F1"]
+        @test length(get_marginalized_param_names(m1)) == 0
     end
 
     @testset "ecorr_kernel" begin
@@ -92,5 +93,6 @@
         @test get_free_param_names(m2) == ["PHOFF", "F0", "F1", "ECORR1", "ECORR2"]
         @test length(get_free_param_units(m2)) == length(get_free_param_names(m2))
         @test length(get_free_param_prefixes(m2)) == length(get_free_param_names(m2))
+        @test length(get_marginalized_param_names(m2)) == 0
     end
 end

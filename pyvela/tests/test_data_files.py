@@ -8,6 +8,7 @@ import pytest
 from pint.models import get_model_and_toas, get_model, TimingModel
 from pint.toa import TOAs
 from pint.simulation import make_fake_toas_uniform
+from pint.fitter import WLSFitter, GLSFitter, WidebandDownhillFitter
 
 from pyvela.model import fix_params, fix_red_noise_components
 from pyvela.parameters import fdjump_rx
@@ -76,7 +77,7 @@ def test_read_data(dataset):
     parfile, timfile = f"{datadir}/{dataset}.par", f"{datadir}/{dataset}.tim"
     m, t = get_model_and_toas(parfile, timfile, planets=True)
     model, toas = convert_model_and_toas(
-        m, t, m.get_params_of_component_type("NoiseComponent"), False
+        m, t, m.get_params_of_component_type("NoiseComponent"), False, []
     )
     assert len(toas) == len(t)
     assert len(model.components) <= len(m.components)
@@ -133,6 +134,12 @@ def test_data(model_and_toas: Tuple[SPNTA, TimingModel, TOAs]):
     assert spnta.ntmdim <= spnta.ndim
 
     assert spnta.has_ecorr_noise == ("EcorrNoise" in spnta.model_pint.components)
+
+    if vl.isa(spnta.model.kernel, vl.WoodburyKernel):
+        assert (
+            len(spnta.marginalized_param_names)
+            == np.shape(spnta.model.kernel.noise_basis)[1]
+        )
 
 
 def test_chi2(model_and_toas: Tuple[SPNTA, TimingModel, TOAs]):
@@ -212,7 +219,7 @@ def test_readwrite_jlso(model_and_toas):
 
     time.sleep(0.1)
 
-    spnta2 = SPNTA.load_jlso(jlsoname, spnta.model_pint.name)
+    spnta2 = SPNTA.load_jlso(jlsoname, spnta.model_pint.name, spnta.toas_pint.filename)
     assert len(spnta2.toas) == len(spnta.toas)
     assert set(spnta2.param_names) == set(spnta.param_names)
 
@@ -278,3 +285,121 @@ def test_rnamp_rngam():
     assert m["TNREDAMP"].quantity is not None and m["TNREDGAM"].quantity is not None
     assert not m["TNREDAMP"].frozen and not m["TNREDGAM"].frozen
     assert m["TNREDC"].value == 30
+
+
+def test_wideband_dmgp():
+    par = """
+        RAJ     05:00:00    1
+        DECJ    15:00:00    1
+        PEPOCH  55000
+        F0      100         1
+        F1      -1e-15      1
+        PHOFF   0           1
+        DM      15          1
+        TNDMAMP -15
+        TNDMGAM 3
+        TNDMC   8
+    """
+    m = get_model(StringIO(par))
+    t = make_fake_toas_uniform(
+        startMJD=54000,
+        endMJD=55000,
+        ntoas=100,
+        model=m,
+        add_correlated_noise=True,
+        add_noise=True,
+        wideband=True,
+    )
+
+    ftr = GLSFitter(t, m)
+    ftr.fit_toas(maxiter=3)
+
+    ftr.model["TNDMAMP"].frozen = False
+    ftr.model["TNDMGAM"].frozen = False
+
+    spnta = SPNTA.from_pint(
+        ftr.model, ftr.toas, analytic_marginalized_params=["F", "PHOFF"]
+    )
+    assert set(spnta.param_names) == {"RAJ", "DECJ", "DM", "TNDMAMP", "TNDMGAM"}
+    assert np.shape(spnta.model.kernel.noise_basis) == (len(t) * 2, 19)
+    assert set(spnta.marginalized_param_names).issuperset({"F0", "F1", "PHOFF"})
+    assert len(spnta.marginalized_param_names) == 19
+    assert np.isfinite(spnta.lnpost(spnta.default_params))
+
+
+def test_analytic_marginalize_params():
+    par = """
+        RAJ     05:00:00    1
+        DECJ    15:00:00    1
+        PEPOCH  55000
+        F0      100         1
+        F1      -1e-15      1
+        DM      15          1
+        PHOFF   0           1
+        JUMP mjd 53999 54100 0.1 1
+        JUMP mjd 54100.1 54500 0.15 1
+    """
+    m = get_model(StringIO(par))
+    t = make_fake_toas_uniform(
+        startMJD=54000,
+        endMJD=55000,
+        ntoas=100,
+        model=m,
+        # add_correlated_noise=True,
+        add_noise=True,
+    )
+    fix_params(m, t)
+
+    ftr = WLSFitter(t, m)
+    ftr.fit_toas(maxiter=3)
+
+    spnta = SPNTA.from_pint(
+        ftr.model, ftr.toas, analytic_marginalized_params=["F0", "PHOFF", "JUMP"]
+    )
+    assert set(spnta.param_names) == {"RAJ", "DECJ", "DM", "F1"}
+    assert np.shape(spnta.model.kernel.noise_basis) == (len(t), 4)
+    assert set(spnta.marginalized_param_names) == {"F0", "PHOFF", "JUMP1", "JUMP2"}
+
+
+def test_analytic_marginalize_params_wb():
+    par = """
+        RAJ     05:00:00    1
+        DECJ    15:00:00    1
+        PEPOCH  55000
+        F0      100         1
+        F1      -1e-15      1
+        DM      15          1
+        PHOFF   0           1
+        JUMP mjd 53999 54100 0.1 1
+        JUMP mjd 54100.1 54500 0.15 1
+        DMJUMP mjd 53999 54500 0.001 1
+    """
+    m = get_model(StringIO(par))
+    t = make_fake_toas_uniform(
+        startMJD=54000,
+        endMJD=55000,
+        ntoas=100,
+        model=m,
+        # add_correlated_noise=True,
+        add_noise=True,
+        wideband=True,
+    )
+    fix_params(m, t)
+
+    ftr = WidebandDownhillFitter(t, m)
+    ftr.fit_toas(maxiter=3)
+
+    spnta = SPNTA.from_pint(
+        ftr.model,
+        ftr.toas,
+        analytic_marginalized_params=["F0", "PHOFF", "JUMP", "DMJUMP"],
+    )
+    assert set(spnta.param_names) == {"RAJ", "DECJ", "DM", "F1"}
+    assert np.shape(spnta.model.kernel.noise_basis) == (len(t) * 2, 5)
+    assert set(spnta.marginalized_param_names) == {
+        "F0",
+        "PHOFF",
+        "JUMP1",
+        "JUMP2",
+        "DMJUMP1",
+    }

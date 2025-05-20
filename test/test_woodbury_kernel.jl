@@ -9,6 +9,8 @@
         randn(1000, 84),
     )
 
+    @test length(get_marginalized_param_names(kernel)) == 84
+
     params = (
         TNREDAMP = dimensionless(-13.5),
         TNREDGAM = dimensionless(3.5),
