@@ -1,3 +1,4 @@
+import json
 import os
 from io import StringIO
 
@@ -80,9 +81,16 @@ def test_script(dataset):
     with open(prior_file, "w") as pf:
         print(prior_str, file=pf)
 
-    args = f"{parfile} {timfile} -P {prior_file} -T {parfile} -o {outdir} -f -A PHOFF".split()
-
+    args = f"{parfile} {timfile} -P {prior_file} -T {parfile} -o {outdir} -f -A PHOFF -N 1000 -b 500".split()
     pyvela_script.main(args)
+
+    param_names_1 = np.genfromtxt(f"{outdir}/param_names.txt", dtype=str)
+
+    args = f"{parfile} {timfile} -P {prior_file} -T {parfile} -o {outdir} -f -A PHOFF --resume -N 100 -b 500".split()
+    pyvela_script.main(args)
+
+    param_names_2 = np.genfromtxt(f"{outdir}/param_names.txt", dtype=str)
+    assert np.all(param_names_1 == param_names_2)
 
     assert os.path.isdir(outdir)
     assert os.path.isfile(f"{outdir}/summary.json")
@@ -92,6 +100,12 @@ def test_script(dataset):
     assert os.path.isfile(f"{outdir}/param_scale_factors.txt")
     assert os.path.isfile(f"{outdir}/samples_raw.npy")
     assert os.path.isfile(f"{outdir}/samples.npy")
+
+    with open(f"{outdir}/summary.json") as sf:
+        summary = json.load(sf)
+        assert os.path.isfile(f"{outdir}/{summary['input']["par_file"]}")
+        assert os.path.isfile(f"{outdir}/{summary['input']["tim_file"]}")
+        assert os.path.isfile(f"{outdir}/{summary['input']["jlso_file"]}")
 
     pyvela_plot_script.main([f"{outdir}/", "--priors"])
     pyvela_plot_script.main(
