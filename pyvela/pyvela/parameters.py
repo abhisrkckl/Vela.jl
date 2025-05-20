@@ -326,21 +326,23 @@ def pint_parameters_to_vela(
     return single_params, multi_params
 
 
+analytic_marginalizable_names = ["PHOFF"]
+analytic_marginalizable_prefixes = ["F", "JUMP", "DMJUMP", "DMX_"]
+
+
 def validate_analytic_marginalized_params(
     model: TimingModel, analytic_marginalized_params: List[str]
 ):
     """Check if all of the requested analytic_marginalized_params are allowed.
     Only phase parameters with approximately constant design matrix entries can
     be analytically marginalized."""
-    allowed_names = ["PHOFF"]
-    allowed_prefixes = ["F", "JUMP", "DMJUMP", "DMX_"]
     for pname in analytic_marginalized_params:
         assert (
-            pname in allowed_names
-            or pname in allowed_prefixes
+            pname in analytic_marginalizable_names
+            or pname in analytic_marginalizable_prefixes
             or (
                 pname in model
                 and hasattr(model[pname], "prefix")
-                and model[pname].prefix in allowed_prefixes
+                and model[pname].prefix in analytic_marginalizable_prefixes
             )
         ), f"Parameter {pname} cannot be analytically marginalized."

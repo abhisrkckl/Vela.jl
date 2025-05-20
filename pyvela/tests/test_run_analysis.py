@@ -82,12 +82,12 @@ def test_script(dataset):
     with open(prior_file, "w") as pf:
         print(prior_str, file=pf)
 
-    args = f"{parfile} {timfile} -P {prior_file} -T {parfile} -o {outdir} -f -A PHOFF -N 1000 -b 500".split()
+    args = f"{parfile} {timfile} -P {prior_file} -T {parfile} -o {outdir} -f -A all -N 1000 -b 500".split()
     pyvela_script.main(args)
 
     param_names_1 = np.genfromtxt(f"{outdir}/param_names.txt", dtype=str)
 
-    args = f"{parfile} {timfile} -P {prior_file} -T {parfile} -o {outdir} -f -A PHOFF --resume -N 100 -b 500".split()
+    args = f"{parfile} {timfile} -P {prior_file} -T {parfile} -o {outdir} -f -A all --resume -N 100 -b 500".split()
     pyvela_script.main(args)
 
     param_names_2 = np.genfromtxt(f"{outdir}/param_names.txt", dtype=str)
@@ -112,9 +112,11 @@ def test_script(dataset):
     pyvela_rethin_script.main(rethin_args)
 
     pyvela_plot_script.main([f"{outdir}/", "--priors"])
-    pyvela_plot_script.main(
-        [f"{outdir}/", "--include_params", "F0", "F1", "-o", "__plot.pdf"]
-    )
+
+    if dataset == "NGC6440E":
+        pyvela_plot_script.main(
+            [f"{outdir}/", "--include_params", "RAJ", "DECJ", "-o", "__plot.pdf"]
+        )
 
 
 @pytest.mark.parametrize("dataset", ["NGC6440E", "sim_sw.wb"])
