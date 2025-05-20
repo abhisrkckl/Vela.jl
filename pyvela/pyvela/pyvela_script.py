@@ -179,7 +179,7 @@ def prepare_outdir(args):
 
 def main(argv=None):
     args = parse_args(argv)
-    validate_input(args)
+
     if args.resume:
         # copy info from the prior run into the current arguments
         # to make sure they agree
@@ -188,12 +188,15 @@ def main(argv=None):
         args.par_file = f'{args.outdir}/{summary_info["input"]["par_file"]}'
         args.tim_file = f'{args.outdir}/{summary_info["input"]["tim_file"]}'
         args.cheat_prior_scale = summary_info["input"]["cheat_prior_scale"]
+        args.analytic_marg = summary_info["input"]["analytic_marginalized_params"]
         args.prior_fie = (
             f'{args.outdir}/{summary_info["input"]["custom_prior_file"]}'
             if summary_info["input"]["custom_prior_file"] is not None
             else None
         )
         args.jlso_file = f'{args.outdir}/{summary_info["input"]["jlso_file"]}'
+
+    validate_input(args)
 
     prepare_outdir(args)
 
@@ -207,7 +210,14 @@ def main(argv=None):
             analytic_marginalized_params=args.analytic_marg,
         )
         if args.jlso_file is None
-        else SPNTA.load_jlso(args.jlso_file, args.par_file, args.tim_file)
+        else SPNTA.load_jlso(
+            args.jlso_file,
+            args.par_file,
+            args.tim_file,
+            custom_prior_file=args.prior_file,
+            cheat_prior_scale=args.cheat_prior_scale,
+            analytic_marginalized_params=args.analytic_marg,
+        )
     )
 
     if not args.resume and spnta.jlsofile is None:

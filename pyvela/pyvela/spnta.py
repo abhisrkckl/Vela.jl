@@ -116,6 +116,7 @@ class SPNTA:
         self.starttime = datetime.datetime.now().isoformat()
 
         self.cheat_prior_scale: Optional[float] = cheat_prior_scale
+        self.analytic_marginalized_params = analytic_marginalized_params
 
         setup_log(level="WARNING")
         model_pint, toas_pint = get_model_and_toas(
@@ -426,7 +427,15 @@ class SPNTA:
         return dms * dmu_conversion_factor
 
     @classmethod
-    def load_jlso(cls, jlsoname: str, parfile: str, timfile: str) -> "SPNTA":
+    def load_jlso(
+        cls,
+        jlsoname: str,
+        parfile: str,
+        timfile: str,
+        custom_prior_file: Optional[str] = None,
+        cheat_prior_scale: Optional[float] = None,
+        analytic_marginalized_params: List[str] = [],
+    ) -> "SPNTA":
         """Construct an `SPNTA` object from a JLSO file"""
         spnta = cls.__new__(cls)
         model, toas = vl.load_pulsar_data(jlsoname)
@@ -434,8 +443,9 @@ class SPNTA:
         spnta.jlsofile = jlsoname
         spnta.parfile = parfile
         spnta.timfile = timfile
-        spnta.custom_prior_file = None
-        spnta.cheat_prior_scale = None
+        spnta.custom_prior_file = custom_prior_file
+        spnta.cheat_prior_scale = cheat_prior_scale
+        spnta.analytic_marginalized_params = analytic_marginalized_params
         spnta.starttime = datetime.datetime.now().isoformat()
 
         spnta.pulsar = vl.Pulsar(model, toas)
@@ -475,6 +485,7 @@ class SPNTA:
         spnta.starttime = datetime.datetime.now().isoformat()
 
         spnta.cheat_prior_scale = cheat_prior_scale
+        spnta.analytic_marginalized_params = analytic_marginalized_params
 
         # custom_priors_dict is in the "raw" format. The numbers may be
         # in "normal" units and have to be converted into internal units.
@@ -584,6 +595,7 @@ class SPNTA:
                     else None
                 ),
                 "cheat_prior_scale": self.cheat_prior_scale,
+                "analytic_marginalized_params": self.analytic_marginalized_params,
                 "truth_par_file": (
                     os.path.basename(truth_par_file)
                     if truth_par_file is not None
