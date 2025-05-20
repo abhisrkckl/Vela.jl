@@ -426,14 +426,14 @@ class SPNTA:
         return dms * dmu_conversion_factor
 
     @classmethod
-    def load_jlso(cls, jlsoname: str, parfile: str) -> "SPNTA":
+    def load_jlso(cls, jlsoname: str, parfile: str, timfile: str) -> "SPNTA":
         """Construct an `SPNTA` object from a JLSO file"""
         spnta = cls.__new__(cls)
         model, toas = vl.load_pulsar_data(jlsoname)
 
         spnta.jlsofile = jlsoname
         spnta.parfile = parfile
-        spnta.timfile = None
+        spnta.timfile = timfile
         spnta.custom_prior_file = None
         spnta.cheat_prior_scale = None
         spnta.starttime = datetime.datetime.now().isoformat()

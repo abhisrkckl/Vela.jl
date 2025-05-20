@@ -26,8 +26,6 @@ def parse_args(argv):
     parser.add_argument(
         "tim_file",
         help="The pulsar TOA file. Should be readable using PINT. Either this or a JLSO file (-J) should be provided.",
-        default=None,
-        nargs="?",
     )
     parser.add_argument(
         "-J",
@@ -123,18 +121,11 @@ def validate_input(args):
     assert os.path.isfile(
         args.par_file
     ), f"Invalid par file {args.par_file}. Make sure that the path is correct."
-    assert (
-        args.tim_file is not None or args.jlso_file is not None
-    ), "Either a tim file or a JLSO file must be provided."
-    assert (
-        args.tim_file is None or args.jlso_file is None
-    ), "Both a tim file and a JLSO file can't be provided together."
+    assert os.path.isfile(
+        args.tim_file
+    ), f"Invalid tim file {args.tim_file}. Make sure that the path is correct."
 
-    if args.jlso_file is None:
-        assert args.tim_file is not None and os.path.isfile(
-            args.tim_file
-        ), f"Invalid tim file {args.tim_file}. Make sure that the path is correct."
-    else:
+    if args.jlso_file is not None:
         assert os.path.isfile(
             args.jlso_file
         ), f"Invalid JLSO file {args.jlso_file}. Make sure that the path is correct."
@@ -219,7 +210,7 @@ def main(argv=None):
             analytic_marginalized_params=args.analytic_marg,
         )
         if args.jlso_file is None
-        else SPNTA.load_jlso(args.jlso_file, args.par_file)
+        else SPNTA.load_jlso(args.jlso_file, args.par_file, args.tim_file)
     )
 
     nwalkers = spnta.ndim * 5

@@ -34,7 +34,9 @@ def rethin_samples(result_dir: str, thin: int, burnin: int):
         )
         if summary_info["input"]["jlso_file"] is None
         else SPNTA.load_jlso(
-            summary_info["input"]["jlso_file"], summary_info["input"]["par_file"]
+            summary_info["input"]["jlso_file"],
+            summary_info["input"]["par_file"],
+            summary_info["input"]["tim_file"],
         )
     )
 
