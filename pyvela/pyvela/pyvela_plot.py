@@ -1,5 +1,6 @@
 import json
-from typing import Iterable, Optional
+from typing import Iterable, Optional, Literal
+import tqdm
 
 import corner
 import matplotlib.pyplot as plt
@@ -206,3 +207,27 @@ def plot(
         plt.show()
     else:
         plt.savefig(outfile)
+
+
+def plot_chains(
+    result_dir: str, outdir: str = None, extension: Literal["png", "pdf", "gif"] = "png"
+):
+    if outdir is None:
+        outdir = result_dir
+    params = np.loadtxt(f"{result_dir}/param_names.txt", dtype=str)
+    d = np.load(f"{result_dir}/samples.npy")
+    with open(f"{result_dir}/summary.json") as summary_file:
+        summary_info = json.load(summary_file)
+    nwalkers = summary_info["sampler"]["nwalkers"]
+
+    for i in tqdm.tqdm(range(len(params))):
+        plt.clf()
+        plt.plot(np.arange(d.shape[0]), d[:, i], ",")
+        ax = plt.gca()
+        ax.set_ylabel(params[i])
+        ax.set_xlabel("Raw Samples (steps * walkers)")
+        ax2 = ax.secondary_xaxis(
+            "top", functions=(lambda x: x / nwalkers, lambda x: x * nwalkers)
+        )
+        ax2.set_xlabel("MCMC Steps")
+        plt.savefig(f"{outdir}/chain_{params[i]}.{extension}")

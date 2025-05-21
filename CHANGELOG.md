@@ -14,6 +14,7 @@
 - `--analytic_marg` option in `pyvela` script
 - `--analytic_marg all` option in `pyvela` script
 - Add FD and FDJUMP to analytically marginalizable parameters
+- Script to plot chains
 ## Changed
 - Normalize the prior plot in `pyvela-plot` to improve visibility
 - Default PX prior now uses the diameter of the Galaxy as the maximum distance.
