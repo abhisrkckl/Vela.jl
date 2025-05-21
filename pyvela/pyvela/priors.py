@@ -241,3 +241,38 @@ def process_custom_priors(custom_priors_raw: dict, model: TimingModel) -> dict:
             output_dict[par] = distr_type(*scaled_args)
 
     return output_dict
+
+
+def get_analytic_marginalization_weights(
+    model: TimingModel, analytic_marginalized_params: List[str], custom_prior_dict: dict
+):
+    weights = []
+    for pname in analytic_marginalized_params:
+        param = model[pname]
+
+        if pname in custom_prior_dict:
+            assert (
+                custom_prior_dict[pname]["distribution"] == "Normal"
+            ), f"Only normal distribution is supported for analytic marginalization of {pname}."
+            sigma = custom_prior_dict[pname]["args"][1]
+        elif hasattr(param, "prefix") and param.prefix in custom_prior_dict:
+            assert (
+                custom_prior_dict[param.prefix]["distribution"] == "Normal"
+            ), f"Only normal distribution is supported for analytic marginalization of {pname}."
+            sigma = custom_prior_dict[param.prefix]["args"][1]
+        elif pname in DEFAULT_PRIOR_DISTS and jl.isa(
+            DEFAULT_PRIOR_DISTS[pname], vl.Normal
+        ):
+            sigma = DEFAULT_PRIOR_DISTS[pname].σ
+        elif (
+            hasattr(param, "prefix")
+            and param.prefix in DEFAULT_PRIOR_DISTS
+            and jl.isa(DEFAULT_PRIOR_DISTS[param.prefix], vl.Normal)
+        ):
+            sigma = DEFAULT_PRIOR_DISTS[param.prefix].σ
+        else:
+            sigma = 1e20
+
+        weights.append(sigma**2)
+
+    return np.array(weights)
