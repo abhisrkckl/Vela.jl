@@ -427,9 +427,9 @@ class SPNTA:
 
         return dms * dmu_conversion_factor
 
-    @property
+    @cached_property
     def maxpost_params(self):
-        """The maximum-posterior values of the parameters computed using dual annealing."""
+        """The maximum-posterior values of the parameters computed using Nelder-Mead method."""
 
         def _mlnpostq(x: np.ndarray) -> float:
             return -self.lnpost(x)
