@@ -2,7 +2,7 @@ import json
 from typing import Iterable, Optional, Literal
 
 try:
-    import tqdm
+    from tqdm import tqdm
 except ImportError:
     # allow for systems that don't have tqdm
     def tqdm(iterable, **kwargs):
