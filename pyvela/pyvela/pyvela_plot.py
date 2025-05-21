@@ -219,15 +219,17 @@ def plot_chains(
     with open(f"{result_dir}/summary.json") as summary_file:
         summary_info = json.load(summary_file)
     nwalkers = summary_info["sampler"]["nwalkers"]
+    thin = summary_info["sampler"]["thin"]
 
     for i in tqdm.tqdm(range(len(params))):
         plt.clf()
         plt.plot(np.arange(d.shape[0]), d[:, i], ",")
         ax = plt.gca()
         ax.set_ylabel(params[i])
-        ax.set_xlabel("Raw Samples (steps * walkers)")
+        ax.set_xlabel("Raw Samples (thinned steps * walkers)")
         ax2 = ax.secondary_xaxis(
-            "top", functions=(lambda x: x / nwalkers, lambda x: x * nwalkers)
+            "top",
+            functions=(lambda x: x * thin / nwalkers, lambda x: x * nwalkers / thin),
         )
-        ax2.set_xlabel("MCMC Steps")
+        ax2.set_xlabel("MCMC Steps After Burnin")
         plt.savefig(f"{outdir}/chain_{params[i]}.{extension}")
