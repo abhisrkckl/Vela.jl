@@ -14,6 +14,7 @@
 - `--analytic_marg` option in `pyvela` script
 - `--analytic_marg all` option in `pyvela` script
 - Add FD and FDJUMP to analytically marginalizable parameters
+- `SPNTA.maxpost_params` property
 ## Changed
 - Normalize the prior plot in `pyvela-plot` to improve visibility
 - Default PX prior now uses the diameter of the Galaxy as the maximum distance.
@@ -24,6 +25,7 @@
 - `pyvela` script now writes out a JLSO file into the output directory.
 - Read data from `JLSO` file while resuming `pyvela` script (also fixes parameter order).
 - Read data from `JLSO` file in `pyvela-rethin` script (also fixes handling of analytic marginalized parameters).
+- In `pyvela` script, start one of the `emcee` walkers from the maximum-posterior point.
 ## Fixed
 - Mark Julia lines wrongly missed in coverage with COV_EXCL_LINE to make the coverage % more accurate
 - Make `SPNTA.full_prior_dict()` work properly when "known" priors defined by Vela are used.
