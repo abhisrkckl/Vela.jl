@@ -1,6 +1,13 @@
 import json
 from typing import Iterable, Optional, Literal
-import tqdm
+
+try:
+    import tqdm
+except ImportError:
+    # allow for systems that don't have tqdm
+    def tqdm(iterable, **kwargs):
+        return iterable
+
 
 import corner
 import matplotlib.pyplot as plt
