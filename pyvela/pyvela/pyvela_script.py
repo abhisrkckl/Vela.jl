@@ -1,3 +1,5 @@
+"""Script for running pulsar timing & noise analysis using Vela.jl with emcee."""
+
 import json
 import os
 import shutil
