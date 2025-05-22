@@ -1,4 +1,4 @@
-# Unreleased
+# 0.0.10
 ## Added
 - Can restart emcee from a prior chain
 - Script/function to resample existing chain
@@ -28,6 +28,7 @@
 - Read data from `JLSO` file in `pyvela-rethin` script (also fixes handling of analytic marginalized parameters).
 - Updated documentation for analytic marginalization
 - In `pyvela` script, start one of the `emcee` walkers from the maximum-posterior point.
+- Updated CITATION file
 ## Fixed
 - Mark Julia lines wrongly missed in coverage with COV_EXCL_LINE to make the coverage % more accurate
 - Make `SPNTA.full_prior_dict()` work properly when "known" priors defined by Vela are used.
