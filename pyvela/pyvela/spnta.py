@@ -15,6 +15,7 @@ import numpy as np
 import pint
 import pyvela
 from scipy.linalg import cho_factor, cho_solve
+from scipy.optimize import minimize
 from pint.binaryconvert import convert_binary
 from pint.logging import setup as setup_log
 from pint.models import TimingModel, get_model, get_model_and_toas
@@ -425,6 +426,16 @@ class SPNTA:
         dmu_conversion_factor = 2.41e-16  # Hz / (DMconst * dmu)
 
         return dms * dmu_conversion_factor
+
+    @cached_property
+    def maxpost_params(self):
+        """The maximum-posterior values of the parameters computed using Nelder-Mead method."""
+
+        def _mlnpostq(x: np.ndarray) -> float:
+            return -self.lnpost(x)
+
+        result = minimize(_mlnpostq, self.default_params, method="Nelder-Mead")
+        return result.x
 
     @classmethod
     def load_jlso(
