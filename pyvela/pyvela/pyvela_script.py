@@ -1,7 +1,9 @@
+"""Script for running pulsar timing & noise analysis using Vela.jl with emcee."""
+
 import json
 import os
 import shutil
-from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
+from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
 
 import emcee
 import numpy as np
