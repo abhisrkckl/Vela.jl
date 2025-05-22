@@ -15,6 +15,7 @@
 - `--analytic_marg all` option in `pyvela` script
 - Add FD and FDJUMP to analytically marginalizable parameters
 - `SPNTA.maxpost_params` property
+- Pre-commit hooks
 ## Changed
 - Normalize the prior plot in `pyvela-plot` to improve visibility
 - Default PX prior now uses the diameter of the Galaxy as the maximum distance.
