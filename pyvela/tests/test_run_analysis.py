@@ -11,6 +11,7 @@ from pyvela import (
     pyvela_compare_script,
     pyvela_jlso_script,
     pyvela_plot_script,
+    pyvela_plotchains_script,
     pyvela_script,
     pyvela_rethin_script,
 )
@@ -117,6 +118,12 @@ def test_script(dataset):
         pyvela_plot_script.main(
             [f"{outdir}/", "--include_params", "RAJ", "DECJ", "-o", "__plot.pdf"]
         )
+
+    pyvela_plotchains_script.main([f"{outdir}/"])
+
+    if dataset == "NGC6440E":
+        pyvela_plotchains_script.main([f"{outdir}/","-e","png"])
+        assert os.path.isfile(f"{outdir}/chain_DECJ.png")
 
 
 @pytest.mark.parametrize("dataset", ["NGC6440E", "sim_sw.wb"])

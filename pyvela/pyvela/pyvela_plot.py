@@ -228,7 +228,7 @@ def plot_chains(
     nwalkers = summary_info["sampler"]["nwalkers"]
     thin = summary_info["sampler"]["thin"]
 
-    for i in tqdm.tqdm(range(len(params))):
+    for i in tqdm(range(len(params))):
         plt.clf()
         plt.plot(np.arange(d.shape[0]), d[:, i], ",")
         ax = plt.gca()
