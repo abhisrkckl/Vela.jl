@@ -1,25 +1,26 @@
 import datetime
-from functools import cached_property
 import getpass
 import json
-from copy import deepcopy
 import os
 import platform
 import sys
-from typing import IO, Dict, Iterable, List, Optional
 import warnings
+from copy import deepcopy
+from functools import cached_property
+from typing import IO, Dict, Iterable, List, Optional
 
 import astropy
 import emcee
 import numpy as np
 import pint
-import pyvela
-from scipy.linalg import cho_factor, cho_solve
-from scipy.optimize import minimize
 from pint.binaryconvert import convert_binary
 from pint.logging import setup as setup_log
 from pint.models import TimingModel, get_model, get_model_and_toas
 from pint.toa import TOAs
+from scipy.linalg import cho_factor, cho_solve
+from scipy.optimize import minimize
+
+import pyvela
 
 from .ecorr import ecorr_sort
 from .model import fix_params, pint_model_to_vela

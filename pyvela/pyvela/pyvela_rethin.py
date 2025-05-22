@@ -1,6 +1,7 @@
 import json
 
 import emcee
+
 from pyvela import SPNTA
 
 

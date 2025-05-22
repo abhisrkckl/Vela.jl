@@ -3,7 +3,7 @@
 import json
 import os
 import shutil
-from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
+from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
 
 import emcee
 import numpy as np
