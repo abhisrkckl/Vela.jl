@@ -248,7 +248,7 @@ def main(argv=None):
         if np.isfinite(spnta.lnpost(spnta.default_params))
         else p0_
     )
-    p0[0,:] = spnta.maxpost_params
+    p0[0, :] = spnta.maxpost_params
 
     sampler = emcee.EnsembleSampler(
         nwalkers,

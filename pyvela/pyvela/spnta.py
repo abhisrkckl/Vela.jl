@@ -434,7 +434,7 @@ class SPNTA:
         def _mlnpostq(x: np.ndarray) -> float:
             return -self.lnpost(x)
 
-        result = minimize(_mlnpostq, self.default_params, method='Nelder-Mead')
+        result = minimize(_mlnpostq, self.default_params, method="Nelder-Mead")
         return result.x
 
     @classmethod
