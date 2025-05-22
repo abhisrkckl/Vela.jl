@@ -1,4 +1,10 @@
-# 0.0.10
+# Unreleased
+## Added
+## Changed
+## Fixed
+## Removed
+
+# 0.1.0
 ## Added
 - Can restart emcee from a prior chain
 - Script/function to resample existing chain
