@@ -81,6 +81,8 @@ def plot(
     outfile: str = None,
     labelpad: float = 0.2,
 ):
+    """Plot `pyvela` output and optionally save it to a file. The output includes a corner plot of the
+    posterior samples and the post-fit whitened residuals."""
 
     samples = np.load(f"{result_dir}/samples.npy")
     param_names = np.genfromtxt(f"{result_dir}/param_names.txt", dtype=str)

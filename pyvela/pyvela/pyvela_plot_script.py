@@ -1,3 +1,6 @@
+"""Script to plot `pyvela` output. The output includes a corner plot of the posterior samples and
+post-fit whitened residuals. The output may not be publication-quality."""
+
 from argparse import ArgumentParser
 
 from pyvela import pyvela_plot

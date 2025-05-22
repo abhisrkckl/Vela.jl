@@ -19,7 +19,7 @@ for detailed explanations on these topics.
 
 Here is how we read read a pair of `par` and `tim` files in `pyvela`:
 ```
-from pyvela import SPNTA, Vela
+from pyvela import SPNTA, Vela, pyvela_plot
 import numpy as np
 
 parfile, timfile = "NGC6440E.par", "NGC6440E.tim"
@@ -27,9 +27,18 @@ spnta = SPNTA(
     parfile, 
     timfile,
     cheat_prior_scale=100,
-    custom_priors=None,
+    custom_priors={},
+    analytic_marginalized_params=["PHOFF", "F"],
 )
 ```
+Here, the `cheat_prior_scale` and `custom_priors` arguments are used for specifying the prior distributions for
+model parameters. See [Representing priors in a `JSON` file](@ref) for more details.
+`analytic_marginalized_params` represents parameters that are analytically marginalized assuming infinitely 
+wide improper priors. Only parameters whose effect on the timing residuals is approximately linear are allowed
+to be analytically marginalized. This is different from `ENTERPRISE`, where the timing model is linearized in 
+all timing parameters.
+
+An `SPNTA` object stores a pulsar timing & noise model along with the measured TOAs.
 Here, `spnta.model` is a `Vela.TimingModel` object and `spnta.toas` is a `Vector{Vela.TOA}` object. 
 The `SPNTA` class reads the `par` and `tim` files using the [`pint.models.get_model_and_toas()`](https://nanograv-pint.readthedocs.io/en/latest/_autosummary/pint.models.model_builder.get_model_and_toas.html)
 function under the hood and converts the resulting `pint.models.TimingModel` and `pint.toa.TOAs` objects
@@ -38,13 +47,10 @@ present in the `PINT` objects, and is not reversible.
 
 The `SPNTA` class internally uses the `Vela.Pulsar` type to store the timing model and the TOAs together.
 Currently it is assumed that all the TOAs are of the same paradigm (narrowband or wideband). Inhomogeneous
-datasets are not supported.
+datasets are not yet supported.
 ```@docs
 Pulsar
 ```
-
-The `cheat_prior_scale` and `custom_priors` arguments are used for specifying the prior distributions for
-model parameters. See See [Representing priors in a `JSON` file](@ref) for more details.
 
 Everything defined in `Vela.jl` will be available through the `Vela` namespace above, e.g., `Vela.TimingModel` 
 and `Vela.TOA`. Things that were explicitly imported into `Vela.jl` are also available, e.g., `Vela.GQ` is the `GQ` type 
@@ -60,25 +66,32 @@ environment variable), `spnta.lnpost` parallelizes a single log-posterior comput
 The latter can be used with samplers such as `emcee` and `zeus`. Make sure not to set `PYTHON_JULIACALL_THREADS` 
 to a value greater than the number of available CPU cores.
 
-The `SPNTA` object also has useful attributes such as the number of free parameters (`ndim`), free parameter
-names (`param_names`), free parameter labels including units (`param_labels`), scale factors for converting to and
-from the `Vela.jl` internal units (`scale_factors`), and the default parameters read from the `par` file (`default_params`).
-The `rescale_samples()` function rescales the samples from `Vela.jl` internal units to the usual units used
-in pulsar astronomy (see [this page](https://nanograv-pint.readthedocs.io/en/latest/timingmodels.html#supported-parameters)). 
+The `SPNTA` object also provides several useful attributes. These are:
+1. `ndim` - Number of free parameters.
+2. `ntmdim` - Number of timing model parameters (excludes noise parameters and hyperparameters).
+3. `param_names` - Free paramater names in `PINT` convention.
+4. `param_units` - Free paramater unit strings in `astropy.units` convention as used in `PINT`.
+5. `param_labels` - Free parameter labels containing names and units.
+6. `param_prefixes` - Free parameter prefixes in `PINT` convention.
+7. `marginalized_param_names` - Names of the analytically marginalized parameters. This may include correlated noise amplitudes as well as linear timing model paramaters as defined by the `analytic_marginalized_params` option. This follows `PINT` conventions as much as possible.
+8. `scale_factors` - Scale factors used to convert parameters from normal pulsar timing units to `Vela.jl`'s internal units.
+9. `default_params` - Default free parameter values taken from the `par` file (in `Vela.jl`'s internal units).
+10. `maxpost_params` - Maximum-posterior parameters estimated using the Nelder-Mead method (in `Vela.jl`'s internal units).
+11. `has_marginalized_gp_noise` - Whether the timing & noise model contains marginalized Gaussian process components (Boolean).
+12. `has_ecorr_noise` - Whether the timing & noise model contains ECORR noise (Boolean).
+13. `wideband` - Whether the TOAs are wideband (Boolean).
+14. `mjds` - Observing epochs in MJD.
 
-Now, let us see if `lnpost` actually works.
-```
-print(spnta.lnpost(spnta.default_params))
-```
-
-Similarly,
-```
-print(
-    spnta.lnpost_vectorized(
-        np.array([spnta.default_params])
-    )
-)
-```
+The methods available in `SPNTA` other than the ones mentioned above are:
+1. `rescale_samples(samples_raw)` - Rescales samples from `Vela.jl` internal units to the usual units used in pulsar astronomy (see [this page](https://nanograv-pint.readthedocs.io/en/latest/timingmodels.html#supported-parameters)).
+2. `get_marginalized_gp_noise_realization(params)` - Given free parameter values, compute the Gaussian process realization of the analytically marginalized parameters.
+3. `time_residuals(params)` - Compute the time residuals given a set of paramater values.
+4. `whitened_time_residuals(params)` - Compute the whitened time residuals given a set of paramater values.
+5. `dm_residuals(params)` - Compute the DM residuals given a set of paramater values (wideband only).
+6. `whitened_dm_residuals(params)` - Compute the whitened DM residuals given a set of paramater values (wideband only).
+7. `scaled_toa_unceritainties(params)` - Compute the scaled TOA uncertainties given a set of paramater values.
+8. `scaled_dm_unceritainties(params)` - Compute the scaled DM uncertainties given a set of paramater values (wideband only).
+9. `model_dm(params)` - Compute the DM predicted by the model given a set of paramater values.
 
 ## Setting up the sampler
 
