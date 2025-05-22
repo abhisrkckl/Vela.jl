@@ -29,4 +29,4 @@ A Bayesian pulsar timing and noise analysis package.
 
 The documentation can be found `here <https://abhisrkckl.github.io/Vela.jl/dev>`_.
 
-If you use this package please cite the papers given in `<CITATION.bib>`.
+If you use this package please cite the papers given in the `citation file <CITATION.bib>`_.
