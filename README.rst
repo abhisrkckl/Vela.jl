@@ -20,7 +20,13 @@ Vela
    :target: https://arxiv.org/abs/2412.15858
    :alt: arXiv
 
+.. image:: https://img.shields.io/badge/arXiv-2505.10141-b31b1b.svg
+   :target: https://arxiv.org/abs/2505.10141
+   :alt: arXiv
+
 
 A Bayesian pulsar timing and noise analysis package.
 
 The documentation can be found `here <https://abhisrkckl.github.io/Vela.jl/dev>`_.
+
+If you use this package please cite the papers given in the `citation file <CITATION.bib>`_.
