@@ -17,7 +17,7 @@ from pint.binaryconvert import convert_binary
 from pint.logging import setup as setup_log
 from pint.models import TimingModel, get_model, get_model_and_toas
 from pint.toa import TOAs
-from scipy.linalg import cholesky, cho_solve, solve_triangular
+from scipy.linalg import cho_solve, cholesky, solve_triangular
 from scipy.optimize import minimize
 
 import pyvela
