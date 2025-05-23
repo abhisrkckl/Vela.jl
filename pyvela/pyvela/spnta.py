@@ -291,6 +291,10 @@ class SPNTA:
         ahat = cho_solve((Sigmainv_cf, False), MT_Ninv_y)
         return ahat, Sigmainv_cf
 
+    def get_marginalized_param_mean(self, params: np.ndarray) -> np.ndarray:
+        """Draw a sample of the analytically marginalized parameter vector."""
+        return self.get_marginalized_param_mean_and_covinvcf(params)[0]
+
     def get_marginalized_param_sample(self, params: np.ndarray) -> np.ndarray:
         """Draw a sample of the analytically marginalized parameter vector."""
         ahat, Sigmainv_cf = self.get_marginalized_param_mean_and_covinvcf(params)
@@ -300,7 +304,7 @@ class SPNTA:
     @cached_property
     def marginalized_maxpost_params(self) -> np.ndarray:
         """The maximum-posterior values of the analytically marginalized parameters."""
-        return self.get_marginalized_param_mean_and_covinvcf(self.maxpost_params)[0]
+        return self.get_marginalized_param_mean(self.maxpost_params)
 
     def get_marginalized_gp_noise_realization(self, params: np.ndarray) -> np.ndarray:
         """Get a realization of the marginalized GP noise given a set of parameters.
