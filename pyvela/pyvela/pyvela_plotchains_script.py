@@ -1,4 +1,4 @@
-from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
+from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
 
 from pyvela import pyvela_plot
 

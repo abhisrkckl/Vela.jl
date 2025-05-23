@@ -325,6 +325,8 @@ def test_wideband_dmgp():
     assert set(spnta.marginalized_param_names).issuperset({"F0", "F1", "PHOFF"})
     assert len(spnta.marginalized_param_names) == 19
     assert np.isfinite(spnta.lnpost(spnta.default_params))
+    assert np.isfinite(spnta.lnpost(spnta.maxpost_params))
+    assert np.all(np.isfinite(spnta.marginalized_maxpost_params))
 
 
 def test_analytic_marginalize_params():

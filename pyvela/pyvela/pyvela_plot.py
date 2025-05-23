@@ -1,5 +1,5 @@
 import json
-from typing import Iterable, Optional, Literal
+from typing import Iterable, Literal, Optional
 
 try:
     from tqdm import tqdm
