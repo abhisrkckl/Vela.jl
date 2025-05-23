@@ -284,7 +284,7 @@ function get_num_timing_params(param_handler::ParamHandler)
     return ntmdim
 end
 
-function get_default_marginalized_param_values(
+function get_marginalized_param_default_values(
     param_handler::ParamHandler,
     marginalized_param_names::Vector{String},
 )
