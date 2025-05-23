@@ -277,7 +277,7 @@ class SPNTA:
         return list(vl.get_marginalized_param_names(self.model))
 
     @cached_property
-    def marginalized_param_default_values(self) -> np.ndarray:
+    def marginalized_default_params(self) -> np.ndarray:
         """Default values of analytically marginalized parameters."""
         return np.array(vl.get_marginalized_param_default_values(self.model))
 
@@ -287,17 +287,19 @@ class SPNTA:
         """Returns the mean offsets and the inverse-covariance matrix Cholesky factor of the
         analytically marginalized parameters. Offsets are defined w.r.t. the default values.
         """
-        assert self.has_marginalized_gp_noise
-        params_ = vl.read_params(self.model, params)
-        y, Ndiag = vl._calc_resids_and_Ndiag(self.model, self.toas, params_)
-        M = np.array(self.model.kernel.noise_basis)
-        Phiinv = np.array(vl.calc_noise_weights_inv(self.model.kernel, params_))
-        Ninv_M = M / np.array(Ndiag)[:, None]
-        MT_Ninv_y = y @ Ninv_M
-        Sigmainv = np.diag(Phiinv) + M.T @ Ninv_M
-        Sigmainv_cf = cholesky(Sigmainv, lower=False)
-        ahat = cho_solve((Sigmainv_cf, False), MT_Ninv_y)
-        return ahat, Sigmainv_cf
+        if self.has_marginalized_gp_noise:
+            params_ = vl.read_params(self.model, params)
+            y, Ndiag = vl._calc_resids_and_Ndiag(self.model, self.toas, params_)
+            M = np.array(self.model.kernel.noise_basis)
+            Phiinv = np.array(vl.calc_noise_weights_inv(self.model.kernel, params_))
+            Ninv_M = M / np.array(Ndiag)[:, None]
+            MT_Ninv_y = y @ Ninv_M
+            Sigmainv = np.diag(Phiinv) + M.T @ Ninv_M
+            Sigmainv_cf = cholesky(Sigmainv, lower=False)
+            ahat = cho_solve((Sigmainv_cf, False), MT_Ninv_y)
+            return ahat, Sigmainv_cf
+        else:
+            return np.array([]), np.array([[]])
 
     def get_marginalized_param_offset_mean(self, params: np.ndarray) -> np.ndarray:
         """Draw a sample of the analytically marginalized parameter offsets."""
@@ -306,20 +308,38 @@ class SPNTA:
     def get_marginalized_param_mean(self, params: np.ndarray) -> np.ndarray:
         """Mean of the analytically marginalized parameter values given other parameters."""
         return (
-            self.marginalized_param_default_values
+            self.marginalized_default_params
             + self.get_marginalized_param_offset_mean(params)
         )
+
+    def get_marginalized_param_std(self, params: np.ndarray) -> np.ndarray:
+        """Mean of the analytically marginalized parameter values given other parameters."""
+        if self.has_marginalized_gp_noise:
+            Sigmainv_cf = self.get_marginalized_param_offset_mean_and_covinvcf(params)[
+                1
+            ]
+            Sigma_cf = solve_triangular(
+                Sigmainv_cf, np.eye(Sigmainv_cf.shape[0]), lower=False
+            )
+            Sigma = Sigma_cf @ Sigma_cf.T
+            return np.sqrt(np.diag(Sigma))
+        else:
+            return np.array([])
 
     def get_marginalized_param_offset_sample(self, params: np.ndarray) -> np.ndarray:
         """Draw a sample of the analytically marginalized parameter vector given other parameters."""
         ahat, Sigmainv_cf = self.get_marginalized_param_offset_mean_and_covinvcf(params)
         z = np.random.randn(len(ahat))
-        return ahat + solve_triangular(Sigmainv_cf, z, lower=False)
+        return (
+            ahat + solve_triangular(Sigmainv_cf, z, lower=False)
+            if self.has_marginalized_gp_noise
+            else np.array([])
+        )
 
     def get_marginalized_param_sample(self, params: np.ndarray) -> np.ndarray:
         """Draw a sample of the analytically marginalized parameter values given other parameters."""
         return (
-            self.marginalized_param_default_values
+            self.marginalized_default_params
             + self.get_marginalized_param_offset_sample(params)
         )
 
@@ -332,16 +352,18 @@ class SPNTA:
     def marginalized_maxpost_params(self) -> np.ndarray:
         """The maximum-posterior values of the analytically marginalized parameters."""
         return (
-            self.marginalized_param_default_values
-            + self.marginalized_maxpost_param_offsets
+            self.marginalized_default_params + self.marginalized_maxpost_param_offsets
         )
 
     def get_marginalized_gp_noise_realization(self, params: np.ndarray) -> np.ndarray:
         """Get a realization of the marginalized GP noise given a set of parameters.
         The length of `params` should be the same as the number of free parameters."""
-        M = np.array(self.model.kernel.noise_basis)
-        a = self.get_marginalized_param_offset_sample(params)
-        return M @ a
+        if self.has_marginalized_gp_noise:
+            M = np.array(self.model.kernel.noise_basis)
+            a = self.get_marginalized_param_offset_sample(params)
+            return M @ a
+        else:
+            return np.zeros(len(self.toas))
 
     def rescale_samples(self, samples_raw: np.ndarray) -> np.ndarray:
         """Rescale the samples from Vela's internal units to common units"""
@@ -716,6 +738,24 @@ class SPNTA:
                     f"Parameter {pname} not found in the PINT TimingModel!"
                 )  # pragma: no cover
 
+        for pname, pval, perr in zip(
+            self.marginalized_param_names,
+            self.get_marginalized_param_mean(params),
+            self.get_marginalized_param_std(params),
+        ):
+            if pname in model1:
+                if pname == "F0":
+                    model1[pname].value = pval + np.longdouble(
+                        self.model.param_handler._default_params_tuple.F_.x
+                    )
+                else:
+                    model1[pname].value = pval
+                model1[pname].uncertainty_value = perr
+            else:
+                warnings.warn(
+                    f"Parameter {pname} not found in the PINT TimingModel!"
+                )  # pragma: no cover
+
         model1.write_parfile(filename)
 
     def save_resids(self, params: np.ndarray, filename: str) -> None:
@@ -811,11 +851,29 @@ class SPNTA:
         )
 
         np.savetxt(f"{outdir}/param_default_values.txt", self.default_params)
+        np.savetxt(f"{outdir}/param_maxpost_values.txt", self.maxpost_params)
         np.savetxt(f"{outdir}/param_names.txt", self.param_names, fmt="%s")
         np.savetxt(f"{outdir}/param_prefixes.txt", self.param_prefixes, fmt="%s")
         np.savetxt(f"{outdir}/param_units.txt", self.param_units, fmt="%s")
         np.savetxt(f"{outdir}/param_scale_factors.txt", self.scale_factors)
         np.savetxt(f"{outdir}/param_autocorr.txt", param_autocorr)
+
+        np.savetxt(
+            f"{outdir}/marginalized_param_default_values.txt",
+            self.marginalized_default_params,
+        )
+        np.savetxt(
+            f"{outdir}/marginalized_param_maxpost_values.txt",
+            self.marginalized_maxpost_params,
+        )
+        np.savetxt(
+            f"{outdir}/marginalized_params_median.txt",
+            self.get_marginalized_param_mean(params_median),
+        )
+        np.savetxt(
+            f"{outdir}/marginalized_params_std.txt",
+            self.get_marginalized_param_std(params_median),
+        )
         np.savetxt(
             f"{outdir}/marginalized_param_names.txt",
             self.marginalized_param_names,
