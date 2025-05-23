@@ -4,6 +4,7 @@
 - Script to plot chains
 - In `SPNTA.save_new_parfile()`, also update the analytically marginalized parameter values and uncertainties.
 - `SPNTA.save_results()` also saves the analytically marginalized parameter values and uncertainties.
+- Maximum-posterior fitting in `VelaFitter`
 ## Changed
 ## Fixed
 - `SPNTA.get_marginalized_gp_noise_realization()` now correctly draws samples from the conditional distribution.
@@ -57,6 +58,7 @@
 - CITATION file
 - In `SPNTA.from_pint()`, compute planetary ephemerides if they are absent in the input `TOAs` object.
 - Support for log-spaced frequencies in Fourier GP components
+- Save MCMC samples in `VelaFitter`
 - Display default values in `$ pyvela --help`
 - Check that `Vela` and `pyvela` have the same version.
 - Can save the plot output from `pyvela-plot`
