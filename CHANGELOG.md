@@ -1,7 +1,9 @@
 # Unreleased
 ## Added
+- `SPNTA.marginalized_maxpost_params` property and `SPNTA.get_marginalized_param_sample()` method
 ## Changed
 ## Fixed
+- `SPNTA.get_marginalized_gp_noise_realization()` not correctly draws samples from the conditional distribution.
 ## Removed
 
 # 0.1.0
