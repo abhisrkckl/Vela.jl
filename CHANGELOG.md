@@ -1,10 +1,10 @@
 # Unreleased
 ## Added
-- `SPNTA.marginalized_maxpost_params` property and `SPNTA.get_marginalized_param_sample()` method
+- `SPNTA.marginalized_param_default_values` and `SPNTA.marginalized_maxpost_params` properties and `SPNTA.get_marginalized_param_sample()` method
 - Script to plot chains
 ## Changed
 ## Fixed
-- `SPNTA.get_marginalized_gp_noise_realization()` not correctly draws samples from the conditional distribution.
+- `SPNTA.get_marginalized_gp_noise_realization()` now correctly draws samples from the conditional distribution.
 ## Removed
 
 # 0.1.0

@@ -274,7 +274,11 @@ class SPNTA:
     def marginalized_param_names(self) -> List[str]:
         return vl.get_marginalized_param_names(self.model)
 
-    def get_marginalized_param_mean_and_covinvcf(
+    @cached_property
+    def marginalized_param_default_values(self) -> np.ndarray:
+        return np.array(vl.get_marginalized_param_default_values(self.model))
+
+    def get_marginalized_param_offset_mean_and_covinvcf(
         self, params: np.ndarray
     ) -> Tuple[np.ndarray, np.ndarray]:
         """Returns the mean and the inverse-covariance matrix Cholesky factor of the
@@ -291,26 +295,48 @@ class SPNTA:
         ahat = cho_solve((Sigmainv_cf, False), MT_Ninv_y)
         return ahat, Sigmainv_cf
 
+    def get_marginalized_param_offset_mean(self, params: np.ndarray) -> np.ndarray:
+        """Draw a sample of the analytically marginalized parameter offsets."""
+        return self.get_marginalized_param_offset_mean_and_covinvcf(params)[0]
+
     def get_marginalized_param_mean(self, params: np.ndarray) -> np.ndarray:
         """Draw a sample of the analytically marginalized parameter vector."""
-        return self.get_marginalized_param_mean_and_covinvcf(params)[0]
+        return (
+            self.marginalized_param_default_values
+            + self.get_marginalized_param_offset_mean(params)
+        )
+
+    def get_marginalized_param_offset_sample(self, params: np.ndarray) -> np.ndarray:
+        """Draw a sample of the analytically marginalized parameter vector."""
+        ahat, Sigmainv_cf = self.get_marginalized_param_offset_mean_and_covinvcf(params)
+        z = np.random.randn(len(ahat))
+        return ahat + solve_triangular(Sigmainv_cf, z, lower=False)
 
     def get_marginalized_param_sample(self, params: np.ndarray) -> np.ndarray:
         """Draw a sample of the analytically marginalized parameter vector."""
-        ahat, Sigmainv_cf = self.get_marginalized_param_mean_and_covinvcf(params)
-        z = np.random.randn(len(ahat))
-        return ahat + solve_triangular(Sigmainv_cf, z, lower=False)
+        return (
+            self.marginalized_param_default_values
+            + self.get_marginalized_param_offset_sample(params)
+        )
+
+    @cached_property
+    def marginalized_maxpost_param_offsets(self) -> np.ndarray:
+        """The maximum-posterior values of the analytically marginalized parameters."""
+        return self.get_marginalized_param_mean(self.maxpost_params)
 
     @cached_property
     def marginalized_maxpost_params(self) -> np.ndarray:
         """The maximum-posterior values of the analytically marginalized parameters."""
-        return self.get_marginalized_param_mean(self.maxpost_params)
+        return (
+            self.marginalized_param_default_values
+            + self.marginalized_maxpost_param_offsets
+        )
 
     def get_marginalized_gp_noise_realization(self, params: np.ndarray) -> np.ndarray:
         """Get a realization of the marginalized GP noise given a set of parameters.
         The length of `params` should be the same as the number of free parameters."""
         M = np.array(self.model.kernel.noise_basis)
-        a = self.get_marginalized_param_sample(params)
+        a = self.get_marginalized_param_offset_sample(params)
         return M @ a
 
     def rescale_samples(self, samples_raw: np.ndarray) -> np.ndarray:
