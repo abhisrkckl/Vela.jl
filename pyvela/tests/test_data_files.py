@@ -1,14 +1,14 @@
 import os
 import time
-from typing import Tuple
 from io import StringIO
+from typing import Tuple
 
 import numpy as np
 import pytest
-from pint.models import get_model_and_toas, get_model, TimingModel
-from pint.toa import TOAs
+from pint.fitter import GLSFitter, WidebandDownhillFitter, WLSFitter
+from pint.models import TimingModel, get_model, get_model_and_toas
 from pint.simulation import make_fake_toas_uniform
-from pint.fitter import WLSFitter, GLSFitter, WidebandDownhillFitter
+from pint.toa import TOAs
 
 from pyvela.model import fix_params, fix_red_noise_components
 from pyvela.parameters import fdjump_rx
@@ -325,6 +325,8 @@ def test_wideband_dmgp():
     assert set(spnta.marginalized_param_names).issuperset({"F0", "F1", "PHOFF"})
     assert len(spnta.marginalized_param_names) == 19
     assert np.isfinite(spnta.lnpost(spnta.default_params))
+    assert np.isfinite(spnta.lnpost(spnta.maxpost_params))
+    assert np.all(np.isfinite(spnta.marginalized_maxpost_params))
 
 
 def test_analytic_marginalize_params():

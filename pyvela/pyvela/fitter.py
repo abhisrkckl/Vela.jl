@@ -4,10 +4,10 @@ import numpy as np
 from scipy.optimize import dual_annealing
 from numdifftools import Hessian
 from pint.fitter import Fitter
-from pint.models import TimingModel
-from pint.toa import TOAs
-from pint.residuals import Residuals, WidebandTOAResiduals
 from pint.logging import log
+from pint.models import TimingModel
+from pint.residuals import Residuals, WidebandTOAResiduals
+from pint.toa import TOAs
 
 from .spnta import SPNTA
 from .vela import vl

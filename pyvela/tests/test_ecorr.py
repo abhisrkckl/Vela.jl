@@ -1,8 +1,8 @@
 import os
 from io import StringIO
 
-import numpy as np
 import astropy.units as u
+import numpy as np
 import pytest
 from pint.models import get_model, get_model_and_toas
 from pint.simulation import make_fake_toas_uniform

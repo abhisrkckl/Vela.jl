@@ -1,7 +1,9 @@
+"""Script for running pulsar timing & noise analysis using Vela.jl with emcee."""
+
 import json
 import os
 import shutil
-from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
+from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
 
 import emcee
 import numpy as np
@@ -244,10 +246,11 @@ def main(argv=None):
     )
     s = args.initial_sample_spread
     p0 = (
-        ((1 - s) * spnta.default_params + s * p0_)
+        ((1 - s) * spnta.maxpost_params + s * p0_)
         if np.isfinite(spnta.lnpost(spnta.default_params))
         else p0_
     )
+    p0[0, :] = spnta.maxpost_params
 
     sampler = emcee.EnsembleSampler(
         nwalkers,

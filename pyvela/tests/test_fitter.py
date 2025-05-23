@@ -1,5 +1,6 @@
 import os
 import numpy as np
+
 from pint.models import get_model_and_toas
 from pyvela.fitter import VelaFitter
 

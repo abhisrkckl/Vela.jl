@@ -1,5 +1,13 @@
 import json
-from typing import Iterable, Optional
+from typing import Iterable, Literal, Optional
+
+try:
+    from tqdm import tqdm
+except ImportError:
+    # allow for systems that don't have tqdm
+    def tqdm(iterable, **kwargs):
+        return iterable
+
 
 import corner
 import matplotlib.pyplot as plt
@@ -81,6 +89,8 @@ def plot(
     outfile: str = None,
     labelpad: float = 0.2,
 ):
+    """Plot `pyvela` output and optionally save it to a file. The output includes a corner plot of the
+    posterior samples and the post-fit whitened residuals."""
 
     samples = np.load(f"{result_dir}/samples.npy")
     param_names = np.genfromtxt(f"{result_dir}/param_names.txt", dtype=str)
@@ -206,3 +216,29 @@ def plot(
         plt.show()
     else:
         plt.savefig(outfile)
+
+
+def plot_chains(
+    result_dir: str, outdir: str = None, extension: Literal["png", "pdf", "gif"] = "png"
+):
+    if outdir is None:
+        outdir = result_dir
+    params = np.loadtxt(f"{result_dir}/param_names.txt", dtype=str)
+    d = np.load(f"{result_dir}/samples.npy")
+    with open(f"{result_dir}/summary.json") as summary_file:
+        summary_info = json.load(summary_file)
+    nwalkers = summary_info["sampler"]["nwalkers"]
+    thin = summary_info["sampler"]["thin"]
+
+    for i in tqdm(range(len(params))):
+        plt.clf()
+        plt.plot(np.arange(d.shape[0]), d[:, i], ",")
+        ax = plt.gca()
+        ax.set_ylabel(params[i])
+        ax.set_xlabel("Raw Samples (thinned steps * walkers)")
+        ax2 = ax.secondary_xaxis(
+            "top",
+            functions=(lambda x: x * thin / nwalkers, lambda x: x * nwalkers / thin),
+        )
+        ax2.set_xlabel("MCMC Steps After Burnin")
+        plt.savefig(f"{outdir}/chain_{params[i]}.{extension}")
