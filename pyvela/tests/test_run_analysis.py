@@ -12,8 +12,8 @@ from pyvela import (
     pyvela_jlso_script,
     pyvela_plot_script,
     pyvela_plotchains_script,
-    pyvela_script,
     pyvela_rethin_script,
+    pyvela_script,
 )
 from pyvela.spnta import SPNTA
 

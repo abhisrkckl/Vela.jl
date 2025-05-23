@@ -1,7 +1,9 @@
 import os
+
 import pytest
-from pyvela.fitter import VelaFitter
 from pint.models import get_model_and_toas
+
+from pyvela.fitter import VelaFitter
 
 
 @pytest.mark.parametrize("dataset", ["NGC6440E", "sim_sw.wb"])
