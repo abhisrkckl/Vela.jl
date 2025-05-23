@@ -1,12 +1,12 @@
 from typing import List
 
+import astropy.constants as const
+import astropy.units as u
 import numpy as np
 from astropy.time import Time
-import astropy.units as u
-import astropy.constants as const
+from pint import DMconst, dmu
 from pint.models import TimingModel
 from pint.models.parameter import AngleParameter, MJDParameter, floatParameter
-from pint import DMconst, dmu
 
 from .parameters import (
     fdjump_rx,

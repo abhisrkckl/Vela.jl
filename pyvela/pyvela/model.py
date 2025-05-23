@@ -1,15 +1,15 @@
 from typing import List, Optional, Tuple
 
-import numpy as np
 import astropy.units as u
-from pint.models import PhaseOffset, TimingModel
-from pint.models.parameter import MJDParameter, maskParameter, floatParameter
-from pint.toa import TOAs
+import numpy as np
 from pint import DMconst
+from pint.models import PhaseOffset, TimingModel
+from pint.models.parameter import MJDParameter, floatParameter, maskParameter
+from pint.toa import TOAs
 
 from .dmx import get_dmx_mask
 from .gp_noise import PLChromNoiseGP, PLDMNoiseGP, PLRedNoiseGP
-from .parameters import pint_parameters_to_vela, get_unit_conversion_factor
+from .parameters import get_unit_conversion_factor, pint_parameters_to_vela
 from .priors import get_default_priors
 from .toas import day_to_s, pint_toa_to_vela
 from .vela import jl, vl

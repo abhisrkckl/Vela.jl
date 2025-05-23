@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pyvela"
-version = "0.0.10"
+version = "0.1.0"
 description = "Python interface for Vela.jl, a Bayesian pulsar timing and noise analysis package."
 keywords = ["astronomy", "astrophysics", "pulsar"]
 
@@ -54,6 +54,7 @@ pyvela-compare = "pyvela.pyvela_compare_script:main"
 pyvela-plot = "pyvela.pyvela_plot_script:main"
 pyvela-jlso = "pyvela.pyvela_jlso_script:main"
 pyvela-rethin = "pyvela.pyvela_rethin_script:main"
+pyvela-plotchains = "pyvela.pyvela_plotchains_script:main"
 
 [tool.setuptools]
 zip-safe = false
