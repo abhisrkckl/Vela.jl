@@ -54,6 +54,7 @@ pyvela-compare = "pyvela.pyvela_compare_script:main"
 pyvela-plot = "pyvela.pyvela_plot_script:main"
 pyvela-jlso = "pyvela.pyvela_jlso_script:main"
 pyvela-rethin = "pyvela.pyvela_rethin_script:main"
+pyvela-plotchains = "pyvela.pyvela_plotchains_script:main"
 
 [tool.setuptools]
 zip-safe = false
