@@ -1,5 +1,6 @@
 # Unreleased
 ## Added
+- Script to plot chains
 ## Changed
 ## Fixed
 ## Removed
@@ -20,7 +21,6 @@
 - `--analytic_marg` option in `pyvela` script
 - `--analytic_marg all` option in `pyvela` script
 - Add FD and FDJUMP to analytically marginalizable parameters
-- Script to plot chains
 - `SPNTA.maxpost_params` property
 - Pre-commit hooks
 ## Changed
