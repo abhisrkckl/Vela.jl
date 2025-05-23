@@ -7,7 +7,7 @@ import sys
 import warnings
 from copy import deepcopy
 from functools import cached_property
-from typing import IO, Dict, Iterable, List, Optional
+from typing import IO, Dict, Iterable, List, Optional, Tuple
 
 import astropy
 import emcee
@@ -17,7 +17,7 @@ from pint.binaryconvert import convert_binary
 from pint.logging import setup as setup_log
 from pint.models import TimingModel, get_model, get_model_and_toas
 from pint.toa import TOAs
-from scipy.linalg import cho_factor, cho_solve
+from scipy.linalg import cholesky, cho_solve, solve_triangular
 from scipy.optimize import minimize
 
 import pyvela
@@ -274,9 +274,11 @@ class SPNTA:
     def marginalized_param_names(self) -> List[str]:
         return vl.get_marginalized_param_names(self.model)
 
-    def get_marginalized_gp_noise_realization(self, params: np.ndarray) -> np.ndarray:
-        """Get a realization of the marginalized GP noise given a set of parameters.
-        The length of `params` should be the same as the number of free parameters."""
+    def get_marginalized_param_mean_and_covinvcf(
+        self, params: np.ndarray
+    ) -> Tuple[np.ndarray, np.ndarray]:
+        """Returns the mean and the inverse-covariance matrix Cholesky factor of the
+        analytically marginalized parameters."""
         assert self.has_marginalized_gp_noise
         params_ = vl.read_params(self.model, params)
         y, Ndiag = vl._calc_resids_and_Ndiag(self.model, self.toas, params_)
@@ -285,9 +287,27 @@ class SPNTA:
         Ninv_M = M / np.array(Ndiag)[:, None]
         MT_Ninv_y = y @ Ninv_M
         Sigmainv = np.diag(Phiinv) + M.T @ Ninv_M
-        Sigmainv_cf = cho_factor(Sigmainv)
-        ahat = cho_solve(Sigmainv_cf, MT_Ninv_y)
-        return M @ ahat
+        Sigmainv_cf = cholesky(Sigmainv, lower=False)
+        ahat = cho_solve((Sigmainv_cf, False), MT_Ninv_y)
+        return ahat, Sigmainv_cf
+
+    def get_marginalized_param_sample(self, params: np.ndarray) -> np.ndarray:
+        """Draw a sample of the analytically marginalized parameter vector."""
+        ahat, Sigmainv_cf = self.get_marginalized_param_mean_and_covinvcf(params)
+        z = np.random.randn(len(ahat))
+        return ahat + solve_triangular(Sigmainv_cf, z, lower=False)
+
+    @cached_property
+    def marginalized_maxpost_params(self) -> np.ndarray:
+        """The maximum-posterior values of the analytically marginalized parameters."""
+        return self.get_marginalized_param_mean_and_covinvcf(self.maxpost_params)[0]
+
+    def get_marginalized_gp_noise_realization(self, params: np.ndarray) -> np.ndarray:
+        """Get a realization of the marginalized GP noise given a set of parameters.
+        The length of `params` should be the same as the number of free parameters."""
+        M = np.array(self.model.kernel.noise_basis)
+        a = self.get_marginalized_param_sample(params)
+        return M @ a
 
     def rescale_samples(self, samples_raw: np.ndarray) -> np.ndarray:
         """Rescale the samples from Vela's internal units to common units"""
