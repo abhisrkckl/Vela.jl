@@ -10,7 +10,8 @@ export Parameter,
     read_param_values_to_vector,
     get_scale_factors,
     is_noise,
-    get_num_timing_params
+    get_num_timing_params,
+    get_marginalized_param_default_values
 
 """
     Parameter
