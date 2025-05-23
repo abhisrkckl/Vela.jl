@@ -122,7 +122,7 @@ def test_script(dataset):
     pyvela_plotchains_script.main([f"{outdir}/"])
 
     if dataset == "NGC6440E":
-        pyvela_plotchains_script.main([f"{outdir}/","-e","png"])
+        pyvela_plotchains_script.main([f"{outdir}/", "-e", "png"])
         assert os.path.isfile(f"{outdir}/chain_DECJ.png")
 
 
