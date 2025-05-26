@@ -281,6 +281,11 @@ class SPNTA:
         """Default values of analytically marginalized parameters."""
         return np.array(vl.get_marginalized_param_default_values(self.model))
 
+    @cached_property
+    def marginalized_param_scale_factors(self) -> np.ndarray:
+        """Unit conversion factors for analytically marginalized parameters."""
+        return np.array(vl.get_marginalized_param_scale_factors(self.model))
+
     def get_marginalized_param_offset_mean_and_covinvcf(
         self, params: np.ndarray
     ) -> Tuple[np.ndarray, np.ndarray]:
