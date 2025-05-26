@@ -745,8 +745,10 @@ class SPNTA:
 
         for pname, pval, perr in zip(
             self.marginalized_param_names,
-            self.get_marginalized_param_mean(params),
-            self.get_marginalized_param_std(params),
+            self.get_marginalized_param_mean(params)
+            / self.marginalized_param_scale_factors,
+            self.get_marginalized_param_std(params)
+            / self.marginalized_param_scale_factors,
         ):
             if pname in model1:
                 if pname == "F0":
@@ -883,6 +885,10 @@ class SPNTA:
             f"{outdir}/marginalized_param_names.txt",
             self.marginalized_param_names,
             fmt="%s",
+        )
+        np.savetxt(
+            f"{outdir}/marginalized_param_scale_factors.txt",
+            self.marginalized_param_scale_factors,
         )
 
         if truth_par_file is not None:
