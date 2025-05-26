@@ -1,6 +1,6 @@
 """Script to resample `pyvela` output with new burn-in length and thinning factor."""
 
-from argparse import ArgumentParser
+from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
 
 from pyvela import pyvela_rethin
 
@@ -9,6 +9,7 @@ def parse_args(argv):
     parser = ArgumentParser(
         prog="pyvela-rethin",
         description="Resample `pyvela` output with new values of thinning and burn-in.",
+        formatter_class=ArgumentDefaultsHelpFormatter,
     )
     parser.add_argument(
         "result_dir", help="A directory containing the output of the `pyvela` script."
