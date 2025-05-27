@@ -11,7 +11,8 @@ export Parameter,
     get_scale_factors,
     is_noise,
     get_num_timing_params,
-    get_marginalized_param_default_values
+    get_marginalized_param_default_values,
+    get_marginalized_param_scale_factors
 
 """
     Parameter
@@ -305,6 +306,33 @@ function get_marginalized_param_default_values(
             idx = findfirst(x -> x==pname, marginalized_param_names)
             if !isnothing(idx)
                 result[idx] = param.default_value
+            end
+        end
+    end
+
+    return result
+end
+
+function get_marginalized_param_scale_factors(
+    param_handler::ParamHandler,
+    marginalized_param_names::Vector{String},
+)
+    result = zeros(Float64, length(marginalized_param_names))
+
+    @inbounds for spar in param_handler.single_params
+        pname = string(spar.name)
+        idx = findfirst(x -> x==pname, marginalized_param_names)
+        if !isnothing(idx)
+            result[idx] = spar.unit_conversion_factor
+        end
+    end
+
+    @inbounds for mpar in param_handler.multi_params
+        for param in mpar.parameters
+            pname = string(param.name)
+            idx = findfirst(x -> x==pname, marginalized_param_names)
+            if !isnothing(idx)
+                result[idx] = param.unit_conversion_factor
             end
         end
     end

@@ -1,4 +1,4 @@
-from argparse import ArgumentParser
+from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
 
 from astropy import units as u
 from matplotlib import pyplot as plt
@@ -16,6 +16,7 @@ def parse_args(argv):
     parser = ArgumentParser(
         prog="pyvela-compare",
         description="Compare residuals obtained using Vela.jl and PINT.",
+        formatter_class=ArgumentDefaultsHelpFormatter,
     )
     parser.add_argument("par_file", help="Input par file")
     parser.add_argument("tim_file", help="Input tim file")
