@@ -1,7 +1,7 @@
 from astropy import units as u
 from astropy.time import Time
 from pint.models.noise_model import PLChromNoise, PLDMNoise, PLRedNoise
-from pint.models.parameter import MJDParameter, floatParameter, prefixParameter
+from pint.models.parameter import MJDParameter, prefixParameter
 from pint.models.timing_model import DelayComponent
 
 

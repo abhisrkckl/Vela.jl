@@ -1,4 +1,4 @@
-from argparse import ArgumentParser
+from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
 
 from .spnta import SPNTA
 
@@ -7,6 +7,7 @@ def parse_args(argv):
     parser = ArgumentParser(
         prog="pyvela-jlso",
         description="Read a par file, tim file, and prior JSON file, and write a JLSO file.",
+        formatter_class=ArgumentDefaultsHelpFormatter,
     )
     parser.add_argument(
         "par_file",

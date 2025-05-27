@@ -69,6 +69,11 @@ get_marginalized_param_default_values(model::TimingModel) =
         model.param_handler,
         get_marginalized_param_names(model),
     )
+get_marginalized_param_scale_factors(model::TimingModel) =
+    get_marginalized_param_scale_factors(
+        model.param_handler,
+        get_marginalized_param_names(model),
+    )
 
 read_param_values_to_vector(model::TimingModel) =
     read_param_values_to_vector(model.param_handler)

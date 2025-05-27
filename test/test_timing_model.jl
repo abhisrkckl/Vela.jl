@@ -95,5 +95,6 @@
         @test length(get_free_param_prefixes(m2)) == length(get_free_param_names(m2))
         @test length(get_marginalized_param_names(m2)) == 0
         @test length(get_marginalized_param_default_values(m2)) == 0
+        @test length(get_marginalized_param_scale_factors(m2)) == 0
     end
 end
