@@ -1,7 +1,7 @@
 """Script to plot `pyvela` output. The output includes a corner plot of the posterior samples and
 post-fit whitened residuals. The output may not be publication-quality."""
 
-from argparse import ArgumentParser
+from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
 
 from pyvela import pyvela_plot
 
@@ -10,6 +10,7 @@ def parse_args(argv):
     parser = ArgumentParser(
         prog="pyvela-plot",
         description="Create a corner plot from pyvela results.",
+        formatter_class=ArgumentDefaultsHelpFormatter,
     )
     parser.add_argument(
         "result_dir", help="A directory containing the output of the `pyvela` script."

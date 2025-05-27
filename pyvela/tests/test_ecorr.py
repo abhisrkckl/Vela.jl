@@ -1,14 +1,10 @@
 import os
-from io import StringIO
 
-import astropy.units as u
 import numpy as np
 import pytest
-from pint.models import get_model, get_model_and_toas
-from pint.simulation import make_fake_toas_uniform
+from pint.models import get_model_and_toas
 
 from pyvela.ecorr import ecorr_sort
-from pyvela.model import get_kernel
 from pyvela.spnta import SPNTA
 
 datadir = f"{os.path.dirname(os.path.realpath(__file__))}/datafiles"

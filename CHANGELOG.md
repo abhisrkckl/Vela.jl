@@ -2,8 +2,10 @@
 ## Added
 - `SPNTA.marginalized_param_default_values` and `SPNTA.marginalized_maxpost_params` properties and `SPNTA.get_marginalized_param_sample()` method
 - Script to plot chains
+- `SPNTA.marginalized_param_scale_factors` property
 - In `SPNTA.save_new_parfile()`, also update the analytically marginalized parameter values and uncertainties.
 - `SPNTA.save_results()` also saves the analytically marginalized parameter values and uncertainties.
+- Display default arguments in help messages of all scripts
 ## Changed
 ## Fixed
 - `SPNTA.get_marginalized_gp_noise_realization()` now correctly draws samples from the conditional distribution.
