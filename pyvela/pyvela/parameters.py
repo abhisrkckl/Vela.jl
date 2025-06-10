@@ -23,7 +23,7 @@ fdjump_rx = re.compile("^FD(\\d+)JUMP(\\d+)")
 def get_scale_factor(param: Parameter) -> float:
     """Get the scale factor that converts a given parameter from the `PINT`
     units to a unit of dimensionality [T^n]. This function is used by
-    `get_unit_conversion_factor()` to compute the factor that converts a qualtity
+    `get_unit_conversion_factor()` to compute the factor that converts a quantity
     from `PINT` units to `Vela` units.
 
     In `Vela`'s internal representation, all quantities have dimensions of [T^n]

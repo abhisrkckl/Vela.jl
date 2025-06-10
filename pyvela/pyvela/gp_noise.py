@@ -7,7 +7,7 @@ from pint.models.timing_model import DelayComponent
 
 class PLRedNoiseGP(DelayComponent):
     """A dummy PINT component that is used to translate `PLRedNoise` to a form
-    with unmarginalized amplitudes."""
+    with un-marginalized amplitudes."""
 
     def __init__(self, plrednoise: PLRedNoise, epoch: Time):
         super().__init__()
@@ -68,7 +68,7 @@ class PLRedNoiseGP(DelayComponent):
 
 class PLDMNoiseGP(DelayComponent):
     """A dummy PINT component that is used to translate `PLDMNoise` to a form
-    with unmarginalized amplitudes."""
+    with un-marginalized amplitudes."""
 
     def __init__(self, pldmnoise: PLDMNoise, epoch: Time):
         super().__init__()
@@ -127,7 +127,7 @@ class PLDMNoiseGP(DelayComponent):
 
 class PLChromNoiseGP(DelayComponent):
     """A dummy PINT component that is used to translate `PLDMNoise` to a form
-    with unmarginalized amplitudes."""
+    with un-marginalized amplitudes."""
 
     def __init__(self, plchromnoise: PLChromNoise, epoch: Time):
         super().__init__()

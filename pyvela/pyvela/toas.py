@@ -13,7 +13,7 @@ def pint_toa_to_vela(toas: TOAs, idx: int, epoch_mjd: float):
 
     assert (
         toas.planets
-    ), "Planerary ephemeris not found in `TOAs` object. Use `planets=True` while reading in the TOAs."
+    ), "Planetary ephemeris not found in `TOAs` object. Use `planets=True` while reading in the TOAs."
     assert (
         toas.get_pulse_numbers() is not None
     ), "Pulse numbers not found in `TOAs` object. Call `toas.compute_pulse_numbers()`."
