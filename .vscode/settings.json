@@ -3,5 +3,15 @@
         "pyvela", "-n12", "--verbose"
     ],
     "python.testing.unittestEnabled": false,
-    "python.testing.pytestEnabled": true
+    "python.testing.pytestEnabled": true,
+    "cSpell.words": [
+        "ecorr",
+        "jlso",
+        "marginalizable",
+        "maxpost",
+        "parfile",
+        "pyvela",
+        "SPNTA",
+        "TASC"
+    ]
 }

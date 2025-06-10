@@ -6,6 +6,7 @@
 - In `SPNTA.save_new_parfile()`, also update the analytically marginalized parameter values and uncertainties.
 - `SPNTA.save_results()` also saves the analytically marginalized parameter values and uncertainties.
 - Display default arguments in help messages of all scripts
+- Work stealing in `pyvela` CI tests
 ## Changed
 ## Fixed
 - `SPNTA.get_marginalized_gp_noise_realization()` now correctly draws samples from the conditional distribution.
