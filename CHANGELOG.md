@@ -7,6 +7,7 @@
 - `SPNTA.save_results()` also saves the analytically marginalized parameter values and uncertainties.
 - Maximum-posterior fitting in `VelaFitter`
 - Display default arguments in help messages of all scripts
+- Work stealing in `pyvela` CI tests
 ## Changed
 ## Fixed
 - `SPNTA.get_marginalized_gp_noise_realization()` now correctly draws samples from the conditional distribution.
