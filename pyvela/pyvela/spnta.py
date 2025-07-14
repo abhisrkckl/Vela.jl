@@ -758,7 +758,7 @@ class SPNTA:
                 else:
                     model1[pname].value = pval
                 model1[pname].uncertainty_value = perr
-            else:
+            elif pname in self.model_pint:
                 warnings.warn(
                     f"Parameter {pname} not found in the PINT TimingModel!"
                 )  # pragma: no cover
