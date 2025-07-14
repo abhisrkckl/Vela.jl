@@ -376,6 +376,7 @@ def fix_params(model: TimingModel, toas: TOAs) -> None:
         "EPS2DOT",
         "H3",
         "STIGMA",
+        "LNEDOT",
     ]
     for p in zeroable_params:
         if p in model and model[p].quantity is None:
