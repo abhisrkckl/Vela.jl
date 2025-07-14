@@ -10,6 +10,7 @@
 ## Changed
 ## Fixed
 - `SPNTA.get_marginalized_gp_noise_realization()` now correctly draws samples from the conditional distribution.
+- "Parameter not found" warnings in `SPNTA.save_new_parfile()` are no longer emitted for parameters not in the original PINT `TimingModel`.
 ## Removed
 
 # 0.1.0
