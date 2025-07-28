@@ -190,7 +190,7 @@ profile.pb.gz
 
 *_results.pdf
 
-pyvela/tests/_*_out/
+pyvela/tests/_*_out_*/
 pyvela_results
 __prior.json
 pyvela/examples/*_out/
