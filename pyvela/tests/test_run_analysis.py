@@ -126,6 +126,59 @@ def test_script(dataset):
         assert os.path.isfile(f"{outdir}/chain_DECJ.png")
 
 
+@pytest.mark.parametrize("dataset", ["NGC6440E"])
+def test_script_notruth(dataset):
+    datadir = f"{os.path.dirname(os.path.realpath(__file__))}/datafiles"
+    parfile, timfile = f"{datadir}/{dataset}.par", f"{datadir}/{dataset}.tim"
+    outdir = f"_{dataset}_out_notruth"
+
+    prior_file = "__prior.json"
+    with open(prior_file, "w") as pf:
+        print(prior_str, file=pf)
+
+    args = f"{parfile} {timfile} -P {prior_file} -o {outdir} -f -A all -N 1000 -b 500".split()
+    pyvela_script.main(args)
+
+    param_names_1 = np.genfromtxt(f"{outdir}/param_names.txt", dtype=str)
+
+    args = f"{parfile} {timfile} -P {prior_file} -o {outdir} -f -A all --resume -N 100 -b 500".split()
+    pyvela_script.main(args)
+
+    param_names_2 = np.genfromtxt(f"{outdir}/param_names.txt", dtype=str)
+    assert np.all(param_names_1 == param_names_2)
+
+    assert os.path.isdir(outdir)
+    assert os.path.isfile(f"{outdir}/summary.json")
+    assert os.path.isfile(f"{outdir}/{prior_file}")
+    assert os.path.isfile(f"{outdir}/param_names.txt")
+    assert os.path.isfile(f"{outdir}/param_units.txt")
+    assert os.path.isfile(f"{outdir}/param_scale_factors.txt")
+    assert os.path.isfile(f"{outdir}/samples_raw.npy")
+    assert os.path.isfile(f"{outdir}/samples.npy")
+
+    with open(f"{outdir}/summary.json") as sf:
+        summary = json.load(sf)
+        assert os.path.isfile(f"{outdir}/{summary['input']["par_file"]}")
+        assert os.path.isfile(f"{outdir}/{summary['input']["tim_file"]}")
+        assert os.path.isfile(f"{outdir}/{summary['input']["jlso_file"]}")
+
+    rethin_args = f"{outdir} -b 600 -t 10".split()
+    pyvela_rethin_script.main(rethin_args)
+
+    pyvela_plot_script.main([f"{outdir}/", "--priors"])
+
+    if dataset == "NGC6440E":
+        pyvela_plot_script.main(
+            [f"{outdir}/", "--include_params", "RAJ", "DECJ", "-o", "__plot.pdf"]
+        )
+
+    pyvela_plotchains_script.main([f"{outdir}/"])
+
+    if dataset == "NGC6440E":
+        pyvela_plotchains_script.main([f"{outdir}/", "-e", "png"])
+        assert os.path.isfile(f"{outdir}/chain_DECJ.png")
+
+
 @pytest.mark.parametrize("dataset", ["NGC6440E", "sim_sw.wb"])
 def test_compare_script(dataset):
     datadir = f"{os.path.dirname(os.path.realpath(__file__))}/datafiles"

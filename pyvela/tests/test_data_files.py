@@ -77,7 +77,12 @@ def test_read_data(dataset):
     parfile, timfile = f"{datadir}/{dataset}.par", f"{datadir}/{dataset}.tim"
     m, t = get_model_and_toas(parfile, timfile, planets=True)
     model, toas = convert_model_and_toas(
-        m, t, m.get_params_of_component_type("NoiseComponent"), False, []
+        m,
+        t,
+        m.get_params_of_component_type("NoiseComponent"),
+        False,
+        [],
+        {},
     )
     assert len(toas) == len(t)
     assert len(model.components) <= len(m.components)
@@ -318,7 +323,12 @@ def test_wideband_dmgp():
     ftr.model["TNDMGAM"].frozen = False
 
     spnta = SPNTA.from_pint(
-        ftr.model, ftr.toas, analytic_marginalized_params=["F", "PHOFF"]
+        ftr.model,
+        ftr.toas,
+        analytic_marginalized_params=["F", "PHOFF"],
+        analytic_marginalized_param_prior_stds={
+            "PHOFF": 1,
+        },
     )
     assert set(spnta.param_names) == {"RAJ", "DECJ", "DM", "TNDMAMP", "TNDMGAM"}
     assert np.shape(spnta.model.kernel.noise_basis) == (len(t) * 2, 19)
@@ -356,11 +366,22 @@ def test_analytic_marginalize_params():
     ftr.fit_toas(maxiter=3)
 
     spnta = SPNTA.from_pint(
-        ftr.model, ftr.toas, analytic_marginalized_params=["F0", "PHOFF", "JUMP"]
+        ftr.model,
+        ftr.toas,
+        analytic_marginalized_params=["F0", "PHOFF", "JUMP"],
+        analytic_marginalized_param_prior_stds={
+            "JUMP": 1,
+        },
     )
     assert set(spnta.param_names) == {"RAJ", "DECJ", "DM", "F1"}
     assert np.shape(spnta.model.kernel.noise_basis) == (len(t), 4)
     assert set(spnta.marginalized_param_names) == {"F0", "PHOFF", "JUMP1", "JUMP2"}
+    assert dict(
+        zip(
+            spnta.marginalized_param_names,
+            spnta.model.kernel.gp_components[0].prior_weights_inv,
+        )
+    ) == {"F0": 1e-40, "JUMP1": 1.0, "JUMP2": 1.0, "PHOFF": 1e-40}
 
 
 def test_analytic_marginalize_params_wb():

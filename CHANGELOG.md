@@ -8,9 +8,14 @@
 - Maximum-posterior fitting in `VelaFitter`
 - Display default arguments in help messages of all scripts
 - Work stealing in `pyvela` CI tests
+- Optionally specify Gaussian priors for analytically marginalized timing model parameters
 ## Changed
+- Split the `SPNTA.save_results()` method into two -- the pre-analysis details are now saved using `SPNTA.save_pre_analysis_summary()` before running MCMC.
 ## Fixed
 - `SPNTA.get_marginalized_gp_noise_realization()` now correctly draws samples from the conditional distribution.
+- LNEDOT is a zeroable parameter.
+- "Parameter not found" warnings in `SPNTA.save_new_parfile()` are no longer emitted for parameters not in the original PINT `TimingModel`.
+- Correctly deal with non-existent truth par file in `pyvela-rethin`.
 ## Removed
 
 # 0.1.0
