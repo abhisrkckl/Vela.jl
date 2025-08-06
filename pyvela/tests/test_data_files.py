@@ -381,8 +381,7 @@ def test_analytic_marginalize_params():
             spnta.marginalized_param_names,
             spnta.model.kernel.gp_components[0].prior_weights_inv,
         )
-        == {"F0": 1e-40, "JUMP1": 1.0, "JUMP2": 1.0, "PHOFF": 1e-40}
-    )
+    ) == {"F0": 1e-40, "JUMP1": 1.0, "JUMP2": 1.0, "PHOFF": 1e-40}
 
 
 def test_analytic_marginalize_params_wb():
