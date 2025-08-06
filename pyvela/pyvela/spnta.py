@@ -19,6 +19,7 @@ from pint.models import TimingModel, get_model, get_model_and_toas
 from pint.toa import TOAs
 from scipy.linalg import cho_solve, cholesky, solve_triangular
 from scipy.optimize import minimize
+from astropy import units as u
 
 import pyvela
 
@@ -35,6 +36,7 @@ def convert_model_and_toas(
     noise_params: List[str],
     marginalize_gp_noise: bool,
     analytic_marginalized_params: List[str],
+    analytic_marginalized_param_prior_stds: Dict[str, float],
     cheat_prior_scale: float = 100.0,
     custom_priors: dict = {},
 ):
@@ -60,6 +62,7 @@ def convert_model_and_toas(
         noise_params,
         marginalize_gp_noise,
         analytic_marginalized_params,
+        analytic_marginalized_param_prior_stds,
         ecorr_toa_ranges=ecorr_toa_ranges,
         ecorr_indices=ecorr_indices,
     )
@@ -106,6 +109,7 @@ class SPNTA:
         timfile: str,
         marginalize_gp_noise: bool = True,
         analytic_marginalized_params: List[str] = [],
+        analytic_marginalized_param_prior_stds: Optional[Dict[str, float]] = {},
         cheat_prior_scale: float = 100.0,
         custom_priors: str | IO | dict = {},
         check: bool = True,
@@ -119,6 +123,9 @@ class SPNTA:
 
         self.cheat_prior_scale: Optional[float] = cheat_prior_scale
         self.analytic_marginalized_params = analytic_marginalized_params
+        self.analytic_marginalized_param_prior_stds = (
+            analytic_marginalized_param_prior_stds
+        )
 
         setup_log(level="WARNING")
         model_pint, toas_pint = get_model_and_toas(
@@ -157,6 +164,7 @@ class SPNTA:
             noise_params,
             marginalize_gp_noise,
             analytic_marginalized_params,
+            analytic_marginalized_param_prior_stds,
             cheat_prior_scale=cheat_prior_scale,
             custom_priors=custom_priors,
         )
@@ -555,6 +563,7 @@ class SPNTA:
         toas: TOAs,
         marginalize_gp_noise: bool = True,
         analytic_marginalized_params: List[str] = [],
+        analytic_marginalized_param_prior_stds: Dict[str, float] = {},
         cheat_prior_scale: float = 100.0,
         custom_priors: dict | str | IO = {},
     ) -> "SPNTA":
@@ -602,6 +611,7 @@ class SPNTA:
             noise_params,
             marginalize_gp_noise,
             analytic_marginalized_params,
+            analytic_marginalized_param_prior_stds,
             cheat_prior_scale=cheat_prior_scale,
             custom_priors=custom_priors,
         )

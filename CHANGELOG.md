@@ -7,6 +7,7 @@
 - `SPNTA.save_results()` also saves the analytically marginalized parameter values and uncertainties.
 - Display default arguments in help messages of all scripts
 - Work stealing in `pyvela` CI tests
+- Optionally specify Gaussian priors for analytically marginalized timing model parameters
 ## Changed
 - Split the `SPNTA.save_results()` method into two -- the pre-analysis details are now saved using `SPNTA.save_pre_analysis_summary()` before running MCMC.
 ## Fixed

@@ -1,4 +1,4 @@
-from typing import List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple
 
 import astropy.units as u
 import numpy as np
@@ -437,6 +437,7 @@ def get_kernel(
     ecorr_toa_ranges: List[Tuple[int, int]],
     ecorr_indices: List[int],
     analytic_marginalized_params: List[str],
+    analytic_marginalized_param_prior_stds: Dict[str, float],
 ):
     """Construct a `Vela.Kernel` object. It may be a white noise kernel, an ECORR kernel, or a
     Woodbury kernel."""
@@ -473,7 +474,11 @@ def get_kernel(
         return inner_kernel
     else:
         return construct_woodbury_kernel(
-            model, toas, inner_kernel, analytic_marginalized_params
+            model,
+            toas,
+            inner_kernel,
+            analytic_marginalized_params,
+            analytic_marginalized_param_prior_stds,
         )
 
 
@@ -482,6 +487,7 @@ def construct_woodbury_kernel(
     toas: TOAs,
     inner_kernel,
     analytic_marginalized_params: List[str],
+    analytic_marginalized_param_prior_stds: Dict[str, float],
 ):
     """Construct a `Vela.WoodburyKernel` object from GP noise components."""
     gp_components = []
@@ -540,15 +546,19 @@ def construct_woodbury_kernel(
         delay = model.delay(toas)
 
         anl_marg_param_names = []
+        weights = []
         for pname in model.free_params:
             if pname in analytic_marginalized_params or (
                 hasattr(model[pname], "prefix")
                 and model[pname].prefix in analytic_marginalized_params
             ):
                 anl_marg_param_names.append(pname)
+
+                # Scale factor for unit-converting the derivatives.
                 scale_factor = get_unit_conversion_factor(
                     model[pname]
                 ) * get_unit_conversion_factor(model["F0"])
+
                 toa_design_matrix = (
                     np.array(
                         [
@@ -580,7 +590,26 @@ def construct_woodbury_kernel(
 
                 gp_basis_matrices.append(design_matrix)
 
-        weights = np.ones(len(anl_marg_param_names)) * 1e40
+                # Custom prior weights for analytically marginalized timing parameters.
+                if pname in analytic_marginalized_param_prior_stds:
+                    weight = (
+                        analytic_marginalized_param_prior_stds[pname]
+                        * get_unit_conversion_factor(model[pname])
+                    ) ** 2
+                elif (
+                    hasattr(model[pname], "prefix")
+                    and model[pname].prefix in analytic_marginalized_param_prior_stds
+                ):
+                    weight = (
+                        analytic_marginalized_param_prior_stds[model[pname].prefix]
+                        * get_unit_conversion_factor(model[pname])
+                    ) ** 2
+                else:
+                    weight = 1e40
+                weights.append(weight)
+
+        assert len(weights) == len(anl_marg_param_names)
+        weights = np.array(weights)
 
         gp_components.append(vl.MarginalizedTimingModel(weights, anl_marg_param_names))
 
@@ -621,6 +650,7 @@ def pint_model_to_vela(
     noise_params: List[str],
     marginalize_gp_noise: bool,
     analytic_marginalized_params: List[str],
+    analytic_marginalized_param_prior_stds: Dict[str, float],
     ecorr_toa_ranges: Optional[List[Tuple[int, int]]] = None,
     ecorr_indices: Optional[List[Tuple[int]]] = None,
 ):
@@ -663,7 +693,12 @@ def pint_model_to_vela(
     tzr_toa = pint_toa_to_vela(tzr_toa, -1, epoch_mjd)
 
     kernel = get_kernel(
-        model, toas, ecorr_toa_ranges, ecorr_indices, analytic_marginalized_params
+        model,
+        toas,
+        ecorr_toa_ranges,
+        ecorr_indices,
+        analytic_marginalized_params,
+        analytic_marginalized_param_prior_stds,
     )
 
     return vl.TimingModel(
