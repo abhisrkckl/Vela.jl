@@ -793,12 +793,53 @@ class SPNTA:
 
         np.savetxt(filename, res_arr)
 
+    def save_pre_analysis_summary(
+        self,
+        outdir: str,
+        sampler_info: dict = {},
+        truth_par_file: Optional[str] = None,
+    ):
+        np.savetxt(f"{outdir}/param_default_values.txt", self.default_params)
+        np.savetxt(f"{outdir}/param_maxpost_values.txt", self.maxpost_params)
+        np.savetxt(f"{outdir}/param_names.txt", self.param_names, fmt="%s")
+        np.savetxt(f"{outdir}/param_prefixes.txt", self.param_prefixes, fmt="%s")
+        np.savetxt(f"{outdir}/param_units.txt", self.param_units, fmt="%s")
+        np.savetxt(f"{outdir}/param_scale_factors.txt", self.scale_factors)
+
+        np.savetxt(
+            f"{outdir}/marginalized_param_default_values.txt",
+            self.marginalized_default_params,
+        )
+        np.savetxt(
+            f"{outdir}/marginalized_param_maxpost_values.txt",
+            self.marginalized_maxpost_params,
+        )
+        np.savetxt(
+            f"{outdir}/marginalized_param_names.txt",
+            self.marginalized_param_names,
+            fmt="%s",
+        )
+        np.savetxt(
+            f"{outdir}/marginalized_param_scale_factors.txt",
+            self.marginalized_param_scale_factors,
+        )
+
+        if truth_par_file is not None:
+            np.savetxt(
+                f"{outdir}/param_true_values.txt", get_true_values(self, truth_par_file)
+            )
+
+        with open(f"{outdir}/prior_info.json", "w") as prior_info_file:
+            json.dump(self.full_prior_dict(), prior_info_file, indent=4)
+
+        summary_info = self.info_dict(sampler_info, truth_par_file)
+        with open(f"{outdir}/summary.json", "w") as summary_file:
+            json.dump(summary_info, summary_file, indent=4)
+
     def save_results(
         self,
         outdir: str,
         samples_raw: np.ndarray,
-        sampler_info: dict = {},
-        truth_par_file: Optional[str] = None,
     ) -> None:
         """Given the posterior samples, save the results into an output directory.
         `pyvela` script uses this function to save the results.
@@ -856,23 +897,8 @@ class SPNTA:
         param_autocorr = emcee.autocorr.integrated_time(
             samples_raw, quiet=True, has_walkers=False
         )
-
-        np.savetxt(f"{outdir}/param_default_values.txt", self.default_params)
-        np.savetxt(f"{outdir}/param_maxpost_values.txt", self.maxpost_params)
-        np.savetxt(f"{outdir}/param_names.txt", self.param_names, fmt="%s")
-        np.savetxt(f"{outdir}/param_prefixes.txt", self.param_prefixes, fmt="%s")
-        np.savetxt(f"{outdir}/param_units.txt", self.param_units, fmt="%s")
-        np.savetxt(f"{outdir}/param_scale_factors.txt", self.scale_factors)
         np.savetxt(f"{outdir}/param_autocorr.txt", param_autocorr)
 
-        np.savetxt(
-            f"{outdir}/marginalized_param_default_values.txt",
-            self.marginalized_default_params,
-        )
-        np.savetxt(
-            f"{outdir}/marginalized_param_maxpost_values.txt",
-            self.marginalized_maxpost_params,
-        )
         np.savetxt(
             f"{outdir}/marginalized_params_median.txt",
             self.get_marginalized_param_mean(params_median),
@@ -881,29 +907,8 @@ class SPNTA:
             f"{outdir}/marginalized_params_std.txt",
             self.get_marginalized_param_std(params_median),
         )
-        np.savetxt(
-            f"{outdir}/marginalized_param_names.txt",
-            self.marginalized_param_names,
-            fmt="%s",
-        )
-        np.savetxt(
-            f"{outdir}/marginalized_param_scale_factors.txt",
-            self.marginalized_param_scale_factors,
-        )
-
-        if truth_par_file is not None:
-            np.savetxt(
-                f"{outdir}/param_true_values.txt", get_true_values(self, truth_par_file)
-            )
-
-        with open(f"{outdir}/prior_info.json", "w") as prior_info_file:
-            json.dump(self.full_prior_dict(), prior_info_file, indent=4)
 
         self._save_prior_evals(samples_raw, f"{outdir}/prior_evals.npy")
-
-        summary_info = self.info_dict(sampler_info, truth_par_file)
-        with open(f"{outdir}/summary.json", "w") as summary_file:
-            json.dump(summary_info, summary_file, indent=4)
 
     def _single_param_prior(self, param_idx: int, value: float):
         prior = self.model.priors[param_idx]
