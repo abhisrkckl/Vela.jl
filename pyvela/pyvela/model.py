@@ -608,7 +608,8 @@ def construct_woodbury_kernel(
                     weight = 1e40
                 weights.append(weight)
 
-        weights = np.ones(len(anl_marg_param_names)) * 1e40
+        assert len(weights) == len(anl_marg_param_names)
+        weights = np.array(weights)
 
         gp_components.append(vl.MarginalizedTimingModel(weights, anl_marg_param_names))
 
