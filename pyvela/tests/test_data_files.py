@@ -376,6 +376,13 @@ def test_analytic_marginalize_params():
     assert set(spnta.param_names) == {"RAJ", "DECJ", "DM", "F1"}
     assert np.shape(spnta.model.kernel.noise_basis) == (len(t), 4)
     assert set(spnta.marginalized_param_names) == {"F0", "PHOFF", "JUMP1", "JUMP2"}
+    assert dict(
+        zip(
+            spnta.marginalized_param_names,
+            spnta.model.kernel.gp_components[0].prior_weights_inv,
+        )
+        == {"F0": 1e-40, "JUMP1": 1.0, "JUMP2": 1.0, "PHOFF": 1e-40}
+    )
 
 
 def test_analytic_marginalize_params_wb():
