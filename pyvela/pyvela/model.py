@@ -8,7 +8,7 @@ from pint.models.parameter import MJDParameter, floatParameter, maskParameter
 from pint.toa import TOAs
 
 from .dmx import get_dmx_mask
-from .gp_noise import PLChromNoiseGP, PLDMNoiseGP, PLRedNoiseGP
+from .gp_noise import PLChromNoiseGP, PLDMNoiseGP, PLRedNoiseGP, PLSWNoiseGP
 from .parameters import get_unit_conversion_factor, pint_parameters_to_vela
 from .priors import get_default_priors
 from .toas import day_to_s, pint_toa_to_vela
@@ -96,6 +96,23 @@ def pint_components_to_vela(model: TimingModel, toas: TOAs):
         model["NE_SW"].value == 0 and model["NE_SW"].frozen
     ):
         components.append(vl.SolarWindDispersion())
+
+    if "PLSWNoiseGP" in component_names:
+        components.append(
+            vl.PowerlawSolarWindNoiseGP(
+                int(model["TNSWC"].value),
+                (
+                    int(model["TNSWFLOG"].value)
+                    if model["TNSWFLOG"].value is not None
+                    else 0
+                ),
+                (
+                    float(model["TNSWFLOG_FACTOR"].value)
+                    if model["TNSWFLOG_FACTOR"].value is not None
+                    else 2.0
+                ),
+            )
+        )
 
     if "DispersionDM" in component_names:
         components.append(vl.DispersionTaylor())
@@ -415,8 +432,8 @@ def fix_params(model: TimingModel, toas: TOAs) -> None:
 
     f1 = 1 / toas.get_Tspan()
     for plgpnoise, freq_param in zip(
-        ["PLRedNoise", "PLDMNoise", "PLChromNoise"],
-        ["PLREDFREQ", "PLDMFREQ", "PLCHROMFREQ"],
+        ["PLRedNoise", "PLDMNoise", "PLChromNoise", "PLSWNoise"],
+        ["PLREDFREQ", "PLDMFREQ", "PLCHROMFREQ", "PLSWFREQ"],
     ):
         if plgpnoise in model.components:
             model.components[plgpnoise].add_param(
@@ -501,14 +518,20 @@ def construct_woodbury_kernel(
     component_names = list(model.components.keys())
 
     for gpcomp, nharmpar, nlogharmpar, logfacpar, vela_gp_type in zip(
-        ["PLRedNoise", "PLDMNoise", "PLChromNoise"],
-        ["TNREDC", "TNDMC", "TNCHROMC"],
-        ["TNREDFLOG", "TNDMFLOG", "TNCHROMFLOG"],
-        ["TNREDFLOG_FACTOR", "TNDMFLOG_FACTOR", "TNCHROMFLOG_FACTOR"],
+        ["PLRedNoise", "PLDMNoise", "PLChromNoise", "PLSWNoise"],
+        ["TNREDC", "TNDMC", "TNCHROMC", "TNSWC"],
+        ["TNREDFLOG", "TNDMFLOG", "TNCHROMFLOG", "TNSWFLOG"],
+        [
+            "TNREDFLOG_FACTOR",
+            "TNDMFLOG_FACTOR",
+            "TNCHROMFLOG_FACTOR",
+            "TNSWFLOG_FACTOR",
+        ],
         [
             vl.PowerlawRedNoiseGP,
             vl.PowerlawDispersionNoiseGP,
             vl.PowerlawChromaticNoiseGP,
+            vl.PowerlawSolarWindNoiseGP,
         ],
     ):
         if gpcomp in component_names:
@@ -532,7 +555,7 @@ def construct_woodbury_kernel(
             if not toas.wideband:
                 basis = toa_basis
             else:
-                if gpcomp == "PLDMNoise":
+                if gpcomp in ["PLDMNoise", "PLSWNoise"]:
                     freqs = model.barycentric_radio_freq(toas).to_value("Hz")
                     dm_basis = toa_basis * freqs[:, None] ** 2
                 else:
@@ -640,6 +663,11 @@ def fix_red_noise_components(model: TimingModel, toas: TOAs):
         pldm_chrom = PLChromNoiseGP(model.components["PLChromNoise"], epoch)
         model.remove_component("PLChromNoise")
         model.add_component(pldm_chrom)
+
+    if "PLSWNoise" in model.components:
+        plred_gp = PLSWNoiseGP(model.components["PLSWNoise"], epoch)
+        model.remove_component("PLSWNoise")
+        model.add_component(plred_gp)
 
 
 def pint_model_to_vela(
