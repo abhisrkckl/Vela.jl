@@ -1,7 +1,8 @@
 """
     powerlaw(A, γ, f, f1)
 
-Powerlaw spectral model for pulsar red noise.
+Powerlaw spectral model for pulsar red noise. A and γ are dimensionless,
+and f and f1 are frequencies. The output has dimensions of time^2.
 
 Reference:
     [Lentati+ 2014](https://doi.org/10.1093/mnras/stt2122)
@@ -15,7 +16,8 @@ end
 """
     evaluate_powerlaw_red_noise_gp
 
-Evaluate the power law Fourier-basis red noise delay/DM/CM.
+Evaluate the power law Fourier-basis red/DM/chromatic noise delay. For the latter
+two, the delay corresponds to a fiducial observing frequency of 1400 MHz.
 """
 function evaluate_powerlaw_red_noise_gp(log10_A, γ, αs, βs, f1, Δt, ln_js)
     @assert length(αs) == length(βs) == length(ln_js)
@@ -56,7 +58,9 @@ end
 """
     evaluate_powerlaw_red_noise_weights_inv(log10_A, γ, f1, ln_js)
 
-Evaluate the prior weights for a power law red noise.
+Evaluate the prior weights for a power law red noise. A and γ are 
+dimensionless, and f1 is a frequency. Returns an array of inverse 
+weights whose dimensions should be time^-2.
 """
 function evaluate_powerlaw_red_noise_weights_inv(log10_A, γ, f1, ln_js)
     A = exp10(log10_A)
