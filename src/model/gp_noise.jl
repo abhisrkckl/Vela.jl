@@ -194,7 +194,7 @@ show(io::IO, dmn::PowerlawDispersionNoiseGP) =
     print(io, "PowerlawDispersionNoiseGP($(length(dmn.ln_js)) harmonics)")
 
 """
-    PowerlawDispersionNoiseGP
+    PowerlawChromaticNoiseGP
 
 A Fourier series Gaussian process representation of the chromatic noise where the 
 power spectral density is assumed to be a power law. Corresponds to `PLChromNoise`
