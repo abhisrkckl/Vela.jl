@@ -144,4 +144,9 @@ end
             ),
         ) for j = 1:5
     ]
+
+    @test Vela.get_gp_npars(swn) == 10
+    @test length(get_marginalized_param_names(swn)) == 10
+
+    display(swn)
 end
