@@ -45,7 +45,7 @@ def get_scale_factor(param: Parameter) -> float:
     ):
         return DMconst
     elif (
-        param.name in ["TNCHROMIDX"]
+        param.name in ["TNCHROMIDX", "TNSWAMP", "TNSWGAM"]
         or (
             hasattr(param, "prefix")
             and param.prefix

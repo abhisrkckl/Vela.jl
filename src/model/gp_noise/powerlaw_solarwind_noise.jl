@@ -32,7 +32,6 @@ function dispersion_slope(
     # expression used in Susarla+ 2024 not being dimensionally correct.
     # These expressions are implemented in enterprise_extensions and PINT.
 
-    τref = time(1.0)
     cm = distance(0.01)
     ne_sw_ref = 1/(cm*cm*cm)
 
@@ -40,7 +39,7 @@ function dispersion_slope(
     t = corrected_toa_value(toa, toacorr, Float64)
     DM_sw_ref = ne_sw_ref * AU * AU * ρ / (r * sin(ρ))
 
-    return (DM_sw_ref / τref) * evaluate_powerlaw_red_noise_gp(
+    return DM_sw_ref * evaluate_powerlaw_red_noise_gp(
         params.TNSWAMP,
         params.TNSWGAM,
         params.PLSWSIN_,

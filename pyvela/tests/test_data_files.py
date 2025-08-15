@@ -61,7 +61,7 @@ def model_and_toas(request):
 
     if (
         len(
-            {"PLRedNoise", "PLDMNoise", "PLChromNoise"}.intersection(
+            {"PLRedNoise", "PLDMNoise", "PLChromNoise", "PLSWNoise"}.intersection(
                 m.components.keys()
             )
         )
@@ -154,9 +154,12 @@ def test_chi2(model_and_toas: Tuple[SPNTA, TimingModel, TOAs]):
 
     if (
         len(
-            {"PLRedNoiseGP", "PLDMNoiseGP", "PLChromNoiseGP"}.intersection(
-                m.components.keys()
-            )
+            {
+                "PLRedNoiseGP",
+                "PLDMNoiseGP",
+                "PLChromNoiseGP",
+                "PLSWNoiseGP",
+            }.intersection(m.components.keys())
         )
         == 0
     ):
