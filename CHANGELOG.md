@@ -8,8 +8,10 @@
 - Display default arguments in help messages of all scripts
 - Work stealing in `pyvela` CI tests
 - Optionally specify Gaussian priors for analytically marginalized timing model parameters
+- Powerlaw solar wind GP model (`PowerlawSolarWindNoiseGP`)
 ## Changed
 - Split the `SPNTA.save_results()` method into two -- the pre-analysis details are now saved using `SPNTA.save_pre_analysis_summary()` before running MCMC.
+- Split `gp_noise.py` into multiple files.
 ## Fixed
 - `SPNTA.get_marginalized_gp_noise_realization()` now correctly draws samples from the conditional distribution.
 - LNEDOT is a zeroable parameter.
