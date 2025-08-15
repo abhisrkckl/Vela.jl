@@ -17,6 +17,7 @@
 - LNEDOT is a zeroable parameter.
 - "Parameter not found" warnings in `SPNTA.save_new_parfile()` are no longer emitted for parameters not in the original PINT `TimingModel`.
 - Correctly deal with non-existent truth par file in `pyvela-rethin`.
+- Correctly show the pulsar name from a TCB par file in `pyvela-plot`
 ## Removed
 
 # 0.1.0
