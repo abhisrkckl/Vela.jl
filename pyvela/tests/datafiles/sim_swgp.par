@@ -1,0 +1,47 @@
+# Created: 2024-09-05T10:26:30.192546
+# PINT_version: 1.0.1+193.g3dd400d0
+# User: abhimanyu
+# Host: abhimanyu-HP-Envy-x360-2-in-1-Laptop-15-fh0xxx
+# OS: Linux-6.8.0-41-generic-x86_64-with-glibc2.39
+# Python: 3.12.2 | packaged by conda-forge | (main, Feb 16 2024, 20:50:58) [GCC 12.3.0]
+# Format: pint
+PSR                                SIM_SW
+EPHEM                               DE440
+CLOCK                        TT(BIPM2019)
+UNITS                                 TDB
+START              53999.9999999628429515
+FINISH             56000.0000000545884954
+DILATEFREQ                              N
+DMDATA                                  Y
+NTOA                                  500
+CHI2                    495.9786827172231
+CHI2R                  1.0065537561183133
+TRES               0.99597056454216797186
+DMRES              0.00010015149420712853
+ELONG                  14.999999999779197 1 0.00000000741494589575
+ELAT                    1.000000155060764 1 0.00000008414790726851
+PMELONG                               0.0
+PMELAT                                0.0
+PX                                    0.0
+ECL                              IERS2010
+F0                    99.9999999999997862 1 9.1458209476571594404e-14
+F1              -1.0000001306398564047e-15 1 4.0708761807187823103e-21
+F2                                    0.0
+PEPOCH             55000.0000000000000000
+TZRMJD             55000.0000000000000000
+TZRSITE                               gbt
+TZRFRQ                             1400.0
+PLANET_SHAPIRO                          Y
+NE_SW                   4.245230686188087 1 0.15979602774392968
+NE_SW1                                  0 1
+SWM                                     0
+DM                  14.999994304572893512 1 5.2993693875496452366e-06
+DM1             1.8998306976337935974e-06 1 2.82496147717832624e-06
+DM2                                   0.0
+DMEPOCH            55000.0000000000000000
+PHOFF                               0   1
+TNSWAMP                                -7 1 0.0
+TNSWGAM                               4.0 1 0.0
+TNSWC                                  30
+TNSWFLOG                                2
+TNSWFLOG_FACTOR                       2.0
