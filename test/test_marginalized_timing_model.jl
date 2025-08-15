@@ -5,5 +5,6 @@
     @test is_gp_noise(mtm)
     @test length(get_marginalized_param_names(mtm)) == 3
     @test calc_noise_weights_inv(mtm, (;)) == (1 ./ weights)
+    @test length(Vela.get_gp_npars(mtm)) == 3
     print(mtm)
 end
