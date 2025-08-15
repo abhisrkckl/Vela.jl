@@ -241,6 +241,19 @@ def main(argv=None):
 
     nwalkers = spnta.ndim * 5
 
+    spnta.save_pre_analysis_summary(
+        args.outdir,
+        {
+            "sampler": "emcee",
+            "nwalkers": nwalkers,
+            "nsteps": args.nsteps,
+            "burnin": args.burnin,
+            "thin": args.thin,
+            "vectorized": True,
+        },
+        args.truth,
+    )
+
     p0_ = np.array(
         [spnta.prior_transform(cube) for cube in np.random.rand(nwalkers, spnta.ndim)]
     )
@@ -274,13 +287,4 @@ def main(argv=None):
     spnta.save_results(
         args.outdir,
         samples_raw,
-        {
-            "sampler": "emcee",
-            "nwalkers": nwalkers,
-            "nsteps": args.nsteps,
-            "burnin": args.burnin,
-            "thin": args.thin,
-            "vectorized": True,
-        },
-        args.truth,
     )

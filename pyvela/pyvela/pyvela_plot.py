@@ -75,7 +75,7 @@ def get_psrname(result_dir: str) -> Optional[str]:
             summary = json.load(summary_file)
 
         parfile = summary["input"]["par_file"]
-        model = get_model(f"{result_dir}/{parfile}")
+        model = get_model(f"{result_dir}/{parfile}", allow_tcb=True, allow_T2=True)
         return model["PSR"].value
     except:
         return ""
