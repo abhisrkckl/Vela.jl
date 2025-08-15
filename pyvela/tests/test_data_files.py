@@ -23,6 +23,7 @@ datadir = f"{os.path.dirname(os.path.realpath(__file__))}/datafiles"
 datasets = [
     "sim_1",
     "sim_sw.wb",
+    "sim_swgp",
     "sim3.gp",
     "sim3",
     "sim_fdjump",
