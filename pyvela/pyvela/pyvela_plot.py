@@ -220,6 +220,8 @@ def plot(
             0,
             0.5,
             f"""
+            No of TOAs = {len(tres_w)}
+            MJD Range = {int(min(mjds))} -- {int(max(mjds))}
             Wrms time resids = {wrms:.2e} s
             KS test p-value = {ks.pvalue:.2e}
             """,
@@ -234,6 +236,8 @@ def plot(
             0,
             0.5,
             f"""
+            No of TOAs = {len(tres_w)}
+            MJD Range = {int(min(mjds))} -- {int(max(mjds))}
             Wrms time resids = {wrms_t:.2e} s
             Wrms DM resids = {wrms_d:.2e} pc/cm^3
             KS test p-value = {ks.pvalue:.2e}
