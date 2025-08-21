@@ -11,6 +11,7 @@
 - Weighted residual RMS and KS test p-value in `pyvela-plot`
 - `pyvela-plot` now shows median and nmad for each parameter.
 - Adjust range quantile in `pyvela-plot`
+- Prior scaling for `PGeneralizedGaussian`
 ## Changed
 - Split the `SPNTA.save_results()` method into two -- the pre-analysis details are now saved using `SPNTA.save_pre_analysis_summary()` before running MCMC.
 ## Fixed
