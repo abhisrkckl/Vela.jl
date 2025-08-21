@@ -18,6 +18,7 @@
 - Correctly deal with non-existent truth par file in `pyvela-rethin`.
 - Correctly show the pulsar name from a TCB par file in `pyvela-plot`
 - Fix plot margins in `pyvela-plot`
+- Marginalized parameter scale factors are 1 by default.
 ## Removed
 
 # 0.1.0
