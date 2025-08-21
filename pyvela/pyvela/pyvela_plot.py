@@ -217,7 +217,7 @@ def plot(
             label="Post fit whitened",
         )
         ax1.set_ylabel("DM res (post) (dmu)", fontsize=13)
-        ax1.axhline(0, ls="dotted", color="k", fontsize=13)
+        ax1.axhline(0, ls="dotted", color="k")
         ax1.tick_params(axis="both", labelsize=11)
 
     ax.set_xlabel("MJD - PEPOCH", fontsize=13)
@@ -261,7 +261,7 @@ def plot(
 
     psrname = get_psrname(result_dir)
     if psrname is not None:
-        plt.suptitle(psrname, y=0.98, x=0.4)
+        plt.suptitle(psrname, y=0.98, x=0.4, fontsize=20)
 
     plt.subplots_adjust(
         left=0.05, right=0.95, top=0.95, bottom=0.05, wspace=0, hspace=0
