@@ -9,6 +9,7 @@
 - Work stealing in `pyvela` CI tests
 - Optionally specify Gaussian priors for analytically marginalized timing model parameters
 - Weighted residual RMS and KS test p-value in `pyvela-plot`
+- `pyvela-plot` now shows median and nmad for each parameter.
 ## Changed
 - Split the `SPNTA.save_results()` method into two -- the pre-analysis details are now saved using `SPNTA.save_pre_analysis_summary()` before running MCMC.
 ## Fixed

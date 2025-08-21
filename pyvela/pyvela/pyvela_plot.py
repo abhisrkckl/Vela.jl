@@ -15,7 +15,8 @@ import numpy as np
 from astropy import units as u
 from pint import DMconst, dmu
 from pint.models import get_model
-from scipy.stats import kstest
+from scipy.stats import kstest, median_abs_deviation
+from uncertainties import ufloat
 
 
 def get_param_plot_mask(
@@ -137,14 +138,16 @@ def plot(
 
     fig = corner.corner(
         samples[:, param_plot_mask],
+        bins=32,
         labels=plot_labels,
         label_kwargs={"fontsize": 14},
         labelpad=labelpad,
         max_n_ticks=3,
         plot_datapoints=False,
         hist_kwargs={"density": True},
-        range=[0.999] * len(param_plot_mask),
+        range=[0.99] * len(param_plot_mask),
         truths=true_values,
+        smooth=0.3,
     )
 
     for ax in fig.get_axes():
@@ -152,16 +155,23 @@ def plot(
         ax.yaxis.get_offset_text().set_fontsize(10)
         ax.xaxis.get_offset_text().set_fontsize(10)
 
+    nplots = len(param_plot_mask)
     if plot_priors:
         # Plot the pre-evaluated priors
         prior_evals = np.load(f"{result_dir}/prior_evals.npy")
-        nplots = len(param_plot_mask)
         for jj, ii in enumerate(param_plot_mask):
             plt.subplot(nplots, nplots, jj * (nplots + 1) + 1)
             xs = prior_evals[:, 2 * ii] / scale_factors[ii]
             ys = prior_evals[:, 2 * ii + 1]
             # normalize the prior to match the plotted histogram
-            plt.plot(xs, ys / np.trapz(ys, xs))
+            plt.plot(xs, ys / np.trapezoid(ys, xs))
+
+    medians = np.median(samples[:, param_plot_mask], axis=0)
+    nmads = median_abs_deviation(samples[:, param_plot_mask], axis=0, scale="normal")
+    for ii, (median, nmad) in enumerate(zip(medians, nmads)):
+        plt.subplot(nplots, nplots, ii * (nplots + 1) + 1)
+        uf = ufloat(median, nmad)
+        plt.title(f"{uf:.1uS}", fontsize=12)
 
     ax = plt.subplot(5, 3, 3)
     ax.errorbar(
