@@ -124,6 +124,8 @@
             @test all(map(isfinite, Vela.prior_scaling(D, args)))
         end
 
+        @test all(isfinite.(Vela.prior_scaling(PGeneralizedGaussian, (0.0, 1.5, 0.4))))
+
         @test Vela.scale_prior_args(Uniform, args, 2.0) == (2.0, 4.0)
         @test Vela.unscale_prior_args(Uniform, args, 1 / 2.0) == (2.0, 4.0)
     end
