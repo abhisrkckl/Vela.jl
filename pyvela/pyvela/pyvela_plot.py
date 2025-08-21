@@ -138,7 +138,7 @@ def plot(
     fig = corner.corner(
         samples[:, param_plot_mask],
         labels=plot_labels,
-        label_kwargs={"fontsize": 9},
+        label_kwargs={"fontsize": 14},
         labelpad=labelpad,
         max_n_ticks=3,
         plot_datapoints=False,
@@ -148,9 +148,9 @@ def plot(
     )
 
     for ax in fig.get_axes():
-        ax.tick_params(axis="both", labelsize=8)
-        ax.yaxis.get_offset_text().set_fontsize(8)
-        ax.xaxis.get_offset_text().set_fontsize(8)
+        ax.tick_params(axis="both", labelsize=11)
+        ax.yaxis.get_offset_text().set_fontsize(10)
+        ax.xaxis.get_offset_text().set_fontsize(10)
 
     if plot_priors:
         # Plot the pre-evaluated priors
@@ -167,8 +167,9 @@ def plot(
     ax.errorbar(
         mjds, tres, terr, marker="+", ls="", alpha=1, color="orange", label="Pre-fit"
     )
-    ax.set_ylabel("Time res (pre) (s)")
+    ax.set_ylabel("Time res (pre) (s)", fontsize=13)
     # ax.legend()
+    ax.tick_params(axis="both", labelsize=11)
 
     ax1 = ax.twinx()
     ax1.errorbar([], [], [], ls="", marker="+", color="orange", label="Pre-fit")
@@ -182,9 +183,10 @@ def plot(
         color="blue",
         label="Post fit whitened",
     )
-    ax1.legend()
-    ax1.set_ylabel("Time res (post) (s)")
+    ax1.legend(fontsize=13)
+    ax1.set_ylabel("Time res (post) (s)", fontsize=13)
     ax1.axhline(0, ls="dotted", color="k")
+    ax1.tick_params(axis="both", labelsize=11)
 
     if wb:
         plt.xticks([])
@@ -200,7 +202,8 @@ def plot(
             label="Pre-fit",
         )
 
-        ax.set_ylabel("DM res (pre) (dmu)")
+        ax.set_ylabel("DM res (pre) (dmu)", fontsize=13)
+        ax.tick_params(axis="both", labelsize=11)
 
         ax1 = ax.twinx()
         ax1.errorbar(
@@ -213,10 +216,11 @@ def plot(
             color="blue",
             label="Post fit whitened",
         )
-        ax1.set_ylabel("DM res (post) (dmu)")
+        ax1.set_ylabel("DM res (post) (dmu)", fontsize=13)
         ax1.axhline(0, ls="dotted", color="k")
+        ax1.tick_params(axis="both", labelsize=11)
 
-    ax.set_xlabel("MJD - PEPOCH")
+    ax.set_xlabel("MJD - PEPOCH", fontsize=13)
 
     ax3 = plt.subplot(5, 3, 2)
     ax3.set_ylim((0, 1))
@@ -235,6 +239,7 @@ def plot(
             Wrms time resids = {wrms:.2e} s
             KS test p-value = {ks.pvalue:.2e}
             """,
+            fontsize=14,
         )
     else:
         weights_t = 1 / terr**2
@@ -256,7 +261,11 @@ def plot(
 
     psrname = get_psrname(result_dir)
     if psrname is not None:
-        plt.suptitle(psrname, y=0.98, x=0.4)
+        plt.suptitle(psrname, y=0.98, x=0.4, fontsize=20)
+
+    plt.subplots_adjust(
+        left=0.05, right=0.95, top=0.95, bottom=0.05, wspace=0, hspace=0
+    )
 
     if outfile is None:
         plt.show()
