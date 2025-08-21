@@ -317,7 +317,8 @@ function get_marginalized_param_scale_factors(
     param_handler::ParamHandler,
     marginalized_param_names::Vector{String},
 )
-    result = zeros(Float64, length(marginalized_param_names))
+    # Is this correct? This works for red/DM/chromatic noise amplitudes.
+    result = ones(Float64, length(marginalized_param_names))
 
     @inbounds for spar in param_handler.single_params
         pname = string(spar.name)
