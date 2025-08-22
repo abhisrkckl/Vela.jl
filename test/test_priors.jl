@@ -51,6 +51,7 @@
             STIGMAPriorDistribution(),
             SHAPMAXPriorDistribution(),
             PXPriorDistribution(Rmax),
+            LatitudePriorDistribution(),
         ]
         for d in dists
             xl = minimum(d) - 1
