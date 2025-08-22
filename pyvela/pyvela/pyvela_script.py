@@ -95,6 +95,13 @@ def parse_args(argv):
         help="Number of ensemble MCMC iterations",
     )
     parser.add_argument(
+        "-w",
+        "--walkers",
+        default=5,
+        type=int,
+        help="Number of ensemble MCMC walkers as a multiple of the number of dimensions",
+    )
+    parser.add_argument(
         "-b",
         "--burnin",
         default=1500,
@@ -243,7 +250,7 @@ def main(argv=None):
         spnta.save_jlso(jlsofile)
         spnta.jlsofile = jlsofile
 
-    nwalkers = spnta.ndim * 5
+    nwalkers = spnta.ndim * args.walkers
 
     spnta.save_pre_analysis_summary(
         args.outdir,
