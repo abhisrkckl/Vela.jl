@@ -36,6 +36,13 @@ def parse_args(argv):
     parser.add_argument(
         "--labelpad", default=0.2, type=float, help="Padding for plot labels"
     )
+    parser.add_argument(
+        "-q",
+        "--range_quantile",
+        default=0.99,
+        type=float,
+        help="Quantile range for plotting histograms",
+    )
 
     return parser.parse_args(argv)
 
@@ -49,4 +56,5 @@ def main(argv=None):
         outfile=args.out,
         plot_priors=args.priors,
         labelpad=args.labelpad,
+        range_quantile=args.range_quantile,
     )

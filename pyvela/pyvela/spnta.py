@@ -550,9 +550,15 @@ class SPNTA:
         spnta.starttime = datetime.datetime.now().isoformat()
 
         spnta.pulsar = vl.Pulsar(model, toas)
-        spnta.model_pint = get_model(parfile)
+        spnta.model_pint, spnta.toas_pint = get_model_and_toas(
+            parfile,
+            timfile,
+            planets=True,
+            allow_T2=True,
+            allow_tcb=True,
+            add_tzr_to_model=True,
+        )
         spnta.model_pint_modified = None
-        spnta.toas_pint = None
         spnta._check()
         return spnta
 
