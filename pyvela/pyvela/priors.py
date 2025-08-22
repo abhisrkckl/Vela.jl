@@ -34,7 +34,7 @@ DEFAULT_PRIOR_DISTS = {
     "EQUAD": jl.LogUniform(1e-9, 1e-4),  # Ballpark range based on PTA pulsars
     "ECORR": jl.LogUniform(1e-9, 1e-4),  # Ballpark range based on PTA pulsars
     "KOM": jl.Uniform(0.0, 2 * jl.pi),  # Physical prior
-    "KIN": vl.KINPriorDistribution(),  # cos(ι) is uniformly distributed in [0,1]
+    "KIN": vl.KINPriorDistribution(),  # cos(ι) is uniformly distributed in [-1,1]
     "SINI": vl.SINIPriorDistribution(),  # cos(ι) is uniformly distributed in [0,1]
     "STIGMA": vl.STIGMAPriorDistribution(),  # cos(ι) is uniformly distributed in [0,1]
     "SHAPMAX": vl.SHAPMAXPriorDistribution(),  # cos(ι) is uniformly distributed in [0,1]
@@ -62,6 +62,10 @@ DEFAULT_PRIOR_DISTS = {
     "H3": jl.LogUniform(
         1e-9 * Msun, 100 * Msun
     ),  # Same range as M2 because H3 = M2 * STIGMA**3 and STIGMA ∈ [0,1].
+    "RAJ": jl.Uniform(0, 2 * jl.pi),  # duh!
+    "DECJ": vl.LatitudePriorDistribution(),  # sin(DECJ) is uniformly distributed in [-1,1].
+    "ELONG": jl.Uniform(0, 2 * jl.pi),  # duh!
+    "ELAT": vl.LatitudePriorDistribution(),  # sin(ELAT) is uniformly distributed in [-1,1].
 }
 
 

@@ -1,5 +1,6 @@
 """Script for running pulsar timing & noise analysis using Vela.jl with emcee."""
 
+from copy import deepcopy
 import json
 import os
 import shutil
@@ -7,6 +8,9 @@ from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
 
 import emcee
 import numpy as np
+import astropy.units as u
+from scipy.linalg import cholesky, cho_solve, solve_triangular, LinAlgError
+from pint.residuals import Residuals, WidebandTOAResiduals
 
 from pyvela import SPNTA
 from pyvela.parameters import (
@@ -254,16 +258,7 @@ def main(argv=None):
         args.truth,
     )
 
-    p0_ = np.array(
-        [spnta.prior_transform(cube) for cube in np.random.rand(nwalkers, spnta.ndim)]
-    )
-    s = args.initial_sample_spread
-    p0 = (
-        ((1 - s) * spnta.maxpost_params + s * p0_)
-        if np.isfinite(spnta.lnpost(spnta.default_params))
-        else p0_
-    )
-    p0[0, :] = spnta.maxpost_params
+    p0 = get_start_samples(spnta, args.initial_sample_spread, nwalkers)
 
     sampler = emcee.EnsembleSampler(
         nwalkers,
@@ -288,3 +283,113 @@ def main(argv=None):
         args.outdir,
         samples_raw,
     )
+
+
+def get_start_samples(spnta: SPNTA, s: float, nwalkers: int) -> np.ndarray:
+    """Get starting samples for the MCMC. nwalkers is the number of samples
+    to be returned.
+
+    The samples are obtained as follows.
+
+        1. Find the maximum-posterior point θ_max=(a_max, b_max).
+        2. Compute the design matrix M assuming the timing parameters a_max.
+        3. Draw noise parameters b from the prior distribution.
+        4. Assuming the noise parameters b, do a linear GLS fit to find the
+           timing parameters ahat and their covariance matrix Sigma.
+        5. Draw timing parameter sample a from a mutivariate Gaussian defined
+           by mean ahat and covariand Sigma.
+        6. The sample is ((1-s)*θ_max + s*θ) where θ=(a,b) and 0<s<1.
+        7. If the sample is outside the posterior range, reduce s to bring it
+           closer to θ_max.
+    """
+    m1 = deepcopy(spnta.model_pint)
+
+    # Set timing parameters to the maximum posterior values
+    pmax_pint = spnta.maxpost_params / spnta.scale_factors
+    for pname, pval in zip(
+        spnta.param_names[: spnta.ntmdim], pmax_pint[: spnta.ntmdim]
+    ):
+        if pname == "F0":
+            m1[pname].value += pval
+        else:
+            m1[pname].value = pval
+
+    # Unfreeze analytically marginalized timing model parameters
+    for pname in spnta.analytic_marginalized_params:
+        if pname in m1:
+            m1[pname].frozen = False
+
+    y = (
+        WidebandTOAResiduals(spnta.toas_pint, m1).calc_wideband_resids()
+        if spnta.wideband
+        else Residuals(spnta.toas_pint, m1).calc_time_resids().to_value(u.s)
+    ).astype(float)
+
+    M, params_M = (
+        m1.full_wideband_designmatrix(spnta.toas_pint)[:2]
+        if spnta.wideband
+        else m1.full_designmatrix(spnta.toas_pint)[:2]
+    )
+    M = M.astype(float)
+
+    ii, iter = 0, 0
+    result = np.empty((nwalkers, len(spnta.param_names)))
+    while ii < nwalkers:
+        iter += 1
+
+        # Draw a sample from prior.
+        cube = np.random.rand(spnta.ndim)
+        p0 = spnta.prior_transform(cube) / spnta.scale_factors
+
+        # Set noise parameters in using prior draws
+        for pname, pval in zip(spnta.param_names[spnta.ntmdim :], p0[spnta.ntmdim :]):
+            m1[pname].value = pval
+
+        Phidiag = m1.full_basis_weight(spnta.toas_pint).astype(float)
+        Ndiag = (
+            m1.scaled_wideband_uncertainty(spnta.toas_pint)
+            if spnta.wideband
+            else m1.scaled_toa_uncertainty(spnta.toas_pint).to_value(u.s)
+        ).astype(float)
+
+        Ninv_M = M / Ndiag[:, None]
+        MT_Ninv_y = Ninv_M.T @ y
+        MT_Ninv_M = M.T @ Ninv_M
+        Sigmainv = np.diag(1 / Phidiag) + MT_Ninv_M
+
+        Sigmainv_cf = cholesky(Sigmainv, lower=False)
+        ahat = cho_solve((Sigmainv_cf, False), MT_Ninv_y)
+        z = np.random.randn(len(ahat))
+        a1 = ahat + solve_triangular(Sigmainv_cf, z, lower=False)
+
+        delta_a_dict = dict(zip(params_M, a1))
+
+        delta_param = np.array(
+            [
+                (
+                    delta_a_dict[parname] * scale_factor
+                    if parname in delta_a_dict
+                    else (p0i - pmaxpost)
+                )
+                for (parname, p0i, pmaxpost, scale_factor) in zip(
+                    spnta.param_names,
+                    (p0 * spnta.scale_factors),
+                    spnta.maxpost_params,
+                    spnta.scale_factors,
+                )
+            ]
+        )
+
+        sample = spnta.maxpost_params + s * delta_param
+
+        # If the sample is outside the posterior range, bring it closer to the maxpost value.
+        for _ in range(10):
+            if np.isfinite(spnta.lnpost(sample)):
+                break
+            s /= 1.5
+            sample = spnta.maxpost_params + s * delta_param
+
+        result[ii, :] = sample
+        ii += 1
+
+    return result

@@ -55,6 +55,11 @@ prior_scaling(::Type{Normal}, args) = map(oneunit, args)
 
 prior_scaling(::Type{Pareto}, args) = ((), (0,), (0, 1))[length(args)+1]
 
+function prior_scaling(::Type{PGeneralizedGaussian}, args)
+    @assert length(args) in (0, 3)
+    return length(args) == 0 ? () : (1, 1, 0)
+end
+
 prior_scaling(::Type{Rayleigh}, args) = map(oneunit, args)
 
 prior_scaling(::Type{Semicircle}, args) = map(oneunit, args)
