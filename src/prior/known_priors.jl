@@ -2,7 +2,8 @@ export KINPriorDistribution,
     SINIPriorDistribution,
     STIGMAPriorDistribution,
     SHAPMAXPriorDistribution,
-    PXPriorDistribution
+    PXPriorDistribution,
+    LatitudePriorDistribution
 
 abstract type CustomPriorDistribution <: ContinuousUnivariateDistribution end
 
@@ -85,3 +86,15 @@ support(pxp::PXPriorDistribution) = RealInterval(1/pxp.Rmax, Inf)
 pdf_expr(pxp::PXPriorDistribution, x) = 3 / (pxp.Rmax^3 * x^4)
 cdf_expr(pxp::PXPriorDistribution, x) = 1 - 1 / (x * pxp.Rmax)^3
 quantile(pxp::PXPriorDistribution, q) = 1 / (pxp.Rmax * cbrt(1-q))
+
+
+"""
+    LatitudePriorDistribution
+
+Distribution of a latitude φ (DECJ or ELONG) when sin(φ) is uniformly distributed in [-1,1].
+"""
+struct LatitudePriorDistribution <: CustomPriorDistribution end
+support(::LatitudePriorDistribution) = RealInterval(-π/2, π/2)
+pdf_expr(::LatitudePriorDistribution, φ) = cos(φ) / 2
+cdf_expr(::LatitudePriorDistribution, φ) = (1 + sin(φ))/2
+quantile(::LatitudePriorDistribution, q) = asin(2*q - 1)

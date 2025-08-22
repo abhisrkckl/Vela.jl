@@ -124,12 +124,15 @@ More parameters will be added to this table in the future.
 
 | **Parameter** | **Description & Unit**                                                      | **Prior distribution**                                          | **Remarks**      |
 |:-------------:|:----------------------------------------------------------------------------|:----------------------------------------------------------------|:-----------------|
+| DECJ          | Declination (deg)                                                           | `P(DECJ) = cos(DECJ)/2`                                         | -90 <= DECJ <= 90 |
 | DMEFAC        | Wideband DM uncertainty correction (multiplicative)                         | `LogNormal[0, 0.25]`                                            |                  |
 | DMEQUAD       | Wideband DM uncertainty correction (added in quadrature) (pc/cm^3)          | `LogUniform[1e-8, 1e-2]`                                        |                  |
 | DMX_          | Piecewise-constant DM parameters (pc / cm^3)                                | `Normal[0, 1e-2]`                                               |                  |
-| EFAC          | TOA uncertainty correction (multiplicative)                                 | `LogNormal[0, 0.25]`                                            |                  |
-| EQUAD         | TOA uncertainty correction (added in quadrature) (μs)                       | `LogUniform[1e-3, 1e+2]`                                        |                  |
 | ECORR         | Correlation between narrowband TOAs measured from the same observation (μs) | `LogUniform[1e-3, 1e+2]`                                        |                  |
+| EFAC          | TOA uncertainty correction (multiplicative)                                 | `LogNormal[0, 0.25]`                                            |                  |
+| ELAT          | Ecliptic latitude (deg)                                                     | `P(ELAT) = cos(ELAT)/2`                                         | -90 <= ELAT <= 90 |
+| ELONG         | Ecliptic longitude (deg)                                                    | `Uniform[0, 360]`                                               |                  |
+| EQUAD         | TOA uncertainty correction (added in quadrature) (μs)                       | `LogUniform[1e-3, 1e+2]`                                        |                  |
 | H3            | Orthometric Shapiro delay range (s)                                         | `LogNormal[1e-9*G*Msun/c^3, 100*G*Msun/c^3]`                    |                  |
 | JUMP          | Instrumental time jump                                                      | `Uniform[-1/(2*F0), 1/(2*F0)]`                                  |                  |
 | KIN           | Orbital inclination (deg)                                                   | `P(KIN) = sin(KIN)/2`                                           | 0 <= KIN <= 180  |
@@ -137,6 +140,7 @@ More parameters will be added to this table in the future.
 | M2            | Companion mass (MSun)                                                       | `LogUniform[1e-9, 100]`                                         |                  |
 | PHOFF         | Overall phase offset                                                        | `Uniform[-0.5, 0.5]`                                            |                  |
 | PX            | Parallax (mas)                                                              | `P(PX) = 3 / Rmax^3 / PX^4`                                     | 0 <= PX <= Rmax  |
+| RAJ           | Right ascension (hourangle)                                                 | `Uniform[0, 24]`                                                |                  |
 | SHAPMAX       | Log-scaled inclination parameter                                            | `P(SHAPMAX) = (1 - exp(-SHAPMAX)) / (sqrt(2 * exp(SHAPMAX) - 1))`| 0 <= SHAPMAX    |
 | SINI          | Orbital sine-inclination                                                    | `P(SINI) = SINI / sqrt(1 - SINI^2)`                             | 0 <= SINI <= 1   |
 | STIGMA        | Orthometric Shapiro delay shape                                             | `P(STIGMA) = 4 * STIGMA / (1 + STIGMA^2)^2`                     | 0 <= STIGMA <= 1 |
