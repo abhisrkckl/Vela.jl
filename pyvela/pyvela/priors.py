@@ -63,9 +63,9 @@ DEFAULT_PRIOR_DISTS = {
         1e-9 * Msun, 100 * Msun
     ),  # Same range as M2 because H3 = M2 * STIGMA**3 and STIGMA ∈ [0,1].
     "RAJ": jl.Uniform(0, 2 * jl.pi),  # duh!
-    "DECJ": jl.LatitudePriorDistribution(),  # sin(DECJ) is uniformly distributed in [-1,1].
+    "DECJ": vl.LatitudePriorDistribution(),  # sin(DECJ) is uniformly distributed in [-1,1].
     "ELONG": jl.Uniform(0, 2 * jl.pi),  # duh!
-    "ELAT": jl.LatitudePriorDistribution(),  # sin(ELAT) is uniformly distributed in [-1,1].
+    "ELAT": vl.LatitudePriorDistribution(),  # sin(ELAT) is uniformly distributed in [-1,1].
 }
 
 
