@@ -254,16 +254,7 @@ def main(argv=None):
         args.truth,
     )
 
-    p0_ = np.array(
-        [spnta.prior_transform(cube) for cube in np.random.rand(nwalkers, spnta.ndim)]
-    )
-    s = args.initial_sample_spread
-    p0 = (
-        ((1 - s) * spnta.maxpost_params + s * p0_)
-        if np.isfinite(spnta.lnpost(spnta.default_params))
-        else p0_
-    )
-    p0[0, :] = spnta.maxpost_params
+    p0 = get_start_samples(spnta, args.initial_sample_spread, nwalkers)
 
     sampler = emcee.EnsembleSampler(
         nwalkers,
@@ -287,4 +278,15 @@ def main(argv=None):
     spnta.save_results(
         args.outdir,
         samples_raw,
+    )
+
+
+def get_start_samples(spnta: SPNTA, s: float, nwalkers: int):
+    p0_ = np.array(
+        [spnta.prior_transform(cube) for cube in np.random.rand(nwalkers, spnta.ndim)]
+    )
+    return (
+        ((1 - s) * spnta.maxpost_params + s * p0_)
+        if np.isfinite(spnta.lnpost(spnta.default_params))
+        else p0_
     )
