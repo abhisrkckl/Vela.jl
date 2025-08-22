@@ -332,7 +332,6 @@ def get_start_samples(spnta: SPNTA, s: float, nwalkers: int) -> np.ndarray:
     result = np.empty((nwalkers, len(spnta.param_names)))
     while ii < nwalkers:
         iter += 1
-        assert iter <= nwalkers * 10
 
         # Draw a sample from prior.
         cube = np.random.rand(spnta.ndim)
@@ -354,12 +353,10 @@ def get_start_samples(spnta: SPNTA, s: float, nwalkers: int) -> np.ndarray:
         MT_Ninv_M = M.T @ Ninv_M
         Sigmainv = np.diag(1 / Phidiag) + MT_Ninv_M
 
-        try:
-            Sigmainv_cf = cholesky(Sigmainv, lower=False)
-            ahat = cho_solve((Sigmainv_cf, False), MT_Ninv_y)
-            a1 = ahat
-        except LinAlgError:
-            continue
+        Sigmainv_cf = cholesky(Sigmainv, lower=False)
+        ahat = cho_solve((Sigmainv_cf, False), MT_Ninv_y)
+        z = np.random.randn(len(ahat))
+        a1 = ahat + solve_triangular(Sigmainv_cf, z, lower=False)
 
         delta_a_dict = dict(zip(params_M, a1))
 
@@ -381,8 +378,11 @@ def get_start_samples(spnta: SPNTA, s: float, nwalkers: int) -> np.ndarray:
 
         sample = spnta.maxpost_params + s * delta_param
 
-        if not np.isfinite(spnta.lnpost(sample)):
-            continue
+        for _ in range(10):
+            if np.isfinite(spnta.lnpost(sample)):
+                break
+            s /= 1.5
+            sample = spnta.maxpost_params + s * delta_param
 
         result[ii, :] = sample
         ii += 1
