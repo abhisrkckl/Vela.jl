@@ -27,13 +27,13 @@ maximum(d::CustomPriorDistribution) = support(d).ub
 """
     KINPriorDistribution
 
-Distribution of KIN = ι when cos(ι) is uniformly distributed in [0,1].
+Distribution of KIN = ι when cos(ι) is uniformly distributed in [-1,1].
 """
 struct KINPriorDistribution <: CustomPriorDistribution end
 support(::KINPriorDistribution) = RealInterval(0.0, π / 2)
-pdf_expr(::KINPriorDistribution, ι) = sin(ι)
-cdf_expr(::KINPriorDistribution, ι) = 1 - cos(ι)
-quantile(::KINPriorDistribution, q) = acos(1 - q)
+pdf_expr(::KINPriorDistribution, ι) = sin(ι) / 2
+cdf_expr(::KINPriorDistribution, ι) = (1 - cos(ι))/2
+quantile(::KINPriorDistribution, q) = acos(1 - 2*q)
 
 
 """
