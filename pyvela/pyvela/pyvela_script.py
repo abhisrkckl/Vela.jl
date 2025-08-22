@@ -378,6 +378,7 @@ def get_start_samples(spnta: SPNTA, s: float, nwalkers: int) -> np.ndarray:
 
         sample = spnta.maxpost_params + s * delta_param
 
+        # If the sample is outside the posterior range, bring it closer to the maxpost value.
         for _ in range(10):
             if np.isfinite(spnta.lnpost(sample)):
                 break
