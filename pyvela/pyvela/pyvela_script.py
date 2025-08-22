@@ -295,8 +295,12 @@ def get_start_samples(spnta: SPNTA, s: float, nwalkers: int) -> np.ndarray:
         2. Compute the design matrix M assuming the timing parameters a_max.
         3. Draw noise parameters b from the prior distribution.
         4. Assuming the noise parameters b, do a linear GLS fit to find the
-           timing parameters a.
-        5. The sample is ((1-s)*θ_max + s*θ) where θ=(a,b) and 0<s<1.
+           timing parameters ahat and their covariance matrix Sigma.
+        5. Draw timing parameter sample a from a mutivariate Gaussian defined
+           by mean ahat and covariand Sigma.
+        6. The sample is ((1-s)*θ_max + s*θ) where θ=(a,b) and 0<s<1.
+        7. If the sample is outside the posterior range, reduce s to bring it
+           closer to θ_max.
     """
     m1 = deepcopy(spnta.model_pint)
 
