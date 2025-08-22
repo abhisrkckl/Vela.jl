@@ -99,7 +99,7 @@ def plot(
     plot_priors: bool = False,
     outfile: str = None,
     labelpad: float = 0.2,
-    range_quantile: float = 0.99,
+    range_quantile: float = 0.999,
 ):
     """Plot `pyvela` output and optionally save it to a file. The output includes a corner plot of the
     posterior samples and the post-fit whitened residuals."""
