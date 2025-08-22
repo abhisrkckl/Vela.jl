@@ -331,7 +331,6 @@ def get_start_samples(spnta: SPNTA, s: float, nwalkers: int) -> np.ndarray:
     ii, iter = 0, 0
     result = np.empty((nwalkers, len(spnta.param_names)))
     while ii < nwalkers:
-        print(ii, iter)
         iter += 1
         assert iter <= nwalkers * 10
 
