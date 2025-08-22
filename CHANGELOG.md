@@ -12,6 +12,7 @@
 - `pyvela-plot` now shows median and nmad for each parameter.
 - Adjust range quantile in `pyvela-plot`
 - Prior scaling for `PGeneralizedGaussian`
+- Specify number of walkers in `pyvela`
 ## Changed
 - Split the `SPNTA.save_results()` method into two -- the pre-analysis details are now saved using `SPNTA.save_pre_analysis_summary()` before running MCMC.
 - Improved the procedure for finding MCMC starting points.
