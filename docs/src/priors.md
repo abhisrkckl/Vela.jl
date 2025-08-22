@@ -132,7 +132,7 @@ More parameters will be added to this table in the future.
 | ECORR         | Correlation between narrowband TOAs measured from the same observation (μs) | `LogUniform[1e-3, 1e+2]`                                        |                  |
 | H3            | Orthometric Shapiro delay range (s)                                         | `LogNormal[1e-9*G*Msun/c^3, 100*G*Msun/c^3]`                    |                  |
 | JUMP          | Instrumental time jump                                                      | `Uniform[-1/(2*F0), 1/(2*F0)]`                                  |                  |
-| KIN           | Orbital inclination (deg)                                                   | `P(KIN) = sin(KIN)`                                             | 0 <= KIN <= 90.  |
+| KIN           | Orbital inclination (deg)                                                   | `P(KIN) = sin(KIN)/2`                                           | 0 <= KIN <= 180  |
 | KOM           | Longitude of ascending node (deg)                                           | `LogNormal[0, 360]`                                             |                  |
 | M2            | Companion mass (MSun)                                                       | `LogUniform[1e-9, 100]`                                         |                  |
 | PHOFF         | Overall phase offset                                                        | `Uniform[-0.5, 0.5]`                                            |                  |
