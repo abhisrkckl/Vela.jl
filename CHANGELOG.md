@@ -23,6 +23,7 @@
 - Correctly show the pulsar name from a TCB par file in `pyvela-plot`
 - Fix plot margins in `pyvela-plot`
 - Marginalized parameter scale factors are 1 by default.
+- Correct range for KIN
 ## Removed
 
 # 0.1.0
