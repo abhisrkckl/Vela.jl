@@ -25,6 +25,7 @@
 - Fix plot margins in `pyvela-plot`
 - Marginalized parameter scale factors are 1 by default.
 - Correct range for KIN
+- Deal with parameter degeneracy while computing MCMC starting points
 ## Removed
 
 # 0.1.0
