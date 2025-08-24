@@ -363,7 +363,9 @@ def get_start_samples(spnta: SPNTA, s: float, nwalkers: int) -> np.ndarray:
         MT_Ninv_y = Ninv_M.T @ y
         MT_Ninv_M = M.T @ Ninv_M
         Sigmainv = np.diag(1 / Phidiag) + MT_Ninv_M
-        Sigmainv = 0.9 * Sigmainv + 0.1 * np.diag(np.diag(Sigmainv))
+        Sigmainv = 0.9 * Sigmainv + 0.1 * np.diag(
+            np.diag(Sigmainv)
+        )  # To deal with degenerate parameters.
 
         Sigmainv_cf = cholesky(Sigmainv, lower=False)
         ahat = cho_solve((Sigmainv_cf, False), MT_Ninv_y)
