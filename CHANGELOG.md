@@ -15,7 +15,7 @@
 - Specify number of walkers in `pyvela`
 ## Changed
 - Split the `SPNTA.save_results()` method into two -- the pre-analysis details are now saved using `SPNTA.save_pre_analysis_summary()` before running MCMC.
-- Improved the procedure for finding MCMC starting points.
+- ~~Improved the procedure for finding MCMC starting points.~~
 ## Fixed
 - `SPNTA.get_marginalized_gp_noise_realization()` now correctly draws samples from the conditional distribution.
 - LNEDOT is a zeroable parameter.
@@ -24,7 +24,7 @@
 - Correctly show the pulsar name from a TCB par file in `pyvela-plot`
 - Fix plot margins in `pyvela-plot`
 - Marginalized parameter scale factors are 1 by default.
-- Correct range for KIN
+- Correct range for KIN ~~and sky coordinates~~.
 - Deal with parameter degeneracy while computing MCMC starting points
 ## Removed
 
