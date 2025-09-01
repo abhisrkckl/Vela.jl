@@ -1,8 +1,11 @@
 """Script to resample `pyvela` output with new burn-in length and thinning factor."""
 
 from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
+from pint.logging import setup as setup_log
 
 from pyvela import pyvela_rethin
+
+setup_log(level="WARNING")
 
 
 def parse_args(argv):
