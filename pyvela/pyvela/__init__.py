@@ -4,6 +4,7 @@ from importlib import metadata
 
 from .spnta import SPNTA
 from .vela import vl as Vela
+from . import fitter
 
 __version__ = metadata.version("pyvela")
 

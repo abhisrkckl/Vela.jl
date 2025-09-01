@@ -1,5 +1,7 @@
 # Unreleased
 ## Added
+- Maximum-posterior fitting in `VelaFitter`
+- Save MCMC samples in `VelaFitter`
 ## Changed
 ## Fixed
 ## Removed
