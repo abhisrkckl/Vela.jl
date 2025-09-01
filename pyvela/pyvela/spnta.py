@@ -426,24 +426,41 @@ class SPNTA:
     def whitened_time_residuals(self, params: np.ndarray) -> np.ndarray:
         """Get whitened time residuals using the given set of parameters. This is done by
         subtracting the marginalized GP noise realizations from the time residuals."""
-        return (
-            self.time_residuals(params)
-            - self.get_marginalized_gp_noise_realization(params)[: len(self.toas)]
-            if self.has_marginalized_gp_noise
-            else self.time_residuals(params)
-        )
+        r = self.time_residuals(params)
+
+        if self.has_marginalized_gp_noise:
+            r -= self.get_marginalized_gp_noise_realization(params)[: len(self.toas)]
+
+        if self.has_ecorr_noise:
+            params_tuple = vl.read_params(self.model, params)
+            M = self.ecorr_designmatrix
+            Phidiag = np.array(
+                [
+                    params_tuple.ECORR[group.index - 1].x ** 2
+                    for group in self.model.kernel.ecorr_groups
+                    if group.index > 0
+                ]
+            )
+            Ndiag = self.scaled_toa_unceritainties(params) ** 2
+            assert M.shape == (len(Ndiag), len(Phidiag))
+            Ninv_M = M / Ndiag[:, None]
+            MT_Ninv_r = Ninv_M.T @ r
+            MT_Ninv_M = M.T @ Ninv_M
+            Phiinv = np.diag(1 / Phidiag) + MT_Ninv_M
+            Phiinv_cf = cholesky(Phiinv, lower=False)
+            ahat = cho_solve((Phiinv_cf, False), MT_Ninv_r)
+            r -= M @ ahat
+
+        return r
 
     def dm_residuals(self, params: np.ndarray) -> np.ndarray:
         """Get the DM residuals (s) for a given set of parameters (wideband only)."""
         assert self.wideband, "This method is only defined for wideband datasets."
 
-        params = vl.read_params(self.pulsar.model, params)
+        params = vl.read_params(self.model, params)
 
         return np.array(
-            [
-                vl.value(wr[1])
-                for wr in vl.form_residuals(self.pulsar.model, self.pulsar.toas, params)
-            ]
+            [vl.value(wr[1]) for wr in vl.form_residuals(self.model, self.toas, params)]
         )
 
     def whitened_dm_residuals(self, params: np.ndarray) -> np.ndarray:
@@ -454,6 +471,14 @@ class SPNTA:
             - self.get_marginalized_gp_noise_realization(params)[len(self.toas) :]
             if self.has_marginalized_gp_noise
             else self.dm_residuals(params)
+        )
+
+    @cached_property
+    def ecorr_designmatrix(self) -> Optional[np.ndarray]:
+        return (
+            self.model_pint.components["EcorrNoise"].get_noise_basis(self.toas_pint)
+            if self.has_ecorr_noise
+            else None
         )
 
     def scaled_toa_unceritainties(self, params: np.ndarray) -> np.ndarray:
