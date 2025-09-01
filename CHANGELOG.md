@@ -1,5 +1,11 @@
 # Unreleased
 ## Added
+## Changed
+## Fixed
+## Removed
+
+# 0.1.1
+## Added
 - `SPNTA.marginalized_param_default_values` and `SPNTA.marginalized_maxpost_params` properties and `SPNTA.get_marginalized_param_sample()` method
 - Script to plot chains
 - `SPNTA.marginalized_param_scale_factors` property
