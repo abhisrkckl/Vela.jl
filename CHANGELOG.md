@@ -1,5 +1,6 @@
 # Unreleased
 ## Added
+- Maximum-posterior fitting in `VelaFitter`
 ## Changed
 ## Fixed
 ## Removed
@@ -11,7 +12,6 @@
 - `SPNTA.marginalized_param_scale_factors` property
 - In `SPNTA.save_new_parfile()`, also update the analytically marginalized parameter values and uncertainties.
 - `SPNTA.save_results()` also saves the analytically marginalized parameter values and uncertainties.
-- Maximum-posterior fitting in `VelaFitter`
 - Display default arguments in help messages of all scripts
 - Work stealing in `pyvela` CI tests
 - Optionally specify Gaussian priors for analytically marginalized timing model parameters
