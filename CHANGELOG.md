@@ -1,6 +1,8 @@
 # Unreleased
 ## Added
+- Powerlaw solar wind GP model (`PowerlawSolarWindNoiseGP`)
 ## Changed
+- Split `gp_noise.py` into multiple files.
 ## Fixed
 ## Removed
 
