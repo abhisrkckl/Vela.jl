@@ -73,7 +73,7 @@ def test_analysis_NGC6440E_emcee():
     )
 
 
-@pytest.mark.parametrize("dataset", ["NGC6440E", "sim_sw.wb"])
+@pytest.mark.parametrize("dataset", ["NGC6440E", "sim_1", "sim_sw.wb"])
 def test_script(dataset):
     datadir = f"{os.path.dirname(os.path.realpath(__file__))}/datafiles"
     parfile, timfile = f"{datadir}/{dataset}.par", f"{datadir}/{dataset}.tim"

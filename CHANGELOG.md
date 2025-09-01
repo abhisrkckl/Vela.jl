@@ -1,5 +1,13 @@
 # Unreleased
 ## Added
+- Powerlaw solar wind GP model (`PowerlawSolarWindNoiseGP`)
+## Changed
+- Split `gp_noise.py` into multiple files.
+## Fixed
+## Removed
+
+# 0.1.1
+## Added
 - `SPNTA.marginalized_param_default_values` and `SPNTA.marginalized_maxpost_params` properties and `SPNTA.get_marginalized_param_sample()` method
 - Script to plot chains
 - `SPNTA.marginalized_param_scale_factors` property
@@ -8,15 +16,14 @@
 - Display default arguments in help messages of all scripts
 - Work stealing in `pyvela` CI tests
 - Optionally specify Gaussian priors for analytically marginalized timing model parameters
-- Powerlaw solar wind GP model (`PowerlawSolarWindNoiseGP`)
-## Changed
-- Split the `SPNTA.save_results()` method into two -- the pre-analysis details are now saved using `SPNTA.save_pre_analysis_summary()` before running MCMC.
-- Split `gp_noise.py` into multiple files.
 - Weighted residual RMS and KS test p-value in `pyvela-plot`
 - `pyvela-plot` now shows median and nmad for each parameter.
 - Adjust range quantile in `pyvela-plot`
 - Prior scaling for `PGeneralizedGaussian`
-- Improved the procedure for finding MCMC starting points.
+- Specify number of walkers in `pyvela`
+## Changed
+- Split the `SPNTA.save_results()` method into two -- the pre-analysis details are now saved using `SPNTA.save_pre_analysis_summary()` before running MCMC.
+- ~~Improved the procedure for finding MCMC starting points.~~
 ## Fixed
 - `SPNTA.get_marginalized_gp_noise_realization()` now correctly draws samples from the conditional distribution.
 - LNEDOT is a zeroable parameter.
@@ -25,7 +32,9 @@
 - Correctly show the pulsar name from a TCB par file in `pyvela-plot`
 - Fix plot margins in `pyvela-plot`
 - Marginalized parameter scale factors are 1 by default.
-- Correct range for KIN
+- Correct range for KIN ~~and sky coordinates~~.
+- ~~Deal with parameter degeneracy while computing MCMC starting points~~
+- Subtract ECORR realization while computing whitened residuals.
 ## Removed
 
 # 0.1.0
