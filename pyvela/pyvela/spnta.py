@@ -433,11 +433,16 @@ class SPNTA:
 
         if self.has_ecorr_noise:
             params_tuple = vl.read_params(self.model, params)
+            ecorr_groups = (
+                self.model.kernel.ecorr_groups
+                if not self.has_marginalized_gp_noise
+                else self.model.kernel.inner_kernel.ecorr_groups
+            )
             M = self.ecorr_designmatrix
             Phidiag = np.array(
                 [
                     params_tuple.ECORR[group.index - 1].x ** 2
-                    for group in self.model.kernel.ecorr_groups
+                    for group in ecorr_groups
                     if group.index > 0
                 ]
             )
