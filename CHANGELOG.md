@@ -1,6 +1,7 @@
 # Unreleased
 ## Added
 - Maximum-posterior fitting in `VelaFitter`
+- Save MCMC samples in `VelaFitter`
 ## Changed
 ## Fixed
 ## Removed
@@ -84,7 +85,6 @@
 - CITATION file
 - In `SPNTA.from_pint()`, compute planetary ephemerides if they are absent in the input `TOAs` object.
 - Support for log-spaced frequencies in Fourier GP components
-- Save MCMC samples in `VelaFitter`
 - Display default values in `$ pyvela --help`
 - Check that `Vela` and `pyvela` have the same version.
 - Can save the plot output from `pyvela-plot`
