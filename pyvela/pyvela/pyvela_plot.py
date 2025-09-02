@@ -141,7 +141,7 @@ def plot(
         samples[:, param_plot_mask],
         bins=32,
         labels=plot_labels,
-        label_kwargs={"fontsize": 14},
+        label_kwargs={"fontsize": 11},
         labelpad=labelpad,
         max_n_ticks=3,
         plot_datapoints=False,
