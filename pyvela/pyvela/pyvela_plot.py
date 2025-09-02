@@ -15,7 +15,7 @@ import numpy as np
 from astropy import units as u
 from pint import DMconst, dmu
 from pint.models import get_model
-from scipy.stats import kstest, median_abs_deviation
+from scipy.stats import median_abs_deviation
 from uncertainties import ufloat
 
 
@@ -240,15 +240,14 @@ def plot(
     if not wb:
         weights = 1 / terr**2
         wrms = np.sqrt(np.average(tres_w**2, weights=weights))
-        ks = kstest(tres_w / terr, "norm", args=(0, 1))
+        # ks = kstest(tres_w / terr, "norm", args=(0, 1))
         ax3.text(
             0,
             0,
             f"""
             No of TOAs = {len(tres_w)}
             MJD Range = {int(min(mjds) + pepoch)} — {int(max(mjds) + pepoch)}
-            Wrms time resids = {wrms:.2e} s
-            KS test p-value = {ks.pvalue:.2e}
+            WRMS time resids = {wrms:.2e} s
             """,
             fontsize=14,
         )
@@ -257,17 +256,17 @@ def plot(
         weights_d = 1 / derr**2
         wrms_t = np.sqrt(np.average(tres_w**2, weights=weights_t))
         wrms_d = np.sqrt(np.average(dres_w**2, weights=weights_d))
-        ks = kstest(np.append(tres_w / terr, dres_w / derr), "norm", args=(0, 1))
+        # ks = kstest(np.append(tres_w / terr, dres_w / derr), "norm", args=(0, 1))
         ax3.text(
             0,
             0,
             f"""
             No of TOAs = {len(tres_w)}
             MJD Range = {int(min(mjds))} -- {int(max(mjds))}
-            Wrms time resids = {wrms_t:.2e} s
-            Wrms DM resids = {wrms_d:.2e} pc/cm^3
-            KS test p-value = {ks.pvalue:.2e}
+            WRMS time resids = {wrms_t:.2e} s
+            WRMS DM resids = {wrms_d:.2e} pc/cm^3
             """,
+            fontsize=14,
         )
 
     psrname = get_psrname(result_dir)
