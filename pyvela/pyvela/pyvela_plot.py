@@ -116,7 +116,7 @@ def plot(
     )
 
     plot_labels = [
-        f"{pname}\n{punit if punit != '1' else ''}"
+        f"{get_param_symbol(pname)}\n{punit if punit != '1' else ''}"
         for pname, punit in zip(
             param_names[param_plot_mask], param_units[param_plot_mask]
         )
@@ -152,9 +152,9 @@ def plot(
     )
 
     for ax in fig.get_axes():
-        ax.tick_params(axis="both", labelsize=11)
-        ax.yaxis.get_offset_text().set_fontsize(10)
-        ax.xaxis.get_offset_text().set_fontsize(10)
+        ax.tick_params(axis="both", labelsize=10)
+        ax.yaxis.get_offset_text().set_fontsize(9)
+        ax.xaxis.get_offset_text().set_fontsize(9)
 
     nplots = len(param_plot_mask)
     if plot_priors:
@@ -307,3 +307,28 @@ def plot_chains(
         )
         ax2.set_xlabel("MCMC Steps After Burnin")
         plt.savefig(f"{outdir}/chain_{params[i]}.{extension}")
+
+
+def get_param_symbol(param: str) -> str:
+    symbols = {
+        "PX": "\\varpi",
+        "RAJ": "\\alpha",
+        "DECJ": "\\delta",
+        "PMRA": "\\dot{\\alpha}\\,\\cos\\delta",
+        "PMDEC": "\\dot{\\delta}",
+        "PB": "P_B",
+        "A1": "x",
+        "TASC": "T_{\\text{ASC}}",
+        "EPS1": "\\epsilon_1",
+        "EPS2": "\\epsilon_2",
+        "DM": "D",
+        "DM1": "\\dot{D}",
+        "NE_SW": "n_{\\text{SW}}",
+        "TNREDAMP": "\\log_{10} A_{\\text{ARN}}",
+        "TNREDGAM": "\\gamma_{\\text{ARN}}",
+        "TNDMAMP": "\\log_{10} A_{\\text{DMN}}",
+        "TNDMGAM": "\\gamma_{\\text{DMN}}",
+        "H3": "h_3",
+        "STIGMA": "\\varsigma",
+    }
+    return f"${symbols[param]}$" if param in symbols else param

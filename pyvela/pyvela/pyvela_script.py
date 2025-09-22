@@ -295,13 +295,20 @@ def main(argv=None):
 def get_start_samples(spnta: SPNTA, s: float, nwalkers: int) -> np.ndarray:
     """Get starting samples for the MCMC. nwalkers is the number of samples
     to be returned."""
-
     p0_ = np.array(
-        [spnta.prior_transform(cube) for cube in np.random.rand(nwalkers, spnta.ndim)]
+        [
+            spnta.prior_transform(cube)
+            for cube in np.random.rand(nwalkers * 1000, spnta.ndim)
+        ]
     )
-    p0 = (
-        ((1 - s) * spnta.maxpost_params + s * p0_)
-        if np.isfinite(spnta.lnpost(spnta.default_params))
-        else p0_
-    )
+    lnps = np.array(spnta.lnpost_vectorized(p0_))
+    lnprs = np.array([spnta.lnprior(p) for p in p0_])
+    lnws = lnps - lnprs
+    lnws -= np.max(lnws)
+    ws = np.exp(lnws)
+    # ws /= np.sum(ws)
+    # idx = np.random.choice(len(ws), size=nwalkers, replace=False, p=ws)
+    idx = np.argpartition(ws, -nwalkers)[:nwalkers]
+    p0 = p0_[idx, :]
+    p0 = (1 - s) * spnta.maxpost_params + s * p0
     return p0
