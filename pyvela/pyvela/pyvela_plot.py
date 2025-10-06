@@ -84,12 +84,7 @@ def get_psrname(result_dir: str) -> Optional[str]:
 
 
 def get_pepoch(result_dir: str) -> float:
-    with open(f"{result_dir}/summary.json") as summary_file:
-        summary = json.load(summary_file)
-
-    parfile = summary["input"]["par_file"]
-    model = get_model(f"{result_dir}/{parfile}", allow_tcb=True, allow_T2=True)
-    return model["PEPOCH"].value
+    return np.genfromtxt(f"{result_dir}/epoch.txt").item()
 
 
 def plot(
