@@ -19,6 +19,9 @@
 - Adjust range quantile in `pyvela-plot`
 - Prior scaling for `PGeneralizedGaussian`
 - Specify number of walkers in `pyvela`
+- In `SPNTA.save_pre_analysis_summary()`, also save the PEPOCH in a text file.
+- In `pyvela-plot`, read PEPOCH from text file instead of the input par file.
+- Run the example notebook during `pyvela` CI test.
 ## Changed
 - Split the `SPNTA.save_results()` method into two -- the pre-analysis details are now saved using `SPNTA.save_pre_analysis_summary()` before running MCMC.
 - ~~Improved the procedure for finding MCMC starting points.~~
@@ -33,6 +36,7 @@
 - Correct range for KIN ~~and sky coordinates~~.
 - ~~Deal with parameter degeneracy while computing MCMC starting points~~
 - Subtract ECORR realization while computing whitened residuals.
+- Plotting in the example notebook `pyvela-demo.ipynb` 
 ## Removed
 
 # 0.1.0

@@ -294,6 +294,10 @@ class SPNTA:
         """Unit conversion factors for analytically marginalized parameters."""
         return np.array(vl.get_marginalized_param_scale_factors(self.model))
 
+    @cached_property
+    def epoch(self) -> float:
+        return self.model.epoch.x / (24 * 3600)
+
     def get_marginalized_param_offset_mean_and_covinvcf(
         self, params: np.ndarray
     ) -> Tuple[np.ndarray, np.ndarray]:
@@ -868,6 +872,11 @@ class SPNTA:
         np.savetxt(
             f"{outdir}/marginalized_param_scale_factors.txt",
             self.marginalized_param_scale_factors,
+        )
+
+        np.savetxt(
+            f"{outdir}/epoch.txt",
+            [self.epoch],
         )
 
         if truth_par_file is not None:
