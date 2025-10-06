@@ -53,7 +53,7 @@ jobs:
           pytest --verbose --cov=pyvela -n logical --dist worksteal --reruns 5 .
       - name: Run example notebook
         run: |
-          cd ../examples
+          cd pyvela/examples
           jupyter execute vela-demo.ipynb
       - name: Test formatting with black
         run: |
