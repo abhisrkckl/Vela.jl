@@ -21,6 +21,7 @@
 - Specify number of walkers in `pyvela`
 - In `SPNTA.save_pre_analysis_summary()`, also save the PEPOCH in a text file.
 - In `pyvela-plot`, read PEPOCH from text file instead of the input par file.
+- Run the example notebook during `pyvela` CI test.
 ## Changed
 - Split the `SPNTA.save_results()` method into two -- the pre-analysis details are now saved using `SPNTA.save_pre_analysis_summary()` before running MCMC.
 - ~~Improved the procedure for finding MCMC starting points.~~
