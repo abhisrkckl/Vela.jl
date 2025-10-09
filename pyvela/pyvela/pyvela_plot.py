@@ -95,6 +95,7 @@ def plot(
     outfile: str = None,
     labelpad: float = 0.2,
     range_quantile: float = 0.999,
+    plot_prefit: bool = False,
 ):
     """Plot `pyvela` output and optionally save it to a file. The output includes a corner plot of the
     posterior samples and the post-fit whitened residuals."""
@@ -170,15 +171,24 @@ def plot(
         plt.title(f"{uf:.1uS}", fontsize=12)
 
     ax = plt.subplot(5, 3, 3)
-    ax.errorbar(
-        mjds, tres, terr, marker="+", ls="", alpha=1, color="orange", label="Pre-fit"
-    )
+    if plot_prefit:
+        ax.errorbar(
+            mjds,
+            tres,
+            terr,
+            marker="+",
+            ls="",
+            alpha=1,
+            color="orange",
+            label="Pre-fit",
+        )
     ax.set_ylabel("Time res (pre) (s)", fontsize=13)
     # ax.legend()
     ax.tick_params(axis="both", labelsize=11)
 
     ax1 = ax.twinx()
-    ax1.errorbar([], [], [], ls="", marker="+", color="orange", label="Pre-fit")
+    if plot_prefit:
+        ax1.errorbar([], [], [], ls="", marker="+", color="orange", label="Pre-fit")
     ax1.errorbar(
         mjds,
         tres_w,
@@ -197,16 +207,17 @@ def plot(
     if wb:
         plt.xticks([])
         ax = plt.subplot(5, 3, 6)
-        ax.errorbar(
-            mjds,
-            dres,
-            derr,
-            marker="+",
-            ls="",
-            alpha=1,
-            color="orange",
-            label="Pre-fit",
-        )
+        if plot_prefit:
+            ax.errorbar(
+                mjds,
+                dres,
+                derr,
+                marker="+",
+                ls="",
+                alpha=1,
+                color="orange",
+                label="Pre-fit",
+            )
 
         ax.set_ylabel("DM res (pre) (dmu)", fontsize=13)
         ax.tick_params(axis="both", labelsize=11)

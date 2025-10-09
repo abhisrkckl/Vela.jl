@@ -10,6 +10,7 @@
 - In `pyvela-plot`, read PEPOCH from text file instead of the input par file.
 - Run the example notebook during `pyvela` CI test.
 ## Changed
+- Don't plot pre-fit residuals in `pyvela-plot`
 ## Fixed
 - Plotting in the example notebook `pyvela-demo.ipynb` 
 ## Removed
