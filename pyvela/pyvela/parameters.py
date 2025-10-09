@@ -45,7 +45,7 @@ def get_scale_factor(param: Parameter) -> float:
     ):
         return DMconst
     elif (
-        param.name in ["TNCHROMIDX"]
+        param.name in ["TNCHROMIDX", "TNSWAMP", "TNSWGAM"]
         or (
             hasattr(param, "prefix")
             and param.prefix
@@ -200,12 +200,15 @@ def pint_parameters_to_vela(
         "TNREDC",  # Included separately in the component
         "TNDMC",
         "TNCHROMC",
+        "TNSWC",
         "TNREDFLOG",
         "TNDMFLOG",
         "TNCHROMFLOG",
+        "TNSWFLOG",
         "TNREDFLOG_FACTOR",
         "TNDMFLOG_FACTOR",
         "TNCHROMFLOG_FACTOR",
+        "TNSWFLOG_FACTOR",
     ]
 
     assert all(psp not in ignore_params for psp in pseudo_single_params), (

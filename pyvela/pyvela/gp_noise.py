@@ -1,6 +1,6 @@
 from astropy import units as u
 from astropy.time import Time
-from pint.models.noise_model import PLChromNoise, PLDMNoise, PLRedNoise
+from pint.models.noise_model import PLChromNoise, PLDMNoise, PLRedNoise, PLSWNoise
 from pint.models.parameter import MJDParameter, prefixParameter
 from pint.models.timing_model import DelayComponent
 
@@ -173,6 +173,65 @@ class PLChromNoiseGP(DelayComponent):
                     parameter_type="float",
                     name=f"PLCHROMCOS_{ii:04d}",
                     description="Cosine amplitude of the Powerlaw Fourier GP representation of the chromatic noise",
+                    units=u.dimensionless_unscaled,
+                    value=0.0,
+                    frozen=False,
+                    tcb2tdb_scale_factor=u.Quantity(1),
+                )
+            )
+
+        self.delay_funcs_component += [self.dummy_delay]
+
+    def dummy_delay(self, toas, delays):
+        return 0 * u.s
+
+
+class PLSWNoiseGP(DelayComponent):
+    """A dummy PINT component that is used to translate `PLSWNoise` to a form
+    with unmarginalized amplitudes."""
+
+    def __init__(self, pldmnoise: PLSWNoise, epoch: Time):
+        super().__init__()
+
+        self.add_param(pldmnoise.TNSWAMP)
+        self.add_param(pldmnoise.TNSWGAM)
+        self.add_param(pldmnoise.TNSWC)
+        self.add_param(pldmnoise.PLSWFREQ)
+        self.add_param(pldmnoise.TNSWFLOG)
+        self.add_param(pldmnoise.TNSWFLOG_FACTOR)
+
+        self.add_param(
+            MJDParameter(
+                name="PLSWEPOCH",
+                description="Epoch of the Powerlaw Fourier GP representation of the solar wind noise",
+                value=epoch.mjd,
+                time_scale="tdb",
+                tcb2tdb_scale_factor=u.Quantity(1),
+                frozen=True,
+            )
+        )
+
+        Nharm = int(pldmnoise.TNSWC.value) + (
+            int(pldmnoise.TNSWFLOG.value) if pldmnoise.TNSWFLOG.value is not None else 0
+        )
+        for ii in range(1, Nharm + 1):
+            self.add_param(
+                prefixParameter(
+                    parameter_type="float",
+                    name=f"PLSWSIN_{ii:04d}",
+                    description="Sine amplitude of the Powerlaw Fourier GP representation of the solar wind noise",
+                    units=u.dimensionless_unscaled,
+                    value=0.0,
+                    frozen=False,
+                    tcb2tdb_scale_factor=u.Quantity(1),
+                )
+            )
+
+            self.add_param(
+                prefixParameter(
+                    parameter_type="float",
+                    name=f"PLSWCOS_{ii:04d}",
+                    description="Cosine amplitude of the Powerlaw Fourier GP representation of the solar wind noise",
                     units=u.dimensionless_unscaled,
                     value=0.0,
                     frozen=False,
