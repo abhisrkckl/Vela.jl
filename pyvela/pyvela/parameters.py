@@ -196,6 +196,9 @@ def pint_parameters_to_vela(
         "DMXR2_",
         "CMXR1_",  # Included separately in the component as an index mask.
         "CMXR2_",
+        "SWXR1_",  # Included separately in the component as an index mask.
+        "SWXR2_",
+        "SWXP_",
         "PEPOCH",  # Included separately. We subtract PEPOCH from all TOAs and MJDParameters.
         "TNREDC",  # Included separately in the component
         "TNDMC",
