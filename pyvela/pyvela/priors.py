@@ -224,7 +224,7 @@ def process_custom_priors(custom_priors_raw: dict, model: TimingModel) -> dict:
         if hasattr(jl.Distributions, prior_info["distribution"]):
             distr_type = getattr(jl.Distributions, prior_info["distribution"])
         elif hasattr(jl.Vela, prior_info["distribution"]):
-            distr_type = getattr(jl.Vela, prior_info["distribution"])
+            continue
         else:
             warnings.warn(
                 f"Could not find the distribution '{prior_info["distribution"]}' in Distributions or Vela namespace. Falling back to the default..."
