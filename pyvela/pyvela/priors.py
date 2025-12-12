@@ -1,4 +1,5 @@
 from typing import List
+import warnings
 
 import astropy.constants as const
 import astropy.units as u
@@ -220,11 +221,16 @@ def process_custom_priors(custom_priors_raw: dict, model: TimingModel) -> dict:
 
         unit_conversion_factor = get_unit_conversion_factor(model[par])
 
-        distr_type = (
-            getattr(jl.Distributions, prior_info["distribution"])
-            if hasattr(jl.Distributions, prior_info["distribution"])
-            else getattr(jl.Vela, prior_info["distribution"])
-        )
+        if hasattr(jl.Distributions, prior_info["distribution"]):
+            distr_type = getattr(jl.Distributions, prior_info["distribution"])
+        elif hasattr(jl.Vela, prior_info["distribution"]):
+            distr_type = getattr(jl.Vela, prior_info["distribution"])
+        else:
+            warnings.warn(
+                f"Could not find the distribution '{prior_info["distribution"]}' in Distributions or Vela namespace. Falling back to the default..."
+            )
+            continue
+
         args = np.array(prior_info["args"])
 
         scaled_args = vl.scale_prior_args(distr_type, args, unit_conversion_factor)
