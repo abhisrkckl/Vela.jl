@@ -78,6 +78,8 @@ prior_scaling(::Type{VonMises}, args) = ((), (0,), (0, 1))[length(args)+1]
 
 prior_scaling(::Type{Weibull}, args) = ((), (0,), (0, 1))[length(args)+1]
 
+prior_scaling(::Type{PXPriorDistribution}, args) = map(oneunit, args)
+
 scale_prior_args(distr_type, args, unit_conversion_factor) =
     args .* (unit_conversion_factor .^ prior_scaling(distr_type, args))
 

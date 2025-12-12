@@ -12,7 +12,8 @@
 ## Changed
 - Don't plot pre-fit residuals in `pyvela-plot`
 ## Fixed
-- Plotting in the example notebook `pyvela-demo.ipynb` 
+- Plotting in the example notebook `pyvela-demo.ipynb`
+- Handling of default Vela-defined priors in prior JSON file.
 ## Removed
 
 # 0.1.1
