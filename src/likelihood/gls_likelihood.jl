@@ -53,7 +53,8 @@ function _calc_resids_and_Ndiag(
     Ndiag = @view result_data[(2*ntoas+1):end]
 
     if parallel
-        @inbounds for (j, wtoa) in enumerate(wtoas)
+        @inbounds @threads for j = 1:ntoas
+            wtoa = wtoas[j]
             cwtoa = correct_toa(model, wtoa, params)
             dphase = GQ{Float64}(phase_residual(wtoa.toa, cwtoa.toa_correction) - tzrphase)
             ys[j] = dphase / doppler_shifted_spin_frequency(cwtoa.toa_correction)
