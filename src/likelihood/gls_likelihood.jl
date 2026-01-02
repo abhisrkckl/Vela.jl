@@ -61,7 +61,7 @@ function _calc_resids_and_Ndiag(
             ys[ntoas+j] = dm_residual(wtoa.dminfo, cwtoa.dm_correction)
             Ndiag[j] = scaled_toa_error_sqr(wtoa.toa, cwtoa.toa_correction)
             Ndiag[ntoas+j] = scaled_dm_error_sqr(wtoa.dminfo, cwtoa.dm_correction)
-        end
+        end # COV_EXCL_LINE
     else
         @inbounds for (j, wtoa) in enumerate(wtoas)
             cwtoa = correct_toa(model, wtoa, params)
@@ -127,7 +127,7 @@ function _calc_Σinv__and__MT_Ninv_y(
                 # The rest contain garbage.
                 Σinv[q, p] = Σinv_qp
             end
-        end
+        end # COV_EXCL_LINE
     else
         @inbounds for p = 1:Npar
             for q = 1:p
@@ -151,7 +151,7 @@ function _calc_Σinv__and__MT_Ninv_y(
                 up += Ninv_M[j, p] * y[j]
             end # COV_EXCL_LINE
             u[p] = up
-        end
+        end # COV_EXCL_LINE
     else
         @inbounds for p = 1:Npar
             up = zero(X)
@@ -183,7 +183,7 @@ function _calc_Ninv_M(
             @simd for j = 1:Ntoa
                 Ninv_M[j, p] = M[j, p] / Ndiag[j]
             end # COV_EXCL_LINE
-        end
+        end # COV_EXCL_LINE
     else
         @inbounds for p = 1:Npar
             @simd for j = 1:Ntoa
