@@ -237,7 +237,8 @@ function _gls_lnlike_parallel(
         return -Inf # COV_EXCL_LINE
     end
 
-    y_Ninv_y, logdet_N = _calc_y_Ninv_y__and__logdet_N(inner_kernel, Ndiag, y, params)
+    y_Ninv_y, logdet_N =
+        _calc_y_Ninv_y__and__logdet_N(inner_kernel, Ndiag, y, params; parallel = true)
 
     Σinv_cf = cholesky!(Σinv)
     logdet_Σinv = logdet(Σinv_cf)
