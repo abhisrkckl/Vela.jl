@@ -80,7 +80,8 @@ function _calc_y_Ninv_y__and__logdet_N(
     ::WhiteNoiseKernel,
     Ndiag::AbstractVector,
     y::AbstractVector,
-    ::NamedTuple,
+    ::NamedTuple;
+    parallel::Bool = false,
 )
     Ntoa = length(y)
     @assert length(Ndiag) == Ntoa
