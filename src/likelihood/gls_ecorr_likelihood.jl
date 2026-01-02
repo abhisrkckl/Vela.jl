@@ -30,7 +30,7 @@ function _calc_y_Ninv_y__and__logdet_N(
             denom = (1 + w * u_u)
             y_Ninv_y += r_r - w * r_u * r_u / denom
             logdet_Nc += logdet_N + log(denom)
-        end
+        end # COV_EXCL_LINE
     else
         @inbounds for group in inner_kernel.ecorr_groups
             ecorr = (group.index == 0) ? 0.0 : value(params.ECORR[group.index])
@@ -89,7 +89,7 @@ function _calc_Ninv_M(
                     A[i, p] = (M[i, p] - R) / Ndiag[i]
                 end # COV_EXCL_LINE
             end
-        end
+        end # COV_EXCL_LINE
     else
         @inbounds for group in inner_kernel.ecorr_groups
             ecorr = (group.index == 0) ? 0.0 : value(params.ECORR[group.index])
