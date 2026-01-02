@@ -25,7 +25,7 @@ function _calc_resids_and_Ndiag(
             dphase = GQ{Float64}(phase_residual(toa, ctoa) - tzrphase)
             ys[j] = value(dphase / doppler_shifted_spin_frequency(ctoa))
             Ndiag[j] = value(scaled_toa_error_sqr(toa, ctoa))
-        end
+        end # COV_EXCL_LINE
     else
         @inbounds for j = 1:ntoas
             toa = toas[j]

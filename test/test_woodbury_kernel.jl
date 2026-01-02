@@ -60,7 +60,7 @@
             @test Σinv ≈ Diagonal(Phiinv) + transpose(M) * (M ./ Ndiag)
         end
 
-        @testset "_gls_lnlike_serial" begin
+        @testset "_gls_lnlike" begin
             lnlike = Vela._gls_lnlike_serial(WhiteNoiseKernel(), M, Ndiag, Phiinv, y, (;))
 
             Ninv_y = y ./ Ndiag
@@ -84,6 +84,10 @@
 
             C = Diagonal(Ndiag) + M * Diagonal(1 ./ Phiinv) * transpose(M)
             @test lnlike ≈ -0.5 * (dot(y, C \ y) + logdet(C))
+
+            lnlike_p =
+                Vela._gls_lnlike_parallel(WhiteNoiseKernel(), M, Ndiag, Phiinv, y, (;))
+            @test lnlike ≈ lnlike_p
         end
     end
 
