@@ -55,4 +55,12 @@ signal due to the Sun.
 
 ```
 using GeometricUnits
+
+function solar_system_shapiro_delay(Lhat::Vector{GQ{0,Float64}}, rvec::Vector{GQ{1,Float64}})
+    M_SUN = mass(4.92549094830932e-06)
+    AU = distance(499.00478383615643)
+    r = sqrt(dot(rvec, rvec))
+    Lhat_dot_rvec = dot(Lhat, rvec)
+    return -2 * M * log((r - Lhat_dot_rvec) / AU)
+end
 ```
