@@ -1,6 +1,8 @@
 # Unreleased
 ## Added
+- Example script `run_example_nested.jl`
 ## Changed
+- Parallelize GLS likelihood computation using threads. 
 ## Fixed
 ## Removed
 
@@ -12,7 +14,8 @@
 ## Changed
 - Don't plot pre-fit residuals in `pyvela-plot`
 ## Fixed
-- Plotting in the example notebook `pyvela-demo.ipynb` 
+- Plotting in the example notebook `pyvela-demo.ipynb`
+- Handling of default Vela-defined priors in prior JSON file.
 ## Removed
 
 # 0.1.1
