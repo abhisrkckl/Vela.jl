@@ -1,6 +1,12 @@
 # Unreleased
 ## Added
 - Powerlaw solar wind GP model (`PowerlawSolarWindNoiseGP`)
+## Changed
+## Fixed
+## Removed
+
+# 0.1.3
+## Added
 - Example script `run_example_nested.jl`
 ## Changed
 - Split `gp_noise.py` into multiple files.
