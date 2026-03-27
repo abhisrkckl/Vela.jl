@@ -36,3 +36,36 @@
 
     display(swd)
 end
+
+@testset "SolarWindDispersionPiecewise" begin
+    toa = default_toa()
+    ctoa = TOACorrection()
+
+    params = (
+        POSEPOCH = time((53470.0 - epoch_mjd) * day_to_s),
+        ELAT = dimensionless(1.2),
+        ELONG = dimensionless(1.25),
+        PX = GQ{-1}(3e-12),
+        PMELAT = GQ{-1}(-7e-16),
+        PMELONG = GQ{-1}(-5e-16),
+        SWXDM_ = (GQ{-1}(4e12), GQ{-1}(1e12)),
+    )
+
+    ss = SolarSystem(true, true)
+    ctoa1 = correct_toa(ss, toa, ctoa, params)
+
+    mask = UInt[0]
+    swx = SolarWindDispersionPiecewise(mask, distance(5000.0), distance(500.0))
+    @test dispersion_slope(swx, toa, ctoa1, params) == GQ{-1}(0.0)
+    @test @ballocated(delay($swx, $toa, $ctoa1, $params)) == 0
+
+    mask = UInt[1]
+    swx = SolarWindDispersionPiecewise(mask, distance(5000.0), distance(500.0))
+    @test dispersion_slope(swx, toa, ctoa1, params) > GQ{-1}(0.0)
+    @test @ballocated(delay($swx, $toa, $ctoa1, $params)) == 0
+
+    tzrtoa = default_tzrtoa()
+    ctzrtoa = TOACorrection()
+    ctzrtoa1 = correct_toa(ss, tzrtoa, ctzrtoa, params)
+    @test dispersion_slope(swx, tzrtoa, ctzrtoa1, params) == GQ{-1}(0.0)
+end
