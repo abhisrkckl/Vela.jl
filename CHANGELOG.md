@@ -1,9 +1,23 @@
 # Unreleased
 ## Added
 - Powerlaw solar wind GP model (`PowerlawSolarWindNoiseGP`)
+- Example script `run_example_nested.jl`
 ## Changed
 - Split `gp_noise.py` into multiple files.
+- Parallelize GLS likelihood computation using threads. 
 ## Fixed
+## Removed
+
+# 0.1.2
+## Added
+- In `SPNTA.save_pre_analysis_summary()`, also save the PEPOCH in a text file.
+- In `pyvela-plot`, read PEPOCH from text file instead of the input par file.
+- Run the example notebook during `pyvela` CI test.
+## Changed
+- Don't plot pre-fit residuals in `pyvela-plot`
+## Fixed
+- Plotting in the example notebook `pyvela-demo.ipynb`
+- Handling of default Vela-defined priors in prior JSON file.
 ## Removed
 
 # 0.1.1
