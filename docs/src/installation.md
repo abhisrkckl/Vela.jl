@@ -34,6 +34,7 @@ Now, install the Julia packages.
 ```
 (vela) $ julia
 julia> import Pkg
+julia> Pkg.Registry.add("General")
 julia> Pkg.Registry.add(url="https://github.com/abhisrkckl/julia_registry")
 julia> Pkg.add(["LocalRegistry", "JuliaFormatter", "BenchmarkTools", "PythonCall", "Distributions", "DoubleFloats", "GeometricUnits"])
 julia> Pkg.add(url="https://github.com/abhisrkckl/Vela.jl")
