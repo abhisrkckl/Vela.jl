@@ -1,5 +1,11 @@
 # Unreleased
 ## Added
+## Changed
+## Fixed
+## Removed
+
+# 0.1.3
+## Added
 - Example script `run_example_nested.jl`
 ## Changed
 - Parallelize GLS likelihood computation using threads. 
