@@ -1,5 +1,6 @@
 # Unreleased
 ## Added
+- Apptainer definition file
 ## Changed
 ## Fixed
 ## Removed
