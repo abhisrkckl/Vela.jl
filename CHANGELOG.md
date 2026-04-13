@@ -2,6 +2,7 @@
 ## Added
 - Apptainer definition file
 ## Changed
+- Updated citations
 ## Fixed
 - Thread safety issue in ECORR-GLS likelihood
 ## Removed
