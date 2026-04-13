@@ -1,5 +1,11 @@
 # Unreleased
 ## Added
+## Changed
+## Fixed
+## Removed
+
+# 0.1.4
+## Added
 - Apptainer definition file
 ## Changed
 - Updated citations
