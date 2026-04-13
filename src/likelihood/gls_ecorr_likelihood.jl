@@ -9,11 +9,10 @@ function _calc_y_Ninv_y__and__logdet_N(
     @assert length(Ndiag) == Ntoa
 
     if parallel
-        y_Ninv_y_thr = zeros(eltype(y), Threads.nthreads())
-        logdet_Nc_thr = zeros(eltype(y), Threads.nthreads())
+        y_Ninv_y_thr = zeros(eltype(y), Threads.maxthreadid())
+        logdet_Nc_thr = zeros(eltype(y), Threads.maxthreadid())
 
-        @inbounds @threads for igroup in eachindex(inner_kernel.ecorr_groups)
-            group = inner_kernel.ecorr_groups[igroup]
+        @inbounds @threads for group in inner_kernel.ecorr_groups
             ithread = Threads.threadid()
 
             ecorr = (group.index == 0) ? 0.0 : value(params.ECORR[group.index])
