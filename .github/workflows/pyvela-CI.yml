@@ -55,6 +55,9 @@ jobs:
         run: |
           cd pyvela/examples
           jupyter execute vela-demo.ipynb
+        env:
+          PYTHON_JULIACALL_THREADS: 2
+          PYTHON_JULACALL_HANDLE_SIGNALS: yes
       - name: Test formatting with black
         run: |
           black --check ..
