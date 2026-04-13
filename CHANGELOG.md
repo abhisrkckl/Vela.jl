@@ -3,7 +3,7 @@
 - Apptainer definition file
 ## Changed
 ## Fixed
-- Thread safety issue in ECORR-GLS likelihoo
+- Thread safety issue in ECORR-GLS likelihood
 ## Removed
 
 # 0.1.3
