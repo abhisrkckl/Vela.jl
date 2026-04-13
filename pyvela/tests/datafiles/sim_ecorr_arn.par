@@ -1,0 +1,46 @@
+# Created: 2026-04-13T10:41:05.443719
+# PINT_version: 1.1.4+71.gc382ac92
+# User: abhimanyu
+# Host: abhimanyu-HP-Envy-x360-2-in-1-Laptop-15-fh0xxx
+# OS: Linux-6.17.0-20-generic-x86_64-with-glibc2.42
+# Python: 3.13.7 | packaged by Anaconda, Inc. | (main, Sep  9 2025, 19:59:03) [GCC 11.2.0]
+# Format: pint
+# read_time: 2026-04-13T10:40:51.356248
+# allow_tcb: False
+# convert_tcb: False
+# allow_T2: False
+PSR                                  TEST
+EPHEM                               DE440
+CLOCK                        TT(BIPM2021)
+UNITS                                 TDB
+START              54000.0999999431480093
+FINISH             55992.0004000568981597
+DILATEFREQ                              N
+DMDATA                                  N
+NTOA                                 2000
+CHI2                    2077.096811840418
+CHI2R                  1.0421960922430598
+TRES                1.0229689519333023506
+RAJ                      5:00:00.00000334 1 0.00000124196733494104
+DECJ                    14:59:59.99981354 1 0.00010637755757738853
+PMRA                                  0.0
+PMDEC                                 0.0
+PX                                    0.0
+POSEPOCH           55000.0000000000000000
+F0                   99.99999999999998306 1 4.5709395611137090928e-14
+F1              -1.0000005469463110878e-15 1 2.0551529889586799575e-21
+F2                                    0.0
+PEPOCH             55000.0000000000000000
+TZRMJD             55000.0000000000000000
+TZRSITE                               ssb
+TZRFRQ                             1400.0
+PHOFF               -9.57510497746583e-07 1 8.979911436357802e-06
+EFAC            tel gbt                       1.0 0 0.0
+ECORR           tel gbt                     1e-06 0 0.0
+TNREDAMP                            -14.0 0 0.0
+TNREDGAM                             -3.0 0 0.0
+TNREDC                                 16
+PLANET_SHAPIRO                          N
+DM                  15.000005121873818586 1 2.9730242218747902157e-05
+DM1                                   0.0
+DMEPOCH            55000.0000000000000000
