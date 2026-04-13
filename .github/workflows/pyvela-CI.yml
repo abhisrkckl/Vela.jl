@@ -50,8 +50,6 @@ jobs:
       - name: Test with pytest
         run: |
           cd pyvela/tests
-          export PYTHON_JULIACALL_THREADS=4
-          export PYTHON_JULIACALL_HANDLE_SIGNALS=yes
           pytest --verbose --cov=pyvela -n logical --dist worksteal --reruns 5 .
       - name: Run example notebook
         run: |
