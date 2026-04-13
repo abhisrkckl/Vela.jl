@@ -3,6 +3,7 @@
 - Apptainer definition file
 ## Changed
 ## Fixed
+- Thread safety issue in ECORR-GLS likelihoo
 ## Removed
 
 # 0.1.3
@@ -11,7 +12,6 @@
 ## Changed
 - Parallelize GLS likelihood computation using threads. 
 ## Fixed
-- Thread safety issue in ECORR-GLS likelihoo
 ## Removed
 
 # 0.1.2
