@@ -15,7 +15,7 @@
     params = (
         EXPDIPFREF = frequency(1.0e9),
         EXPDIPEPS = time(1e-4),
-        EXPDIPEP = (time(day_to_s * (54952.92239 - epoch_mjd)),),
+        EXPDIPEP_ = (time(day_to_s * (54952.92239 - epoch_mjd)),),
         EXPDIPAMP_ = (time(1e-6),),
         EXPDIPIDX_ = (dimensionless(4.0),),
         EXPDIPTAU_ = (time(10.0 * day_to_s),),
