@@ -1,5 +1,6 @@
 # Unreleased
 ## Added
+- Chromatic exponential dip model (ChromaticExponentialDip)
 ## Changed
 ## Fixed
 ## Removed
