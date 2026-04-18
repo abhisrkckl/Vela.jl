@@ -23,8 +23,8 @@
 
     expdip = ChromaticExponentialDip()
 
-    @test delay(expdip, toa, ctoa, params) == dimensionless(0.0)
-    @test delay(expdip, toa2, ctoa2, params) != dimensionless(0.0)
+    @test delay(expdip, toa, ctoa, params) == time(0.0)
+    @test delay(expdip, toa2, ctoa2, params) != time(0.0)
 
     @test @ballocated(delay($expdip, $toa2, $ctoa2, $params)) == 0
 end
