@@ -1,5 +1,6 @@
 # Unreleased
 ## Added
+- Analytic marginalization of RAJ, DECJ, ELAT, ELONG, DM, and FDJUMPDM.
 ## Changed
 ## Fixed
 ## Removed

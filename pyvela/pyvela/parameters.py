@@ -335,8 +335,17 @@ def pint_parameters_to_vela(
     return single_params, multi_params
 
 
-analytic_marginalizable_names = ["PHOFF"]
-analytic_marginalizable_prefixes = ["F", "JUMP", "DMJUMP", "DMX_", "FD", "FDJUMP"]
+analytic_marginalizable_names = ["PHOFF", "DM", "RAJ", "DECJ", "ELAT", "ELONG"]
+analytic_marginalizable_prefixes = [
+    "F",
+    "JUMP",
+    "DM",
+    "DMJUMP",
+    "FDJUMPDM",
+    "DMX_",
+    "FD",
+    "FDJUMP",
+]
 
 
 def validate_analytic_marginalized_params(
