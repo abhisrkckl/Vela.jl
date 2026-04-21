@@ -67,6 +67,11 @@ DEFAULT_PRIOR_DISTS = {
     # "DECJ": vl.LatitudePriorDistribution(),  # sin(DECJ) is uniformly distributed in [-1,1].
     # "ELONG": jl.Uniform(0, 2 * jl.pi),  # duh!
     # "ELAT": vl.LatitudePriorDistribution(),  # sin(ELAT) is uniformly distributed in [-1,1].
+    "EXPDIPAMP_": jl.Uniform(-1e-5, 1e-5),  # Ballpark range based on PTA pulsars
+    "EXPDIPIDX_": jl.Uniform(-6.0, 6.0),  # Ballpark range based on PTA pulsars
+    "EXPDIPTAU_": jl.Uniform(
+        0.01 * 86400.0, 100 * 86400.0
+    ),  # Ballpark range based on PTA pulsars
 }
 
 
