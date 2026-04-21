@@ -70,7 +70,7 @@ DEFAULT_PRIOR_DISTS = {
     "EXPDIPAMP_": jl.Uniform(-1e-5, 1e-5),  # Ballpark range based on PTA pulsars
     "EXPDIPIDX_": jl.Uniform(-6.0, 6.0),  # Ballpark range based on PTA pulsars
     "EXPDIPTAU_": jl.Uniform(
-        0.01 * 86400.0, 100 * 86400.0
+        0.01 * 86400.0, 150 * 86400.0
     ),  # Ballpark range based on PTA pulsars
 }
 
