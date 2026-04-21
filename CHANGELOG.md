@@ -1,5 +1,6 @@
 # Unreleased
 ## Added
+- Chromatic exponential dip model (ChromaticExponentialDip)
 - Analytic marginalization of RAJ, DECJ, ELAT, ELONG, DM, and FDJUMPDM.
 ## Changed
 ## Fixed

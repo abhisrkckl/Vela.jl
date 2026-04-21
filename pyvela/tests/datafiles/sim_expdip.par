@@ -1,0 +1,43 @@
+# Created: 2026-04-18T22:47:08.234975
+# PINT_version: 1.1.4+108.g229f6111
+# User: abhimanyu
+# Host: abhimanyu-HP-Envy-x360-2-in-1-Laptop-15-fh0xxx
+# OS: Linux-6.17.0-22-generic-x86_64-with-glibc2.42
+# Python: 3.13.7 | packaged by Anaconda, Inc. | (main, Sep  9 2025, 19:59:03) [GCC 11.2.0]
+# Format: pint
+# read_time: 2026-04-18T22:45:11.755239
+# allow_tcb: True
+# convert_tcb: True
+# allow_T2: True
+# original_name: sim_expdip.par
+EPHEM                               DE440
+CLOCK                        TT(BIPM2019)
+UNITS                                 TDB
+START              54000.0999999546145602
+FINISH             55996.0002000496064468
+DILATEFREQ                              N
+DMDATA                                  N
+NTOA                                 2000
+CHI2                   1891.1547620262786
+CHI2R                  0.9492182891312045
+TRES               0.97208374476179472884
+RAJ                      5:00:00.00000000 1 0.00000117141399836865
+DECJ                    15:00:00.00000000 1 0.00010364497726042524
+PMRA                                  0.0
+PMDEC                                 0.0
+PX                                    0.0
+POSEPOCH           55000.0000000000000000
+F0                                  100.0 1 4.5039408047484443156e-14
+F1                                 -1e-15 1 2.4512772134687917901e-21
+F2                                    0.0
+PEPOCH             55000.0000000000000000
+PLANET_SHAPIRO                          N
+EXPDIPEPS                            0.01
+EXPDIPFREF                         1400.0
+EXPDIPEP_1         54764.2724289041940046 1 0.1
+EXPDIPAMP_1        1.6641670367524487e-06 1 0.007989999946407462
+EXPDIPIDX_1           -1.9148109887274356 1 0.06365966509114257
+EXPDIPTAU_1            112.00425959054773 1 2.9654803486584487
+TZRMJD             55000.0000000000000000
+TZRSITE                               pks
+TZRFRQ                             1400.0

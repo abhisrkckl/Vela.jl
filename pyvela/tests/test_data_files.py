@@ -25,6 +25,7 @@ datasets = [
     "sim_sw.wb",
     "sim3.gp",
     "sim_ecorr_arn",
+    "sim_expdip",
     "sim3",
     "sim_fdjump",
     "sim_ddk",
@@ -40,7 +41,7 @@ datasets = [
 ]
 
 
-@pytest.fixture(params=datasets[:4], scope="module")
+@pytest.fixture(params=datasets[:5], scope="module")
 def model_and_toas(request):
     dataset = request.param
 
