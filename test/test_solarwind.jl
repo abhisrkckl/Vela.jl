@@ -34,5 +34,22 @@
 
     @test @ballocated(correct_toa($swd, $wtoa, $cwtoa1, $params)) == 0
 
+    tzrtoa1 = make_tzr_toa(
+        time(Double64((53475.0 - epoch_mjd) * day_to_s)),
+        frequency(2.5e9),
+        SolarSystemEphemeris(
+            distance.((0.0, 0.0, 0.0)),
+            speed.((0.0, 0.0, 0.0)),
+            distance.((0.0, 0.0, 0.0)),
+            distance.((0.0, 0.0, 0.0)),
+            distance.((0.0, 0.0, 0.0)),
+            distance.((0.0, 0.0, 0.0)),
+            distance.((0.0, 0.0, 0.0)),
+            distance.((0.0, 0.0, 0.0)),
+        ),
+    )
+    ctzrtoa1 = TOACorrection()
+    @test dispersion_slope(swd, tzrtoa1, ctzrtoa1, params) == GQ{-1}(0.0)
+
     display(swd)
 end
