@@ -34,6 +34,7 @@
 
     @test @ballocated(correct_toa($swd, $wtoa, $cwtoa1, $params)) == 0
 
+    # Barycentered tzr toa
     tzrtoa1 = make_tzr_toa(
         time(Double64((53475.0 - epoch_mjd) * day_to_s)),
         frequency(2.5e9),
