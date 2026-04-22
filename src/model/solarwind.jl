@@ -40,6 +40,9 @@ function dispersion_slope(
     toacorr::TOACorrection,
     params::NamedTuple,
 )::GQ
+    if is_barycentered(toa)
+        return GQ{-1,Float64}(0.0)
+    end
     ρ, r = sun_angle_and_distance(toa, toacorr)
     t0 = params.SWEPOCH
     t = corrected_toa_value(toa, toacorr, Float64)
@@ -72,7 +75,7 @@ function dispersion_slope(
     toacorr::TOACorrection,
     params::NamedTuple,
 )
-    if is_tzr(toa)
+    if is_tzr(toa) || is_barycentered(toa)
         return zero(params.SWXDM_[1])
     end
     swx_idx = swx.swx_mask[toa.index]
