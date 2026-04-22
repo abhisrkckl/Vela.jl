@@ -1,8 +1,20 @@
 # Unreleased
 ## Added
 - Powerlaw solar wind GP model (`PowerlawSolarWindNoiseGP`)
+- Chromatic exponential dip model (`ChromaticExponentialDip`).
+- Analytic marginalization of RAJ, DECJ, ELAT, ELONG, DM, and FDJUMPDM.
 ## Changed
 ## Fixed
+- Return zero solar wind DM if the TOA is barycentered.
+## Removed
+
+# 0.1.4
+## Added
+- Apptainer definition file
+## Changed
+- Updated citations
+## Fixed
+- Thread safety issue in ECORR-GLS likelihood
 ## Removed
 
 # 0.1.3
