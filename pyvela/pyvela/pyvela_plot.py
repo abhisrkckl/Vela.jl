@@ -15,7 +15,7 @@ import numpy as np
 from astropy import units as u
 from pint import DMconst, dmu
 from pint.models import get_model
-from scipy.stats import kstest, median_abs_deviation
+from scipy.stats import median_abs_deviation
 from uncertainties import ufloat
 
 
@@ -84,12 +84,7 @@ def get_psrname(result_dir: str) -> Optional[str]:
 
 
 def get_pepoch(result_dir: str) -> float:
-    with open(f"{result_dir}/summary.json") as summary_file:
-        summary = json.load(summary_file)
-
-    parfile = summary["input"]["par_file"]
-    model = get_model(f"{result_dir}/{parfile}", allow_tcb=True, allow_T2=True)
-    return model["PEPOCH"].value
+    return np.genfromtxt(f"{result_dir}/epoch.txt").item()
 
 
 def plot(
@@ -100,6 +95,7 @@ def plot(
     outfile: str = None,
     labelpad: float = 0.2,
     range_quantile: float = 0.999,
+    plot_prefit: bool = False,
 ):
     """Plot `pyvela` output and optionally save it to a file. The output includes a corner plot of the
     posterior samples and the post-fit whitened residuals."""
@@ -141,7 +137,7 @@ def plot(
         samples[:, param_plot_mask],
         bins=32,
         labels=plot_labels,
-        label_kwargs={"fontsize": 14},
+        label_kwargs={"fontsize": 11},
         labelpad=labelpad,
         max_n_ticks=3,
         plot_datapoints=False,
@@ -175,15 +171,24 @@ def plot(
         plt.title(f"{uf:.1uS}", fontsize=12)
 
     ax = plt.subplot(5, 3, 3)
-    ax.errorbar(
-        mjds, tres, terr, marker="+", ls="", alpha=1, color="orange", label="Pre-fit"
-    )
+    if plot_prefit:
+        ax.errorbar(
+            mjds,
+            tres,
+            terr,
+            marker="+",
+            ls="",
+            alpha=1,
+            color="orange",
+            label="Pre-fit",
+        )
     ax.set_ylabel("Time res (pre) (s)", fontsize=13)
     # ax.legend()
     ax.tick_params(axis="both", labelsize=11)
 
     ax1 = ax.twinx()
-    ax1.errorbar([], [], [], ls="", marker="+", color="orange", label="Pre-fit")
+    if plot_prefit:
+        ax1.errorbar([], [], [], ls="", marker="+", color="orange", label="Pre-fit")
     ax1.errorbar(
         mjds,
         tres_w,
@@ -202,16 +207,17 @@ def plot(
     if wb:
         plt.xticks([])
         ax = plt.subplot(5, 3, 6)
-        ax.errorbar(
-            mjds,
-            dres,
-            derr,
-            marker="+",
-            ls="",
-            alpha=1,
-            color="orange",
-            label="Pre-fit",
-        )
+        if plot_prefit:
+            ax.errorbar(
+                mjds,
+                dres,
+                derr,
+                marker="+",
+                ls="",
+                alpha=1,
+                color="orange",
+                label="Pre-fit",
+            )
 
         ax.set_ylabel("DM res (pre) (dmu)", fontsize=13)
         ax.tick_params(axis="both", labelsize=11)
@@ -240,15 +246,14 @@ def plot(
     if not wb:
         weights = 1 / terr**2
         wrms = np.sqrt(np.average(tres_w**2, weights=weights))
-        ks = kstest(tres_w / terr, "norm", args=(0, 1))
+        # ks = kstest(tres_w / terr, "norm", args=(0, 1))
         ax3.text(
             0,
             0,
             f"""
             No of TOAs = {len(tres_w)}
             MJD Range = {int(min(mjds) + pepoch)} — {int(max(mjds) + pepoch)}
-            Wrms time resids = {wrms:.2e} s
-            KS test p-value = {ks.pvalue:.2e}
+            WRMS time resids = {wrms:.2e} s
             """,
             fontsize=14,
         )
@@ -257,17 +262,17 @@ def plot(
         weights_d = 1 / derr**2
         wrms_t = np.sqrt(np.average(tres_w**2, weights=weights_t))
         wrms_d = np.sqrt(np.average(dres_w**2, weights=weights_d))
-        ks = kstest(np.append(tres_w / terr, dres_w / derr), "norm", args=(0, 1))
+        # ks = kstest(np.append(tres_w / terr, dres_w / derr), "norm", args=(0, 1))
         ax3.text(
             0,
             0,
             f"""
             No of TOAs = {len(tres_w)}
             MJD Range = {int(min(mjds))} -- {int(max(mjds))}
-            Wrms time resids = {wrms_t:.2e} s
-            Wrms DM resids = {wrms_d:.2e} pc/cm^3
-            KS test p-value = {ks.pvalue:.2e}
+            WRMS time resids = {wrms_t:.2e} s
+            WRMS DM resids = {wrms_d:.2e} pc/cm^3
             """,
+            fontsize=14,
         )
 
     psrname = get_psrname(result_dir)

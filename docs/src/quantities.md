@@ -41,4 +41,26 @@ a type parameter, there is no run time penalty for ensuring dimensional correctn
 11. `abs`, `sign`, `floor`, `ceil` functions for all `GQ` types
 12. `isfinite` and `isnan` functions for all `GQ` types
 13. `zero` and `oneunit` functions for all `GQ` types
-14. `taylor_horner` and `taylor_horner_integral` functions
+
+A `GQ` object can be created either by calling the constructor directly or using one of the following 
+utility functions: `dimensionless`, `speed`, `time`, `distance`, `mass`, `frequency`, `acceleration`.
+
+The following functions for evaluating Taylor series expressions are also provided: `taylor_horner`, and 
+`taylor_horner_integral`.
+
+## Example usage
+
+Here is a function that computes the Shapiro delay experienced by an electromagnetic
+signal due to the Sun.
+
+```
+using GeometricUnits
+
+function solar_system_shapiro_delay(Lhat::Vector{GQ{0,Float64}}, rvec::Vector{GQ{1,Float64}})
+    M_SUN = mass(4.92549094830932e-06)
+    AU = distance(499.00478383615643)
+    r = sqrt(dot(rvec, rvec))
+    Lhat_dot_rvec = dot(Lhat, rvec)
+    return -2 * M * log((r - Lhat_dot_rvec) / AU)
+end
+```

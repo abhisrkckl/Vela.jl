@@ -24,6 +24,8 @@ datasets = [
     "sim_1",
     "sim_sw.wb",
     "sim3.gp",
+    "sim_ecorr_arn",
+    "sim_expdip",
     "sim3",
     "sim_fdjump",
     "sim_ddk",
@@ -39,7 +41,7 @@ datasets = [
 ]
 
 
-@pytest.fixture(params=datasets[:3], scope="module")
+@pytest.fixture(params=datasets[:5], scope="module")
 def model_and_toas(request):
     dataset = request.param
 
@@ -72,7 +74,7 @@ def model_and_toas(request):
     return spnta, m, t
 
 
-@pytest.mark.parametrize("dataset", datasets[3:])
+@pytest.mark.parametrize("dataset", datasets)
 def test_read_data(dataset):
     parfile, timfile = f"{datadir}/{dataset}.par", f"{datadir}/{dataset}.tim"
     m, t = get_model_and_toas(parfile, timfile, planets=True)
@@ -211,6 +213,8 @@ def test_posterior(model_and_toas):
     lnpvals = lnpost(maxlike_params_v)
 
     assert np.allclose(lnpvals, lnpvals[0])
+
+    assert np.isclose(spnta.lnpost(parv), spnta.lnpost_vectorized(np.array([parv]))[0])
 
 
 def test_readwrite_jlso(model_and_toas):
