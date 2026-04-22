@@ -2,8 +2,40 @@
 ## Added
 - Maximum-posterior fitting in `VelaFitter`
 - Save MCMC samples in `VelaFitter`
+- Chromatic exponential dip model (`ChromaticExponentialDip`).
+- Analytic marginalization of RAJ, DECJ, ELAT, ELONG, DM, and FDJUMPDM.
 ## Changed
 ## Fixed
+- Return zero solar wind DM if the TOA is barycentered.
+## Removed
+
+# 0.1.4
+## Added
+- Apptainer definition file
+## Changed
+- Updated citations
+## Fixed
+- Thread safety issue in ECORR-GLS likelihood
+## Removed
+
+# 0.1.3
+## Added
+- Example script `run_example_nested.jl`
+## Changed
+- Parallelize GLS likelihood computation using threads. 
+## Fixed
+## Removed
+
+# 0.1.2
+## Added
+- In `SPNTA.save_pre_analysis_summary()`, also save the PEPOCH in a text file.
+- In `pyvela-plot`, read PEPOCH from text file instead of the input par file.
+- Run the example notebook during `pyvela` CI test.
+## Changed
+- Don't plot pre-fit residuals in `pyvela-plot`
+## Fixed
+- Plotting in the example notebook `pyvela-demo.ipynb`
+- Handling of default Vela-defined priors in prior JSON file.
 ## Removed
 
 # 0.1.1

@@ -1,4 +1,5 @@
 from typing import List
+import warnings
 
 import astropy.constants as const
 import astropy.units as u
@@ -66,6 +67,11 @@ DEFAULT_PRIOR_DISTS = {
     # "DECJ": vl.LatitudePriorDistribution(),  # sin(DECJ) is uniformly distributed in [-1,1].
     # "ELONG": jl.Uniform(0, 2 * jl.pi),  # duh!
     # "ELAT": vl.LatitudePriorDistribution(),  # sin(ELAT) is uniformly distributed in [-1,1].
+    "EXPDIPAMP_": jl.Uniform(-1e-5, 1e-5),  # Ballpark range based on PTA pulsars
+    "EXPDIPIDX_": jl.Uniform(-6.0, 6.0),  # Ballpark range based on PTA pulsars
+    "EXPDIPTAU_": jl.Uniform(
+        0.01 * 86400.0, 150 * 86400.0
+    ),  # Ballpark range based on PTA pulsars
 }
 
 
@@ -220,7 +226,16 @@ def process_custom_priors(custom_priors_raw: dict, model: TimingModel) -> dict:
 
         unit_conversion_factor = get_unit_conversion_factor(model[par])
 
-        distr_type = getattr(jl.Distributions, prior_info["distribution"])
+        if hasattr(jl.Distributions, prior_info["distribution"]):
+            distr_type = getattr(jl.Distributions, prior_info["distribution"])
+        elif hasattr(jl.Vela, prior_info["distribution"]):
+            continue
+        else:
+            warnings.warn(
+                f"Could not find the distribution '{prior_info["distribution"]}' in Distributions or Vela namespace. Falling back to the default..."
+            )
+            continue
+
         args = np.array(prior_info["args"])
 
         scaled_args = vl.scale_prior_args(distr_type, args, unit_conversion_factor)
