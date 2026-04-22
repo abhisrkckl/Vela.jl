@@ -83,12 +83,12 @@ def test_script(dataset):
     with open(prior_file, "w") as pf:
         print(prior_str, file=pf)
 
-    args = f"{parfile} {timfile} -P {prior_file} -T {parfile} -o {outdir} -f -A all -N 1000 -b 500".split()
+    args = f"{parfile} {timfile} -P {prior_file} -T {parfile} -o {outdir} -f -A PHOFF F0 -N 1000 -b 500".split()
     pyvela_script.main(args)
 
     param_names_1 = np.genfromtxt(f"{outdir}/param_names.txt", dtype=str)
 
-    args = f"{parfile} {timfile} -P {prior_file} -T {parfile} -o {outdir} -f -A all --resume -N 100 -b 500".split()
+    args = f"{parfile} {timfile} -P {prior_file} -T {parfile} -o {outdir} -f -A PHOFF F0 --resume -N 100 -b 500".split()
     pyvela_script.main(args)
 
     param_names_2 = np.genfromtxt(f"{outdir}/param_names.txt", dtype=str)
@@ -136,12 +136,12 @@ def test_script_notruth(dataset):
     with open(prior_file, "w") as pf:
         print(prior_str, file=pf)
 
-    args = f"{parfile} {timfile} -P {prior_file} -o {outdir} -f -A all -N 1000 -b 500".split()
+    args = f"{parfile} {timfile} -P {prior_file} -o {outdir} -f -A PHOFF F0 -N 1000 -b 500".split()
     pyvela_script.main(args)
 
     param_names_1 = np.genfromtxt(f"{outdir}/param_names.txt", dtype=str)
 
-    args = f"{parfile} {timfile} -P {prior_file} -o {outdir} -f -A all --resume -N 100 -b 500".split()
+    args = f"{parfile} {timfile} -P {prior_file} -o {outdir} -f -A PHOFF F0 --resume -N 100 -b 500".split()
     pyvela_script.main(args)
 
     param_names_2 = np.genfromtxt(f"{outdir}/param_names.txt", dtype=str)

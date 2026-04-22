@@ -1,7 +1,18 @@
 # Unreleased
 ## Added
+- Chromatic exponential dip model (ChromaticExponentialDip)
+- Analytic marginalization of RAJ, DECJ, ELAT, ELONG, DM, and FDJUMPDM.
 ## Changed
 ## Fixed
+## Removed
+
+# 0.1.4
+## Added
+- Apptainer definition file
+## Changed
+- Updated citations
+## Fixed
+- Thread safety issue in ECORR-GLS likelihood
 ## Removed
 
 # 0.1.3

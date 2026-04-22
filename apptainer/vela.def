@@ -1,0 +1,45 @@
+Bootstrap: docker
+From: ubuntu:22.04
+
+%post
+    apt update
+    apt dist-upgrade -y
+    apt install -y wget curl bzip2 ca-certificates git libsuitesparse-dev
+
+    # install miniconda
+    wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+    bash Miniconda3-latest-Linux-x86_64.sh -b -p /opt/miniconda -c 
+    export PATH=/opt/miniconda/bin:$PATH
+    conda --version
+    python --version
+    
+    pip install git+https://github.com/nanograv/PINT.git juliacall black emcee nestle corner tqdm pytest pytest-xdist
+
+    python -c "import pint; print('PINT', pint.__version__)"
+    
+    # curl -fsSL https://install.julialang.org > install-julia.sh
+    # sh install-julia.sh -p /opt/julia -y --add-to-path true --background-selfupdate 0 --startup-selfupdate 0
+    
+    wget https://julialang-s3.julialang.org/bin/linux/x64/1.11/julia-1.11.3-linux-x86_64.tar.gz
+    tar -xzf julia-1.11.3-linux-x86_64.tar.gz
+    mv julia-1.11.3 /opt/
+    ln -s /opt/julia-1.11.3/bin/julia /usr/local/bin/julia
+    rm julia-1.11.3-linux-x86_64.tar.gz
+    
+    julia --version
+    
+    julia -e 'import Pkg; Pkg.Registry.add("General"); Pkg.Registry.add(url="https://github.com/abhisrkckl/julia_registry"); Pkg.add(["LocalRegistry", "JuliaFormatter", "BenchmarkTools", "PythonCall", "Distributions", "DoubleFloats", "GeometricUnits"]); Pkg.add(url="https://github.com/abhisrkckl/Vela.jl")'
+
+    pip install git+https://github.com/abhisrkckl/Vela.jl
+    
+    python -c "import pyvela; print('pyvela', pyvela.__version__)"
+
+%environment
+    export PATH=/opt/miniconda/bin:$PATH
+    export PYTHON_JULIACALL_HANDLE_SIGNALS=yes
+    export PYTHON_JULIACALL_THREADS=4
+    export JULIA_NUM_THREADS=4
+    export JULIA_CONDAPKG_BACKEND="Null"
+
+%runscript
+    exec bash "$@"

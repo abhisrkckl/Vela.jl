@@ -178,6 +178,7 @@ class SPNTA:
         """Check if the computations work with the default values."""
         cube = np.random.rand(self.ndim)
         sample = self.prior_transform(cube)
+        print("sample: ", sample)
         lnpr = self.lnprior(sample)
         lnl = self.lnlike(sample)
         lnp = self.lnpost(sample)

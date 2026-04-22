@@ -238,6 +238,9 @@ def pint_components_to_vela(model: TimingModel, toas: TOAs):
             )
         )
 
+    if "SimpleExponentialDip" in component_names:
+        components.append(vl.ChromaticExponentialDip())
+
     if "WaveX" in component_names:
         components.append(vl.WaveX())
     elif "PLRedNoiseGP" in component_names:

@@ -8,11 +8,13 @@ function _calc_y_Ninv_y__and__logdet_N(
     Ntoa = length(y)
     @assert length(Ndiag) == Ntoa
 
-    y_Ninv_y = 0.0
-    logdet_Nc = 0.0
-
     if parallel
+        y_Ninv_y_thr = zeros(eltype(y), Threads.maxthreadid())
+        logdet_Nc_thr = zeros(eltype(y), Threads.maxthreadid())
+
         @inbounds @threads for group in inner_kernel.ecorr_groups
+            ithread = Threads.threadid()
+
             ecorr = (group.index == 0) ? 0.0 : value(params.ECORR[group.index])
             w = ecorr * ecorr
 
@@ -28,10 +30,15 @@ function _calc_y_Ninv_y__and__logdet_N(
             end # COV_EXCL_LINE
 
             denom = (1 + w * u_u)
-            y_Ninv_y += r_r - w * r_u * r_u / denom
-            logdet_Nc += logdet_N + log(denom)
+            y_Ninv_y_thr[ithread] += r_r - w * r_u * r_u / denom
+            logdet_Nc_thr[ithread] += logdet_N + log(denom)
         end # COV_EXCL_LINE
+        y_Ninv_y = sum(y_Ninv_y_thr)
+        logdet_Nc = sum(logdet_Nc_thr)
     else
+        y_Ninv_y = 0.0
+        logdet_Nc = 0.0
+
         @inbounds for group in inner_kernel.ecorr_groups
             ecorr = (group.index == 0) ? 0.0 : value(params.ECORR[group.index])
             w = ecorr * ecorr
