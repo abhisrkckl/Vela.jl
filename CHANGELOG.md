@@ -1,9 +1,10 @@
 # Unreleased
 ## Added
-- Chromatic exponential dip model (ChromaticExponentialDip)
+- Chromatic exponential dip model (`ChromaticExponentialDip`)
 - Analytic marginalization of RAJ, DECJ, ELAT, ELONG, DM, and FDJUMPDM.
 ## Changed
 ## Fixed
+- `SolarWindDispersion` returns zero DM if TOA is barycentered.
 ## Removed
 
 # 0.1.4
