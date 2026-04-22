@@ -40,6 +40,10 @@ function dispersion_slope(
     toacorr::TOACorrection,
     params::NamedTuple,
 )::GQ
+    if is_barycentered(toa)
+        return GQ{-1,Float64}(0.0)
+    end
+
     ρ, r = sun_angle_and_distance(toa, toacorr)
     t0 = params.SWEPOCH
     t = corrected_toa_value(toa, toacorr, Float64)
