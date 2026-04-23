@@ -550,17 +550,10 @@ def construct_woodbury_kernel(
 
         anl_marg_param_names = []
         weights = []
-
-        from .parameters import fdjump_rx
-
         for pname in model.free_params:
-            if (
-                pname in analytic_marginalized_params
-                or (
-                    hasattr(model[pname], "prefix")
-                    and model[pname].prefix in analytic_marginalized_params
-                )
-                or (fdjump_rx.match(pname) and "FDJUMP" in analytic_marginalized_params)
+            if pname in analytic_marginalized_params or (
+                hasattr(model[pname], "prefix")
+                and model[pname].prefix in analytic_marginalized_params
             ):
                 anl_marg_param_names.append(pname)
 
