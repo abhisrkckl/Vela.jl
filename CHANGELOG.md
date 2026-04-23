@@ -5,7 +5,6 @@
 ## Changed
 ## Fixed
 - Return zero solar wind DM if the TOA is barycentered.
-- Analytic marginalization of FDJUMPs.
 ## Removed
 
 # 0.1.4
