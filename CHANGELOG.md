@@ -1,5 +1,6 @@
 # Unreleased
 ## Added
+- Powerlaw solar wind GP model (`PowerlawSolarWindNoiseGP`)
 - Chromatic exponential dip model (`ChromaticExponentialDip`).
 - Analytic marginalization of RAJ, DECJ, ELAT, ELONG, DM, and FDJUMPDM.
 - More granular checks in `SPNTA._check()`.
@@ -23,6 +24,7 @@
 ## Added
 - Example script `run_example_nested.jl`
 ## Changed
+- Split `gp_noise.py` into multiple files.
 - Parallelize GLS likelihood computation using threads. 
 ## Fixed
 ## Removed

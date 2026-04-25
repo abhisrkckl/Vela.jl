@@ -23,6 +23,7 @@ datadir = f"{os.path.dirname(os.path.realpath(__file__))}/datafiles"
 datasets = [
     "sim_1",
     "sim_sw.wb",
+    "sim_swgp",
     "sim3.gp",
     "sim_ecorr_arn",
     "sim_expdip",
@@ -62,7 +63,7 @@ def model_and_toas(request):
 
     if (
         len(
-            {"PLRedNoise", "PLDMNoise", "PLChromNoise"}.intersection(
+            {"PLRedNoise", "PLDMNoise", "PLChromNoise", "PLSWNoise"}.intersection(
                 m.components.keys()
             )
         )
@@ -155,9 +156,12 @@ def test_chi2(model_and_toas: Tuple[SPNTA, TimingModel, TOAs]):
 
     if (
         len(
-            {"PLRedNoiseGP", "PLDMNoiseGP", "PLChromNoiseGP"}.intersection(
-                m.components.keys()
-            )
+            {
+                "PLRedNoiseGP",
+                "PLDMNoiseGP",
+                "PLChromNoiseGP",
+                "PLSWNoiseGP",
+            }.intersection(m.components.keys())
         )
         == 0
     ):
@@ -298,16 +302,19 @@ def test_rnamp_rngam():
 
 def test_wideband_dmgp():
     par = """
-        RAJ     05:00:00    1
-        DECJ    15:00:00    1
-        PEPOCH  55000
-        F0      100         1
-        F1      -1e-15      1
-        PHOFF   0           1
-        DM      15          1
-        TNDMAMP -15
-        TNDMGAM 3
-        TNDMC   8
+        RAJ         05:00:00    1
+        DECJ        15:00:00    1
+        PEPOCH      55000
+        F0          100         1
+        F1          -1e-15      1
+        PHOFF       0           1
+        DM          15          1
+        TNDMAMP     -15
+        TNDMGAM     3
+        TNDMC       8
+        TNREDAMP    -15
+        TNREDGAM    3.5
+        TNREDC      8
     """
     m = get_model(StringIO(par))
     t = make_fake_toas_uniform(
@@ -335,9 +342,9 @@ def test_wideband_dmgp():
         },
     )
     assert set(spnta.param_names) == {"RAJ", "DECJ", "DM", "TNDMAMP", "TNDMGAM"}
-    assert np.shape(spnta.model.kernel.noise_basis) == (len(t) * 2, 19)
+    assert np.shape(spnta.model.kernel.noise_basis) == (len(t) * 2, 35)
     assert set(spnta.marginalized_param_names).issuperset({"F0", "F1", "PHOFF"})
-    assert len(spnta.marginalized_param_names) == 19
+    assert len(spnta.marginalized_param_names) == 35
     assert np.isfinite(spnta.lnpost(spnta.default_params))
     assert np.isfinite(spnta.lnpost(spnta.maxpost_params))
     assert np.all(np.isfinite(spnta.marginalized_maxpost_params))
