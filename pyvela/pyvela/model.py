@@ -96,6 +96,23 @@ def pint_components_to_vela(model: TimingModel, toas: TOAs):
         model["NE_SW"].value == 0 and model["NE_SW"].frozen
     ):
         components.append(vl.SolarWindDispersion())
+    elif "SolarWindDispersionX" in component_names:
+        conjunction_geometry = (
+            model.components["SolarWindDispersionX"]
+            .conjunction_solar_wind_geometry(2)
+            .to_value("lightsecond")
+        )
+        opposition_geometry = (
+            model.components["SolarWindDispersionX"]
+            .opposition_solar_wind_geometry(2)
+            .to_value("lightsecond")
+        )
+        swx_mask = get_dmx_mask(model, toas, param_prefix="SWX_")
+        components.append(
+            vl.SolarWindDispersionPiecewise(
+                swx_mask, conjunction_geometry, opposition_geometry
+            )
+        )
 
     if "DispersionDM" in component_names:
         components.append(vl.DispersionTaylor())
