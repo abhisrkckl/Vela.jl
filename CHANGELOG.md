@@ -1,5 +1,7 @@
 # Unreleased
 ## Added
+- Maximum-posterior fitting in `VelaFitter`
+- Save MCMC samples in `VelaFitter`
 - Chromatic exponential dip model (`ChromaticExponentialDip`).
 - Analytic marginalization of RAJ, DECJ, ELAT, ELONG, DM, and FDJUMPDM.
 - More granular checks in `SPNTA._check()`.
