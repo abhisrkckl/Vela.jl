@@ -2,7 +2,9 @@
 ## Added
 - Chromatic exponential dip model (`ChromaticExponentialDip`).
 - Analytic marginalization of RAJ, DECJ, ELAT, ELONG, DM, and FDJUMPDM.
+- More granular checks in `SPNTA._check()`.
 ## Changed
+- `SPNTA._check()` now raises warnings instead of errors.
 ## Fixed
 - Return zero solar wind DM if the TOA is barycentered.
 - "lower" and "upper" attributes appear correctly in `SPNTA.full_prior_dict()` output.

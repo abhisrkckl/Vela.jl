@@ -19,7 +19,6 @@ from pint.models import TimingModel, get_model, get_model_and_toas
 from pint.toa import TOAs
 from scipy.linalg import cho_solve, cholesky, solve_triangular
 from scipy.optimize import minimize
-from astropy import units as u
 
 import pyvela
 
@@ -174,24 +173,56 @@ class SPNTA:
         if check:
             self._check()
 
+    def _check_cube(self, sample: np.ndarray, desc: str):
+        try:
+            lnl = self.lnlike(sample)
+            if not np.isfinite(lnl):
+                warnings.warn(
+                    f"Non-finite log-likelihood for {desc}. Check the prior definition/default values."
+                )
+        except:
+            warnings.warn(
+                f"Error occurred while computing log-likelihood for {desc}. Check the prior definition/default values."
+            )
+
     def _check(self):
-        """Check if the computations work with the default values."""
-        cube = np.random.rand(self.ndim)
-        sample = self.prior_transform(cube)
-        print("sample: ", sample)
-        lnpr = self.lnprior(sample)
-        lnl = self.lnlike(sample)
-        lnp = self.lnpost(sample)
-        lnpv = self.lnpost_vectorized(np.array([sample]))
-        assert all(np.isfinite([lnpr, lnl, lnp])), (
-            "The log-prior, log-likelihood, or log-posterior is non-finite at the default parameter values. "
-            "Please make sure that (1) default values are within the prior range, and (b) the default values "
-            "provide a phase-connected solution. If nothing is wrong, this may be a bug. Please report this."
+        """Check if the computations work with the prior values."""
+
+        self._check_cube(self.default_params, "default parameter values")
+
+        lnpr = self.lnprior(self.default_params)
+        if not np.isfinite(lnpr):
+            warnings.warn(
+                "The log-prior is non-finite at the default parameter values. "
+                "This is probably a mistake in the prior definition. Please check this."
+            )
+            for ii, pname in enumerate(self.param_names):
+                params_tuple = vl.read_params(self.model, self.default_params)
+                param_prior = self.model.priors[ii]
+                if not np.isfinite(vl.lnprior(param_prior, params_tuple)):
+                    warnings.warn(
+                        f"Log-prior is non-finite at the default value of {pname}."
+                    )
+
+        lnp = self.lnpost(self.default_params)
+        lnpv = self.lnpost_vectorized(np.array([self.default_params]))
+        if not np.isclose(lnp, lnpv):
+            warnings.warn(
+                "The non-vectorized and vectorized versions of the log-posterior give "
+                "different results at the default parameter values. This is most likely "
+                "a bug. Please report this."
+            )
+
+        self._check_cube(
+            self.prior_transform(np.repeat(0.5, self.ndim)), "prior median"
         )
-        assert np.isclose(lnp, lnpv), (
-            "The non-vectorized and vectorized versions of the log-posterior gives different results. "
-            "This is most likely a bug. Please report this."
-        )
+
+        for ii, pname in enumerate(self.param_names):
+            for q in [0.01, 0.99]:
+                cube = np.repeat(0.5, self.ndim)
+                cube[ii] = q
+                sample = self.prior_transform(cube)
+                self._check_cube(sample, f"{int(q*100)}th percentile of {pname}")
 
     def lnlike(self, params: Iterable[float]) -> float:
         """Compute the log-likelihood function"""
