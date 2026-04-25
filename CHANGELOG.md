@@ -5,6 +5,7 @@
 ## Changed
 ## Fixed
 - Return zero solar wind DM if the TOA is barycentered.
+- "lower" and "upper" attributes appear correctly in `SPNTA.full_prior_dict()` output.
 ## Removed
 
 # 0.1.4
