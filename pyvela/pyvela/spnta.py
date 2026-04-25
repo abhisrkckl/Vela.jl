@@ -186,16 +186,23 @@ class SPNTA:
             )
 
     def _check(self):
-        """Check if the computations work with the default values."""
+        """Check if the computations work with the prior values."""
 
         self._check_cube(self.default_params, "default parameter values")
 
         lnpr = self.lnprior(self.default_params)
-        if np.isfinite(lnpr):
+        if not np.isfinite(lnpr):
             warnings.warn(
                 "The log-prior is non-finite at the default parameter values. "
                 "This is probably a mistake in the prior definition. Please check this."
             )
+            for ii, pname in enumerate(self.param_names):
+                params_tuple = vl.read_params(self.model, self.default_params)
+                param_prior = self.model.priors[ii]
+                if not np.isfinite(vl.lnprior(param_prior, params_tuple)):
+                    warnings.warn(
+                        f"Log-prior is non-finite at the default value of {pname}."
+                    )
 
         lnp = self.lnpost(self.default_params)
         lnpv = self.lnpost_vectorized(np.array([self.default_params]))
