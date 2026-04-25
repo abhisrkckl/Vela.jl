@@ -709,9 +709,9 @@ class SPNTA:
             }
             if jl.isa(prior.distribution, vl.Truncated):
                 if prior.distribution.upper is not None:
-                    prior_dict["upper"] = prior.distribution.upper / scale_factor
+                    prior_dict[pname]["upper"] = prior.distribution.upper / scale_factor
                 if prior.distribution.lower is not None:
-                    prior_dict["lower"] = prior.distribution.lower / scale_factor
+                    prior_dict[pname]["lower"] = prior.distribution.lower / scale_factor
 
             result.update(prior_dict)
 
