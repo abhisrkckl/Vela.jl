@@ -8,6 +8,7 @@
 ## Fixed
 - Return zero solar wind DM if the TOA is barycentered.
 - "lower" and "upper" attributes appear correctly in `SPNTA.full_prior_dict()` output.
+- Analytic marginalization of FDJUMPs.
 ## Removed
 
 # 0.1.4
