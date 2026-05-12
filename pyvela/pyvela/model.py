@@ -9,7 +9,7 @@ from pint.toa import TOAs
 
 from .dmx import get_dmx_mask
 from .gp_noise import PLChromNoiseGP, PLDMNoiseGP, PLRedNoiseGP
-from .parameters import get_unit_conversion_factor, pint_parameters_to_vela
+from .parameters import get_unit_conversion_factor, pint_parameters_to_vela, fdjump_rx
 from .priors import get_default_priors
 from .toas import day_to_s, pint_toa_to_vela
 from .vela import jl, vl
@@ -551,9 +551,13 @@ def construct_woodbury_kernel(
         anl_marg_param_names = []
         weights = []
         for pname in model.free_params:
-            if pname in analytic_marginalized_params or (
-                hasattr(model[pname], "prefix")
-                and model[pname].prefix in analytic_marginalized_params
+            if (
+                pname in analytic_marginalized_params
+                or (
+                    hasattr(model[pname], "prefix")
+                    and model[pname].prefix in analytic_marginalized_params
+                )
+                or (fdjump_rx.match(pname) and "FDJUMP" in analytic_marginalized_params)
             ):
                 anl_marg_param_names.append(pname)
 
