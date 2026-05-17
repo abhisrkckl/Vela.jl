@@ -58,6 +58,7 @@ def model_and_toas(request):
         timfile,
         custom_priors=custom_priors,
         marginalize_gp_noise=False,
+        center_epochs=True,
     )
 
     if (
@@ -148,6 +149,15 @@ def test_data(model_and_toas: Tuple[SPNTA, TimingModel, TOAs]):
             == np.shape(spnta.model.kernel.noise_basis)[1]
         )
 
+    epoch_mid = (t.get_mjds().max() + t.get_mjds().min()).value/2
+    assert spnta.model_pint["PEPOCH"].value == epoch_mid
+    assert spnta.model_pint["POSEPOCH"].value == epoch_mid
+    assert spnta.model_pint["DMEPOCH"].value == epoch_mid
+    if spnta.model_pint.is_binary:
+        if "TASC" in spnta.model_pint:
+            assert np.abs(spnta.model_pint["TASC"].value - epoch_mid) < 1
+        elif "T0" in spnta.model_pint:
+            assert np.abs(spnta.model_pint["T0"].value - epoch_mid) < 1
 
 def test_chi2(model_and_toas: Tuple[SPNTA, TimingModel, TOAs]):
     spnta, m, t = model_and_toas
