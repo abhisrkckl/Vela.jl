@@ -724,7 +724,7 @@ def pint_model_to_vela(
 
 def center_model_epochs(model: TimingModel, toas: TOAs):
     new_epoch = (toas.get_mjds().max() + toas.get_mjds().min()) / 2
-    
+
     if "PEPOCH" in model and model["PEPOCH"].quantity is not None:
         model.change_pepoch(new_epoch)
 
