@@ -720,3 +720,17 @@ def pint_model_to_vela(
         tzr_toa,
         priors,
     )
+
+
+def center_model_epochs(model: TimingModel, toas: TOAs):
+    new_epoch = (toas.get_mjds().max() + toas.get_mjds().min()) / 2
+    model.change_pepoch(new_epoch)
+
+    if "POSEPOCH" in model:
+        model.change_posepoch(new_epoch)
+
+    if "DMEPOCH" in model:
+        model.change_dmepoch(new_epoch)
+
+    if model.is_binary:
+        model.change_binary_epoch(new_epoch)
