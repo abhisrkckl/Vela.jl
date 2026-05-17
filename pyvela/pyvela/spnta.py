@@ -138,6 +138,7 @@ class SPNTA:
             **pint_kwargs,
         )
 
+        self.center_epochs = center_epochs
         if center_epochs:
             center_model_epochs(model_pint, toas_pint)
 
@@ -658,6 +659,7 @@ class SPNTA:
 
         spnta.model_pint = deepcopy(model)
 
+        spnta.center_epochs = center_epochs
         if center_epochs:
             center_model_epochs(spnta.model_pint, spnta.toas_pint)
 
@@ -787,6 +789,7 @@ class SPNTA:
                     if truth_par_file is not None
                     else None
                 ),
+                "center_epochs": self.center_epochs,
             },
             "sampler": sampler_info,
             "env": {
