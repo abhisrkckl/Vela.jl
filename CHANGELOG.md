@@ -3,7 +3,8 @@
 - Chromatic exponential dip model (`ChromaticExponentialDip`).
 - Analytic marginalization of RAJ, DECJ, ELAT, ELONG, DM, and FDJUMPDM.
 - More granular checks in `SPNTA._check()`.
-- `center_epoch` option while creating `SPNTA` object.
+- `center_epochs` option while creating `SPNTA` object.
+- `--center_epochs` option in `pyvela` script,
 ## Changed
 - `SPNTA._check()` now raises warnings instead of errors.
 ## Fixed

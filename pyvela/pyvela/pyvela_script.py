@@ -130,6 +130,13 @@ def parse_args(argv):
         help="Spread of the starting samples around the default parameter values. "
         "Must be > 0 and <= 1. 0 represents no spread and 1 represents prior draws.",
     )
+    parser.add_argument(
+        "-c",
+        "--center_epochs",
+        default=False,
+        action="store_true",
+        help="Center the epochs of the pulsar timing model.",
+    )
 
     return parser.parse_args(argv)
 
@@ -212,6 +219,7 @@ def main(argv=None):
             else None
         )
         args.jlso_file = f'{args.outdir}/{summary_info["input"]["jlso_file"]}'
+        args.center_epochs = summary_info["input"]["center_epochs"]
 
     if "all" in args.analytic_marg:
         assert (
@@ -233,6 +241,7 @@ def main(argv=None):
             custom_priors=(args.prior_file if args.prior_file is not None else {}),
             marginalize_gp_noise=(not args.no_marg_gp_noise),
             analytic_marginalized_params=args.analytic_marg,
+            center_epochs=args.center_epochs,
         )
         if args.jlso_file is None
         else SPNTA.load_jlso(
@@ -242,6 +251,7 @@ def main(argv=None):
             custom_prior_file=args.prior_file,
             cheat_prior_scale=args.cheat_prior_scale,
             analytic_marginalized_params=args.analytic_marg,
+            center_epochs=args.center_epochs,
         )
     )
 

@@ -608,6 +608,7 @@ class SPNTA:
         custom_prior_file: Optional[str] = None,
         cheat_prior_scale: Optional[float] = None,
         analytic_marginalized_params: List[str] = [],
+        center_epochs: bool = False,
     ) -> "SPNTA":
         """Construct an `SPNTA` object from a JLSO file"""
         spnta = cls.__new__(cls)
@@ -619,6 +620,7 @@ class SPNTA:
         spnta.custom_prior_file = custom_prior_file
         spnta.cheat_prior_scale = cheat_prior_scale
         spnta.analytic_marginalized_params = analytic_marginalized_params
+        spnta.center_epochs = center_epochs
         spnta.starttime = datetime.datetime.now().isoformat()
 
         spnta.pulsar = vl.Pulsar(model, toas)
