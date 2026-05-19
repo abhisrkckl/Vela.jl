@@ -37,12 +37,13 @@
     @testset "gls likelihood utils" begin
         y = randn(100)
         Ndiag = 1 .+ rand(100)
+        Ninvdiag = 1 ./ Ndiag
         M = randn(100, 5)
         Phiinv = 1 .+ rand(5)
 
         @testset "_calc_y_Ninv_y__and__logdet_N" begin
             y_Ninv_y, logdet_N =
-                Vela._calc_y_Ninv_y__and__logdet_N(WhiteNoiseKernel(), Ndiag, y, (;))
+                Vela._calc_y_Ninv_y__and__logdet_N(WhiteNoiseKernel(), Ninvdiag, y, (;))
             @test y_Ninv_y ≈ dot(y, y ./ Ndiag)
             @test logdet_N ≈ sum(log.(Ndiag))
         end
@@ -51,7 +52,7 @@
             Σinv, MT_Ninv_y = Vela._calc_Σinv__and__MT_Ninv_y(
                 WhiteNoiseKernel(),
                 M,
-                Ndiag,
+                Ninvdiag,
                 Phiinv,
                 y,
                 (;),
@@ -61,7 +62,8 @@
         end
 
         @testset "_gls_lnlike" begin
-            lnlike = Vela._gls_lnlike_serial(WhiteNoiseKernel(), M, Ndiag, Phiinv, y, (;))
+            lnlike =
+                Vela._gls_lnlike_serial(WhiteNoiseKernel(), M, Ninvdiag, Phiinv, y, (;))
 
             Ninv_y = y ./ Ndiag
             y_Ninv_y = dot(y, Ninv_y)
@@ -86,7 +88,7 @@
             @test lnlike ≈ -0.5 * (dot(y, C \ y) + logdet(C))
 
             lnlike_p =
-                Vela._gls_lnlike_parallel(WhiteNoiseKernel(), M, Ndiag, Phiinv, y, (;))
+                Vela._gls_lnlike_parallel(WhiteNoiseKernel(), M, Ninvdiag, Phiinv, y, (;))
             @test lnlike ≈ lnlike_p
         end
     end
@@ -94,6 +96,7 @@
     @testset "gls ecorr likelihood utils" begin
         y = randn(9)
         Ndiag = 1 .+ rand(9)
+        Ninvdiag = 1 ./ Ndiag
         M = randn(9, 5)
         Phiinv = 1 .+ rand(5)
 
@@ -107,20 +110,26 @@
 
         @testset "_calc_y_Ninv_y__and__logdet_N" begin
             y_Ninv_y, logdet_N =
-                Vela._calc_y_Ninv_y__and__logdet_N(inner_kernel, Ndiag, y, params)
+                Vela._calc_y_Ninv_y__and__logdet_N(inner_kernel, Ninvdiag, y, params)
             @test y_Ninv_y ≈ dot(y, Nc \ y)
             @test logdet_N ≈ logdet(Nc)
         end
 
         @testset "_calc_Σinv__and__MT_Ninv_y" begin
-            Σinv, MT_Ninv_y =
-                Vela._calc_Σinv__and__MT_Ninv_y(inner_kernel, M, Ndiag, Phiinv, y, params)
+            Σinv, MT_Ninv_y = Vela._calc_Σinv__and__MT_Ninv_y(
+                inner_kernel,
+                M,
+                Ninvdiag,
+                Phiinv,
+                y,
+                params,
+            )
             @test MT_Ninv_y ≈ transpose(M) * (Nc \ y)
             @test Σinv ≈ Diagonal(Phiinv) + transpose(M) * (Nc \ M)
         end
 
         @testset "_gls_lnlike" begin
-            lnlike = Vela._gls_lnlike_serial(inner_kernel, M, Ndiag, Phiinv, y, params)
+            lnlike = Vela._gls_lnlike_serial(inner_kernel, M, Ninvdiag, Phiinv, y, params)
 
             Ninv_y = Nc \ y
             y_Ninv_y = dot(y, Ninv_y)
@@ -144,7 +153,8 @@
             C = Nc + M * Diagonal(1 ./ Phiinv) * transpose(M)
             @test lnlike ≈ -0.5 * (dot(y, C \ y) + logdet(C))
 
-            lnlike_p = Vela._gls_lnlike_parallel(inner_kernel, M, Ndiag, Phiinv, y, params)
+            lnlike_p =
+                Vela._gls_lnlike_parallel(inner_kernel, M, Ninvdiag, Phiinv, y, params)
             @test lnlike ≈ lnlike_p
         end
     end

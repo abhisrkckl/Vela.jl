@@ -123,11 +123,11 @@
         @test all(abs(r) < 3 * toa.error for (r, toa) in zip(res, toas))
     end
 
-    @testset "_calc_resids_and_Ndiag" begin
+    @testset "_calc_resids_and_Ninvdiag" begin
         params = model.param_handler._default_params_tuple
-        y, Ndiag = Vela._calc_resids_and_Ndiag(model, toas, params)
-        @test length(y) == length(Ndiag)
-        @test all(Ndiag .> 0)
+        y, Ninvdiag = Vela._calc_resids_and_Ninvdiag(model, toas, params)
+        @test length(y) == length(Ninvdiag)
+        @test all(Ninvdiag .> 0)
     end
 
     @testset "calc_chi2" begin
