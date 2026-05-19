@@ -18,14 +18,17 @@ function _calc_y_Ninv_y__and__logdet_N(
             ecorr = (group.index == 0) ? 0.0 : value(params.ECORR[group.index])
             w = ecorr * ecorr
 
-            r_r = 0.0
-            r_u = 0.0
-            u_u = 0.0
-            logdet_N = 0.0
+            T = promote_type(eltype(y), eltype(Ndiag))
+            r_r = zero(T)
+            r_u = zero(T)
+            u_u = zero(T)
+            logdet_N = zero(T)
             @simd for ii = group.start:group.stop
-                r_r += y[ii] * y[ii] / Ndiag[ii]
-                r_u += y[ii] / Ndiag[ii]
-                u_u += 1 / Ndiag[ii]
+                Ninv_ii = 1 / Ndiag[ii]
+                r_u_ii = y[ii] * Ninv_ii
+                r_r += y[ii] * r_u_ii
+                r_u += r_u_ii
+                u_u += Ninv_ii
                 logdet_N += log(Ndiag[ii])
             end # COV_EXCL_LINE
 
@@ -43,14 +46,17 @@ function _calc_y_Ninv_y__and__logdet_N(
             ecorr = (group.index == 0) ? 0.0 : value(params.ECORR[group.index])
             w = ecorr * ecorr
 
-            r_r = 0.0
-            r_u = 0.0
-            u_u = 0.0
-            logdet_N = 0.0
+            T = promote_type(eltype(y), eltype(Ndiag))
+            r_r = zero(T)
+            r_u = zero(T)
+            u_u = zero(T)
+            logdet_N = zero(T)
             @simd for ii = group.start:group.stop
-                r_r += y[ii] * y[ii] / Ndiag[ii]
-                r_u += y[ii] / Ndiag[ii]
-                u_u += 1 / Ndiag[ii]
+                Ninv_ii = 1 / Ndiag[ii]
+                r_u_ii = y[ii] * Ninv_ii
+                r_r += y[ii] * r_u_ii
+                r_u += r_u_ii
+                u_u += Ninv_ii
                 logdet_N += log(Ndiag[ii])
             end # COV_EXCL_LINE
 
@@ -73,6 +79,8 @@ function _calc_Ninv_M(
     Ntoa, Npar = size(M)
     A = Matrix{Float64}(undef, Ntoa, Npar)
 
+    Ninv = 1 ./ Ndiag
+
     if parallel
         @inbounds @threads for group in inner_kernel.ecorr_groups
             ecorr = (group.index == 0) ? 0.0 : value(params.ECORR[group.index])
@@ -81,19 +89,21 @@ function _calc_Ninv_M(
 
             Q = 0.0
             @simd for i in toa_range
-                Q += 1 / Ndiag[i]
+                Q += Ninv[i]
             end # COV_EXCL_LINE
+
+            α = w / (1 + w * Q)
 
             for p = 1:Npar
                 P_p = 0.0
                 @simd for i in toa_range
-                    P_p += M[i, p] / Ndiag[i]
+                    P_p += M[i, p] * Ninv[i]
                 end # COV_EXCL_LINE
 
-                R = w * P_p / (1 + w * Q)
+                R = P_p * α
 
                 @simd for i in toa_range
-                    A[i, p] = (M[i, p] - R) / Ndiag[i]
+                    A[i, p] = (M[i, p] - R) * Ninv[i]
                 end # COV_EXCL_LINE
             end
         end # COV_EXCL_LINE
@@ -105,19 +115,21 @@ function _calc_Ninv_M(
 
             Q = 0.0
             @simd for i in toa_range
-                Q += 1 / Ndiag[i]
+                Q += Ninv[i]
             end # COV_EXCL_LINE
+
+            α = w / (1 + w * Q)
 
             for p = 1:Npar
                 P_p = 0.0
                 @simd for i in toa_range
-                    P_p += M[i, p] / Ndiag[i]
+                    P_p += M[i, p] * Ninv[i]
                 end # COV_EXCL_LINE
 
-                R = w * P_p / (1 + w * Q)
+                R = P_p * α
 
                 @simd for i in toa_range
-                    A[i, p] = (M[i, p] - R) / Ndiag[i]
+                    A[i, p] = (M[i, p] - R) * Ninv[i]
                 end # COV_EXCL_LINE
             end
         end
