@@ -7,6 +7,7 @@
 - `--center_epochs` option in `pyvela` script,
 ## Changed
 - `SPNTA._check()` now raises warnings instead of errors.
+- Optimized likelihood computation (avoid repeated divisions by Ndiag).
 ## Fixed
 - Return zero solar wind DM if the TOA is barycentered.
 - "lower" and "upper" attributes appear correctly in `SPNTA.full_prior_dict()` output.
