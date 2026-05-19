@@ -1,12 +1,12 @@
 function _calc_y_Ninv_y__and__logdet_N(
     inner_kernel::EcorrKernel,
-    Ndiag,
+    Ninvdiag,
     y,
     params::NamedTuple;
     parallel::Bool = false,
 )
     Ntoa = length(y)
-    @assert length(Ndiag) == Ntoa
+    @assert length(Ninvdiag) == Ntoa
 
     if parallel
         y_Ninv_y_thr = zeros(eltype(y), Threads.maxthreadid())
@@ -18,18 +18,18 @@ function _calc_y_Ninv_y__and__logdet_N(
             ecorr = (group.index == 0) ? 0.0 : value(params.ECORR[group.index])
             w = ecorr * ecorr
 
-            T = promote_type(eltype(y), eltype(Ndiag))
+            T = promote_type(eltype(y), eltype(Ninvdiag))
             r_r = zero(T)
             r_u = zero(T)
             u_u = zero(T)
             logdet_N = zero(T)
             @simd for ii = group.start:group.stop
-                Ninv_ii = 1 / Ndiag[ii]
+                Ninv_ii = Ninvdiag[ii]
                 r_u_ii = y[ii] * Ninv_ii
                 r_r += y[ii] * r_u_ii
                 r_u += r_u_ii
                 u_u += Ninv_ii
-                logdet_N += log(Ndiag[ii])
+                logdet_N -= log(Ninvdiag[ii])
             end # COV_EXCL_LINE
 
             denom = (1 + w * u_u)
@@ -46,18 +46,18 @@ function _calc_y_Ninv_y__and__logdet_N(
             ecorr = (group.index == 0) ? 0.0 : value(params.ECORR[group.index])
             w = ecorr * ecorr
 
-            T = promote_type(eltype(y), eltype(Ndiag))
+            T = promote_type(eltype(y), eltype(Ninvdiag))
             r_r = zero(T)
             r_u = zero(T)
             u_u = zero(T)
             logdet_N = zero(T)
             @simd for ii = group.start:group.stop
-                Ninv_ii = 1 / Ndiag[ii]
+                Ninv_ii = Ninvdiag[ii]
                 r_u_ii = y[ii] * Ninv_ii
                 r_r += y[ii] * r_u_ii
                 r_u += r_u_ii
                 u_u += Ninv_ii
-                logdet_N += log(Ndiag[ii])
+                logdet_N -= log(Ninvdiag[ii])
             end # COV_EXCL_LINE
 
             denom = (1 + w * u_u)
@@ -72,14 +72,12 @@ end
 function _calc_Ninv_M(
     inner_kernel::EcorrKernel,
     M::Matrix{Float64},
-    Ndiag,
+    Ninvdiag,
     params::NamedTuple;
     parallel::Bool = false,
 )
     Ntoa, Npar = size(M)
     A = Matrix{Float64}(undef, Ntoa, Npar)
-
-    Ninv = 1 ./ Ndiag
 
     if parallel
         @inbounds @threads for group in inner_kernel.ecorr_groups
@@ -89,7 +87,7 @@ function _calc_Ninv_M(
 
             Q = 0.0
             @simd for i in toa_range
-                Q += Ninv[i]
+                Q += Ninvdiag[i]
             end # COV_EXCL_LINE
 
             α = w / (1 + w * Q)
@@ -97,13 +95,13 @@ function _calc_Ninv_M(
             for p = 1:Npar
                 P_p = 0.0
                 @simd for i in toa_range
-                    P_p += M[i, p] * Ninv[i]
+                    P_p += M[i, p] * Ninvdiag[i]
                 end # COV_EXCL_LINE
 
                 R = P_p * α
 
                 @simd for i in toa_range
-                    A[i, p] = (M[i, p] - R) * Ninv[i]
+                    A[i, p] = (M[i, p] - R) * Ninvdiag[i]
                 end # COV_EXCL_LINE
             end
         end # COV_EXCL_LINE
@@ -115,7 +113,7 @@ function _calc_Ninv_M(
 
             Q = 0.0
             @simd for i in toa_range
-                Q += Ninv[i]
+                Q += Ninvdiag[i]
             end # COV_EXCL_LINE
 
             α = w / (1 + w * Q)
@@ -123,13 +121,13 @@ function _calc_Ninv_M(
             for p = 1:Npar
                 P_p = 0.0
                 @simd for i in toa_range
-                    P_p += M[i, p] * Ninv[i]
+                    P_p += M[i, p] * Ninvdiag[i]
                 end # COV_EXCL_LINE
 
                 R = P_p * α
 
                 @simd for i in toa_range
-                    A[i, p] = (M[i, p] - R) * Ninv[i]
+                    A[i, p] = (M[i, p] - R) * Ninvdiag[i]
                 end # COV_EXCL_LINE
             end
         end
