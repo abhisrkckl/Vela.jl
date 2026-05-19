@@ -110,7 +110,9 @@ def pint_components_to_vela(model: TimingModel, toas: TOAs):
         swx_mask = get_dmx_mask(model, toas, param_prefix="SWX_")
         components.append(
             vl.SolarWindDispersionPiecewise(
-                swx_mask, conjunction_geometry, opposition_geometry
+                swx_mask,
+                vl.distance(conjunction_geometry),
+                vl.distance(opposition_geometry),
             )
         )
 
