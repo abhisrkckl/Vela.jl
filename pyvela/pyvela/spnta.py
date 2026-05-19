@@ -344,10 +344,10 @@ class SPNTA:
         """
         if self.has_marginalized_gp_noise:
             params_ = vl.read_params(self.model, params)
-            y, Ndiag = vl._calc_resids_and_Ndiag(self.model, self.toas, params_)
+            y, Ninvdiag = vl._calc_resids_and_Ninvdiag(self.model, self.toas, params_)
             M = np.array(self.model.kernel.noise_basis)
             Phiinv = np.array(vl.calc_noise_weights_inv(self.model.kernel, params_))
-            Ninv_M = M / np.array(Ndiag)[:, None]
+            Ninv_M = M * np.array(Ninvdiag)[:, None]
             MT_Ninv_y = y @ Ninv_M
             Sigmainv = np.diag(Phiinv) + M.T @ Ninv_M
             Sigmainv_cf = cholesky(Sigmainv, lower=False)
