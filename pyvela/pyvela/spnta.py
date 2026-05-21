@@ -611,7 +611,10 @@ class SPNTA:
             offsets[list(self.param_names).index("F0")] = F0_
 
         epoch_mask = np.array(
-            [isinstance(self.model_pint[p], MJDParameter) for p in self.param_names]
+            [
+                isinstance(self.model_pint_modified[p], MJDParameter)
+                for p in self.param_names
+            ]
         )
         offsets[epoch_mask] = np.longdouble(self.epoch) * day_to_s
 
