@@ -2,22 +2,25 @@ import json
 
 import emcee
 
-from pyvela import SPNTA
+from .spnta import SPNTA
+from .results import SPNTAResults
 
 
 def rethin_samples(result_dir: str, thin: int, burnin: int):
     """Change the burn-in length and thinning fraction for an MCMC chain created using the
     `pyvela` script."""
-    reader = emcee.backends.HDFBackend(f"{result_dir}/chain.h5", read_only=True)
+
+    results = SPNTAResults(result_dir)
+
+    reader = emcee.backends.HDFBackend(results.chain_file, read_only=True)
     samples_raw = reader.get_chain(flat=True, discard=burnin, thin=thin)
 
-    with open(f"{result_dir}/summary.json") as summary_file:
-        summary_info = json.load(summary_file)
+    summary_info = results.summary
 
     spnta = SPNTA.load_jlso(
-        f"{result_dir}/{summary_info["input"]["jlso_file"]}",
-        f"{result_dir}/{summary_info["input"]["par_file"]}",
-        f"{result_dir}/{summary_info["input"]["tim_file"]}",
+        results.jlso_file,
+        results.input_par_file,
+        results.input_tim_file,
     )
 
     sampler_info = {

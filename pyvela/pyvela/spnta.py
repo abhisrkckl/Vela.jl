@@ -927,6 +927,12 @@ class SPNTA:
             [self.epoch],
         )
 
+        np.savetxt(
+            f"{outdir}/psrname.txt",
+            [self.model.pulsar_name],
+            fmt="%s",
+        )
+
         if truth_par_file is not None:
             np.savetxt(
                 f"{outdir}/param_true_values.txt", get_true_values(self, truth_par_file)
@@ -988,8 +994,8 @@ class SPNTA:
 
         param_uncertainties = np.std(samples_raw, axis=0)
         params_median = np.median(samples_raw, axis=0)
-        np.savetxt(f"{outdir}/params_median.txt", params_median)
-        np.savetxt(f"{outdir}/params_std.txt", param_uncertainties)
+        np.savetxt(f"{outdir}/param_medians.txt", params_median)
+        np.savetxt(f"{outdir}/param_stds.txt", param_uncertainties)
         self.save_new_parfile(
             params_median,
             param_uncertainties,
@@ -1003,11 +1009,11 @@ class SPNTA:
         np.savetxt(f"{outdir}/param_autocorr.txt", param_autocorr)
 
         np.savetxt(
-            f"{outdir}/marginalized_params_median.txt",
+            f"{outdir}/marginalized_param_medians.txt",
             self.get_marginalized_param_mean(params_median),
         )
         np.savetxt(
-            f"{outdir}/marginalized_params_std.txt",
+            f"{outdir}/marginalized_param_stds.txt",
             self.get_marginalized_param_std(params_median),
         )
 
