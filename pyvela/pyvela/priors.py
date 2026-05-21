@@ -56,6 +56,7 @@ DEFAULT_PRIOR_DISTS = {
     "TNCHROMAMP": jl.Uniform(-18.0, -9.0),  # Ballpark range based on PTA pulsars
     "TNCHROMGAM": jl.Uniform(0.0, 7.0),  # Ballpark range based on PTA pulsars
     "DMX_": jl.Normal(0, 1e-2 * dmunit),  # Ballpark range based on PTA pulsars
+    "SWXDM_": jl.Uniform(0, 1e-2 * dmunit),  # Ballpark range based on PTA pulsars
     "PX": vl.PXPriorDistribution(
         2 * Rmax
     ),  # Uniformly distributed within a sphere of radius 2*Rmax.
