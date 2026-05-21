@@ -602,6 +602,8 @@ class SPNTA:
 
     @cached_property
     def param_offsets(self):
+        """Offsets applied to the parameters to store them as floats without losing precision.
+        Offsets are applied to F0 and to the various epoch parameters."""
         offsets = np.zeros(self.ndim, dtype=np.longdouble)
 
         if "F0" in self.param_names:
@@ -997,10 +999,11 @@ class SPNTA:
             10. `param_units.txt` - Parameter unit strings (astropy format)
             11. `param_scale_factors.txt` - Scale factors that convert parameter values from Vela's internal units to 'normal' units
             12. `param_true_values.txt` - Parameter values used for simulation, taken from the 'truth' par file
-            13. `param_autocorr.txt` - Parameter autocorrelation lengths (from the thinned chains)
-            14. `prior_info.json` - Prior distributions on all free parameters (JSON format)
-            15. `prior_evals.npy` - Prior distributions evaluated in the posterior range for plotting (numpy format)
-            16. `summary.json` - Information about the machine, environment, sampler, and input (JSON format)
+            13. `param_offsets.txt` - Parameter offsets that were applied to the parameters for sampling (e.g., F0 offset, epoch offset)
+            14. `param_autocorr.txt` - Parameter autocorrelation lengths (from the thinned chains)
+            15. `prior_info.json` - Prior distributions on all free parameters (JSON format)
+            16. `prior_evals.npy` - Prior distributions evaluated in the posterior range for plotting (numpy format)
+            17. `summary.json` - Information about the machine, environment, sampler, and input (JSON format)
         """
         samples = self.rescale_samples(samples_raw)
 
