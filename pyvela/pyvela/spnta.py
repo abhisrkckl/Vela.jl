@@ -16,6 +16,7 @@ import pint
 from pint.binaryconvert import convert_binary
 from pint.logging import setup as setup_log
 from pint.models import TimingModel, get_model, get_model_and_toas
+from pint.models.parameter import MJDParameter
 from pint.toa import TOAs
 from scipy.linalg import cho_solve, cholesky, solve_triangular
 from scipy.optimize import minimize
@@ -599,6 +600,26 @@ class SPNTA:
         result = minimize(_mlnpostq, self.default_params, method="Nelder-Mead")
         return result.x
 
+    @cached_property
+    def param_offsets(self):
+        """Offsets applied to the parameters to store them as floats without losing precision.
+        Offsets are applied to F0 and to the various epoch parameters."""
+        offsets = np.zeros(self.ndim, dtype=np.longdouble)
+
+        if "F0" in self.param_names:
+            F0_ = np.longdouble(self.model.param_handler._default_params_tuple.F_.x)
+            offsets[list(self.param_names).index("F0")] = F0_
+
+        epoch_mask = np.array(
+            [
+                (p in self.model_pint) and isinstance(self.model_pint[p], MJDParameter)
+                for p in self.param_names
+            ]
+        )
+        offsets[epoch_mask] = np.longdouble(self.epoch) * day_to_s
+
+        return offsets
+
     @classmethod
     def load_jlso(
         cls,
@@ -903,6 +924,7 @@ class SPNTA:
         np.savetxt(f"{outdir}/param_prefixes.txt", self.param_prefixes, fmt="%s")
         np.savetxt(f"{outdir}/param_units.txt", self.param_units, fmt="%s")
         np.savetxt(f"{outdir}/param_scale_factors.txt", self.scale_factors)
+        np.savetxt(f"{outdir}/param_offsets.txt", self.param_offsets, fmt="%.20e")
 
         np.savetxt(
             f"{outdir}/marginalized_param_default_values.txt",
@@ -980,10 +1002,11 @@ class SPNTA:
             10. `param_units.txt` - Parameter unit strings (astropy format)
             11. `param_scale_factors.txt` - Scale factors that convert parameter values from Vela's internal units to 'normal' units
             12. `param_true_values.txt` - Parameter values used for simulation, taken from the 'truth' par file
-            13. `param_autocorr.txt` - Parameter autocorrelation lengths (from the thinned chains)
-            14. `prior_info.json` - Prior distributions on all free parameters (JSON format)
-            15. `prior_evals.npy` - Prior distributions evaluated in the posterior range for plotting (numpy format)
-            16. `summary.json` - Information about the machine, environment, sampler, and input (JSON format)
+            13. `param_offsets.txt` - Parameter offsets that were applied to the parameters for sampling (e.g., F0 offset, epoch offset)
+            14. `param_autocorr.txt` - Parameter autocorrelation lengths (from the thinned chains)
+            15. `prior_info.json` - Prior distributions on all free parameters (JSON format)
+            16. `prior_evals.npy` - Prior distributions evaluated in the posterior range for plotting (numpy format)
+            17. `summary.json` - Information about the machine, environment, sampler, and input (JSON format)
         """
         samples = self.rescale_samples(samples_raw)
 

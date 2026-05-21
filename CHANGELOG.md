@@ -10,6 +10,7 @@
 - Piecewise solar wind model (`SolarWindDispersionPiecewise`)
 - Save pulsar name in a text file in `SPNTA.save_pre_analysis_summary`.
 - `SPNTAResults` class for easily accessing the output.
+- `SPNTA.param_offsets` attribute.
 ## Changed
 - `SPNTA._check()` now raises warnings instead of errors.
 - Optimized likelihood computation (avoid repeated divisions by Ndiag).

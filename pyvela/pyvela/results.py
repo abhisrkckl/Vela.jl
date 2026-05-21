@@ -118,6 +118,12 @@ class SPNTAResults:
         return np.genfromtxt(f"{self.result_dir}/param_scale_factors.txt")
 
     @cached_property
+    def param_offsets(self) -> np.ndarray:
+        return np.genfromtxt(
+            f"{self.result_dir}/param_offsets.txt", dtype=np.longdouble
+        )
+
+    @cached_property
     def param_prefixes(self) -> np.ndarray:
         return np.genfromtxt(f"{self.result_dir}/param_prefixes.txt", dtype=str)
 
