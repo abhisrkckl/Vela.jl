@@ -112,79 +112,21 @@ class VelaFitter(Fitter):
 
         sampler.run_mcmc(p0, nsteps, progress=True, progress_kwargs={"mininterval": 1})
         samples_raw = sampler.get_chain(flat=True, discard=burnin, thin=thin)
-        samples = self.spnta.rescale_samples(samples_raw)
 
-        param_uncertainties = np.std(samples, axis=0)
-        params_median = np.median(samples, axis=0)
+        params_median_raw = np.median(samples_raw, axis=0)
 
-        F0_ = np.longdouble(self.spnta.model.param_handler._default_params_tuple.F_.x)
-        params_offset = np.array(
-            [F0_ * int(par == "F0") for par in self.spnta.param_names]
+        params_median = self.spnta.rescale_samples(
+            params_median_raw + self.spnta.param_offsets
+        )
+        param_uncertainties = self.spnta.rescale_samples(np.std(samples_raw, axis=0))
+
+        return (
+            params_median,
+            param_uncertainties,
+            self.spnta.rescale_samples(samples_raw),
         )
 
-        return params_median + params_offset, param_uncertainties, samples
-
-    def fit_toas_maxpost(
-        self, maxiter: int = 1000, hessian_step: float = 1e-6, **kwargs
-    ):
-        """Fit the model to data. The best-fit parameters are estimated by maximizing the
-        the log-posterior using `scipy.optimize.dual_annealing`. The parameter uncertainties
-        are estimated using the numerical Hessian of the log-posterior at the maximum point. The
-        uncertainties may not be accurate when the posterior distribution is highly non-Gaussian.
-
-        Parameters
-        ----------
-        maxiter: int
-            Number of dual annealing iterations
-        hessian_step: int
-            Step size used for computing the numerical Hessian
-        """
-
-        def _mlnpostq(cube: np.ndarray) -> float:
-            """Compute the negative of the log-posterior given a point from the unit hypercube.
-            The unit hypercube point is converted into a parameter space point using the
-            `prior_transform`. This takes care of the"""
-            return -self.spnta.lnpost(self.spnta.prior_transform(cube))
-
-        cube0 = [0.5] * self.spnta.ndim
-        bounds = [(0, 1)] * self.spnta.ndim
-        result = dual_annealing(_mlnpostq, bounds, maxiter=maxiter, x0=np.array(cube0))
-
-        params_raw = self.spnta.prior_transform(result.x)
-        F0_ = np.longdouble(self.spnta.model.param_handler._default_params_tuple.F_.x)
-        params_offset = np.array(
-            [F0_ * int(par == "F0") for par in self.spnta.param_names]
-        )
-        params = self.spnta.rescale_samples(params_raw) + params_offset
-
-        # If the a maximum-posterior value hits the bounds, adjust it slightly so that
-        # we can compute the Hessian.
-        dcube = (
-            2
-            * hessian_step
-            * ((result.x == 0).astype(int) - (result.x == 1).astype(int))
-        )
-
-        cube1 = result.x + dcube
-        H = Hessian(_mlnpostq, step=hessian_step)(cube1)
-        assert np.all(np.isfinite(H)), "The Hessian contains non-finite elements!"
-
-        epsilon_cube = np.sqrt(np.diag(np.linalg.pinv(H)))
-
-        params1 = self.spnta.prior_transform(cube1)
-        epsilon_params_raw = np.array(
-            [
-                eps_q / vl.pdf(prior.distribution, a)
-                for a, eps_q, prior in zip(
-                    params1, epsilon_cube, self.spnta.model.priors
-                )
-            ]
-        )
-        epsilon_params = self.spnta.rescale_samples(epsilon_params_raw)
-
-        return params, epsilon_params, None
-
-    def fit_toas(self, mcmc: bool = False, **kwargs):
+    def fit_toas(self, mcmc: bool = True, **kwargs):
         """Fit the model to data. The parameter estimation can be done by either sampling the
         posterior distribution using MCMC or by maximizing the log-posterior. The former is
         more robust but the latter is faster.
@@ -196,18 +138,24 @@ class VelaFitter(Fitter):
         ----------
         mcmc: bool
             Whether to run MCMC or maximization for parameter estimation.
+            Maximization only provides a point estimate.
         **kwargs:
             Arguments forwarded to `fit_toas_mcmc()` or `fit_toas_maxpost()`.
             See their docstrings for more details.
         """
-        params, uncertainties, self.samples = (
-            self.fit_toas_mcmc(**kwargs) if mcmc else self.fit_toas_maxpost(**kwargs)
-        )
+
+        if mcmc:
+            params, uncertainties, self.samples = self.fit_toas_mcmc(**kwargs)
+            self.model.set_param_uncertainties(
+                dict(zip(self.spnta.param_names, uncertainties))
+            )
+        else:
+            params = self.spnta.rescale_samples(
+                self.spnta.maxpost_params + self.spnta.param_offsets
+            )
+            self.samples = None
 
         self.model.set_param_values(dict(zip(self.spnta.param_names, params)))
-        self.model.set_param_uncertainties(
-            dict(zip(self.spnta.param_names, uncertainties))
-        )
 
         if not self.toas.wideband:
             self.resids.update()
