@@ -612,7 +612,7 @@ class SPNTA:
 
         epoch_mask = np.array(
             [
-                isinstance(self.model_pint_modified[p], MJDParameter)
+                (p in self.model_pint) and isinstance(self.model_pint[p], MJDParameter)
                 for p in self.param_names
             ]
         )
