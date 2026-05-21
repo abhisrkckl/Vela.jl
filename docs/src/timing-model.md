@@ -136,15 +136,17 @@ PowerlawDispersionNoiseGP
 ```
 See also [Red noise models](@ref).
 
-`SolarWindDispersion` is a simple model for solar wind dispersion.
-```@docs
-SolarWindDispersion
-```
-
 Alternatively, DM variations can be modeled as a simple piecewise-constant function using
 DMX parameters. This is available through the `DispersionPiecewise` component.
 ```@docs
 DispersionPiecewise
+```
+
+`SolarWindDispersion` is a simple model for solar wind dispersion. `SolarWindDispersionPiecewise` is similar to
+`SolarWindDispersion`, but provides a piecewise-constant model.
+```@docs
+SolarWindDispersion
+SolarWindDispersionPiecewise
 ```
 
 `DispersionJump` and `DispersionOffset` represent two types of system-dependent dispersion 
@@ -183,6 +185,11 @@ Chromatic variations can also be modeled as a simple piecewise-constant function
 CMX parameters. This is available through the `ChromaticPiecewise` component.
 ```@docs
 ChromaticPiecewise
+```
+
+Another class of chromatic signals arise due to profile variability. One such model is
+```@docs
+ChromaticExponentialDip
 ```
 
 ### Binary delays

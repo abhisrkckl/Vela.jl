@@ -11,6 +11,8 @@ from .spnta import SPNTA
 
 
 class SPNTAResults:
+    """A convenience class to access the results of a SPNTA run."""
+
     def __init__(self, result_dir: str):
         self.result_dir = result_dir
 

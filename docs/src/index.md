@@ -9,7 +9,7 @@ notebooks. It can also be used from Python REPL, scripts, and notebooks with the
 `pyvela` interface.
 
 `Vela.jl` is named after the brightest radio pulsar, the [Vela pulsar (J0835-4510)](https://en.wikipedia.org/wiki/Vela_Pulsar).
-Also, Vēḻa (വേള) is a word meaning occasion, time, etc. in the [Malayalam](https://en.wikipedia.org/wiki/Malayalam) language with cognates in 
-many other Indian languages.
+Also, Vēḻa (വേള) is a word meaning occasion, time, etc. in the [Malayalam](https://en.wikipedia.org/wiki/Malayalam) 
+language with cognates in many other Indian languages.
 
 It is under active development.

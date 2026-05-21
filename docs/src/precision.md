@@ -21,3 +21,13 @@ type from the [`Quadmath.jl`](https://github.com/JuliaMath/Quadmath.jl) package 
 Please note that although the core of the `Vela.jl` package should be hardware-independent, its
 full functionality won't be available in machines where `PINT` won't work, because it relies on 
 `PINT` to do certain one-time computations such as [clock corrections](https://nanograv-pint.readthedocs.io/en/latest/explanation.html#time-scales).
+
+
+## Rotational frequency
+
+The pulsar rotational frequency (F0) is one of the parameters that require extended precision. `Vela.jl` represents F0 as a 
+sum of two `Float64` numbers, one large and one small. The small number is treated as the free parameter for fitting if applicable.
+
+## TOAs and Epochs
+
+All TOAs and epoch parameters (e.g., the epoch of periastron T0) are measured from the rotational period epoch (PEPOCH).
