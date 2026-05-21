@@ -76,7 +76,7 @@ def plot(
     param_names = results.param_names
     param_prefixes = results.param_prefixes
     param_units = results.param_units
-    scale_factors = results.scale_factors
+    scale_factors = results.param_scale_factors
 
     param_plot_mask = get_param_plot_mask(
         param_names, param_prefixes, ignore_params, include_params=include_params
@@ -213,7 +213,7 @@ def plot(
     ax3 = plt.subplot(5, 3, 2)
     ax3.set_ylim((0, 1))
     ax3.axis("off")
-    pepoch = results.pepoch
+    pepoch = results.epoch
     if not wb:
         weights = 1 / terr**2
         wrms = np.sqrt(np.average(tres_w**2, weights=weights))

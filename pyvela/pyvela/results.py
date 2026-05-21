@@ -107,7 +107,9 @@ class SPNTAResults:
 
     @cached_property
     def param_units(self) -> np.ndarray:
-        return np.genfromtxt(f"{self.result_dir}/param_units.txt", dtype=str)
+        return np.genfromtxt(
+            f"{self.result_dir}/param_units.txt", dtype=str, delimiter="~"
+        )
 
     @cached_property
     def param_scale_factors(self) -> np.ndarray:
