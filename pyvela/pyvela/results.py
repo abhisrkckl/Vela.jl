@@ -22,22 +22,30 @@ class SPNTAResults:
     @cached_property
     def model_input(self) -> TimingModel:
         filename = self.summary["input"]["par_file"]
-        return get_model(f"{self.result_dir}/{filename}", allow_T2=True, allow_tcb=True)
+        if os.path.isfile(f"{self.result_dir}/{filename}"):
+            return get_model(
+                f"{self.result_dir}/{filename}", allow_T2=True, allow_tcb=True
+            )
+        else:
+            return None
 
     @cached_property
     def toas_input(self) -> TOAs:
         filename = self.summary["input"]["tim_file"]
-        return get_TOAs(
-            f"{self.result_dir}/{filename}", planets=True, model=self.model_input
-        )
+        if os.path.isfile(f"{self.result_dir}/{filename}"):
+            return get_TOAs(
+                f"{self.result_dir}/{filename}", planets=True, model=self.model_input
+            )
+        else:
+            return None
 
     @cached_property
     def psrname(self) -> str:
-        return self.model_input["PSR"].value
+        return np.genfromtxt(f"{self.result_dir}/psrname.txt", dtype=str).item()
 
     @cached_property
     def epoch(self) -> float:
-        return np.genfromtxt(f"{self.result_dir}/epoch.txt")
+        return np.genfromtxt(f"{self.result_dir}/epoch.txt").item()
 
     @cached_property
     def model_median(self) -> TimingModel:
