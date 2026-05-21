@@ -16,6 +16,7 @@ import pint
 from pint.binaryconvert import convert_binary
 from pint.logging import setup as setup_log
 from pint.models import TimingModel, get_model, get_model_and_toas
+from pint.models.parameter import MJDParameter
 from pint.toa import TOAs
 from scipy.linalg import cho_solve, cholesky, solve_triangular
 from scipy.optimize import minimize
@@ -598,6 +599,19 @@ class SPNTA:
 
         result = minimize(_mlnpostq, self.default_params, method="Nelder-Mead")
         return result.x
+
+    @cached_property
+    def param_offsets(self):
+        offsets = np.zeros(self.ndim, dtype=np.longdouble)
+        F0_ = np.longdouble(self.model.param_handler._default_params_tuple.F_.x)
+        offsets[list(self.param_names).index("F0")] = F0_
+
+        epoch_mask = np.array(
+            [isinstance(self.model_pint[p], MJDParameter) for p in self.param_names]
+        )
+        offsets[epoch_mask] = self.epoch * day_to_s
+
+        return offsets
 
     @classmethod
     def load_jlso(
