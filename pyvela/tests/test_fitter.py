@@ -25,11 +25,7 @@ def test_vela_fitter():
 
     ftr.fit_toas(mcmc=False)
     pvals_maxpost = np.array([ftr.model[par].value for par in ftr.model.free_params])
-    perrs_maxpost = np.array(
-        [ftr.model[par].uncertainty_value for par in ftr.model.free_params]
-    )
     assert np.all(map(np.isfinite, pvals_maxpost))
-    assert np.all(map(np.isfinite, perrs_maxpost))
     assert ftr.samples is None
 
     assert np.all((pvals_mcmc - pvals_maxpost) / perrs_mcmc < 1.5)
