@@ -23,7 +23,7 @@ from scipy.optimize import minimize
 import pyvela
 
 from .ecorr import ecorr_sort
-from .model import fix_params, pint_model_to_vela
+from .model import center_model_epochs, fix_params, pint_model_to_vela
 from .priors import process_custom_priors
 from .toas import day_to_s, pint_toas_to_vela
 from .vela import jl, vl
@@ -111,6 +111,7 @@ class SPNTA:
         analytic_marginalized_param_prior_stds: Optional[Dict[str, float]] = {},
         cheat_prior_scale: float = 100.0,
         custom_priors: str | IO | dict = {},
+        center_epochs: bool = False,
         check: bool = True,
         pint_kwargs: dict = {},
     ):
@@ -136,6 +137,11 @@ class SPNTA:
             add_tzr_to_model=True,
             **pint_kwargs,
         )
+
+        self.center_epochs = center_epochs
+        if center_epochs:
+            center_model_epochs(model_pint, toas_pint)
+
         self.model_pint = deepcopy(model_pint)
         self.model_pint_modified = model_pint
         self.toas_pint = toas_pint
@@ -338,10 +344,10 @@ class SPNTA:
         """
         if self.has_marginalized_gp_noise:
             params_ = vl.read_params(self.model, params)
-            y, Ndiag = vl._calc_resids_and_Ndiag(self.model, self.toas, params_)
+            y, Ninvdiag = vl._calc_resids_and_Ninvdiag(self.model, self.toas, params_)
             M = np.array(self.model.kernel.noise_basis)
             Phiinv = np.array(vl.calc_noise_weights_inv(self.model.kernel, params_))
-            Ninv_M = M / np.array(Ndiag)[:, None]
+            Ninv_M = M * np.array(Ninvdiag)[:, None]
             MT_Ninv_y = y @ Ninv_M
             Sigmainv = np.diag(Phiinv) + M.T @ Ninv_M
             Sigmainv_cf = cholesky(Sigmainv, lower=False)
@@ -602,6 +608,7 @@ class SPNTA:
         custom_prior_file: Optional[str] = None,
         cheat_prior_scale: Optional[float] = None,
         analytic_marginalized_params: List[str] = [],
+        center_epochs: bool = False,
     ) -> "SPNTA":
         """Construct an `SPNTA` object from a JLSO file"""
         spnta = cls.__new__(cls)
@@ -613,6 +620,7 @@ class SPNTA:
         spnta.custom_prior_file = custom_prior_file
         spnta.cheat_prior_scale = cheat_prior_scale
         spnta.analytic_marginalized_params = analytic_marginalized_params
+        spnta.center_epochs = center_epochs
         spnta.starttime = datetime.datetime.now().isoformat()
 
         spnta.pulsar = vl.Pulsar(model, toas)
@@ -638,22 +646,29 @@ class SPNTA:
         analytic_marginalized_param_prior_stds: Dict[str, float] = {},
         cheat_prior_scale: float = 100.0,
         custom_priors: dict | str | IO = {},
+        center_epochs: bool = False,
     ) -> "SPNTA":
         """Construct an `SPNTA` object from PINT `TimingModel` and `TOAs` objects"""
         spnta = cls.__new__(cls)
 
         setup_log(level="WARNING")
 
-        if not toas.planets:
-            warnings.warn("Computing planetary ephemerides...")
-            toas.compute_posvels(ephem=model["EPHEM"].value, planets=True)
-
-        spnta.model_pint = deepcopy(model)
-        spnta.model_pint_modified = model
         spnta.toas_pint = toas
 
-        spnta.parfile = model.name
-        spnta.timfile = toas.filename
+        if not spnta.toas_pint.planets:
+            warnings.warn("Computing planetary ephemerides...")
+            spnta.toas_pint.compute_posvels(ephem=model["EPHEM"].value, planets=True)
+
+        spnta.model_pint = deepcopy(model)
+
+        spnta.center_epochs = center_epochs
+        if center_epochs:
+            center_model_epochs(spnta.model_pint, spnta.toas_pint)
+
+        spnta.model_pint_modified = deepcopy(spnta.model_pint)
+
+        spnta.parfile = spnta.model_pint.name
+        spnta.timfile = spnta.toas_pint.filename
         spnta.custom_prior_file = None
         spnta.jlsofile = None
         spnta.starttime = datetime.datetime.now().isoformat()
@@ -672,14 +687,14 @@ class SPNTA:
         else:
             custom_priors_dict = json.load(custom_priors)
 
-        custom_priors = process_custom_priors(custom_priors_dict, model)
+        custom_priors = process_custom_priors(custom_priors_dict, spnta.model_pint)
 
         # Use the original PINT TimingModel object.
         noise_params = spnta.model_pint.get_params_of_component_type("NoiseComponent")
 
         model_v, toas_v = convert_model_and_toas(
-            model,
-            toas,
+            spnta.model_pint,
+            spnta.toas_pint,
             noise_params,
             marginalize_gp_noise,
             analytic_marginalized_params,
@@ -776,6 +791,7 @@ class SPNTA:
                     if truth_par_file is not None
                     else None
                 ),
+                "center_epochs": self.center_epochs,
             },
             "sampler": sampler_info,
             "env": {
@@ -911,6 +927,12 @@ class SPNTA:
             [self.epoch],
         )
 
+        np.savetxt(
+            f"{outdir}/psrname.txt",
+            [self.model.pulsar_name],
+            fmt="%s",
+        )
+
         if truth_par_file is not None:
             np.savetxt(
                 f"{outdir}/param_true_values.txt", get_true_values(self, truth_par_file)
@@ -972,8 +994,8 @@ class SPNTA:
 
         param_uncertainties = np.std(samples_raw, axis=0)
         params_median = np.median(samples_raw, axis=0)
-        np.savetxt(f"{outdir}/params_median.txt", params_median)
-        np.savetxt(f"{outdir}/params_std.txt", param_uncertainties)
+        np.savetxt(f"{outdir}/param_medians.txt", params_median)
+        np.savetxt(f"{outdir}/param_stds.txt", param_uncertainties)
         self.save_new_parfile(
             params_median,
             param_uncertainties,
@@ -987,11 +1009,11 @@ class SPNTA:
         np.savetxt(f"{outdir}/param_autocorr.txt", param_autocorr)
 
         np.savetxt(
-            f"{outdir}/marginalized_params_median.txt",
+            f"{outdir}/marginalized_param_medians.txt",
             self.get_marginalized_param_mean(params_median),
         )
         np.savetxt(
-            f"{outdir}/marginalized_params_std.txt",
+            f"{outdir}/marginalized_param_stds.txt",
             self.get_marginalized_param_std(params_median),
         )
 

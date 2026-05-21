@@ -122,7 +122,16 @@ def pint_parameter_to_vela(
     param_frozen = (
         param.frozen
         or param.name in analytic_marginalized_params
-        or (hasattr(param, "prefix") and param.prefix in analytic_marginalized_params)
+        or (
+            hasattr(param, "prefix")
+            and (
+                param.prefix in analytic_marginalized_params
+                or (
+                    bool(fdjump_rx.match(param.name))
+                    and "FDJUMP" in analytic_marginalized_params
+                )
+            )
+        )
     )
 
     if param.name != "F0":
@@ -207,6 +216,9 @@ def pint_parameters_to_vela(
         "DMXR2_",
         "CMXR1_",  # Included separately in the component as an index mask.
         "CMXR2_",
+        "SWXR1_",  # Included separately in the component as an index mask.
+        "SWXR2_",
+        "SWXP_",
         "PEPOCH",  # Included separately. We subtract PEPOCH from all TOAs and MJDParameters.
         "TNREDC",  # Included separately in the component
         "TNDMC",
@@ -366,6 +378,12 @@ def validate_analytic_marginalized_params(
             or (
                 pname in model
                 and hasattr(model[pname], "prefix")
-                and model[pname].prefix in analytic_marginalizable_prefixes
+                and (
+                    model[pname].prefix in analytic_marginalizable_prefixes
+                    or (
+                        bool(fdjump_rx.match(pname))
+                        and "FDJUMP" in analytic_marginalizable_prefixes
+                    )
+                )
             )
         ), f"Parameter {pname} cannot be analytically marginalized."
