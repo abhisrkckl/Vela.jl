@@ -1007,6 +1007,8 @@ class SPNTA:
             15. `prior_info.json` - Prior distributions on all free parameters (JSON format)
             16. `prior_evals.npy` - Prior distributions evaluated in the posterior range for plotting (numpy format)
             17. `summary.json` - Information about the machine, environment, sampler, and input (JSON format)
+
+        The saved files can be accessed using the `SPNTAResults` class conveniently.
         """
         samples = self.rescale_samples(samples_raw)
 
