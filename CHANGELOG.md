@@ -4,7 +4,8 @@
 - Analytic marginalization of RAJ, DECJ, ELAT, ELONG, DM, and FDJUMPDM.
 - More granular checks in `SPNTA._check()`.
 - `center_epochs` option while creating `SPNTA` object.
-- `--center_epochs` option in `pyvela` script,
+- `--center_epochs` option in `pyvela` script.
+- Piecewise solar wind model (`SolarWindDispersionPiecewise`)
 ## Changed
 - `SPNTA._check()` now raises warnings instead of errors.
 - Optimized likelihood computation (avoid repeated divisions by Ndiag).
