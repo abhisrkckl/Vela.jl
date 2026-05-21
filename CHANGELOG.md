@@ -1,6 +1,8 @@
 # Unreleased
 ## Added
 - Powerlaw solar wind GP model (`PowerlawSolarWindNoiseGP`)
+- Maximum-posterior fitting in `VelaFitter` (only point estimate)
+- Save MCMC samples in `VelaFitter`
 - Chromatic exponential dip model (`ChromaticExponentialDip`).
 - Analytic marginalization of RAJ, DECJ, ELAT, ELONG, DM, and FDJUMPDM.
 - More granular checks in `SPNTA._check()`.
