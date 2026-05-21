@@ -17,6 +17,7 @@ from pyvela.parameters import (
     analytic_marginalizable_names,
     analytic_marginalizable_prefixes,
 )
+from pyvela.results import SPNTAResults
 
 
 def parse_args(argv):
@@ -207,10 +208,12 @@ def main(argv=None):
     if args.resume:
         # copy info from the prior run into the current arguments
         # to make sure they agree
-        with open(f"{args.outdir}/summary.json") as summary_file:
-            summary_info = json.load(summary_file)
-        args.par_file = f'{args.outdir}/{summary_info["input"]["par_file"]}'
-        args.tim_file = f'{args.outdir}/{summary_info["input"]["tim_file"]}'
+
+        results = SPNTAResults(args.outdir)
+
+        summary_info = results.summary
+        args.par_file = results.input_par_file
+        args.tim_file = results.input_tim_file
         args.cheat_prior_scale = summary_info["input"]["cheat_prior_scale"]
         args.analytic_marg = summary_info["input"]["analytic_marginalized_params"]
         args.prior_fie = (
@@ -218,7 +221,7 @@ def main(argv=None):
             if summary_info["input"]["custom_prior_file"] is not None
             else None
         )
-        args.jlso_file = f'{args.outdir}/{summary_info["input"]["jlso_file"]}'
+        args.jlso_file = results.jlso_file
         args.center_epochs = summary_info["input"]["center_epochs"]
 
     if "all" in args.analytic_marg:
