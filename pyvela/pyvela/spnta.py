@@ -603,13 +603,15 @@ class SPNTA:
     @cached_property
     def param_offsets(self):
         offsets = np.zeros(self.ndim, dtype=np.longdouble)
-        F0_ = np.longdouble(self.model.param_handler._default_params_tuple.F_.x)
-        offsets[list(self.param_names).index("F0")] = F0_
+
+        if "F0" in self.param_names:
+            F0_ = np.longdouble(self.model.param_handler._default_params_tuple.F_.x)
+            offsets[list(self.param_names).index("F0")] = F0_
 
         epoch_mask = np.array(
             [isinstance(self.model_pint[p], MJDParameter) for p in self.param_names]
         )
-        offsets[epoch_mask] = self.epoch * day_to_s
+        offsets[epoch_mask] = np.longdouble(self.epoch) * day_to_s
 
         return offsets
 
