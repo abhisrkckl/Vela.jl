@@ -66,7 +66,7 @@ environment variable), `spnta.lnpost` parallelizes a single log-posterior comput
 The latter can be used with samplers such as `emcee` and `zeus`. Make sure not to set `PYTHON_JULIACALL_THREADS` 
 to a value greater than the number of available CPU cores.
 
-The `SPNTA` object also provides several useful attributes. These are:
+The `SPNTA` object also provides several useful attributes. Some of these are:
 1. `ndim` - Number of free parameters.
 2. `ntmdim` - Number of timing model parameters (excludes noise parameters and hyperparameters).
 3. `param_names` - Free paramater names in `PINT` convention.
@@ -82,7 +82,7 @@ The `SPNTA` object also provides several useful attributes. These are:
 13. `wideband` - Whether the TOAs are wideband (Boolean).
 14. `mjds` - Observing epochs in MJD.
 
-The methods available in `SPNTA` other than the ones mentioned above are:
+Some of the methods available in `SPNTA` other than the ones mentioned above are:
 1. `rescale_samples(samples_raw)` - Rescales samples from `Vela.jl` internal units to the usual units used in pulsar astronomy (see [this page](https://nanograv-pint.readthedocs.io/en/latest/timingmodels.html#supported-parameters)).
 2. `get_marginalized_gp_noise_realization(params)` - Given free parameter values, compute the Gaussian process realization of the analytically marginalized parameters.
 3. `time_residuals(params)` - Compute the time residuals given a set of paramater values.
@@ -135,16 +135,12 @@ This converts the samples into the usual units used in pulsar astronomy.
 
 ## Printing out the results
 ```
-means = np.mean(samples_v, axis=0)
-stds = np.std(samples_v, axis=0)
-for idx, (pname, mean, std) in enumerate(zip(spnta.param_names, means, stds)):
-    if pname == "F0":
-        F0_ = np.longdouble(spnta.model.param_handler._default_params_tuple.F_.x)
-        print(f"{pname}\t\t{mean + F0_}\t\t{std}")    
-    else:
-        print(f"{pname}\t\t{mean}\t\t{std}")
+means = np.mean(samples, axis=0)
+stds = np.std(samples, axis=0)
+offsets = spnta.rescale_samples(spnta.param_offsets)
+for idx, (pname, mean, std, offset) in enumerate(zip(spnta.param_names, means, stds, offsets)):
+    print(f"{pname}\t\t{mean+offset}\t\t{std}")
 ```
-The special treatment for F0 is explained in [Precision](@ref).
 
 ## Plotting
 ```

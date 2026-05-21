@@ -10,42 +10,44 @@ prior distributions, sampler, etc is not necessary. It has the followingb syntax
 ```
 $ pyvela -h
 
-usage: pyvela [-h] [-J JLSO_FILE] [-P PRIOR_FILE] [--no_marg_gp_noise] [-A ANALYTIC_MARG [ANALYTIC_MARG ...]] [-T TRUTH] [-C CHEAT_PRIOR_SCALE] [-o OUTDIR] [-f] [-N NSTEPS] [-b BURNIN]
-              [-t THIN] [-r] [-s INITIAL_SAMPLE_SPREAD]
+usage: pyvela [-h] [-J JLSO_FILE] [-P PRIOR_FILE] [--no_marg_gp_noise] [-A ANALYTIC_MARG [ANALYTIC_MARG ...]] [-T TRUTH] [-C CHEAT_PRIOR_SCALE] [-o OUTDIR] [-f]
+              [-N NSTEPS] [-w WALKERS] [-b BURNIN] [-t THIN] [-r] [-s INITIAL_SAMPLE_SPREAD] [-c]
               par_file tim_file
 
-A command line interface for the Vela.jl pulsar timing & noise analysis package. Uses emcee for sampling. This may not be appropriate for more complex datasets. Write your own scripts for
-such cases.
+A command line interface for the Vela.jl pulsar timing & noise analysis package. Uses emcee for sampling. This may not be appropriate for more complex datasets.
+Write your own scripts for such cases.
 
 positional arguments:
-  par_file              The pulsar ephemeris file. Should be readable using PINT. The uncertainties listed in the file will be used for 'cheat' priors where applicable.
+  par_file              The pulsar ephemeris file. Should be readable using PINT. The uncertainties listed in the file will be used for 'cheat' priors where
+                        applicable.
   tim_file              The pulsar TOA file. Should be readable using PINT. Either this or a JLSO file (-J) should be provided.
 
 options:
   -h, --help            show this help message and exit
-  -J JLSO_FILE, --jlso_file JLSO_FILE
-                        The JLSO file containing pulsar timing and noise model & TOAs created using `pyvela-jlso`. JLSO files may need to be recreated after updating `Vela.jl` since the
-                        data format may change. These files are faster to read and parse. (default: None)
-  -P PRIOR_FILE, --prior_file PRIOR_FILE
-                        A JSON file containing the prior distributions for each free parameter. (Ignored if `-J` option is used.) (default: None)
+  -J, --jlso_file JLSO_FILE
+                        The JLSO file containing pulsar timing and noise model & TOAs created using `pyvela-jlso`. JLSO files may need to be recreated after updating `Vela.jl` since the data format may change. These files are faster to read and parse. (default: None)
+  -P, --prior_file PRIOR_FILE
+                        A JSON file containing the prior distributions for each free parameter. (Ignored if `-J` option is used.) 
+                        (default: None)
   --no_marg_gp_noise    Don't analytically marginalize the correlated Gaussian noise amplitudes. (default: False)
-  -A ANALYTIC_MARG [ANALYTIC_MARG ...], --analytic_marg ANALYTIC_MARG [ANALYTIC_MARG ...]
+  -A, --analytic_marg ANALYTIC_MARG [ANALYTIC_MARG ...]
                         Parameters to analytically marginalze (only some parameters are allowed). (default: [])
-  -T TRUTH, --truth TRUTH
-                        Pulsar ephemeris file containing the true timing and noise parameter values. Relevant for simulation studies. (default: None)
-  -C CHEAT_PRIOR_SCALE, --cheat_prior_scale CHEAT_PRIOR_SCALE
+  -T, --truth TRUTH     Pulsar ephemeris file containing the true timing and noise parameter values. Relevant for simulation studies. 
+                        (default: None)
+  -C, --cheat_prior_scale CHEAT_PRIOR_SCALE
                         The scale factor by which the frequentist uncertainties are multiplied to get the 'cheat' prior distributions. (default: 100)
-  -o OUTDIR, --outdir OUTDIR
-                        The output directory. Will throw an error if it already exists (unless -f is given). (default: pyvela_results)
+  -o, --outdir OUTDIR   The output directory. Will throw an error if it already exists (unless -f is given). (default: pyvela_results)
   -f, --force_rewrite   Force rewrite the output directory if it exists. (default: False)
-  -N NSTEPS, --nsteps NSTEPS
-                        Number of ensemble MCMC iterations (default: 6000)
-  -b BURNIN, --burnin BURNIN
-                        Burn-in length for MCMC chains (default: 1500)
-  -t THIN, --thin THIN  Thinning factor for MCMC chains (default: 100)
+  -N, --nsteps NSTEPS   Number of ensemble MCMC iterations (default: 6000)
+  -w, --walkers WALKERS
+                        Number of ensemble MCMC walkers as a multiple of the number of dimensions (default: 5)
+  -b, --burnin BURNIN   Burn-in length for MCMC chains (default: 1500)
+  -t, --thin THIN       Thinning factor for MCMC chains (default: 100)
   -r, --resume          Resume from an existing run (default: False)
-  -s INITIAL_SAMPLE_SPREAD, --initial_sample_spread INITIAL_SAMPLE_SPREAD
-                        Spread of the starting samples around the default parameter values. Must be > 0 and <= 1. 0 represents no spread and 1 represents prior draws. (default: 0.3)
+  -s, --initial_sample_spread INITIAL_SAMPLE_SPREAD
+                        Spread of the starting samples around the default parameter values. Must be > 0 and <= 1. 0 represents no spread 
+                        and 1 represents prior draws. (default: 0.3)
+  -c, --center_epochs   Center the epochs of the pulsar timing model. (default: False)
 ```
 
 This command created saves the MCMC chain and related metadata into an output directory. This includes the following files. The parameter order in all of these files is the same.
@@ -105,20 +107,23 @@ analyses on the same input files. The resulting `JLSO` file can be passed on to 
 ```
 $ pyvela-jlso -h
 
-usage: pyvela-jlso [-h] [-P PRIOR_FILE] [-C CHEAT_PRIOR_SCALE] -o OUTFILE par_file tim_file
+usage: pyvela-jlso [-h] [-P PRIOR_FILE] [-C CHEAT_PRIOR_SCALE] [--no_marginalize_gp_noise] -o OUTFILE par_file tim_file
 
 Read a par file, tim file, and prior JSON file, and write a JLSO file.
 
 positional arguments:
-  par_file              The pulsar ephemeris file. Should be readable using PINT. The uncertainties listed in the file will be used for 'cheat' priors where applicable.
+  par_file              The pulsar ephemeris file. Should be readable using PINT. The uncertainties listed in the file will be used for 'cheat' priors where
+                        applicable.
   tim_file              The pulsar TOA file. Should be readable using PINT.
 
 options:
   -h, --help            show this help message and exit
-  -P PRIOR_FILE, --prior_file PRIOR_FILE
-                        A JSON file containing the prior distributions for each free parameter.
-  -C CHEAT_PRIOR_SCALE, --cheat_prior_scale CHEAT_PRIOR_SCALE
-                        The scale factor by which the frequentist uncertainties are multiplied to get the 'cheat' prior distributions.
-  -o OUTFILE, --outfile OUTFILE
-                        The output file name. Will replace an existing file.
+  -P, --prior_file PRIOR_FILE
+                        A JSON file containing the prior distributions for each free parameter. (default: None)
+  -C, --cheat_prior_scale CHEAT_PRIOR_SCALE
+                        The scale factor by which the frequentist uncertainties are multiplied to get the 'cheat' prior distributions. (default: 50)
+  --no_marginalize_gp_noise
+                        Don't analytically marginalize the correlated Gaussian noise amplitudes. (default: False)
+  -o, --outfile OUTFILE
+                        The output file name. Will replace an existing file. (default: None)
 ```
