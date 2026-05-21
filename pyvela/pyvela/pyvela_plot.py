@@ -1,6 +1,8 @@
 import json
 from typing import Iterable, Literal, Optional
 
+from .results import SPNTAResults
+
 try:
     from tqdm import tqdm
 except ImportError:
@@ -55,38 +57,6 @@ def get_param_plot_mask(
     ]
 
 
-def read_true_values(result_dir):
-    with open(f"{result_dir}/summary.json", "r") as summary_file:
-        summary = json.load(summary_file)
-
-    if (
-        "truth_par_file" not in summary["input"]
-        or summary["input"]["truth_par_file"] is None
-    ):
-        return None
-
-    true_values_raw = np.genfromtxt(f"{result_dir}/param_true_values.txt")
-    scale_factors = np.genfromtxt(f"{result_dir}/param_scale_factors.txt")
-
-    return true_values_raw / scale_factors
-
-
-def get_psrname(result_dir: str) -> Optional[str]:
-    try:
-        with open(f"{result_dir}/summary.json") as summary_file:
-            summary = json.load(summary_file)
-
-        parfile = summary["input"]["par_file"]
-        model = get_model(f"{result_dir}/{parfile}", allow_tcb=True, allow_T2=True)
-        return model["PSR"].value
-    except:
-        return ""
-
-
-def get_pepoch(result_dir: str) -> float:
-    return np.genfromtxt(f"{result_dir}/epoch.txt").item()
-
-
 def plot(
     result_dir: str,
     ignore_params: Iterable[str] = [],
@@ -100,12 +70,13 @@ def plot(
     """Plot `pyvela` output and optionally save it to a file. The output includes a corner plot of the
     posterior samples and the post-fit whitened residuals."""
 
-    samples = np.load(f"{result_dir}/samples.npy")
-    param_names = np.genfromtxt(f"{result_dir}/param_names.txt", dtype=str)
-    param_prefixes = np.genfromtxt(f"{result_dir}/param_prefixes.txt", dtype=str)
-    with open(f"{result_dir}/param_units.txt", "r") as f:
-        param_units = np.array([s.strip() for s in f.readlines()])
-    scale_factors = np.genfromtxt(f"{result_dir}/param_scale_factors.txt")
+    results = SPNTAResults(result_dir)
+
+    samples = results.samples
+    param_names = results.param_names
+    param_prefixes = results.param_prefixes
+    param_units = results.param_units
+    scale_factors = results.scale_factors
 
     param_plot_mask = get_param_plot_mask(
         param_names, param_prefixes, ignore_params, include_params=include_params
@@ -118,7 +89,7 @@ def plot(
         )
     ]
 
-    residuals_data = np.genfromtxt(f"{result_dir}/residuals.txt")
+    residuals_data = results._residuals
     wb = residuals_data.shape[1] == 7
     if wb:
         mjds, tres, tres_w, terr, dres, dres_w, derr = residuals_data.T
@@ -128,7 +99,7 @@ def plot(
     else:
         mjds, tres, tres_w, terr = residuals_data.T
 
-    true_values_all = read_true_values(result_dir)
+    true_values_all = results.param_true_values / scale_factors
     true_values = (
         true_values_all[param_plot_mask] if true_values_all is not None else None
     )
@@ -155,7 +126,7 @@ def plot(
     nplots = len(param_plot_mask)
     if plot_priors:
         # Plot the pre-evaluated priors
-        prior_evals = np.load(f"{result_dir}/prior_evals.npy")
+        prior_evals = results.prior_evals
         for jj, ii in enumerate(param_plot_mask):
             plt.subplot(nplots, nplots, jj * (nplots + 1) + 1)
             xs = prior_evals[:, 2 * ii] / scale_factors[ii]
@@ -242,7 +213,7 @@ def plot(
     ax3 = plt.subplot(5, 3, 2)
     ax3.set_ylim((0, 1))
     ax3.axis("off")
-    pepoch = get_pepoch(result_dir)
+    pepoch = results.pepoch
     if not wb:
         weights = 1 / terr**2
         wrms = np.sqrt(np.average(tres_w**2, weights=weights))
@@ -275,7 +246,7 @@ def plot(
             fontsize=14,
         )
 
-    psrname = get_psrname(result_dir)
+    psrname = results.psrname
     if psrname is not None:
         plt.suptitle(psrname, y=0.98, x=0.4, fontsize=20)
 
@@ -294,10 +265,12 @@ def plot_chains(
 ):
     if outdir is None:
         outdir = result_dir
-    params = np.loadtxt(f"{result_dir}/param_names.txt", dtype=str)
-    d = np.load(f"{result_dir}/samples.npy")
-    with open(f"{result_dir}/summary.json") as summary_file:
-        summary_info = json.load(summary_file)
+
+    results = SPNTAResults(result_dir)
+
+    params = results.param_names
+    d = results.samples
+    summary_info = results.summary
     nwalkers = summary_info["sampler"]["nwalkers"]
     thin = summary_info["sampler"]["thin"]
 
