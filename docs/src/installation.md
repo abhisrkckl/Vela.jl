@@ -65,5 +65,5 @@ julia> exit()
 
 To update `pyvela`, run
 ```
-(vela) $ pip install pyvela --upgrade
+(vela) $ pip install git+https://github.com/abhisrkckl/Vela.jl
 ```
