@@ -930,6 +930,7 @@ class SPNTA:
         np.savetxt(
             f"{outdir}/psrname.txt",
             [self.model.pulsar_name],
+            fmt="%s",
         )
 
         if truth_par_file is not None:
