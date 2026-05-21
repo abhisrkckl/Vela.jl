@@ -927,6 +927,11 @@ class SPNTA:
             [self.epoch],
         )
 
+        np.savetxt(
+            f"{outdir}/psrname.txt",
+            [self.model.pulsar_name],
+        )
+
         if truth_par_file is not None:
             np.savetxt(
                 f"{outdir}/param_true_values.txt", get_true_values(self, truth_par_file)
