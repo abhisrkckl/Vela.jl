@@ -16,6 +16,7 @@ import pint
 from pint.binaryconvert import convert_binary
 from pint.logging import setup as setup_log
 from pint.models import TimingModel, get_model, get_model_and_toas
+from pint.models.parameter import MJDParameter
 from pint.toa import TOAs
 from scipy.linalg import cho_solve, cholesky, solve_triangular
 from scipy.optimize import minimize
@@ -23,7 +24,7 @@ from scipy.optimize import minimize
 import pyvela
 
 from .ecorr import ecorr_sort
-from .model import fix_params, pint_model_to_vela
+from .model import center_model_epochs, fix_params, pint_model_to_vela
 from .priors import process_custom_priors
 from .toas import day_to_s, pint_toas_to_vela
 from .vela import jl, vl
@@ -111,6 +112,7 @@ class SPNTA:
         analytic_marginalized_param_prior_stds: Optional[Dict[str, float]] = {},
         cheat_prior_scale: float = 100.0,
         custom_priors: str | IO | dict = {},
+        center_epochs: bool = False,
         check: bool = True,
         pint_kwargs: dict = {},
     ):
@@ -136,6 +138,11 @@ class SPNTA:
             add_tzr_to_model=True,
             **pint_kwargs,
         )
+
+        self.center_epochs = center_epochs
+        if center_epochs:
+            center_model_epochs(model_pint, toas_pint)
+
         self.model_pint = deepcopy(model_pint)
         self.model_pint_modified = model_pint
         self.toas_pint = toas_pint
@@ -338,10 +345,10 @@ class SPNTA:
         """
         if self.has_marginalized_gp_noise:
             params_ = vl.read_params(self.model, params)
-            y, Ndiag = vl._calc_resids_and_Ndiag(self.model, self.toas, params_)
+            y, Ninvdiag = vl._calc_resids_and_Ninvdiag(self.model, self.toas, params_)
             M = np.array(self.model.kernel.noise_basis)
             Phiinv = np.array(vl.calc_noise_weights_inv(self.model.kernel, params_))
-            Ninv_M = M / np.array(Ndiag)[:, None]
+            Ninv_M = M * np.array(Ninvdiag)[:, None]
             MT_Ninv_y = y @ Ninv_M
             Sigmainv = np.diag(Phiinv) + M.T @ Ninv_M
             Sigmainv_cf = cholesky(Sigmainv, lower=False)
@@ -593,6 +600,26 @@ class SPNTA:
         result = minimize(_mlnpostq, self.default_params, method="Nelder-Mead")
         return result.x
 
+    @cached_property
+    def param_offsets(self):
+        """Offsets applied to the parameters to store them as floats without losing precision.
+        Offsets are applied to F0 and to the various epoch parameters."""
+        offsets = np.zeros(self.ndim, dtype=np.longdouble)
+
+        if "F0" in self.param_names:
+            F0_ = np.longdouble(self.model.param_handler._default_params_tuple.F_.x)
+            offsets[list(self.param_names).index("F0")] = F0_
+
+        epoch_mask = np.array(
+            [
+                (p in self.model_pint) and isinstance(self.model_pint[p], MJDParameter)
+                for p in self.param_names
+            ]
+        )
+        offsets[epoch_mask] = np.longdouble(self.epoch) * day_to_s
+
+        return offsets
+
     @classmethod
     def load_jlso(
         cls,
@@ -602,6 +629,7 @@ class SPNTA:
         custom_prior_file: Optional[str] = None,
         cheat_prior_scale: Optional[float] = None,
         analytic_marginalized_params: List[str] = [],
+        center_epochs: bool = False,
     ) -> "SPNTA":
         """Construct an `SPNTA` object from a JLSO file"""
         spnta = cls.__new__(cls)
@@ -613,6 +641,7 @@ class SPNTA:
         spnta.custom_prior_file = custom_prior_file
         spnta.cheat_prior_scale = cheat_prior_scale
         spnta.analytic_marginalized_params = analytic_marginalized_params
+        spnta.center_epochs = center_epochs
         spnta.starttime = datetime.datetime.now().isoformat()
 
         spnta.pulsar = vl.Pulsar(model, toas)
@@ -638,22 +667,29 @@ class SPNTA:
         analytic_marginalized_param_prior_stds: Dict[str, float] = {},
         cheat_prior_scale: float = 100.0,
         custom_priors: dict | str | IO = {},
+        center_epochs: bool = False,
     ) -> "SPNTA":
         """Construct an `SPNTA` object from PINT `TimingModel` and `TOAs` objects"""
         spnta = cls.__new__(cls)
 
         setup_log(level="WARNING")
 
-        if not toas.planets:
-            warnings.warn("Computing planetary ephemerides...")
-            toas.compute_posvels(ephem=model["EPHEM"].value, planets=True)
-
-        spnta.model_pint = deepcopy(model)
-        spnta.model_pint_modified = model
         spnta.toas_pint = toas
 
-        spnta.parfile = model.name
-        spnta.timfile = toas.filename
+        if not spnta.toas_pint.planets:
+            warnings.warn("Computing planetary ephemerides...")
+            spnta.toas_pint.compute_posvels(ephem=model["EPHEM"].value, planets=True)
+
+        spnta.model_pint = deepcopy(model)
+
+        spnta.center_epochs = center_epochs
+        if center_epochs:
+            center_model_epochs(spnta.model_pint, spnta.toas_pint)
+
+        spnta.model_pint_modified = deepcopy(spnta.model_pint)
+
+        spnta.parfile = spnta.model_pint.name
+        spnta.timfile = spnta.toas_pint.filename
         spnta.custom_prior_file = None
         spnta.jlsofile = None
         spnta.starttime = datetime.datetime.now().isoformat()
@@ -672,14 +708,14 @@ class SPNTA:
         else:
             custom_priors_dict = json.load(custom_priors)
 
-        custom_priors = process_custom_priors(custom_priors_dict, model)
+        custom_priors = process_custom_priors(custom_priors_dict, spnta.model_pint)
 
         # Use the original PINT TimingModel object.
         noise_params = spnta.model_pint.get_params_of_component_type("NoiseComponent")
 
         model_v, toas_v = convert_model_and_toas(
-            model,
-            toas,
+            spnta.model_pint,
+            spnta.toas_pint,
             noise_params,
             marginalize_gp_noise,
             analytic_marginalized_params,
@@ -776,6 +812,7 @@ class SPNTA:
                     if truth_par_file is not None
                     else None
                 ),
+                "center_epochs": self.center_epochs,
             },
             "sampler": sampler_info,
             "env": {
@@ -887,6 +924,7 @@ class SPNTA:
         np.savetxt(f"{outdir}/param_prefixes.txt", self.param_prefixes, fmt="%s")
         np.savetxt(f"{outdir}/param_units.txt", self.param_units, fmt="%s")
         np.savetxt(f"{outdir}/param_scale_factors.txt", self.scale_factors)
+        np.savetxt(f"{outdir}/param_offsets.txt", self.param_offsets, fmt="%.20e")
 
         np.savetxt(
             f"{outdir}/marginalized_param_default_values.txt",
@@ -909,6 +947,12 @@ class SPNTA:
         np.savetxt(
             f"{outdir}/epoch.txt",
             [self.epoch],
+        )
+
+        np.savetxt(
+            f"{outdir}/psrname.txt",
+            [self.model.pulsar_name],
+            fmt="%s",
         )
 
         if truth_par_file is not None:
@@ -958,10 +1002,11 @@ class SPNTA:
             10. `param_units.txt` - Parameter unit strings (astropy format)
             11. `param_scale_factors.txt` - Scale factors that convert parameter values from Vela's internal units to 'normal' units
             12. `param_true_values.txt` - Parameter values used for simulation, taken from the 'truth' par file
-            13. `param_autocorr.txt` - Parameter autocorrelation lengths (from the thinned chains)
-            14. `prior_info.json` - Prior distributions on all free parameters (JSON format)
-            15. `prior_evals.npy` - Prior distributions evaluated in the posterior range for plotting (numpy format)
-            16. `summary.json` - Information about the machine, environment, sampler, and input (JSON format)
+            13. `param_offsets.txt` - Parameter offsets that were applied to the parameters for sampling (e.g., F0 offset, epoch offset)
+            14. `param_autocorr.txt` - Parameter autocorrelation lengths (from the thinned chains)
+            15. `prior_info.json` - Prior distributions on all free parameters (JSON format)
+            16. `prior_evals.npy` - Prior distributions evaluated in the posterior range for plotting (numpy format)
+            17. `summary.json` - Information about the machine, environment, sampler, and input (JSON format)
         """
         samples = self.rescale_samples(samples_raw)
 
@@ -972,8 +1017,8 @@ class SPNTA:
 
         param_uncertainties = np.std(samples_raw, axis=0)
         params_median = np.median(samples_raw, axis=0)
-        np.savetxt(f"{outdir}/params_median.txt", params_median)
-        np.savetxt(f"{outdir}/params_std.txt", param_uncertainties)
+        np.savetxt(f"{outdir}/param_medians.txt", params_median)
+        np.savetxt(f"{outdir}/param_stds.txt", param_uncertainties)
         self.save_new_parfile(
             params_median,
             param_uncertainties,
@@ -987,11 +1032,11 @@ class SPNTA:
         np.savetxt(f"{outdir}/param_autocorr.txt", param_autocorr)
 
         np.savetxt(
-            f"{outdir}/marginalized_params_median.txt",
+            f"{outdir}/marginalized_param_medians.txt",
             self.get_marginalized_param_mean(params_median),
         )
         np.savetxt(
-            f"{outdir}/marginalized_params_std.txt",
+            f"{outdir}/marginalized_param_stds.txt",
             self.get_marginalized_param_std(params_median),
         )
 

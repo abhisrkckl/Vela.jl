@@ -1,13 +1,26 @@
 # Unreleased
 ## Added
+- Maximum-posterior fitting in `VelaFitter` (only point estimate)
+- Save MCMC samples in `VelaFitter`
 - Chromatic exponential dip model (`ChromaticExponentialDip`).
 - Analytic marginalization of RAJ, DECJ, ELAT, ELONG, DM, and FDJUMPDM.
 - More granular checks in `SPNTA._check()`.
+- `center_epochs` option while creating `SPNTA` object.
+- `--center_epochs` option in `pyvela` script.
+- Piecewise solar wind model (`SolarWindDispersionPiecewise`)
+- Save pulsar name in a text file in `SPNTA.save_pre_analysis_summary`.
+- `SPNTAResults` class for easily accessing the output.
+- `SPNTA.param_offsets` attribute.
 ## Changed
 - `SPNTA._check()` now raises warnings instead of errors.
+- Optimized likelihood computation (avoid repeated divisions by Ndiag).
+- Name of some output files (e.g., `params_std.txt` --> `param_stds.txt`)
+- All scripts now use the `SPNTAResults` class for reading output files.
 ## Fixed
 - Return zero solar wind DM if the TOA is barycentered.
 - "lower" and "upper" attributes appear correctly in `SPNTA.full_prior_dict()` output.
+- Analytic marginalization of FDJUMPs.
+- `SPNTA.from_pint()` no longer alters the input objects.
 ## Removed
 
 # 0.1.4

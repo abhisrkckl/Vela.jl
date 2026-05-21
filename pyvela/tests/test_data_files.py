@@ -34,6 +34,7 @@ datasets = [
     "sim_cmx",
     "sim_ell1k",
     "sim_dmgp_wb",
+    "sim_swx",
     "J0613-0200.sim",
     "J1208-5936.sim",
     "J2302+4442.sim",
@@ -58,6 +59,7 @@ def model_and_toas(request):
         timfile,
         custom_priors=custom_priors,
         marginalize_gp_noise=False,
+        center_epochs=True,
     )
 
     if (
@@ -107,6 +109,8 @@ def test_data(model_and_toas: Tuple[SPNTA, TimingModel, TOAs]):
 
     assert len(spnta.default_params) == len(pnames)
 
+    assert len(spnta.param_offsets) == len(pnames)
+
     prnames = [str(vl.param_name(pr)) for pr in spnta.model.priors]
     assert len(spnta.model.priors) == len(pnames)
     assert all(
@@ -147,6 +151,16 @@ def test_data(model_and_toas: Tuple[SPNTA, TimingModel, TOAs]):
             len(spnta.marginalized_param_names)
             == np.shape(spnta.model.kernel.noise_basis)[1]
         )
+
+    epoch_mid = (t.get_mjds().max() + t.get_mjds().min()).value / 2
+    assert spnta.model_pint["PEPOCH"].value == epoch_mid
+    assert spnta.model_pint["POSEPOCH"].value == epoch_mid
+    assert spnta.model_pint["DMEPOCH"].value == epoch_mid
+    if spnta.model_pint.is_binary:
+        if "TASC" in spnta.model_pint:
+            assert np.abs(spnta.model_pint["TASC"].value - epoch_mid) < 1
+        elif "T0" in spnta.model_pint:
+            assert np.abs(spnta.model_pint["T0"].value - epoch_mid) < 1
 
 
 def test_chi2(model_and_toas: Tuple[SPNTA, TimingModel, TOAs]):
@@ -354,6 +368,7 @@ def test_analytic_marginalize_params():
         PHOFF   0           1
         JUMP mjd 53999 54100 0.1 1
         JUMP mjd 54100.1 54500 0.15 1
+        FDJUMP1 mjd 53999 54500 1e-4 1
     """
     m = get_model(StringIO(par))
     t = make_fake_toas_uniform(
@@ -372,20 +387,26 @@ def test_analytic_marginalize_params():
     spnta = SPNTA.from_pint(
         ftr.model,
         ftr.toas,
-        analytic_marginalized_params=["F0", "PHOFF", "JUMP"],
+        analytic_marginalized_params=["F0", "PHOFF", "JUMP", "FDJUMP"],
         analytic_marginalized_param_prior_stds={
             "JUMP": 1,
         },
     )
     assert set(spnta.param_names) == {"RAJ", "DECJ", "DM", "F1"}
-    assert np.shape(spnta.model.kernel.noise_basis) == (len(t), 4)
-    assert set(spnta.marginalized_param_names) == {"F0", "PHOFF", "JUMP1", "JUMP2"}
+    assert np.shape(spnta.model.kernel.noise_basis) == (len(t), 5)
+    assert set(spnta.marginalized_param_names) == {
+        "F0",
+        "PHOFF",
+        "JUMP1",
+        "JUMP2",
+        "FD1JUMP1",
+    }
     assert dict(
         zip(
             spnta.marginalized_param_names,
             spnta.model.kernel.gp_components[0].prior_weights_inv,
         )
-    ) == {"F0": 1e-40, "JUMP1": 1.0, "JUMP2": 1.0, "PHOFF": 1e-40}
+    ) == {"F0": 1e-40, "JUMP1": 1.0, "JUMP2": 1.0, "PHOFF": 1e-40, "FD1JUMP1": 1e-40}
 
 
 def test_analytic_marginalize_params_wb():

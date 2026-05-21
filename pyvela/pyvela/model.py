@@ -9,7 +9,7 @@ from pint.toa import TOAs
 
 from .dmx import get_dmx_mask
 from .gp_noise import PLChromNoiseGP, PLDMNoiseGP, PLRedNoiseGP
-from .parameters import get_unit_conversion_factor, pint_parameters_to_vela
+from .parameters import get_unit_conversion_factor, pint_parameters_to_vela, fdjump_rx
 from .priors import get_default_priors
 from .toas import day_to_s, pint_toa_to_vela
 from .vela import jl, vl
@@ -96,6 +96,25 @@ def pint_components_to_vela(model: TimingModel, toas: TOAs):
         model["NE_SW"].value == 0 and model["NE_SW"].frozen
     ):
         components.append(vl.SolarWindDispersion())
+    elif "SolarWindDispersionX" in component_names:
+        conjunction_geometry = (
+            model.components["SolarWindDispersionX"]
+            .conjunction_solar_wind_geometry(2)
+            .to_value("lightsecond")
+        )
+        opposition_geometry = (
+            model.components["SolarWindDispersionX"]
+            .opposition_solar_wind_geometry(2)
+            .to_value("lightsecond")
+        )
+        swx_mask = get_dmx_mask(model, toas, param_prefix="SWX_")
+        components.append(
+            vl.SolarWindDispersionPiecewise(
+                swx_mask,
+                vl.distance(conjunction_geometry),
+                vl.distance(opposition_geometry),
+            )
+        )
 
     if "DispersionDM" in component_names:
         components.append(vl.DispersionTaylor())
@@ -551,9 +570,13 @@ def construct_woodbury_kernel(
         anl_marg_param_names = []
         weights = []
         for pname in model.free_params:
-            if pname in analytic_marginalized_params or (
-                hasattr(model[pname], "prefix")
-                and model[pname].prefix in analytic_marginalized_params
+            if (
+                pname in analytic_marginalized_params
+                or (
+                    hasattr(model[pname], "prefix")
+                    and model[pname].prefix in analytic_marginalized_params
+                )
+                or (fdjump_rx.match(pname) and "FDJUMP" in analytic_marginalized_params)
             ):
                 anl_marg_param_names.append(pname)
 
@@ -716,3 +739,19 @@ def pint_model_to_vela(
         tzr_toa,
         priors,
     )
+
+
+def center_model_epochs(model: TimingModel, toas: TOAs):
+    new_epoch = (toas.get_mjds().max() + toas.get_mjds().min()) / 2
+
+    if "PEPOCH" in model and model["PEPOCH"].quantity is not None:
+        model.change_pepoch(new_epoch)
+
+    if "POSEPOCH" in model and model["POSEPOCH"].quantity is not None:
+        model.change_posepoch(new_epoch)
+
+    if "DMEPOCH" in model and model["DMEPOCH"].quantity is not None:
+        model.change_dmepoch(new_epoch)
+
+    if model.is_binary:
+        model.change_binary_epoch(new_epoch)

@@ -4,7 +4,7 @@ function calc_noise_weights_inv(kernel::WoodburyKernel, params::NamedTuple)
     )
 end
 
-function _calc_resids_and_Ndiag(
+function _calc_resids_and_Ninvdiag(
     model::TimingModel,
     toas::Vector{TOA},
     params::NamedTuple;
@@ -16,7 +16,7 @@ function _calc_resids_and_Ndiag(
 
     result_data = Vector{Float64}(undef, 2 * ntoas)
     ys = @view result_data[1:ntoas]
-    Ndiag = @view result_data[(ntoas+1):end]
+    Ninvdiag = @view result_data[(ntoas+1):end]
 
     if parallel
         @inbounds @threads for j = 1:ntoas
@@ -24,7 +24,7 @@ function _calc_resids_and_Ndiag(
             ctoa = correct_toa(model, toa, params)
             dphase = GQ{Float64}(phase_residual(toa, ctoa) - tzrphase)
             ys[j] = value(dphase / doppler_shifted_spin_frequency(ctoa))
-            Ndiag[j] = value(scaled_toa_error_sqr(toa, ctoa))
+            Ninvdiag[j] = 1.0 / value(scaled_toa_error_sqr(toa, ctoa))
         end # COV_EXCL_LINE
     else
         @inbounds for j = 1:ntoas
@@ -32,14 +32,14 @@ function _calc_resids_and_Ndiag(
             ctoa = correct_toa(model, toa, params)
             dphase = GQ{Float64}(phase_residual(toa, ctoa) - tzrphase)
             ys[j] = value(dphase / doppler_shifted_spin_frequency(ctoa))
-            Ndiag[j] = value(scaled_toa_error_sqr(toa, ctoa))
+            Ninvdiag[j] = 1.0 / value(scaled_toa_error_sqr(toa, ctoa))
         end
     end
 
-    return ys, Ndiag
+    return ys, Ninvdiag
 end
 
-function _calc_resids_and_Ndiag(
+function _calc_resids_and_Ninvdiag(
     model::TimingModel,
     wtoas::Vector{WidebandTOA},
     params::NamedTuple;
@@ -50,7 +50,7 @@ function _calc_resids_and_Ndiag(
     ntoas = length(wtoas)
     result_data = Vector{Float64}(undef, 4 * ntoas)
     ys = @view result_data[1:(2*ntoas)]
-    Ndiag = @view result_data[(2*ntoas+1):end]
+    Ninvdiag = @view result_data[(2*ntoas+1):end]
 
     if parallel
         @inbounds @threads for j = 1:ntoas
@@ -59,8 +59,8 @@ function _calc_resids_and_Ndiag(
             dphase = GQ{Float64}(phase_residual(wtoa.toa, cwtoa.toa_correction) - tzrphase)
             ys[j] = dphase / doppler_shifted_spin_frequency(cwtoa.toa_correction)
             ys[ntoas+j] = dm_residual(wtoa.dminfo, cwtoa.dm_correction)
-            Ndiag[j] = scaled_toa_error_sqr(wtoa.toa, cwtoa.toa_correction)
-            Ndiag[ntoas+j] = scaled_dm_error_sqr(wtoa.dminfo, cwtoa.dm_correction)
+            Ninvdiag[j] = 1.0 / scaled_toa_error_sqr(wtoa.toa, cwtoa.toa_correction)
+            Ninvdiag[ntoas+j] = 1.0 / scaled_dm_error_sqr(wtoa.dminfo, cwtoa.dm_correction)
         end # COV_EXCL_LINE
     else
         @inbounds for (j, wtoa) in enumerate(wtoas)
@@ -68,30 +68,30 @@ function _calc_resids_and_Ndiag(
             dphase = GQ{Float64}(phase_residual(wtoa.toa, cwtoa.toa_correction) - tzrphase)
             ys[j] = dphase / doppler_shifted_spin_frequency(cwtoa.toa_correction)
             ys[ntoas+j] = dm_residual(wtoa.dminfo, cwtoa.dm_correction)
-            Ndiag[j] = scaled_toa_error_sqr(wtoa.toa, cwtoa.toa_correction)
-            Ndiag[ntoas+j] = scaled_dm_error_sqr(wtoa.dminfo, cwtoa.dm_correction)
+            Ninvdiag[j] = 1.0 / scaled_toa_error_sqr(wtoa.toa, cwtoa.toa_correction)
+            Ninvdiag[ntoas+j] = 1.0 / scaled_dm_error_sqr(wtoa.dminfo, cwtoa.dm_correction)
         end
     end
 
-    return ys, Ndiag
+    return ys, Ninvdiag
 end
 
 function _calc_y_Ninv_y__and__logdet_N(
     ::WhiteNoiseKernel,
-    Ndiag::AbstractVector,
+    Ninvdiag::AbstractVector,
     y::AbstractVector,
     ::NamedTuple;
     parallel::Bool = false,
 )
     Ntoa = length(y)
-    @assert length(Ndiag) == Ntoa
+    @assert length(Ninvdiag) == Ntoa
 
     y_Ninv_y = 0.0
     @inbounds @simd for j = 1:Ntoa
-        y_Ninv_y += y[j] * y[j] / Ndiag[j]
+        y_Ninv_y += y[j] * y[j] * Ninvdiag[j]
     end # COV_EXCL_LINE
 
-    logdet_N = sum(log, Ndiag)
+    logdet_N = -sum(log, Ninvdiag)
 
     return y_Ninv_y, logdet_N
 end
@@ -99,17 +99,17 @@ end
 function _calc_Σinv__and__MT_Ninv_y(
     inner_kernel::Kernel,
     M::AbstractMatrix,
-    Ndiag::AbstractVector,
+    Ninvdiag::AbstractVector,
     Φinv::AbstractVector,
     y::AbstractVector,
     params::NamedTuple;
     parallel::Bool = false,
 )
     Ntoa, Npar = size(M)
-    @assert length(Ndiag) == length(y) == Ntoa
+    @assert length(Ninvdiag) == length(y) == Ntoa
     @assert length(Φinv) == Npar
 
-    Ninv_M = _calc_Ninv_M(inner_kernel, M, Ndiag, params)
+    Ninv_M = _calc_Ninv_M(inner_kernel, M, Ninvdiag, params)
 
     X = eltype(M)
 
@@ -169,12 +169,12 @@ end
 function _calc_Ninv_M(
     ::WhiteNoiseKernel,
     M::AbstractMatrix,
-    Ndiag::AbstractVector,
+    Ninvdiag::AbstractVector,
     ::NamedTuple;
     parallel::Bool = false,
 )
     Ntoa, Npar = size(M)
-    @assert length(Ndiag) == Ntoa
+    @assert length(Ninvdiag) == Ntoa
 
     X = eltype(M)
 
@@ -182,13 +182,13 @@ function _calc_Ninv_M(
     if parallel
         @inbounds @threads for p = 1:Npar
             @simd for j = 1:Ntoa
-                Ninv_M[j, p] = M[j, p] / Ndiag[j]
-            end # COV_EXCL_LINE
+                Ninv_M[j, p] = M[j, p] * Ninvdiag[j]
+            end # COV_EXCL_LINEi
         end # COV_EXCL_LINE
     else
         @inbounds for p = 1:Npar
             @simd for j = 1:Ntoa
-                Ninv_M[j, p] = M[j, p] / Ndiag[j]
+                Ninv_M[j, p] = M[j, p] * Ninvdiag[j]
             end # COV_EXCL_LINE
         end
     end
@@ -199,18 +199,18 @@ end
 function _gls_lnlike_serial(
     inner_kernel::Kernel,
     M::AbstractMatrix,
-    Ndiag::AbstractVector,
+    Ninvdiag::AbstractVector,
     Φinv::AbstractVector,
     y::AbstractVector,
     params::NamedTuple,
 )
-    Σinv, MT_Ninv_y = _calc_Σinv__and__MT_Ninv_y(inner_kernel, M, Ndiag, Φinv, y, params)
+    Σinv, MT_Ninv_y = _calc_Σinv__and__MT_Ninv_y(inner_kernel, M, Ninvdiag, Φinv, y, params)
 
     if !isposdef(Σinv)
         return -Inf # COV_EXCL_LINE
     end
 
-    y_Ninv_y, logdet_N = _calc_y_Ninv_y__and__logdet_N(inner_kernel, Ndiag, y, params)
+    y_Ninv_y, logdet_N = _calc_y_Ninv_y__and__logdet_N(inner_kernel, Ninvdiag, y, params)
 
     Σinv_cf = cholesky!(Σinv)
     logdet_Σinv = logdet(Σinv_cf)
@@ -226,20 +226,27 @@ end
 function _gls_lnlike_parallel(
     inner_kernel::Kernel,
     M::AbstractMatrix,
-    Ndiag::AbstractVector,
+    Ninvdiag::AbstractVector,
     Φinv::AbstractVector,
     y::AbstractVector,
     params::NamedTuple,
 )
-    Σinv, MT_Ninv_y =
-        _calc_Σinv__and__MT_Ninv_y(inner_kernel, M, Ndiag, Φinv, y, params; parallel = true)
+    Σinv, MT_Ninv_y = _calc_Σinv__and__MT_Ninv_y(
+        inner_kernel,
+        M,
+        Ninvdiag,
+        Φinv,
+        y,
+        params;
+        parallel = true,
+    )
 
     if !isposdef(Σinv)
         return -Inf # COV_EXCL_LINE
     end
 
     y_Ninv_y, logdet_N =
-        _calc_y_Ninv_y__and__logdet_N(inner_kernel, Ndiag, y, params; parallel = true)
+        _calc_y_Ninv_y__and__logdet_N(inner_kernel, Ninvdiag, y, params; parallel = true)
 
     Σinv_cf = cholesky!(Σinv)
     logdet_Σinv = logdet(Σinv_cf)
@@ -262,11 +269,11 @@ function calc_lnlike_serial(
     PriorsTuple<:Tuple,
     TOAType<:TOABase,
 }
-    y, Ndiag = _calc_resids_and_Ndiag(model, toas, params)
+    y, Ninvdiag = _calc_resids_and_Ninvdiag(model, toas, params)
     M = model.kernel.noise_basis
     Φinv = calc_noise_weights_inv(model.kernel, params)
 
-    return _gls_lnlike_serial(model.kernel.inner_kernel, M, Ndiag, Φinv, y, params)
+    return _gls_lnlike_serial(model.kernel.inner_kernel, M, Ninvdiag, Φinv, y, params)
 end
 
 function calc_lnlike(
@@ -279,9 +286,9 @@ function calc_lnlike(
     PriorsTuple<:Tuple,
     TOAType<:TOABase,
 }
-    y, Ndiag = _calc_resids_and_Ndiag(model, toas, params; parallel = true)
+    y, Ninvdiag = _calc_resids_and_Ninvdiag(model, toas, params; parallel = true)
     M = model.kernel.noise_basis
     Φinv = calc_noise_weights_inv(model.kernel, params)
 
-    return _gls_lnlike_parallel(model.kernel.inner_kernel, M, Ndiag, Φinv, y, params)
+    return _gls_lnlike_parallel(model.kernel.inner_kernel, M, Ninvdiag, Φinv, y, params)
 end
