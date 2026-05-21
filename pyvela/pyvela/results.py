@@ -21,21 +21,15 @@ class SPNTAResults:
 
     @cached_property
     def model_input(self) -> TimingModel:
-        filename = self.summary["input"]["par_file"]
-        if os.path.isfile(f"{self.result_dir}/{filename}"):
-            return get_model(
-                f"{self.result_dir}/{filename}", allow_T2=True, allow_tcb=True
-            )
+        if os.path.isfile(self.input_par_file):
+            return get_model(self.input_par_file, allow_T2=True, allow_tcb=True)
         else:
             return None
 
     @cached_property
     def toas_input(self) -> TOAs:
-        filename = self.summary["input"]["tim_file"]
-        if os.path.isfile(f"{self.result_dir}/{filename}"):
-            return get_TOAs(
-                f"{self.result_dir}/{filename}", planets=True, model=self.model_input
-            )
+        if os.path.isfile(self.input_tim_file):
+            return get_TOAs(self.input_tim_file, planets=True, model=self.model_input)
         else:
             return None
 
@@ -175,3 +169,19 @@ class SPNTAResults:
     @cached_property
     def marginalized_param_stds(self) -> np.ndarray:
         return np.genfromtxt(f"{self.result_dir}/marginalized_params_std.txt")
+
+    @cached_property
+    def chain_file(self) -> str:
+        return f"{self.result_dir}/chain.h5"
+
+    @cached_property
+    def jlso_file(self) -> str:
+        return f"{self.result_dir}/{self.summary['input']['jlso_file']}"
+
+    @cached_property
+    def input_par_file(self) -> str:
+        return f"{self.result_dir}/{self.summary['input']['par_file']}"
+
+    @cached_property
+    def input_tim_file(self) -> str:
+        return f"{self.result_dir}/{self.summary['input']['tim_file']}"
