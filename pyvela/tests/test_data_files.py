@@ -110,6 +110,8 @@ def test_data(model_and_toas: Tuple[SPNTA, TimingModel, TOAs]):
 
     assert len(spnta.default_params) == len(pnames)
 
+    assert len(spnta.param_offsets) == len(pnames)
+
     prnames = [str(vl.param_name(pr)) for pr in spnta.model.priors]
     assert len(spnta.model.priors) == len(pnames)
     assert all(
