@@ -919,6 +919,7 @@ class SPNTA:
         np.savetxt(f"{outdir}/param_prefixes.txt", self.param_prefixes, fmt="%s")
         np.savetxt(f"{outdir}/param_units.txt", self.param_units, fmt="%s")
         np.savetxt(f"{outdir}/param_scale_factors.txt", self.scale_factors)
+        np.savetxt(f"{outdir}/param_offsets.txt", self.param_offsets, fmt="%.20e")
 
         np.savetxt(
             f"{outdir}/marginalized_param_default_values.txt",
