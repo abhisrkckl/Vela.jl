@@ -99,10 +99,13 @@ def plot(
     else:
         mjds, tres, tres_w, terr = residuals_data.T
 
-    true_values_all = results.param_true_values / scale_factors
-    true_values = (
-        true_values_all[param_plot_mask] if true_values_all is not None else None
-    )
+    if results.param_true_values is not None:
+        true_values_all = results.param_true_values / scale_factors
+        true_values = (
+            true_values_all[param_plot_mask] if true_values_all is not None else None
+        )
+    else:
+        true_values = None
 
     fig = corner.corner(
         samples[:, param_plot_mask],
