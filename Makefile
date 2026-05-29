@@ -5,4 +5,4 @@ clean:
 	rm test/*.pickle.gz
 
 docs:
-	julia --color=yes --project docs/make.jl
+	julia --color=yes --project=docs docs/make.jl
