@@ -25,6 +25,9 @@ Now, install the Python dependencies and set the environment variables. The most
 (vela) $ conda env config vars set PYTHON_JULIACALL_THREADS=4
 (vela) $ conda env config vars set JULIA_NUM_THREADS=4
 (vela) $ conda env config vars set JULIA_CONDAPKG_BACKEND="Null"
+(vela) $ conda env config vars set PYTHON_JULIACALL_EXE="$(which julia)"
+(vela) $ conda env config vars set PYTHON_JULIACALL_PROJECT=$(julia -e 'print(joinpath(DEPOT_PATH[1], "environments", "v$(VERSION.major).$(VERSION.minor)"))')
+(vela) $ conda env config vars set PYTHON_JULIAPKG_OFFLINE=true
 ```
 
 The number of threads available to `Vela.jl` for parallel processing can be controlled 
