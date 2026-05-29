@@ -19,8 +19,6 @@ Now, install the Python dependencies and set the environment variables. The most
 (base) $ # Setup conda environment
 (base) $ conda create -n vela python=3.12
 (base) $ conda activate vela
-(vela) $ conda install -c conda-forge pyjuliacall black emcee nestle corner tqdm pytest pytest-xdist
-(vela) $ pip install git+https://github.com/nanograv/PINT
 (vela) $ conda env config vars set PYTHON_JULIACALL_HANDLE_SIGNALS=yes
 (vela) $ conda env config vars set PYTHON_JULIACALL_THREADS=4
 (vela) $ conda env config vars set JULIA_NUM_THREADS=4
@@ -28,6 +26,8 @@ Now, install the Python dependencies and set the environment variables. The most
 (vela) $ conda env config vars set PYTHON_JULIACALL_EXE="$(which julia)"
 (vela) $ conda env config vars set PYTHON_JULIACALL_PROJECT=$(julia -e 'print(joinpath(DEPOT_PATH[1], "environments", "v$(VERSION.major).$(VERSION.minor)"))')
 (vela) $ conda env config vars set PYTHON_JULIAPKG_OFFLINE=true
+(vela) $ conda install -c conda-forge pyjuliacall black emcee nestle corner tqdm pytest pytest-xdist
+(vela) $ pip install git+https://github.com/nanograv/PINT
 ```
 
 The number of threads available to `Vela.jl` for parallel processing can be controlled 
@@ -61,8 +61,10 @@ A basic example (using the Python wrapper) can be run like this:
 
 Run the following commands to check if the installation is successful.
 
+```
 (vela) $ julia -e 'import Pkg; Pkg.test("Vela")'
-(vela) $ python -c 'from pyvela import SPNTA'
+(vela) $ python -c 'python -c 'from pyvela import SPNTA, __version__; print(__version__)''
+```
 
 ## Updating `Vela.jl`
 
