@@ -57,6 +57,13 @@ A basic example (using the Python wrapper) can be run like this:
 (vela) $ ./run_example_emcee.py NGC6440E.par NGC6440E.tim
 ```
 
+## Testing if installation is successful
+
+Run the following commands to check if the installation is successful.
+
+(vela) $ julia -e 'import Pkg; Pkg.test("Vela")'
+(vela) $ python -c 'from pyvela import SPNTA'
+
 ## Updating `Vela.jl`
 
 To update a `Vela.jl` installation, do the following.
