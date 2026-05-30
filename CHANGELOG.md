@@ -1,5 +1,11 @@
 # Unreleased
 ## Added
+## Changed
+## Fixed
+## Removed
+
+# 0.1.5
+## Added
 - Maximum-posterior fitting in `VelaFitter` (only point estimate)
 - Save MCMC samples in `VelaFitter`
 - Chromatic exponential dip model (`ChromaticExponentialDip`).
