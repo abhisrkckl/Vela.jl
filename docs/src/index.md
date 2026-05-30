@@ -12,4 +12,6 @@ notebooks. It can also be used from Python REPL, scripts, and notebooks with the
 Also, Vēḻa (വേള) is a word meaning occasion, time, etc. in the [Malayalam](https://en.wikipedia.org/wiki/Malayalam) 
 language with cognates in many other Indian languages.
 
+This package is described in [this paper](https://doi.org/10.3847/1538-4357/adaaec) and [this paper](https://doi.org/10.1103/n3ck-lfdy).
+
 It is under active development.

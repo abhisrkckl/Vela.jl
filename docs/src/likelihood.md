@@ -2,7 +2,7 @@
 
 The pulsar timing log-likelihood function is given by 
 
-``\ln L = -\frac{1}{2}r^T C^{-1} r - \frac{1}{2}\ln \det C``
+``\ln L = -\frac{1}{2}r^T C^{-1} r - \frac{1}{2}\ln \det [2\pi C]``
 
 where `r` is contains the residuals (both time & DM residuals in the case of wideband timing), and
 `C` is the covariance matrix incorporating the measurement uncertainties and the various correlated noise 
