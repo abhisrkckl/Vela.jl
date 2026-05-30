@@ -66,7 +66,7 @@ Run the following commands to check if the installation is successful.
 
 ```
 (vela) $ julia -e 'import Pkg; Pkg.test("Vela")'
-(vela) $ python -c 'python -c 'from pyvela import SPNTA, __version__; print(__version__)''
+(vela) $ python -c 'from pyvela import SPNTA, __version__; print(__version__)'
 ```
 
 ## Updating `Vela.jl`
