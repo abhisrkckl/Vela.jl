@@ -1,6 +1,12 @@
 # Unreleased
 ## Added
 - Powerlaw solar wind GP model (`PowerlawSolarWindNoiseGP`)
+## Changed
+## Fixed
+## Removed
+
+# 0.1.5
+## Added
 - Maximum-posterior fitting in `VelaFitter` (only point estimate)
 - Save MCMC samples in `VelaFitter`
 - Chromatic exponential dip model (`ChromaticExponentialDip`).
@@ -17,6 +23,7 @@
 - Optimized likelihood computation (avoid repeated divisions by Ndiag).
 - Name of some output files (e.g., `params_std.txt` --> `param_stds.txt`)
 - All scripts now use the `SPNTAResults` class for reading output files.
+- Updated installation instructions to stop PythonCall from downloading packages.
 ## Fixed
 - Return zero solar wind DM if the TOA is barycentered.
 - "lower" and "upper" attributes appear correctly in `SPNTA.full_prior_dict()` output.
