@@ -760,13 +760,19 @@ def center_model_epochs(model: TimingModel, toas: TOAs):
 
 
 def fit_data_for_cheat_priors(
-    model: TimingModel, toas: TOAs, analytic_marginalized_params: List[str]
+    model: TimingModel,
+    toas: TOAs,
+    analytic_marginalized_params: List[str],
+    custom_priors: dict,
 ):
     noise_params = model.get_params_of_component_type("NoiseComponent")
     from .priors import DEFAULT_PRIOR_DISTS
 
     ignore_params = (
-        noise_params + list(DEFAULT_PRIOR_DISTS.keys()) + analytic_marginalized_params
+        noise_params
+        + list(DEFAULT_PRIOR_DISTS.keys())
+        + analytic_marginalized_params
+        + list(custom_priors.keys())
     )
 
     fit_params = [

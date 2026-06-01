@@ -148,12 +148,6 @@ class SPNTA:
         if center_epochs:
             center_model_epochs(model_pint, toas_pint)
 
-        fit_data_for_cheat_priors(model_pint, toas_pint, analytic_marginalized_params)
-
-        self.model_pint = deepcopy(model_pint)
-        self.model_pint_modified = model_pint
-        self.toas_pint = toas_pint
-
         # custom_priors_dict is in the "raw" format. The numbers may be
         # in "normal" units and have to be converted into internal units.
         if isinstance(custom_priors, dict):
@@ -166,6 +160,14 @@ class SPNTA:
             self.custom_priors_dict = json.load(custom_priors)
 
         custom_priors = process_custom_priors(self.custom_priors_dict, model_pint)
+
+        fit_data_for_cheat_priors(
+            model_pint, toas_pint, analytic_marginalized_params, custom_priors
+        )
+
+        self.model_pint = deepcopy(model_pint)
+        self.model_pint_modified = model_pint
+        self.toas_pint = toas_pint
 
         # Use the original PINT TimingModel object.
         noise_params = self.model_pint.get_params_of_component_type("NoiseComponent")
