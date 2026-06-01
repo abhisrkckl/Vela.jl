@@ -6,6 +6,9 @@ from pint import DMconst
 from pint.models import PhaseOffset, TimingModel
 from pint.models.parameter import MJDParameter, floatParameter, maskParameter
 from pint.toa import TOAs
+from pint.fitter import Fitter
+
+from build.lib.pyvela import fitter
 
 from .dmx import get_dmx_mask
 from .gp_noise import PLChromNoiseGP, PLDMNoiseGP, PLRedNoiseGP
@@ -755,3 +758,11 @@ def center_model_epochs(model: TimingModel, toas: TOAs):
 
     if model.is_binary:
         model.change_binary_epoch(new_epoch)
+
+
+def fit_data_to_model(model: TimingModel, toas: TOAs) -> TimingModel:
+    """Fit the model to the TOAs using PINT's fitter. It is useful when
+    the initial fit uncertainties are needed for constructing cheat priors."""
+    ftr = Fitter.auto(toas, model)
+    ftr.fit_toas(maxiter=10)
+    return ftr.model

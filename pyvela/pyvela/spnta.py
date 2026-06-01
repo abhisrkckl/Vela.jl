@@ -24,7 +24,12 @@ from scipy.optimize import minimize
 import pyvela
 
 from .ecorr import ecorr_sort
-from .model import center_model_epochs, fix_params, pint_model_to_vela
+from .model import (
+    center_model_epochs,
+    fit_data_to_model,
+    fix_params,
+    pint_model_to_vela,
+)
 from .priors import process_custom_priors
 from .toas import day_to_s, pint_toas_to_vela
 from .vela import jl, vl
@@ -113,6 +118,7 @@ class SPNTA:
         cheat_prior_scale: float = 100.0,
         custom_priors: str | IO | dict = {},
         center_epochs: bool = False,
+        fit_data: bool = False,
         check: bool = True,
         pint_kwargs: dict = {},
     ):
@@ -142,6 +148,9 @@ class SPNTA:
         self.center_epochs = center_epochs
         if center_epochs:
             center_model_epochs(model_pint, toas_pint)
+
+        if fit_data:
+            model_pint = fit_data_to_model(model_pint, toas_pint)
 
         self.model_pint = deepcopy(model_pint)
         self.model_pint_modified = model_pint
