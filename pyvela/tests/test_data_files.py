@@ -60,6 +60,7 @@ def model_and_toas(request):
         custom_priors=custom_priors,
         marginalize_gp_noise=False,
         center_epochs=True,
+        fit_data=(dataset == "sim_1"),
     )
 
     if (
