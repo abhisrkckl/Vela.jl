@@ -1,16 +1,11 @@
 """Script for running pulsar timing & noise analysis using Vela.jl with emcee."""
 
-from copy import deepcopy
-import json
 import os
 import shutil
 from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
 
 import emcee
 import numpy as np
-import astropy.units as u
-from scipy.linalg import cholesky, cho_solve, solve_triangular, LinAlgError
-from pint.residuals import Residuals, WidebandTOAResiduals
 
 from pyvela import SPNTA
 from pyvela.parameters import (
