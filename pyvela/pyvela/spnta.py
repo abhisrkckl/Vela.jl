@@ -149,6 +149,7 @@ class SPNTA:
         if center_epochs:
             center_model_epochs(model_pint, toas_pint)
 
+        self.fit_data = fit_data
         if fit_data:
             model_pint = fit_data_to_model(model_pint, toas_pint)
 
@@ -639,6 +640,7 @@ class SPNTA:
         cheat_prior_scale: Optional[float] = None,
         analytic_marginalized_params: List[str] = [],
         center_epochs: bool = False,
+        fit_data: bool = False,
     ) -> "SPNTA":
         """Construct an `SPNTA` object from a JLSO file"""
         spnta = cls.__new__(cls)
@@ -651,6 +653,7 @@ class SPNTA:
         spnta.cheat_prior_scale = cheat_prior_scale
         spnta.analytic_marginalized_params = analytic_marginalized_params
         spnta.center_epochs = center_epochs
+        spnta.fit_data = fit_data
         spnta.starttime = datetime.datetime.now().isoformat()
 
         spnta.pulsar = vl.Pulsar(model, toas)
@@ -677,6 +680,7 @@ class SPNTA:
         cheat_prior_scale: float = 100.0,
         custom_priors: dict | str | IO = {},
         center_epochs: bool = False,
+        fit_data: bool = False,
     ) -> "SPNTA":
         """Construct an `SPNTA` object from PINT `TimingModel` and `TOAs` objects"""
         spnta = cls.__new__(cls)
@@ -694,6 +698,10 @@ class SPNTA:
         spnta.center_epochs = center_epochs
         if center_epochs:
             center_model_epochs(spnta.model_pint, spnta.toas_pint)
+
+        spnta.fit_data = fit_data
+        if fit_data:
+            spnta.model_pint = fit_data_to_model(spnta.model_pint, spnta.toas_pint)
 
         spnta.model_pint_modified = deepcopy(spnta.model_pint)
 
@@ -822,6 +830,7 @@ class SPNTA:
                     else None
                 ),
                 "center_epochs": self.center_epochs,
+                "fit_data": self.fit_data,
             },
             "sampler": sampler_info,
             "env": {
