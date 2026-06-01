@@ -764,11 +764,25 @@ def fit_data_to_model(model: TimingModel, toas: TOAs) -> TimingModel:
     the initial fit uncertainties are needed for constructing cheat priors."""
     free_params_bak = deepcopy(model.free_params)
     noise_params = set(model.get_params_of_component_type("NoiseComponent"))
-    free_params_to_fit = list(set(free_params_bak).difference(noise_params))
+
+    from .priors import DEFAULT_PRIOR_DISTS
+
+    free_params_to_fit = [
+        p
+        for p in free_params_bak
+        if not (
+            p in noise_params
+            or p in DEFAULT_PRIOR_DISTS
+            or (hasattr(model[p], "prefix") and model[p].prefix in DEFAULT_PRIOR_DISTS)
+            or model[p].uncertainty_value is not None
+        )
+    ]
+
+    if len(free_params_to_fit) == 0:
+        return model
 
     model.free_params = free_params_to_fit
     ftr = Fitter.auto(toas, model)
     ftr.fit_toas(maxiter=10)
-
     ftr.model.free_params = free_params_bak
     return ftr.model
