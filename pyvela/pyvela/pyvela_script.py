@@ -133,6 +133,13 @@ def parse_args(argv):
         action="store_true",
         help="Center the epochs of the pulsar timing model.",
     )
+    parser.add_argument(
+        "-F",
+        "--fit_data",
+        dest="fit_data",
+        action="store_true",
+        help="Fit the data before constructing SPNTA object.",
+    )
 
     return parser.parse_args(argv)
 
@@ -240,6 +247,7 @@ def main(argv=None):
             marginalize_gp_noise=(not args.no_marg_gp_noise),
             analytic_marginalized_params=args.analytic_marg,
             center_epochs=args.center_epochs,
+            fit_data=args.fit_data,
         )
         if args.jlso_file is None
         else SPNTA.load_jlso(
@@ -250,6 +258,7 @@ def main(argv=None):
             cheat_prior_scale=args.cheat_prior_scale,
             analytic_marginalized_params=args.analytic_marg,
             center_epochs=args.center_epochs,
+            fit_data=args.fit_data,
         )
     )
 
