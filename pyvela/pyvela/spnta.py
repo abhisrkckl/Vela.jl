@@ -695,10 +695,6 @@ class SPNTA:
         if center_epochs:
             center_model_epochs(spnta.model_pint, spnta.toas_pint)
 
-        fit_data_for_cheat_priors(
-            spnta.model_pint, spnta.toas_pint, analytic_marginalized_params
-        )
-
         spnta.model_pint_modified = deepcopy(spnta.model_pint)
 
         spnta.parfile = spnta.model_pint.name
@@ -722,6 +718,13 @@ class SPNTA:
             custom_priors_dict = json.load(custom_priors)
 
         custom_priors = process_custom_priors(custom_priors_dict, spnta.model_pint)
+
+        fit_data_for_cheat_priors(
+            spnta.model_pint,
+            spnta.toas_pint,
+            analytic_marginalized_params,
+            custom_priors,
+        )
 
         # Use the original PINT TimingModel object.
         noise_params = spnta.model_pint.get_params_of_component_type("NoiseComponent")

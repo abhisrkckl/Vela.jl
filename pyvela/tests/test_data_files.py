@@ -80,7 +80,7 @@ def model_and_toas(request):
 def test_read_data(dataset):
     parfile, timfile = f"{datadir}/{dataset}.par", f"{datadir}/{dataset}.tim"
     m, t = get_model_and_toas(parfile, timfile, planets=True)
-    fit_data_for_cheat_priors(m, t, [])
+    fit_data_for_cheat_priors(m, t, [], {})
     model, toas = convert_model_and_toas(
         m,
         t,
