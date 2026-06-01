@@ -1,5 +1,6 @@
 # Unreleased
 ## Added
+- Option to fit data before constructing SPNTA object (useful for cheat priors).
 ## Changed
 ## Fixed
 ## Removed
