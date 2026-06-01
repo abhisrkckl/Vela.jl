@@ -1,4 +1,5 @@
 from typing import Dict, List, Optional, Tuple
+from copy import deepcopy
 
 import astropy.units as u
 import numpy as np
@@ -761,6 +762,13 @@ def center_model_epochs(model: TimingModel, toas: TOAs):
 def fit_data_to_model(model: TimingModel, toas: TOAs) -> TimingModel:
     """Fit the model to the TOAs using PINT's fitter. It is useful when
     the initial fit uncertainties are needed for constructing cheat priors."""
+    free_params_bak = deepcopy(model.free_params)
+    noise_params = set(model.get_params_of_component_type("NoiseComponent"))
+    free_params_to_fit = list(set(free_params_bak).difference(noise_params))
+
+    model.free_params = free_params_to_fit
     ftr = Fitter.auto(toas, model)
     ftr.fit_toas(maxiter=10)
+
+    ftr.model.free_params = free_params_bak
     return ftr.model
