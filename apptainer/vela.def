@@ -40,6 +40,9 @@ From: ubuntu:22.04
     export PYTHON_JULIACALL_THREADS=4
     export JULIA_NUM_THREADS=4
     export JULIA_CONDAPKG_BACKEND="Null"
+    export PYTHON_JULIACALL_EXE="$(which julia)"
+    export PYTHON_JULIACALL_PROJECT=$(julia -e 'print(joinpath(DEPOT_PATH[1], "environments", "v$(VERSION.major).$(VERSION.minor)"))')
+    export PYTHON_JULIAPKG_OFFLINE=true
 
 %runscript
     exec bash "$@"
