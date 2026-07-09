@@ -408,6 +408,21 @@ class SPNTA:
             + self.get_marginalized_param_offset_sample(params)
         )
 
+    def get_marginalized_param_lnprob(
+        self, params: np.ndarray, marginalized_param_offsets: np.ndarray
+    ) -> float:
+        """Compute the log probability of the analytically marginalized parameters given other parameters."""
+        if not self.has_marginalized_gp_noise:
+            return 0.0
+
+        ahat, Sigmainv_cf = self.get_marginalized_param_offset_mean_and_covinvcf(params)
+        U_da = Sigmainv_cf @ (marginalized_param_offsets - ahat)
+        return (
+            -0.5 * U_da @ U_da
+            - 0.5 * len(ahat) * np.log(2 * np.pi)
+            + np.sum(np.log(np.diag(Sigmainv_cf)))
+        )
+
     @cached_property
     def marginalized_maxpost_param_offsets(self) -> np.ndarray:
         """The maximum-posterior offset values of the analytically marginalized parameters."""
