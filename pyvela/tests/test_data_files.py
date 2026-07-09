@@ -209,6 +209,14 @@ def test_gp_realization(model_and_toas):
         assert np.all(np.isfinite(y_gp))
 
 
+def test_gp_conditional_logprob(model_and_toas):
+    spnta: SPNTA
+    spnta, _, _ = model_and_toas
+    a = spnta.get_marginalized_param_offset_samples(spnta.default_params, 1)[0]
+    lnprob = spnta.get_marginalized_param_lnprob(spnta.default_params, a)
+    assert np.isfinite(lnprob)
+
+
 # def test_alloc(model_and_toas):
 #     spnta: SPNTA
 #     spnta, _, _ = model_and_toas
