@@ -1,6 +1,7 @@
 # Unreleased
 ## Added
 - Fit timing parameters using PINT while creating SPNTA object to ensure that uncertainties exist for creating cheat priors.
+- `SPNTA.get_marginalized_param_lnprob` method to evaluate the conditional distribution for analytically marginalized parameters.
 ## Changed
 - Updated the apptainer def file to work in HPC.
 ## Fixed
