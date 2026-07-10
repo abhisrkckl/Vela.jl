@@ -107,7 +107,7 @@ class VelaFitter(Fitter):
             self.spnta.ndim,
             self.spnta.lnpost_vectorized,
             vectorize=True,
-            backend=emcee.backends.HDFBackend(f"__{self.model["PSR"].value}_chain.h5"),
+            backend=emcee.backends.HDFBackend(f"__{self.model['PSR'].value}_chain.h5"),
         )
 
         sampler.run_mcmc(p0, nsteps, progress=True, progress_kwargs={"mininterval": 1})
