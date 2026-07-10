@@ -233,7 +233,7 @@ def process_custom_priors(custom_priors_raw: dict, model: TimingModel) -> dict:
             continue
         else:
             warnings.warn(
-                f"Could not find the distribution '{prior_info["distribution"]}' in Distributions or Vela namespace. Falling back to the default..."
+                f"Could not find the distribution `{prior_info['distribution']}` in Distributions or Vela namespace. Falling back to the default..."
             )
             continue
 
