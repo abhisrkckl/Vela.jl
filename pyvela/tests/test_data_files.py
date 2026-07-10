@@ -10,7 +10,7 @@ from pint.models import TimingModel, get_model, get_model_and_toas
 from pint.simulation import make_fake_toas_uniform
 from pint.toa import TOAs
 
-from pyvela.model import fix_params, fix_red_noise_components
+from pyvela.model import fit_data_for_cheat_priors, fix_params, fix_red_noise_components
 from pyvela.parameters import fdjump_rx
 from pyvela.spnta import SPNTA, convert_model_and_toas
 from pyvela.vela import vl
@@ -81,6 +81,7 @@ def model_and_toas(request):
 def test_read_data(dataset):
     parfile, timfile = f"{datadir}/{dataset}.par", f"{datadir}/{dataset}.tim"
     m, t = get_model_and_toas(parfile, timfile, planets=True)
+    fit_data_for_cheat_priors(m, t, [], {})
     model, toas = convert_model_and_toas(
         m,
         t,

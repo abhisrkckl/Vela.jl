@@ -1,3 +1,4 @@
+from copy import deepcopy
 from typing import Dict, List, Optional, Tuple
 
 import astropy.units as u
@@ -6,6 +7,7 @@ from pint import DMconst
 from pint.models import PhaseOffset, TimingModel
 from pint.models.parameter import MJDParameter, floatParameter, maskParameter
 from pint.toa import TOAs
+from pint.fitter import Fitter
 
 from .dmx import get_dmx_mask
 from .gp_noise import PLChromNoiseGP, PLDMNoiseGP, PLRedNoiseGP, PLSWNoiseGP
@@ -800,3 +802,43 @@ def center_model_epochs(model: TimingModel, toas: TOAs):
 
     if model.is_binary:
         model.change_binary_epoch(new_epoch)
+
+
+def fit_data_for_cheat_priors(
+    model: TimingModel,
+    toas: TOAs,
+    analytic_marginalized_params: List[str],
+    custom_priors: dict,
+):
+    noise_params = model.get_params_of_component_type("NoiseComponent")
+    from .priors import DEFAULT_PRIOR_DISTS
+
+    ignore_params = (
+        noise_params
+        + list(DEFAULT_PRIOR_DISTS.keys())
+        + analytic_marginalized_params
+        + list(custom_priors.keys())
+    )
+
+    fit_params = [
+        p
+        for p in model.free_params
+        if not (
+            p in ignore_params
+            or (hasattr(model[p], "prefix") and model[p].prefix in ignore_params)
+            or model[p].uncertainty_value > 0
+        )
+    ]
+
+    if "PHOFF" in model.free_params:
+        fit_params += ["PHOFF"]
+
+    if len(fit_params) > 0:
+        model1 = deepcopy(model)
+        model1.free_params = fit_params
+        ftr = Fitter.auto(toas, model1, downhill=False)
+        ftr.fit_toas()
+
+        for p in fit_params:
+            model[p].value = ftr.model[p].value
+            model[p].uncertainty_value = ftr.model[p].uncertainty_value

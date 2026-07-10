@@ -260,7 +260,7 @@ def plot(
     if outfile is None:
         plt.show()
     else:
-        plt.savefig(outfile)
+        plt.savefig(outfile, bbox_inches="tight", dpi=300)
 
 
 def plot_chains(

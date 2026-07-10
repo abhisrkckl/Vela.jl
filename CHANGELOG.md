@@ -1,8 +1,12 @@
 # Unreleased
 ## Added
 - Powerlaw solar wind GP model (`PowerlawSolarWindNoiseGP`)
+- Fit timing parameters using PINT while creating SPNTA object to ensure that uncertainties exist for creating cheat priors.
 ## Changed
+- Updated the apptainer def file to work in HPC.
+- Use `bbox_inches='tight'` in `pyvela_plot.plot()` while saving the plot.
 ## Fixed
+- Support Python 3.11 in pyvela: fix double-quoted dict subscripts inside f-strings
 ## Removed
 
 # 0.1.5

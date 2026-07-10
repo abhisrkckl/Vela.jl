@@ -37,5 +37,5 @@ DMEPOCH            55000.0000000000000000
 EFAC            tel gbt        1.5062639786777228 1 0.06591804272748632
 EQUAD           tel gbt        1.1047917742092201 1 0.09482569980056976
 ECORR	        tel gbt	           1.1e-3 1
-JUMP mjd 53000 54000                    0 1 1e-6
-FDJUMPDM mjd 53000 54000                0 1 1e-6
+JUMP mjd 53000 54000                    0 1
+FDJUMPDM mjd 53000 54000                0 1
