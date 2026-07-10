@@ -160,7 +160,7 @@ def test_script_notruth(dataset):
         summary = json.load(sf)
         assert os.path.isfile(f"{outdir}/{summary['input']['par_file']}")
         assert os.path.isfile(f"{outdir}/{summary['input']['tim_file']}")
-        assert os.path.isfile(f"{outdir}/{summary['input']['json_file']}")
+        assert os.path.isfile(f"{outdir}/{summary['input']['jlso_file']}")
 
     rethin_args = f"{outdir} -b 600 -t 10".split()
     pyvela_rethin_script.main(rethin_args)
