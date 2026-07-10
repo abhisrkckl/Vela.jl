@@ -3,6 +3,7 @@
 - Fit timing parameters using PINT while creating SPNTA object to ensure that uncertainties exist for creating cheat priors.
 ## Changed
 - Updated the apptainer def file to work in HPC.
+- Use `bbox_inches='tight'` in `pyvela_plot.plot()` while saving the plot.
 ## Fixed
 ## Removed
 
