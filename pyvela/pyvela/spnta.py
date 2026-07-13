@@ -391,22 +391,34 @@ class SPNTA:
         else:
             return np.array([])
 
-    def get_marginalized_param_offset_sample(self, params: np.ndarray) -> np.ndarray:
+    def get_marginalized_param_offset_sample(
+        self, params: np.ndarray
+    ) -> Tuple[np.ndarray, float]:
         """Draw a sample of the analytically marginalized parameter vector given other parameters."""
+        if not self.has_marginalized_gp_noise:
+            return np.array([]), 0.0
+
         ahat, Sigmainv_cf = self.get_marginalized_param_offset_mean_and_covinvcf(params)
         z = np.random.randn(len(ahat))
-        return (
-            ahat + solve_triangular(Sigmainv_cf, z, lower=False)
-            if self.has_marginalized_gp_noise
-            else np.array([])
+        da = solve_triangular(Sigmainv_cf, z, lower=False)
+        a = ahat + da
+        lnp = (
+            -0.5 * (z @ z)
+            + np.sum(np.log(np.diag(Sigmainv_cf)))
+            - 0.5 * len(ahat) * np.log(2 * np.pi)
         )
 
-    def get_marginalized_param_sample(self, params: np.ndarray) -> np.ndarray:
+        return a, lnp
+
+    def get_marginalized_param_sample(
+        self, params: np.ndarray
+    ) -> Tuple[np.ndarray, float]:
         """Draw a sample of the analytically marginalized parameter values given other parameters."""
-        return (
-            self.marginalized_default_params
-            + self.get_marginalized_param_offset_sample(params)
-        )
+        if not self.has_marginalized_gp_noise:
+            return np.array([]), 0.0
+
+        da, lnp = self.get_marginalized_param_offset_sample(params)
+        return self.marginalized_default_params + da, lnp
 
     @cached_property
     def marginalized_maxpost_param_offsets(self) -> np.ndarray:
@@ -425,7 +437,7 @@ class SPNTA:
         The length of `params` should be the same as the number of free parameters."""
         if self.has_marginalized_gp_noise:
             M = np.array(self.model.kernel.noise_basis)
-            a = self.get_marginalized_param_offset_sample(params)
+            a = self.get_marginalized_param_offset_sample(params)[0]
             return M @ a
         else:
             return np.zeros(len(self.toas))
