@@ -443,8 +443,14 @@ class SPNTA:
             return np.zeros(len(self.toas))
 
     def rescale_samples(self, samples_raw: np.ndarray) -> np.ndarray:
-        """Rescale the samples from Vela's internal units to common units"""
+        """Rescale the samples from Vela's internal units to common units.
+        Opposite of `unscale_samples`."""
         return samples_raw / self.scale_factors
+
+    def unscale_samples(self, samples_raw: np.ndarray) -> np.ndarray:
+        """Rescale the samples from common units to Vela's internal units.
+        Opposite of `rescale_samples`."""
+        return samples_raw * self.scale_factors
 
     def save_jlso(self, filename: str) -> None:
         """Write the model and TOAs as a JLSO file"""
