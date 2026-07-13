@@ -1,10 +1,10 @@
 # Unreleased
 ## Added
 - Fit timing parameters using PINT while creating SPNTA object to ensure that uncertainties exist for creating cheat priors.
-- `SPNTA.get_marginalized_param_lnprob` method to evaluate the conditional distribution for analytically marginalized parameters.
 ## Changed
 - Updated the apptainer def file to work in HPC.
 - Use `bbox_inches='tight'` in `pyvela_plot.plot()` while saving the plot.
+- `SPNTA.get_marginalized_param_sample()` also returns the conditional log-probability value.
 ## Fixed
 - Support Python 3.11 in pyvela: fix double-quoted dict subscripts inside f-strings
 ## Removed
