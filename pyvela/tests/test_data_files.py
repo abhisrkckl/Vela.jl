@@ -120,6 +120,11 @@ def test_data(model_and_toas: Tuple[SPNTA, TimingModel, TOAs]):
 
     assert all(np.isfinite(spnta.rescale_samples(spnta.default_params)))
 
+    assert np.allclose(
+        spnta.unscale_samples(spnta.rescale_samples(spnta.maxpost_params)),
+        spnta.maxpost_params,
+    )
+
     assert spnta.wideband == t.is_wideband()
 
     assert all(np.isfinite(spnta.mjds)) and len(spnta.mjds) == len(t)
