@@ -121,6 +121,11 @@ def test_data(model_and_toas: Tuple[SPNTA, TimingModel, TOAs]):
 
     assert all(np.isfinite(spnta.rescale_samples(spnta.default_params)))
 
+    assert np.allclose(
+        spnta.unscale_samples(spnta.rescale_samples(spnta.maxpost_params)),
+        spnta.maxpost_params,
+    )
+
     assert spnta.wideband == t.is_wideband()
 
     assert all(np.isfinite(spnta.mjds)) and len(spnta.mjds) == len(t)
@@ -209,6 +214,9 @@ def test_gp_realization(model_and_toas):
     spnta: SPNTA
     spnta, _, _ = model_and_toas
     if spnta.has_marginalized_gp_noise:
+        params_gp, lnpr_cond = spnta.get_marginalized_param_sample(spnta.default_params)
+        assert np.all(np.isfinite(params_gp)) and np.isfinite(lnpr_cond)
+
         y_gp = spnta.get_marginalized_gp_noise_realization(spnta.default_params)
         assert np.all(np.isfinite(y_gp))
 
