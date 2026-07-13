@@ -437,7 +437,7 @@ class SPNTA:
         The length of `params` should be the same as the number of free parameters."""
         if self.has_marginalized_gp_noise:
             M = np.array(self.model.kernel.noise_basis)
-            a = self.get_marginalized_param_offset_sample(params)
+            a = self.get_marginalized_param_offset_sample(params)[0]
             return M @ a
         else:
             return np.zeros(len(self.toas))
