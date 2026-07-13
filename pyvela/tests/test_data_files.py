@@ -168,6 +168,8 @@ def test_data(model_and_toas: Tuple[SPNTA, TimingModel, TOAs]):
         elif "T0" in spnta.model_pint:
             assert np.abs(spnta.model_pint["T0"].value - epoch_mid) < 1
 
+    assert "PHOFF" in spnta.model_pint_modified
+
 
 def test_chi2(model_and_toas: Tuple[SPNTA, TimingModel, TOAs]):
     spnta, m, t = model_and_toas
