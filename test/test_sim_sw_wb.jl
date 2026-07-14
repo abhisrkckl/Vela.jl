@@ -87,6 +87,8 @@
         @test isa(components[6], PhaseOffset)
 
         @test isa(components[7], DispersionMeasurementNoise)
+
+        @test length(Vela.get_white_noise_components(model)) == 1
     end
 
     @testset "form_residuals" begin
