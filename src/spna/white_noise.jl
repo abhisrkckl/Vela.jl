@@ -1,4 +1,10 @@
-function correct_resid(wn::MeasurementNoise, cres::ResidCorrectionBase, index)
+function correct_resid(
+    wn::MeasurementNoise,
+    ::ResidBase,
+    cres::ResidCorrectionBase,
+    params,
+    index,
+)
     ef_idx = wn.efac_index_mask[index]
     efac = (ef_idx == 0) ? 1.0 : value(params.EFAC[ef_idx])
 
@@ -10,7 +16,9 @@ end
 
 function correct_resid(
     dmwn::DispersionMeasurementNoise,
+    ::WidebandResid,
     cres::WidebandResidCorrection,
+    params,
     index,
 )
     dmef_idx = dmwn.dmefac_index_mask[index]

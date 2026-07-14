@@ -91,3 +91,17 @@ corrected_dm_residual(res::WidebandResid, cres::WidebandResidCorrection) =
 
 scaled_dm_error_sqr(res::WidebandResid, cres::WidebandResidCorrection) =
     cres.dmefac * cres.dmefac * (res.derr2 + cres.dmequad2)
+
+function correct_resid(
+    components::Tuple,
+    res::ResidBase,
+    cres::ResidCorrectionBase,
+    params,
+    index,
+)
+    cres1 = cres
+    @unroll for component in components
+        cres1 = correct_resid(component, res, cres, params, index)
+    end
+    return cres1
+end
