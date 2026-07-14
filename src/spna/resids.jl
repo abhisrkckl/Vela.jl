@@ -4,8 +4,10 @@ export ResidBase,
     NarrowbandResidCorrection,
     WidebandResid,
     WidebandResidCorrection,
+    make_resids,
     corrected_time_residual,
-    corrected_dm_residual
+    corrected_dm_residual,
+    correct_resid
 
 abstract type ResidBase end
 abstract type ResidCorrectionBase end
@@ -15,7 +17,7 @@ struct NarrowbandResid <: ResidBase
     terr2::Float64
 end
 
-function calc_resids(model::TimingModel, toas::Vector{TOA})
+function make_resids(model::TimingModel, toas::Vector{TOA})
     tresids =
         map(value, form_residuals(model, toas, model.param_handler._default_params_tuple))
     terrs2 = map(toa -> value(toa.error)^2, toas)
@@ -30,6 +32,9 @@ end
 
 NarrowbandResidCorrection() = NarrowbandResidCorrection(0.0, 1.0, 0.0)
 
+correct_resid(cres::NarrowbandResidCorrection; delay = 0.0, efac = 1.0, equad2 = 0.0) =
+    NarrowbandResidCorrection(cres.delay + delay, cres.efac * efac, cres.equad2 + equad2)
+
 corrected_time_residual(res::ResidBase, cres::ResidCorrectionBase) = res.tres - cres.delay
 
 scaled_toa_error_sqr(res::ResidBase, cres::ResidCorrectionBase) =
@@ -42,7 +47,7 @@ struct WidebandResid <: ResidBase
     derr2::Float64
 end
 
-function calc_resids(model::TimingModel, wtoas::Vector{WidebandTOA})
+function make_resids(model::TimingModel, wtoas::Vector{WidebandTOA})
     wres = form_residuals(model, wtoas, model.param_handler._default_params_tuple)
 
     tresids = map(wr -> value(wr[1]), wres)
@@ -63,6 +68,23 @@ struct WidebandResidCorrection <: ResidCorrectionBase
 end
 
 WidebandResidCorrection() = WidebandResidCorrection(0.0, 0.0, 1.0, 0.0, 1.0, 0.0)
+
+correct_resid(
+    cres::WidebandResidCorrection;
+    delay = 0.0,
+    efac = 1.0,
+    equad2 = 0.0,
+    deltadm = 0.0,
+    dmefac = 1.0,
+    dmequad2 = 0.0,
+) = WidebandResidCorrection(
+    cres.delay + delay,
+    cres.deltadm+deltadm,
+    cres.efac * efac,
+    cres.equad2 + equad2,
+    cres.dmefac * dmefac,
+    cres.dmequad2 + dmequad2,
+)
 
 corrected_dm_residual(res::WidebandResid, cres::WidebandResidCorrection) =
     res.dres - cres.deltadm

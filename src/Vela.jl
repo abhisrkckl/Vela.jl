@@ -66,6 +66,8 @@ include("likelihood/gls_ecorr_likelihood.jl")
 include("likelihood/posterior.jl")
 include("pulsar/pulsar.jl")
 include("readwrite/readwrite.jl")
+include("spna/resids.jl")
+include("spna/white_noise.jl")
 
 pkg_version() = string(PkgVersion.Version(Vela))
 
