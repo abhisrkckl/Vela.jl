@@ -82,9 +82,6 @@ read_param_values_to_vector(model::TimingModel, params::NamedTuple) =
 
 get_scale_factors(model::TimingModel) = get_scale_factors(model.param_handler)
 
-get_white_noise_components(model::TimingModel) =
-    filter(c -> isa(c, WhiteNoiseComponent), model.components)
-
 @unroll function correct_toa( # COV_EXCL_LINE
     components::Tuple,
     toa::TOABase,
