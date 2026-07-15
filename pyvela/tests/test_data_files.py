@@ -93,6 +93,20 @@ def test_read_data(dataset):
     assert len(model.components) <= len(m.components)
 
 
+@pytest.mark.parametrize("dataset", ["sim3.gp", "sim_dmgp_wb"])
+def test_make_SPNTA_marg(dataset):
+    parfile, timfile = f"{datadir}/{dataset}.par", f"{datadir}/{dataset}.tim"
+    custom_priors = f"{datadir}/custom_priors.json"
+    spnta = SPNTA(
+        parfile,
+        timfile,
+        custom_priors=custom_priors,
+        marginalize_gp_noise=True,
+        center_epochs=True,
+    )
+    assert np.isfinite(spnta.lnpost(spnta.default_params))
+
+
 def test_data(model_and_toas: Tuple[SPNTA, TimingModel, TOAs]):
     spnta, m, t = model_and_toas
 
