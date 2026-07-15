@@ -39,10 +39,29 @@ function calc_y_and_Ninvdiag(spna::WidebandSPNA, params::NamedTuple)
     return ys, Ninvdiag
 end
 
-function calc_lnlike_serial(spna::SPNABase, params::NamedTuple)
+function calc_lnlike(spna::SPNABase, params::NamedTuple)
     y, Ninvdiag = calc_y_and_Ninvdiag(spna, params)
     M = spna.kernel.noise_basis
     Φinv = calc_noise_weights_inv(spna.kernel, params)
 
-    return _gls_lnlike_serial(model.kernel.inner_kernel, M, Ninvdiag, Φinv, y, params)
+    return _gls_lnlike_serial(spna.kernel.inner_kernel, M, Ninvdiag, Φinv, y, params)
+end
+
+calc_lnlike(spna::SPNABase, params) =
+    calc_lnlike(spna, read_params(spna.param_handler, params))
+
+calc_lnprior(spna::SPNABase, params) = lnprior(spna.priors, params)
+
+function calc_lnpost(spna::SPNABase, params)
+    lnpr = calc_lnprior(spna, params)
+    return isfinite(lnpr) ? lnpr + calc_lnlike(spna, params) : lnpr
+end
+
+function calc_lnpost_vectorized(spna::SPNABase, paramss)
+    nparamss = size(paramss)[1]
+    result = Vector{Float64}(undef, nparamss)
+    @threads :static for ii = 1:nparamss
+        result[ii] = calc_lnpost(spna, paramss[ii, :])
+    end # COV_EXCL_LINE
+    return result
 end
