@@ -210,4 +210,18 @@
         paramss = transpose([parv parv parv])
         @test allequal(calc_lnpost_vectorized(psr, paramss))
     end
+
+    @testset "spna" begin
+        Mtm = randn(length(toas), get_num_timing_params(model))
+        spna = make_SPNA(model, toas, Mtm)
+        print(spna)
+
+        params = (EFAC = (dimensionless(1.1),), EQUAD = (time(1e-6),))
+
+        y, Ninvdiag = Vela.calc_y_and_Ninvdiag(spna, params)
+        @test length(y) == length(toas)
+        @test length(Ninvdiag) == length(toas)
+        @test all(isfinite, y)
+        @test all(isfinite, Ninvdiag)
+    end
 end
