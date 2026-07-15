@@ -54,15 +54,12 @@
         @test Set(get_free_param_names(param_handler)) == Set([
             "RAJ",
             "DECJ",
-            "PHOFF",
             "DM",
             "DM1",
             "DM2",
             "CM",
             "CM1",
             "CM2",
-            "F0",
-            "F1",
             "TNDMAMP",
             "TNDMGAM",
             "TNREDAMP",
@@ -70,7 +67,7 @@
             "TNCHROMAMP",
             "TNCHROMGAM",
         ])
-        @test get_num_timing_params(model) == 11
+        @test get_num_timing_params(model) == 8
         @test length(param_handler.multi_params) + length(param_handler.single_params) ==
               length(param_handler._default_params_tuple)
         @test length(get_free_param_names(param_handler)) ==
@@ -111,7 +108,7 @@
     @testset "kernel" begin
         @test isa(model.kernel, WoodburyKernel)
         @test isa(model.kernel.inner_kernel, WhiteNoiseKernel)
-        @test length(model.kernel.gp_components) == 3
+        @test length(model.kernel.gp_components) == 4
     end
 
     @testset "_calc_resids_and_Ninvdiag" begin

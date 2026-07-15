@@ -53,8 +53,8 @@ function make_resids(model::TimingModel, wtoas::Vector{WidebandTOA})
     tresids = map(wr -> value(wr[1]), wres)
     dresids = map(wr -> value(wr[2]), wres)
 
-    terrs2 = map(toa -> value(wtoa.toa.error)^2, wtoas)
-    derrs2 = map(toa -> value(wtoa.dminfo.error)^2, wtoas)
+    terrs2 = map(wtoa -> value(wtoa.toa.error)^2, wtoas)
+    derrs2 = map(wtoa -> value(wtoa.dminfo.error)^2, wtoas)
     return map(WidebandResid, tresids, dresids, terrs2, derrs2)
 end
 

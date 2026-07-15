@@ -1,6 +1,11 @@
-function make_spna_kernel(model::TimingModel, toas::Vector{TOA}, Mtm::Array{Float64,2})
+function make_spna_kernel(
+    model::TimingModel,
+    toas::Vector{TOAType},
+    Mtm::Array{Float64,2},
+) where {TOAType<:TOABase}
     ntoas, ntmpars = size(Mtm)
-    @assert ntoas == length(toas) "Number of TOAs must match number of rows in the design matrix."
+    wb = isa(toas[1], WidebandTOA)
+    @assert ntoas == (1 + Int(wb)) * length(toas) "Number of TOAs must match number of rows in the design matrix."
     @assert ntmpars == get_num_timing_params(model) "Number of timing model parameters must match number of columns in the design matrix."
 
     timing_param_names = get_free_param_names(model)[1:ntmpars]
