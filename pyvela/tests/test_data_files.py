@@ -168,7 +168,10 @@ def test_data(model_and_toas: Tuple[SPNTA, TimingModel, TOAs]):
     )
     if spnta.model_pint.is_binary:
         if "TASC" in spnta.model_pint:
-            assert np.abs(spnta.model_pint["TASC"].value - epoch_mid) < 1
+            assert (
+                np.abs(spnta.model_pint["TASC"].value - epoch_mid)
+                < spnta.model_pint["PB"].value
+            )
         elif "T0" in spnta.model_pint:
             assert (
                 np.abs(spnta.model_pint["T0"].value - epoch_mid)
