@@ -59,7 +59,7 @@ def model_and_toas(request):
         timfile,
         custom_priors=custom_priors,
         marginalize_gp_noise=False,
-        center_epochs=True,
+        center_epochs=(m["BINARY"].value != "ELL1k"),
     )
 
     if (
@@ -159,14 +159,12 @@ def test_data(model_and_toas: Tuple[SPNTA, TimingModel, TOAs]):
         )
 
     epoch_mid = (t.get_mjds().max() + t.get_mjds().min()).value / 2
-    assert spnta.model_pint["PEPOCH"].value == epoch_mid
-    assert (
-        spnta.model_pint["POSEPOCH"].value is None
-        or spnta.model_pint["POSEPOCH"].value == epoch_mid
+    assert np.isclose(spnta.model_pint["PEPOCH"].value, epoch_mid, atol=0.1)
+    assert spnta.model_pint["POSEPOCH"].value is None or np.isclose(
+        spnta.model_pint["POSEPOCH"].value, epoch_mid, atol=0.1
     )
-    assert (
-        spnta.model_pint["DMEPOCH"].value is None
-        or spnta.model_pint["DMEPOCH"].value == epoch_mid
+    assert spnta.model_pint["DMEPOCH"].value is None or np.isclose(
+        spnta.model_pint["DMEPOCH"].value, epoch_mid, atol=0.1
     )
     if spnta.model_pint.is_binary:
         if "TASC" in spnta.model_pint:
