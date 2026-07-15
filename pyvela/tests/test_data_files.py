@@ -27,13 +27,13 @@ datasets = [
     "sim_ecorr_arn",
     "sim_expdip",
     "sim3",
+    "sim_dmgp_wb",
     "sim_fdjump",
     "sim_ddk",
     "sim_glitch",
     "sim_dmx",
     "sim_cmx",
     "sim_ell1k",
-    "sim_dmgp_wb",
     "sim_swx",
     "J0613-0200.sim",
     "J1208-5936.sim",
@@ -42,7 +42,7 @@ datasets = [
 ]
 
 
-@pytest.fixture(params=datasets[:5], scope="module")
+@pytest.fixture(params=datasets, scope="module")
 def model_and_toas(request):
     dataset = request.param
 
@@ -160,8 +160,14 @@ def test_data(model_and_toas: Tuple[SPNTA, TimingModel, TOAs]):
 
     epoch_mid = (t.get_mjds().max() + t.get_mjds().min()).value / 2
     assert spnta.model_pint["PEPOCH"].value == epoch_mid
-    assert spnta.model_pint["POSEPOCH"].value == epoch_mid
-    assert spnta.model_pint["DMEPOCH"].value == epoch_mid
+    assert (
+        spnta.model_pint["POSEPOCH"].value is None
+        or spnta.model_pint["POSEPOCH"].value == epoch_mid
+    )
+    assert (
+        spnta.model_pint["DMEPOCH"].value is None
+        or spnta.model_pint["DMEPOCH"].value == epoch_mid
+    )
     if spnta.model_pint.is_binary:
         if "TASC" in spnta.model_pint:
             assert np.abs(spnta.model_pint["TASC"].value - epoch_mid) < 1
