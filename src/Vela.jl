@@ -70,6 +70,7 @@ include("spna/resids.jl")
 include("spna/white_noise.jl")
 include("spna/spnautils.jl")
 include("spna/spna.jl")
+include("spna/lnlike.jl")
 
 pkg_version() = string(PkgVersion.Version(Vela))
 
