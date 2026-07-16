@@ -3,12 +3,14 @@
 - Fit timing parameters using PINT while creating SPNTA object to ensure that uncertainties exist for creating cheat priors.
 - `SPNTA.unscale_samples()` method.
 - `get_white_noise_components()` function.
+- `conftest.py` for `pyvela` tests
 ## Changed
 - Updated the apptainer def file to work in HPC.
 - Use `bbox_inches='tight'` in `pyvela_plot.plot()` while saving the plot.
 - `SPNTA.get_marginalized_param_sample()` also returns the conditional log-probability value.
 ## Fixed
 - Support Python 3.11 in pyvela: fix double-quoted dict subscripts inside f-strings
+- Enable and fix previously disabled `pyvela` tests.
 ## Removed
 
 # 0.1.5
