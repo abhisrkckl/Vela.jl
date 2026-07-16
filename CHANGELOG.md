@@ -8,6 +8,7 @@
 - `SPNTA.get_marginalized_param_sample()` also returns the conditional log-probability value.
 ## Fixed
 - Support Python 3.11 in pyvela: fix double-quoted dict subscripts inside f-strings
+- Enable and fix previously disabled `pyvela` tests.
 ## Removed
 
 # 0.1.5
