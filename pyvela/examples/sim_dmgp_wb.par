@@ -45,10 +45,10 @@ DMEFAC          tel gbt                       1.0 1 0.0
 TNDMAMP                             -13.0 1 0.0
 TNDMGAM                               3.0 1 0.0
 TNDMC                                  60
-TNDMFLOG                                2
-TNDMFLOG_FACTOR                       2.0
+# TNDMFLOG                                2
+# TNDMFLOG_FACTOR                       2.0
 TNREDAMP                            -13.0 1 0.0
 TNREDGAM                              4.0 1 0.0
 TNREDC                                 60
-TNREDFLOG                               2
-TNREDFLOG_FACTOR                       2.0
+# TNREDFLOG                               2
+# TNREDFLOG_FACTOR                      2.0
