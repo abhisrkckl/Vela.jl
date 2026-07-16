@@ -52,6 +52,8 @@ def convert_model_and_toas(
 
     if "BinaryBT" in model.components:
         model = convert_binary(model, "DD")
+        model["M2"].value = 0.0
+        model["SINI"].value = 0.0
 
     if "EcorrNoise" in model.components:
         assert not toas.is_wideband(), "ECORR is not supported for wideband data."

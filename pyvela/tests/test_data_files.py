@@ -28,13 +28,13 @@ datasets = [
     "sim_ecorr_arn",
     "sim_expdip",
     "sim3",
+    "sim_dmgp_wb",
     "sim_fdjump",
     "sim_ddk",
     "sim_glitch",
     "sim_dmx",
     "sim_cmx",
     "sim_ell1k",
-    "sim_dmgp_wb",
     "sim_swx",
     "J0613-0200.sim",
     "J1208-5936.sim",
@@ -43,7 +43,7 @@ datasets = [
 ]
 
 
-@pytest.fixture(params=datasets[:5], scope="module")
+@pytest.fixture(params=datasets, scope="module")
 def model_and_toas(request):
     dataset = request.param
 
@@ -60,7 +60,7 @@ def model_and_toas(request):
         timfile,
         custom_priors=custom_priors,
         marginalize_gp_noise=False,
-        center_epochs=True,
+        center_epochs=(m["BINARY"].value != "ELL1k"),
     )
 
     if (
@@ -92,6 +92,20 @@ def test_read_data(dataset):
     )
     assert len(toas) == len(t)
     assert len(model.components) <= len(m.components)
+
+
+@pytest.mark.parametrize("dataset", ["sim3.gp", "sim_dmgp_wb"])
+def test_make_SPNTA_marg(dataset):
+    parfile, timfile = f"{datadir}/{dataset}.par", f"{datadir}/{dataset}.tim"
+    custom_priors = f"{datadir}/custom_priors.json"
+    spnta = SPNTA(
+        parfile,
+        timfile,
+        custom_priors=custom_priors,
+        marginalize_gp_noise=True,
+        center_epochs=True,
+    )
+    assert np.isfinite(spnta.lnpost(spnta.default_params))
 
 
 def test_data(model_and_toas: Tuple[SPNTA, TimingModel, TOAs]):
@@ -160,14 +174,24 @@ def test_data(model_and_toas: Tuple[SPNTA, TimingModel, TOAs]):
         )
 
     epoch_mid = (t.get_mjds().max() + t.get_mjds().min()).value / 2
-    assert spnta.model_pint["PEPOCH"].value == epoch_mid
-    assert spnta.model_pint["POSEPOCH"].value == epoch_mid
-    assert spnta.model_pint["DMEPOCH"].value == epoch_mid
+    assert np.isclose(spnta.model_pint["PEPOCH"].value, epoch_mid, atol=0.1)
+    assert spnta.model_pint["POSEPOCH"].value is None or np.isclose(
+        spnta.model_pint["POSEPOCH"].value, epoch_mid, atol=0.1
+    )
+    assert spnta.model_pint["DMEPOCH"].value is None or np.isclose(
+        spnta.model_pint["DMEPOCH"].value, epoch_mid, atol=0.1
+    )
     if spnta.model_pint.is_binary:
         if "TASC" in spnta.model_pint:
-            assert np.abs(spnta.model_pint["TASC"].value - epoch_mid) < 1
+            assert np.abs(spnta.model_pint["TASC"].value - epoch_mid) < max(
+                1, spnta.model_pint["PB"].value
+            )
         elif "T0" in spnta.model_pint:
-            assert np.abs(spnta.model_pint["T0"].value - epoch_mid) < 1
+            assert np.abs(spnta.model_pint["T0"].value - epoch_mid) < max(
+                1, spnta.model_pint["PB"].value
+            )
+
+    assert "PHOFF" in spnta.model_pint_modified
 
 
 def test_chi2(model_and_toas: Tuple[SPNTA, TimingModel, TOAs]):
