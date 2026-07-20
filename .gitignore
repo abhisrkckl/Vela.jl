@@ -200,3 +200,5 @@ __*.h5
 __*.pdf
 
 *.feather
+
+logZ.txt

@@ -1,11 +1,11 @@
 """Script for running pulsar timing & noise analysis using Vela.jl with emcee."""
 
+from collections import namedtuple
 import os
 import shutil
 from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
 
-import emcee
-import numpy as np
+import pocomc as poco
 
 from pyvela import SPNTA
 from pyvela.parameters import (
@@ -21,9 +21,9 @@ setup_log(level="WARNING")
 
 def parse_args(argv):
     parser = ArgumentParser(
-        prog="pyvela",
+        prog="pyvela-poco",
         description="A command line interface for the Vela.jl pulsar timing & "
-        "noise analysis package. Uses emcee for sampling. This may not be "
+        "noise analysis package. Uses pocoMC for sampling. This may not be "
         "appropriate for more complex datasets. Write your own scripts for "
         "such cases.",
         formatter_class=ArgumentDefaultsHelpFormatter,
@@ -84,31 +84,10 @@ def parse_args(argv):
     )
     parser.add_argument(
         "-N",
-        "--nsteps",
-        default=6000,
+        "--nsamples",
+        default=4096,
         type=int,
-        help="Number of ensemble MCMC iterations",
-    )
-    parser.add_argument(
-        "-w",
-        "--walkers",
-        default=5,
-        type=int,
-        help="Number of ensemble MCMC walkers as a multiple of the number of dimensions",
-    )
-    parser.add_argument(
-        "-b",
-        "--burnin",
-        default=1500,
-        type=int,
-        help="Burn-in length for MCMC chains",
-    )
-    parser.add_argument(
-        "-t",
-        "--thin",
-        default=100,
-        type=int,
-        help="Thinning factor for MCMC chains",
+        help="Effective sample size required before the sampling terminates.",
     )
     parser.add_argument(
         "-r",
@@ -116,14 +95,6 @@ def parse_args(argv):
         default=False,
         action="store_true",
         help="Resume from an existing run",
-    )
-    parser.add_argument(
-        "-s",
-        "--initial_sample_spread",
-        default=0.3,
-        type=float,
-        help="Spread of the starting samples around the default parameter values. "
-        "Must be > 0 and <= 1. 0 represents no spread and 1 represents prior draws.",
     )
     parser.add_argument(
         "-c",
@@ -161,10 +132,6 @@ def validate_input(args):
     assert args.force_rewrite or not os.path.isdir(
         args.outdir
     ), f"The output directory {args.outdir} already exists! Use `-f` option to force overwrite."
-
-    assert (
-        args.initial_sample_spread > 0 and args.initial_sample_spread <= 1
-    ), "initial_sample_spread must be > 0 and <= 1."
 
 
 def prepare_outdir(args):
@@ -257,58 +224,42 @@ def main(argv=None):
         spnta.save_jlso(jlsofile)
         spnta.jlsofile = jlsofile
 
-    nwalkers = spnta.ndim * args.walkers
-
     spnta.save_pre_analysis_summary(
         args.outdir,
         {
-            "sampler": "emcee",
-            "nwalkers": nwalkers,
-            "nsteps": args.nsteps,
-            "burnin": args.burnin,
-            "thin": args.thin,
+            "sampler": "pocoMC",
+            "nsamples": args.nsamples,
             "vectorized": True,
         },
         args.truth,
     )
 
-    p0 = get_start_samples(spnta, args.initial_sample_spread, nwalkers)
-
-    sampler = emcee.EnsembleSampler(
-        nwalkers,
+    prior = namedtuple("PocoPrior", "dim bounds logpdf rvs")(
         spnta.ndim,
-        spnta.lnpost_vectorized,
-        moves=[emcee.moves.StretchMove(), emcee.moves.DESnookerMove()],
-        vectorize=True,
-        backend=emcee.backends.HDFBackend(f"{args.outdir}/chain.h5"),
+        spnta.prior_bounds,
+        spnta.lnprior_vectorized,
+        spnta.draw_from_prior,
     )
-    if not args.resume:
-        sampler.run_mcmc(
-            p0, args.nsteps, progress=True, progress_kwargs={"mininterval": 1}
-        )
-    else:
-        sampler.run_mcmc(
-            None, args.nsteps, progress=True, progress_kwargs={"mininterval": 1}
-        )
 
-    samples_raw = sampler.get_chain(flat=True, discard=args.burnin, thin=args.thin)
+    sampler = poco.Sampler(
+        prior=prior,
+        likelihood=spnta.lnlike_vectorized,
+        vectorize=True,
+        output_dir=args.outdir,
+        # pytorch_threads=int(os.environ["PYTHON_JULIACALL_THREADS"]),
+    )
+    sampler.run(
+        n_total=args.nsamples,
+        n_evidence=args.nsamples,
+        save_every=10,
+        progress=True,
+        resume_state_path=(f"{args.outdir}/pmc_final.state" if args.resume else None),
+    )
+
+    samples_raw, logl, logp = sampler.posterior(resample=True)
 
     spnta.save_results(
         args.outdir,
         samples_raw,
+        logZ=sampler.evidence(),
     )
-
-
-def get_start_samples(spnta: SPNTA, s: float, nwalkers: int) -> np.ndarray:
-    """Get starting samples for the MCMC. nwalkers is the number of samples
-    to be returned."""
-
-    p0_ = np.array(
-        [spnta.prior_transform(cube) for cube in np.random.rand(nwalkers, spnta.ndim)]
-    )
-    p0 = (
-        ((1 - s) * spnta.maxpost_params + s * p0_)
-        if np.isfinite(spnta.lnpost(spnta.default_params))
-        else p0_
-    )
-    return p0
