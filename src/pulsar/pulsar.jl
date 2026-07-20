@@ -13,6 +13,8 @@ end
 
 calc_lnlike(psr::Pulsar, params) = calc_lnlike(psr.model, psr.toas, params)
 calc_lnlike_serial(psr::Pulsar, params) = calc_lnlike_serial(psr.model, psr.toas, params)
+calc_lnlike_vectorized(psr::Pulsar, paramss) =
+    calc_lnlike_vectorized(psr.model, psr.toas, paramss)
 
 calc_lnprior(psr::Pulsar, params) = calc_lnprior(psr.model, params)
 prior_transform(psr::Pulsar, cube) = prior_transform(psr.model, cube)

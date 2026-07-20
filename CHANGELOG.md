@@ -3,10 +3,15 @@
 - Fit timing parameters using PINT while creating SPNTA object to ensure that uncertainties exist for creating cheat priors.
 - `SPNTA.unscale_samples()` method.
 - `conftest.py` for `pyvela` tests
+- `SPNTA.prior_bounds` property and `SPNTA.draw_from_prior()`, `SPNTA.lnprior_vectorized()`, and `SPNTA.lnlike_vectorized()` methods.
+- Option to save the Bayesian evidence in `SPNTA.save_results()` and `SPNTAResults.logZ` property
+- Show log Z in `pyvela_plot` is available.
 ## Changed
 - Updated the apptainer def file to work in HPC.
 - Use `bbox_inches='tight'` in `pyvela_plot.plot()` while saving the plot.
 - `SPNTA.get_marginalized_param_sample()` also returns the conditional log-probability value.
+- Don't save maximum-posterior parameters by default.
+- In `SPNTA.save_pre_analysis_summary()`, create the output directory if it doesn't exist. 
 ## Fixed
 - Support Python 3.11 in pyvela: fix double-quoted dict subscripts inside f-strings
 - Enable and fix previously disabled `pyvela` tests.
