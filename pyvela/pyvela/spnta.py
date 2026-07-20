@@ -270,11 +270,13 @@ class SPNTA:
 
     @cached_property
     def prior_bounds(self) -> np.ndarray:
+        """Upper and lower bounds of each parameter as defined by the prior."""
         lower_bounds = self.prior_transform(np.zeros(self.ndim))
         upper_bounds = self.prior_transform(np.ones(self.ndim))
         return np.array(list(zip(lower_bounds, upper_bounds)))
 
     def draw_from_prior(self, size: int = 1) -> np.ndarray:
+        """Draw samples from prior."""
         return np.array(
             [self.prior_transform(np.random.rand(self.ndim)) for _ in range(size)]
         )
