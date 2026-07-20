@@ -250,6 +250,11 @@ class SPNTA:
         """Compute the log-prior distribution"""
         return vl.calc_lnprior(self.pulsar, params)
 
+    def lnprior_vectorized(self, paramss: np.ndarray) -> float:
+        """Compute the log-prior distribution for a collection of
+        points in the parameter space."""
+        return np.array([vl.calc_lnprior(self.pulsar, params) for params in paramss])
+
     def prior_transform(self, cube: Iterable[float]) -> Iterable[float]:
         """Compute the prior transform"""
         return vl.prior_transform(self.pulsar, cube)

@@ -229,6 +229,11 @@ def test_prior(model_and_toas):
         spnta.model.param_handler._default_params_tuple
     )
 
+    assert (
+        calc_lnprior(spnta.default_params)
+        == spnta.lnprior_vectorized(np.array([spnta.default_params]))[0]
+    )
+
     assert spnta.prior_bounds.shape == (spnta.ndim, 2)
     assert all(spnta.prior_bounds[:, 0] < spnta.prior_bounds[:, 1])
 
