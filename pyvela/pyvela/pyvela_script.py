@@ -14,6 +14,10 @@ from pyvela.parameters import (
 )
 from pyvela.results import SPNTAResults
 
+from pint.logging import setup as setup_log
+
+setup_log(level="WARNING")
+
 
 def parse_args(argv):
     parser = ArgumentParser(
