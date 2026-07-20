@@ -6,7 +6,6 @@ import shutil
 from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
 
 import pocomc as poco
-import numpy as np
 
 from pyvela import SPNTA
 from pyvela.parameters import (
@@ -14,6 +13,10 @@ from pyvela.parameters import (
     analytic_marginalizable_prefixes,
 )
 from pyvela.results import SPNTAResults
+
+from pint.logging import setup as setup_log
+
+setup_log(level="WARNING")
 
 
 def parse_args(argv):
@@ -81,7 +84,7 @@ def parse_args(argv):
     )
     parser.add_argument(
         "-N",
-        "--nsample",
+        "--nsamples",
         default=4096,
         type=int,
         help="Effective sample size required before the sampling terminates.",
@@ -243,20 +246,20 @@ def main(argv=None):
         likelihood=spnta.lnlike_vectorized,
         vectorize=True,
         output_dir=args.outdir,
+        # pytorch_threads=int(os.environ["PYTHON_JULIACALL_THREADS"]),
     )
-    if not args.resume:
-        sampler.run(
-            n_total=args.nsamples,
-            n_evidence=args.nsamples,
-            save_every=10,
-            progress=True,
-        )
-    else:
-        pass
+    sampler.run(
+        n_total=args.nsamples,
+        n_evidence=args.nsamples,
+        save_every=10,
+        progress=True,
+        resume_state_path=(f"{args.outdir}/pmc_final.state" if args.resume else None),
+    )
 
     samples_raw, logl, logp = sampler.posterior(resample=True)
 
     spnta.save_results(
         args.outdir,
         samples_raw,
+        logZ=sampler.evidence(),
     )
