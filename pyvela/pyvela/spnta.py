@@ -976,9 +976,9 @@ class SPNTA:
         outdir: str,
         sampler_info: dict = {},
         truth_par_file: Optional[str] = None,
+        save_maxpost: bool = False,
     ):
         np.savetxt(f"{outdir}/param_default_values.txt", self.default_params)
-        np.savetxt(f"{outdir}/param_maxpost_values.txt", self.maxpost_params)
         np.savetxt(f"{outdir}/param_names.txt", self.param_names, fmt="%s")
         np.savetxt(f"{outdir}/param_prefixes.txt", self.param_prefixes, fmt="%s")
         np.savetxt(f"{outdir}/param_units.txt", self.param_units, fmt="%s")
@@ -990,10 +990,6 @@ class SPNTA:
             self.marginalized_default_params,
         )
         np.savetxt(
-            f"{outdir}/marginalized_param_maxpost_values.txt",
-            self.marginalized_maxpost_params,
-        )
-        np.savetxt(
             f"{outdir}/marginalized_param_names.txt",
             self.marginalized_param_names,
             fmt="%s",
@@ -1002,6 +998,13 @@ class SPNTA:
             f"{outdir}/marginalized_param_scale_factors.txt",
             self.marginalized_param_scale_factors,
         )
+
+        if save_maxpost:
+            np.savetxt(f"{outdir}/param_maxpost_values.txt", self.maxpost_params)
+            np.savetxt(
+                f"{outdir}/marginalized_param_maxpost_values.txt",
+                self.marginalized_maxpost_params,
+            )
 
         np.savetxt(
             f"{outdir}/epoch.txt",

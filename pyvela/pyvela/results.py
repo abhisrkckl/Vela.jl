@@ -168,7 +168,13 @@ class SPNTAResults:
 
     @cached_property
     def marginalized_param_maxpost_values(self) -> np.ndarray:
-        return np.genfromtxt(f"{self.result_dir}/marginalized_param_maxpost_values.txt")
+        return (
+            np.genfromtxt(f"{self.result_dir}/marginalized_param_maxpost_values.txt")
+            if os.path.isfile(
+                f"{self.result_dir}/marginalized_param_maxpost_values.txt"
+            )
+            else None
+        )
 
     @cached_property
     def marginalized_param_scale_factors(self) -> np.ndarray:
