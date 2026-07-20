@@ -246,6 +246,11 @@ class SPNTA:
         """Compute the log-likelihood function"""
         return vl.calc_lnlike(self.pulsar, params)
 
+    def lnlike_vectorized(self, paramss: Iterable[float]) -> float:
+        """Compute the log-likelihood for a collection of
+        points in the parameter space"""
+        return vl.calc_lnlike_vectorized(self.pulsar, paramss)
+
     def lnprior(self, params: Iterable[float]) -> float:
         """Compute the log-prior distribution"""
         return vl.calc_lnprior(self.pulsar, params)

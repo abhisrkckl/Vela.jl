@@ -219,6 +219,11 @@ def test_likelihood(model_and_toas):
     calc_lnlike = vl.get_lnlike_func(spnta.model, spnta.toas)
     assert np.isfinite(calc_lnlike(spnta.default_params))
 
+    assert np.isclose(
+        spnta.lnlike(spnta.default_params),
+        spnta.lnlike_vectorized(np.array([spnta.default_params]))[0],
+    )
+
 
 def test_prior(model_and_toas):
     spnta: SPNTA
