@@ -5,6 +5,7 @@
 - `conftest.py` for `pyvela` tests
 - `SPNTA.prior_bounds` property and `SPNTA.draw_from_prior()`, `SPNTA.lnprior_vectorized()`, and `SPNTA.lnlike_vectorized()` methods.
 - Option to save the Bayesian evidence in `SPNTA.save_results()` and `SPNTAResults.logZ` property
+- Show log Z in `pyvela_plot` is available.
 ## Changed
 - Updated the apptainer def file to work in HPC.
 - Use `bbox_inches='tight'` in `pyvela_plot.plot()` while saving the plot.
