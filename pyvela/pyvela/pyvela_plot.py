@@ -247,7 +247,7 @@ def plot(
             WRMS DM resids = {wrms_d:.2e} pc/cm^3
         """
         if results.logZ is not None:
-            summary_text += f"\nlog Z = {results.logZ[0]:.1f}"
+            summary_text += f"    log Z = {results.logZ[0]:.1f}"
         ax3.text(
             0,
             0,
