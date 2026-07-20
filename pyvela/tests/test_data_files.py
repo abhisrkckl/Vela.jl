@@ -229,6 +229,9 @@ def test_prior(model_and_toas):
         spnta.model.param_handler._default_params_tuple
     )
 
+    assert spnta.prior_bounds.shape == (spnta.ndim, 2)
+    assert all(spnta.prior_bounds[:, 0] < spnta.prior_bounds[:, 1])
+
 
 def test_gp_realization(model_and_toas):
     spnta: SPNTA

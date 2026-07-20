@@ -263,6 +263,12 @@ class SPNTA:
         of points in the parameter space"""
         return vl.calc_lnpost_vectorized(self.pulsar, paramss)
 
+    @cached_property
+    def prior_bounds(self):
+        lower_bounds = self.prior_transform(np.zeros(self.ndim))
+        upper_bounds = self.prior_transform(np.ones(self.ndim))
+        return np.array(list(zip(lower_bounds, upper_bounds)))
+
     @property
     def model(self):
         """The `Vela.TimingModel` object."""
