@@ -1,5 +1,6 @@
 # Unreleased
 ## Added
+- Powerlaw solar wind GP model (`PowerlawSolarWindNoiseGP`)
 - Fit timing parameters using PINT while creating SPNTA object to ensure that uncertainties exist for creating cheat priors.
 - `SPNTA.unscale_samples()` method.
 - `conftest.py` for `pyvela` tests
@@ -58,6 +59,7 @@
 ## Added
 - Example script `run_example_nested.jl`
 ## Changed
+- Split `gp_noise.py` into multiple files.
 - Parallelize GLS likelihood computation using threads. 
 ## Fixed
 ## Removed
