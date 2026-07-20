@@ -13,7 +13,6 @@
 - `SPNTA.get_marginalized_param_sample()` also returns the conditional log-probability value.
 - Don't save maximum-posterior parameters by default.
 - In `SPNTA.save_pre_analysis_summary()`, create the output directory if it doesn't exist.
-- Updated Julia version to 1.12 in CI tests
 ## Fixed
 - Support Python 3.11 in pyvela: fix double-quoted dict subscripts inside f-strings
 - Enable and fix previously disabled `pyvela` tests.
