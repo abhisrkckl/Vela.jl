@@ -3,6 +3,7 @@
 - Fit timing parameters using PINT while creating SPNTA object to ensure that uncertainties exist for creating cheat priors.
 - `SPNTA.unscale_samples()` method.
 - `conftest.py` for `pyvela` tests
+- `SPNTA.prior_bounds`, `SPNTA.draw_from_prior()`, `SPNTA.lnprior_vectorized()`, and `SPNTA.lnlike_vectorized()`.
 ## Changed
 - Updated the apptainer def file to work in HPC.
 - Use `bbox_inches='tight'` in `pyvela_plot.plot()` while saving the plot.
