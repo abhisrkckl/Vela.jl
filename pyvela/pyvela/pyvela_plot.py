@@ -217,18 +217,21 @@ def plot(
     ax3.set_ylim((0, 1))
     ax3.axis("off")
     pepoch = results.epoch
+    logZ_str = f"log Z = {results.logZ[0]:0.1f}" if results.logZ is not None else ""
     if not wb:
         weights = 1 / terr**2
         wrms = np.sqrt(np.average(tres_w**2, weights=weights))
         # ks = kstest(tres_w / terr, "norm", args=(0, 1))
-        ax3.text(
-            0,
-            0,
-            f"""
+        summary_text = f"""
             No of TOAs = {len(tres_w)}
             MJD Range = {int(min(mjds) + pepoch)} — {int(max(mjds) + pepoch)}
             WRMS time resids = {wrms:.2e} s
-            """,
+            {logZ_str}
+        """
+        ax3.text(
+            0,
+            0,
+            summary_text,
             fontsize=14,
         )
     else:
@@ -237,15 +240,17 @@ def plot(
         wrms_t = np.sqrt(np.average(tres_w**2, weights=weights_t))
         wrms_d = np.sqrt(np.average(dres_w**2, weights=weights_d))
         # ks = kstest(np.append(tres_w / terr, dres_w / derr), "norm", args=(0, 1))
-        ax3.text(
-            0,
-            0,
-            f"""
+        summary_text = f"""
             No of TOAs = {len(tres_w)}
             MJD Range = {int(min(mjds))} -- {int(max(mjds))}
             WRMS time resids = {wrms_t:.2e} s
             WRMS DM resids = {wrms_d:.2e} pc/cm^3
-            """,
+            {logZ_str}
+        """
+        ax3.text(
+            0,
+            0,
+            summary_text,
             fontsize=14,
         )
 

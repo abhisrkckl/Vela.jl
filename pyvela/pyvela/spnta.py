@@ -246,9 +246,19 @@ class SPNTA:
         """Compute the log-likelihood function"""
         return vl.calc_lnlike(self.pulsar, params)
 
+    def lnlike_vectorized(self, paramss: Iterable[float]) -> float:
+        """Compute the log-likelihood for a collection of
+        points in the parameter space"""
+        return vl.calc_lnlike_vectorized(self.pulsar, paramss)
+
     def lnprior(self, params: Iterable[float]) -> float:
         """Compute the log-prior distribution"""
         return vl.calc_lnprior(self.pulsar, params)
+
+    def lnprior_vectorized(self, paramss: np.ndarray) -> float:
+        """Compute the log-prior distribution for a collection of
+        points in the parameter space."""
+        return np.array([vl.calc_lnprior(self.pulsar, params) for params in paramss])
 
     def prior_transform(self, cube: Iterable[float]) -> Iterable[float]:
         """Compute the prior transform"""
@@ -262,6 +272,19 @@ class SPNTA:
         """Compute the log-posterior distribution over a collection
         of points in the parameter space"""
         return vl.calc_lnpost_vectorized(self.pulsar, paramss)
+
+    @cached_property
+    def prior_bounds(self) -> np.ndarray:
+        """Upper and lower bounds of each parameter as defined by the prior."""
+        lower_bounds = self.prior_transform(np.zeros(self.ndim))
+        upper_bounds = self.prior_transform(np.ones(self.ndim))
+        return np.array(list(zip(lower_bounds, upper_bounds)))
+
+    def draw_from_prior(self, size: int = 1) -> np.ndarray:
+        """Draw samples from prior."""
+        return np.array(
+            [self.prior_transform(np.random.rand(self.ndim)) for _ in range(size)]
+        )
 
     @property
     def model(self):
@@ -953,9 +976,12 @@ class SPNTA:
         outdir: str,
         sampler_info: dict = {},
         truth_par_file: Optional[str] = None,
+        save_maxpost: bool = False,
     ):
+        if not os.path.isdir(outdir):
+            os.mkdir(outdir)
+
         np.savetxt(f"{outdir}/param_default_values.txt", self.default_params)
-        np.savetxt(f"{outdir}/param_maxpost_values.txt", self.maxpost_params)
         np.savetxt(f"{outdir}/param_names.txt", self.param_names, fmt="%s")
         np.savetxt(f"{outdir}/param_prefixes.txt", self.param_prefixes, fmt="%s")
         np.savetxt(f"{outdir}/param_units.txt", self.param_units, fmt="%s")
@@ -967,10 +993,6 @@ class SPNTA:
             self.marginalized_default_params,
         )
         np.savetxt(
-            f"{outdir}/marginalized_param_maxpost_values.txt",
-            self.marginalized_maxpost_params,
-        )
-        np.savetxt(
             f"{outdir}/marginalized_param_names.txt",
             self.marginalized_param_names,
             fmt="%s",
@@ -979,6 +1001,13 @@ class SPNTA:
             f"{outdir}/marginalized_param_scale_factors.txt",
             self.marginalized_param_scale_factors,
         )
+
+        if save_maxpost:
+            np.savetxt(f"{outdir}/param_maxpost_values.txt", self.maxpost_params)
+            np.savetxt(
+                f"{outdir}/marginalized_param_maxpost_values.txt",
+                self.marginalized_maxpost_params,
+            )
 
         np.savetxt(
             f"{outdir}/epoch.txt",
@@ -1007,6 +1036,7 @@ class SPNTA:
         self,
         outdir: str,
         samples_raw: np.ndarray,
+        logZ: Optional[Tuple[float, float]] = None,
     ) -> None:
         """Given the posterior samples, save the results into an output directory.
         `pyvela` script uses this function to save the results.
@@ -1046,6 +1076,13 @@ class SPNTA:
 
         The saved files can be accessed using the `SPNTAResults` class conveniently.
         """
+        if not os.path.isdir(outdir):
+            raise OSError(
+                f"The output directory {outdir} does not exist. "
+                f"Call `SPNTA.save_pre_analysis_summary()` before "
+                f"calling `SPNTA.save_results()`."
+            )
+
         samples = self.rescale_samples(samples_raw)
 
         with open(f"{outdir}/samples_raw.npy", "wb") as f:
@@ -1079,6 +1116,9 @@ class SPNTA:
         )
 
         self._save_prior_evals(samples_raw, f"{outdir}/prior_evals.npy")
+
+        if logZ is not None:
+            np.savetxt(f"{outdir}/logZ.txt", [logZ])
 
     def _single_param_prior(self, param_idx: int, value: float):
         prior = self.model.priors[param_idx]

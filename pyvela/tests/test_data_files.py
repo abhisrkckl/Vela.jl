@@ -223,6 +223,11 @@ def test_likelihood(model_and_toas):
     calc_lnlike = vl.get_lnlike_func(spnta.model, spnta.toas)
     assert np.isfinite(calc_lnlike(spnta.default_params))
 
+    assert np.isclose(
+        spnta.lnlike(spnta.default_params),
+        spnta.lnlike_vectorized(np.array([spnta.default_params]))[0],
+    )
+
 
 def test_prior(model_and_toas):
     spnta: SPNTA
@@ -232,6 +237,18 @@ def test_prior(model_and_toas):
     assert calc_lnprior(spnta.default_params) == calc_lnprior(
         spnta.model.param_handler._default_params_tuple
     )
+
+    assert (
+        calc_lnprior(spnta.default_params)
+        == spnta.lnprior_vectorized(np.array([spnta.default_params]))[0]
+    )
+
+    assert spnta.prior_bounds.shape == (spnta.ndim, 2)
+    assert all(spnta.prior_bounds[:, 0] < spnta.prior_bounds[:, 1])
+
+    samples = spnta.draw_from_prior(size=10)
+    assert samples.shape == (10, spnta.ndim)
+    assert np.all(np.isfinite(spnta.lnprior(x)) for x in samples)
 
 
 def test_gp_realization(model_and_toas):
