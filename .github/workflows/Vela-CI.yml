@@ -22,7 +22,7 @@ jobs:
       fail-fast: false
       matrix:
         version:
-          - '1.11'
+          - '1.12'
         os:
           - ubuntu-latest
         arch:
@@ -33,7 +33,7 @@ jobs:
         with:
           version: ${{ matrix.version }}
           arch: ${{ matrix.arch }}
-      - uses: julia-actions/cache@v2
+      # - uses: julia-actions/cache@v2
       - uses: julia-actions/julia-buildpkg@v1
         with:
           localregistry: https://github.com/abhisrkckl/julia_registry.git
