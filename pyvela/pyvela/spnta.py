@@ -978,6 +978,9 @@ class SPNTA:
         truth_par_file: Optional[str] = None,
         save_maxpost: bool = False,
     ):
+        if not os.path.isdir(outdir):
+            os.mkdir(outdir)
+
         np.savetxt(f"{outdir}/param_default_values.txt", self.default_params)
         np.savetxt(f"{outdir}/param_names.txt", self.param_names, fmt="%s")
         np.savetxt(f"{outdir}/param_prefixes.txt", self.param_prefixes, fmt="%s")
@@ -1033,6 +1036,7 @@ class SPNTA:
         self,
         outdir: str,
         samples_raw: np.ndarray,
+        logZ: Optional[Tuple[float, float]] = None,
     ) -> None:
         """Given the posterior samples, save the results into an output directory.
         `pyvela` script uses this function to save the results.
@@ -1072,6 +1076,13 @@ class SPNTA:
 
         The saved files can be accessed using the `SPNTAResults` class conveniently.
         """
+        if not os.path.isdir(outdir):
+            raise OSError(
+                f"The output directory {outdir} does not exist. "
+                f"Call `SPNTA.save_pre_analysis_summary()` before "
+                f"calling `SPNTA.save_results()`."
+            )
+
         samples = self.rescale_samples(samples_raw)
 
         with open(f"{outdir}/samples_raw.npy", "wb") as f:
@@ -1105,6 +1116,9 @@ class SPNTA:
         )
 
         self._save_prior_evals(samples_raw, f"{outdir}/prior_evals.npy")
+
+        if logZ is not None:
+            np.savetxt("logZ.txt", logZ)
 
     def _single_param_prior(self, param_idx: int, value: float):
         prior = self.model.priors[param_idx]

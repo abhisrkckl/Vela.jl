@@ -1,6 +1,7 @@
 from functools import cached_property
 import json
 import os
+from typing import Optional, Tuple
 
 from pint.models import TimingModel, get_model
 from pint.toa import TOAs, get_TOAs
@@ -199,3 +200,11 @@ class SPNTAResults:
     @cached_property
     def input_tim_file(self) -> str:
         return f"{self.result_dir}/{self.summary['input']['tim_file']}"
+
+    @cached_property
+    def logZ(self) -> Optional[Tuple[float, float]]:
+        return (
+            np.genfromtxt(f"{self.result_dir}/logZ.txt")
+            if os.path.isfile(f"{self.result_dir}/logZ.txt")
+            else None
+        )
