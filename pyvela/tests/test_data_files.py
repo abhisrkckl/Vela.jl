@@ -232,6 +232,10 @@ def test_prior(model_and_toas):
     assert spnta.prior_bounds.shape == (spnta.ndim, 2)
     assert all(spnta.prior_bounds[:, 0] < spnta.prior_bounds[:, 1])
 
+    samples = spnta.draw_from_prior(size=10)
+    assert samples.shape == (10, spnta.ndim)
+    assert np.all(np.isfinite(spnta.lnprior(x)) for x in samples)
+
 
 def test_gp_realization(model_and_toas):
     spnta: SPNTA
