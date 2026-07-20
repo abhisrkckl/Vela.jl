@@ -1118,7 +1118,7 @@ class SPNTA:
         self._save_prior_evals(samples_raw, f"{outdir}/prior_evals.npy")
 
         if logZ is not None:
-            np.savetxt(f"{outdir}/logZ.txt", logZ)
+            np.savetxt(f"{outdir}/logZ.txt", [logZ])
 
     def _single_param_prior(self, param_idx: int, value: float):
         prior = self.model.priors[param_idx]
