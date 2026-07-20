@@ -217,6 +217,7 @@ def plot(
     ax3.set_ylim((0, 1))
     ax3.axis("off")
     pepoch = results.epoch
+    logZ_str = f"log Z = {results.logZ[0]:0.1f}" if results.logZ is not None else ""
     if not wb:
         weights = 1 / terr**2
         wrms = np.sqrt(np.average(tres_w**2, weights=weights))
@@ -225,9 +226,8 @@ def plot(
             No of TOAs = {len(tres_w)}
             MJD Range = {int(min(mjds) + pepoch)} — {int(max(mjds) + pepoch)}
             WRMS time resids = {wrms:.2e} s
+            {logZ_str}
         """
-        if results.logZ is not None:
-            summary_text += f"\nlog Z = {results.logZ[0]:.1f}"
         ax3.text(
             0,
             0,
@@ -245,9 +245,8 @@ def plot(
             MJD Range = {int(min(mjds))} -- {int(max(mjds))}
             WRMS time resids = {wrms_t:.2e} s
             WRMS DM resids = {wrms_d:.2e} pc/cm^3
+            {logZ_str}
         """
-        if results.logZ is not None:
-            summary_text += f"    log Z = {results.logZ[0]:.1f}"
         ax3.text(
             0,
             0,
