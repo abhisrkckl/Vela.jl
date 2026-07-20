@@ -16,6 +16,7 @@
 - Support Python 3.11 in pyvela: fix double-quoted dict subscripts inside f-strings
 - Enable and fix previously disabled `pyvela` tests.
 ## Removed
+- Option in `pyvela` script to use un-marginalized noise GP amplitudes.
 
 # 0.1.5
 ## Added
