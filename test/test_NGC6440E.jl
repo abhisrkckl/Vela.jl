@@ -209,6 +209,9 @@
 
         paramss = transpose([parv parv parv])
         @test allequal(calc_lnpost_vectorized(psr, paramss))
+        @test allequal(calc_lnlike_vectorized(psr, paramss))
+
+        @test calc_lnlike(psr, parv) ≈ calc_lnlike_vectorized(psr, paramss)[1]
     end
 
     @testset "spna" begin

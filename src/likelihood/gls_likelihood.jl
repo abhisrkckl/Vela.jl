@@ -1,3 +1,5 @@
+export calc_lnlike_vectorized
+
 function calc_noise_weights_inv(kernel::WoodburyKernel, params::NamedTuple)
     return vcat(
         (calc_noise_weights_inv(gp_comp, params) for gp_comp in kernel.gp_components)...,
@@ -291,4 +293,17 @@ function calc_lnlike(
     Φinv = calc_noise_weights_inv(model.kernel, params)
 
     return _gls_lnlike_parallel(model.kernel.inner_kernel, M, Ninvdiag, Φinv, y, params)
+end
+
+function calc_lnlike_vectorized(
+    model::TimingModel,
+    toas::Vector{T},
+    paramss,
+) where {T<:TOABase}
+    nparamss = size(paramss)[1]
+    result = Vector{Float64}(undef, nparamss)
+    @threads :static for ii = 1:nparamss
+        result[ii] = calc_lnlike_serial(model, toas, paramss[ii, :])
+    end # COV_EXCL_LINE
+    return result
 end
