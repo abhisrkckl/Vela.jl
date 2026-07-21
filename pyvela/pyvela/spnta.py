@@ -172,7 +172,9 @@ class SPNTA:
         self.toas_pint = toas_pint
 
         # Use the original PINT TimingModel object.
-        noise_params = self.model_pint.get_params_of_component_type("NoiseComponent")
+        noise_params = self.model_pint.get_params_of_component_type(
+            "NoiseComponent"
+        ) + ["PLREDFREQ", "PLDMFREQ", "PLCHROMFREQ"]
 
         setup_log(level="WARNING")
         model, toas = convert_model_and_toas(
