@@ -437,7 +437,7 @@ def fix_params(model: TimingModel, toas: TOAs) -> None:
             if param_name in model:
                 model[param_name].tcb2tdb_scale_factor = 1.0
 
-    f1 = 1 / toas.get_Tspan()
+    f1 = 1 / float(toas.table["tdbld"].max() - toas.table["tdbld"].min()) / u.day
     for plgpnoise, freq_param in zip(
         ["PLRedNoise", "PLDMNoise", "PLChromNoise"],
         ["PLREDFREQ", "PLDMFREQ", "PLCHROMFREQ"],

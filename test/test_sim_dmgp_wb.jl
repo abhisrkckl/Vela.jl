@@ -109,4 +109,37 @@
         parv1[end-2] *= 2
         @test calc_lnlike(model, toas, parv1) < calc_lnlike(model, toas, params)
     end
+
+    @testset "spna" begin
+        Mtm = randn(2*length(toas), get_num_timing_params(model))
+        spna = make_SPNA(model, toas, Mtm)
+        print(spna)
+
+        @test length(spna.priors) == length(get_free_param_names(spna.param_handler))
+
+        params = (
+            TNREDAMP = dimensionless(-15.0),
+            TNREDGAM = dimensionless(3.5),
+            PLREDFREQ = frequency(1.1574074073947308e-9),
+            TNDMAMP = dimensionless(-14.0),
+            TNDMGAM = dimensionless(3.0),
+            PLDMFREQ = frequency(1.1574074073947308e-9),
+            EFAC = (dimensionless(1.1),),
+            DMEFAC = (dimensionless(0.95),),
+        )
+        parv = read_param_values_to_vector(spna.param_handler, params)
+
+        y, Ninvdiag = Vela.calc_y_and_Ninvdiag(spna, params)
+        @test length(y) == 2 * length(toas)
+        @test length(Ninvdiag) == 2 * length(toas)
+        @test all(isfinite, y)
+        @test all(isfinite, Ninvdiag)
+        @test isfinite(calc_lnlike(spna, params))
+        @test isfinite(calc_lnprior(spna, params))
+        @test isfinite(calc_lnpost(spna, params))
+        @test calc_lnpost(spna, params) == calc_lnpost(spna, parv)
+
+        paramss = transpose([parv parv parv])
+        @test all(calc_lnpost_vectorized(spna, paramss) .== calc_lnpost(spna, parv))
+    end
 end

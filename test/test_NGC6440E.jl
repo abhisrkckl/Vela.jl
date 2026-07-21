@@ -213,4 +213,28 @@
 
         @test calc_lnlike(psr, parv) ≈ calc_lnlike_vectorized(psr, paramss)[1]
     end
+
+    @testset "spna" begin
+        Mtm = randn(length(toas), get_num_timing_params(model))
+        spna = make_SPNA(model, toas, Mtm)
+        print(spna)
+
+        @test length(spna.priors) == length(get_free_param_names(spna.param_handler))
+
+        params = (EFAC = (dimensionless(1.1),), EQUAD = (time(1e-6),))
+        parv = read_param_values_to_vector(spna.param_handler, params)
+
+        y, Ninvdiag = Vela.calc_y_and_Ninvdiag(spna, params)
+        @test length(y) == length(toas)
+        @test length(Ninvdiag) == length(toas)
+        @test all(isfinite, y)
+        @test all(isfinite, Ninvdiag)
+        @test isfinite(calc_lnlike(spna, params))
+        @test isfinite(calc_lnprior(spna, params))
+        @test isfinite(calc_lnpost(spna, params))
+        @test calc_lnpost(spna, params) == calc_lnpost(spna, parv)
+
+        paramss = transpose([parv parv parv])
+        @test all(calc_lnpost_vectorized(spna, paramss) .== calc_lnpost(spna, parv))
+    end
 end

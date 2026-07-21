@@ -76,6 +76,8 @@ end
 
     include("test_timing_model.jl")
 
+    include("test_spna.jl")
+
     include("test_NGC6440E.jl")
 
     include("test_sim_sw_wb.jl")

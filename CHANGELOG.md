@@ -2,6 +2,7 @@
 ## Added
 - Fit timing parameters using PINT while creating SPNTA object to ensure that uncertainties exist for creating cheat priors.
 - `SPNTA.unscale_samples()` method.
+- `get_white_noise_components()` function.
 - `conftest.py` for `pyvela` tests
 - `SPNTA.prior_bounds` property and `SPNTA.draw_from_prior()`, `SPNTA.lnprior_vectorized()`, and `SPNTA.lnlike_vectorized()` methods.
 - Option to save the Bayesian evidence in `SPNTA.save_results()` and `SPNTAResults.logZ` property
