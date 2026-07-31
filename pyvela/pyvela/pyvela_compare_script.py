@@ -7,8 +7,6 @@ from pint.logging import setup as setup_log
 from pint.models import get_model_and_toas
 from pint.residuals import Residuals, WidebandTOAResiduals
 
-from pyvela import SPNTA
-
 setup_log(level="WARNING")
 
 
@@ -30,6 +28,8 @@ def parse_args(argv):
 
 
 def main(argv=None):
+    from pyvela import SPNTA
+
     args = parse_args(argv)
 
     m, t = get_model_and_toas(args.par_file, args.tim_file, planets=True)

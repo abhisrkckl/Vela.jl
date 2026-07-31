@@ -226,6 +226,7 @@ def plot(
             No of TOAs = {len(tres_w)}
             MJD Range = {int(min(mjds) + pepoch)} — {int(max(mjds) + pepoch)}
             WRMS time resids = {wrms:.2e} s
+            KS test pvalue = {results.kstest[1]}
             {logZ_str}
         """
         ax3.text(
@@ -245,6 +246,7 @@ def plot(
             MJD Range = {int(min(mjds))} -- {int(max(mjds))}
             WRMS time resids = {wrms_t:.2e} s
             WRMS DM resids = {wrms_d:.2e} pc/cm^3
+            KS test pvalue = {results.kstest[1]}
             {logZ_str}
         """
         ax3.text(
