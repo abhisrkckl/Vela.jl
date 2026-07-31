@@ -5,15 +5,6 @@ import os
 import shutil
 from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
 
-import pocomc as poco
-
-from pyvela import SPNTA
-from pyvela.parameters import (
-    analytic_marginalizable_names,
-    analytic_marginalizable_prefixes,
-)
-from pyvela.results import SPNTAResults
-
 from pint.logging import setup as setup_log
 
 setup_log(level="WARNING")
@@ -164,6 +155,16 @@ def prepare_outdir(args):
 
 
 def main(argv=None):
+
+    import pocomc as poco
+
+    from pyvela import SPNTA
+    from pyvela.parameters import (
+        analytic_marginalizable_names,
+        analytic_marginalizable_prefixes,
+    )
+    from pyvela.results import SPNTAResults
+
     args = parse_args(argv)
 
     if args.resume:
