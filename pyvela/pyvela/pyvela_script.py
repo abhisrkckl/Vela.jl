@@ -7,13 +7,6 @@ from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
 import emcee
 import numpy as np
 
-from pyvela import SPNTA
-from pyvela.parameters import (
-    analytic_marginalizable_names,
-    analytic_marginalizable_prefixes,
-)
-from pyvela.results import SPNTAResults
-
 from pint.logging import setup as setup_log
 
 setup_log(level="WARNING")
@@ -197,6 +190,15 @@ def prepare_outdir(args):
 
 
 def main(argv=None):
+
+    from pyvela import SPNTA
+    from pyvela.parameters import (
+        analytic_marginalizable_names,
+        analytic_marginalizable_prefixes,
+    )
+    from pyvela.results import SPNTAResults
+    from pyvela.sampling import get_start_samples
+
     args = parse_args(argv)
 
     if args.resume:
@@ -297,18 +299,3 @@ def main(argv=None):
         args.outdir,
         samples_raw,
     )
-
-
-def get_start_samples(spnta: SPNTA, s: float, nwalkers: int) -> np.ndarray:
-    """Get starting samples for the MCMC. nwalkers is the number of samples
-    to be returned."""
-
-    p0_ = np.array(
-        [spnta.prior_transform(cube) for cube in np.random.rand(nwalkers, spnta.ndim)]
-    )
-    p0 = (
-        ((1 - s) * spnta.maxpost_params + s * p0_)
-        if np.isfinite(spnta.lnpost(spnta.default_params))
-        else p0_
-    )
-    return p0
