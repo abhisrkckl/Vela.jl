@@ -7,6 +7,7 @@ from pint.models import TimingModel, get_model
 from pint.toa import TOAs, get_TOAs
 
 import numpy as np
+import scipy.stats as stats
 
 from .spnta import SPNTA
 
@@ -82,15 +83,15 @@ class SPNTAResults:
         return self._residuals.shape[1] == 7
 
     @cached_property
-    def dm_residuals(self) -> np.ndarray:
+    def dm_residuals(self) -> Optional[np.ndarray]:
         return self._residuals[:, 4] if self.is_wideband else None
 
     @cached_property
-    def whitened_dm_residuals(self) -> np.ndarray:
+    def whitened_dm_residuals(self) -> Optional[np.ndarray]:
         return self._residuals[:, 5] if self.is_wideband else None
 
     @cached_property
-    def scaled_dm_uncertainties(self) -> np.ndarray:
+    def scaled_dm_uncertainties(self) -> Optional[np.ndarray]:
         return self._residuals[:, 6] if self.is_wideband else None
 
     @cached_property
@@ -208,3 +209,11 @@ class SPNTAResults:
             if os.path.isfile(f"{self.result_dir}/logZ.txt")
             else None
         )
+
+    @cached_property
+    def kstest(self) -> Tuple[float, float]:
+        wres = self.whitened_time_residuals if not self.is_wideband else np.hstack([self.whitened_time_residuals, self.whitened_dm_residuals])
+        errs = self.scaled_toa_uncertainties if not self.is_wideband else np.hstack([self.scaled_toa_uncertainties, self.scaled_dm_uncertainties])
+        z = wres / errs
+        ks = stats.kstest(z, stats.norm().cdf)
+        return ks.statistic, ks.pvalue
