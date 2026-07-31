@@ -3,8 +3,6 @@ post-fit whitened residuals. The output may not be publication-quality."""
 
 from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
 
-from pyvela import pyvela_plot
-
 
 def parse_args(argv):
     parser = ArgumentParser(
@@ -48,6 +46,8 @@ def parse_args(argv):
 
 
 def main(argv=None):
+    from pyvela import pyvela_plot
+
     args = parse_args(argv)
     pyvela_plot.plot(
         args.result_dir,
