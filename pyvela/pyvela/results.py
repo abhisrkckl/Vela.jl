@@ -212,8 +212,18 @@ class SPNTAResults:
 
     @cached_property
     def kstest(self) -> Tuple[float, float]:
-        wres = self.whitened_time_residuals if not self.is_wideband else np.hstack([self.whitened_time_residuals, self.whitened_dm_residuals])
-        errs = self.scaled_toa_uncertainties if not self.is_wideband else np.hstack([self.scaled_toa_uncertainties, self.scaled_dm_uncertainties])
+        wres = (
+            self.whitened_time_residuals
+            if not self.is_wideband
+            else np.hstack([self.whitened_time_residuals, self.whitened_dm_residuals])
+        )
+        errs = (
+            self.scaled_toa_uncertainties
+            if not self.is_wideband
+            else np.hstack(
+                [self.scaled_toa_uncertainties, self.scaled_dm_uncertainties]
+            )
+        )
         z = wres / errs
         ks = stats.kstest(z, stats.norm().cdf)
         return ks.statistic, ks.pvalue
