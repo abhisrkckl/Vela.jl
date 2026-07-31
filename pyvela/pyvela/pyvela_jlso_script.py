@@ -1,7 +1,5 @@
 from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
 
-from .spnta import SPNTA
-
 
 def parse_args(argv):
     parser = ArgumentParser(
@@ -46,6 +44,8 @@ def parse_args(argv):
 
 
 def main(argv=None):
+    from pyvela import SPNTA
+
     args = parse_args(argv)
 
     spnta = SPNTA(
