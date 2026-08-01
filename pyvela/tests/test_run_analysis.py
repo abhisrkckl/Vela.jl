@@ -14,6 +14,7 @@ from pyvela import (
     pyvela_plotchains_script,
     pyvela_rethin_script,
     pyvela_script,
+    pyvela_poco_script,
 )
 from pyvela.spnta import SPNTA
 
@@ -177,6 +178,80 @@ def test_script_notruth(dataset):
     if dataset == "NGC6440E":
         pyvela_plotchains_script.main([f"{outdir}/", "-e", "png"])
         assert os.path.isfile(f"{outdir}/chain_DECJ.png")
+
+
+@pytest.mark.parametrize("dataset", ["NGC6440E"])
+def test_poco_script(dataset):
+    datadir = f"{os.path.dirname(os.path.realpath(__file__))}/datafiles"
+    parfile, timfile = f"{datadir}/{dataset}.par", f"{datadir}/{dataset}.tim"
+    outdir = f"_{dataset}_out"
+
+    prior_file = "__prior.json"
+    with open(prior_file, "w") as pf:
+        print(prior_str, file=pf)
+
+    args = f"{parfile} {timfile} -P {prior_file} -T {parfile} -o {outdir} -f -A PHOFF F0 -N 1000 -c".split()
+    pyvela_poco_script.main(args)
+
+    param_names_1 = np.genfromtxt(f"{outdir}/param_names.txt", dtype=str)
+
+    args = f"{parfile} {timfile} -P {prior_file} -T {parfile} -o {outdir} -f -A PHOFF F0 --resume -N 100 -c".split()
+    pyvela_poco_script.main(args)
+
+    param_names_2 = np.genfromtxt(f"{outdir}/param_names.txt", dtype=str)
+    assert np.all(param_names_1 == param_names_2)
+
+    assert os.path.isdir(outdir)
+    assert os.path.isfile(f"{outdir}/summary.json")
+    assert os.path.isfile(f"{outdir}/{prior_file}")
+    assert os.path.isfile(f"{outdir}/param_names.txt")
+    assert os.path.isfile(f"{outdir}/param_units.txt")
+    assert os.path.isfile(f"{outdir}/param_scale_factors.txt")
+    assert os.path.isfile(f"{outdir}/samples_raw.npy")
+    assert os.path.isfile(f"{outdir}/samples.npy")
+
+    with open(f"{outdir}/summary.json") as sf:
+        summary = json.load(sf)
+        assert os.path.isfile(f"{outdir}/{summary['input']['par_file']}")
+        assert os.path.isfile(f"{outdir}/{summary['input']['tim_file']}")
+        assert os.path.isfile(f"{outdir}/{summary['input']['jlso_file']}")
+
+
+@pytest.mark.parametrize("dataset", ["NGC6440E"])
+def test_poco_script_notruth(dataset):
+    datadir = f"{os.path.dirname(os.path.realpath(__file__))}/datafiles"
+    parfile, timfile = f"{datadir}/{dataset}.par", f"{datadir}/{dataset}.tim"
+    outdir = f"_{dataset}_out_notruth"
+
+    prior_file = "__prior.json"
+    with open(prior_file, "w") as pf:
+        print(prior_str, file=pf)
+
+    args = f"{parfile} {timfile} -P {prior_file} -o {outdir} -f -A PHOFF F0 -N 1000".split()
+    pyvela_poco_script.main(args)
+
+    param_names_1 = np.genfromtxt(f"{outdir}/param_names.txt", dtype=str)
+
+    args = f"{parfile} {timfile} -P {prior_file} -o {outdir} -f -A PHOFF F0 --resume -N 100".split()
+    pyvela_poco_script.main(args)
+
+    param_names_2 = np.genfromtxt(f"{outdir}/param_names.txt", dtype=str)
+    assert np.all(param_names_1 == param_names_2)
+
+    assert os.path.isdir(outdir)
+    assert os.path.isfile(f"{outdir}/summary.json")
+    assert os.path.isfile(f"{outdir}/{prior_file}")
+    assert os.path.isfile(f"{outdir}/param_names.txt")
+    assert os.path.isfile(f"{outdir}/param_units.txt")
+    assert os.path.isfile(f"{outdir}/param_scale_factors.txt")
+    assert os.path.isfile(f"{outdir}/samples_raw.npy")
+    assert os.path.isfile(f"{outdir}/samples.npy")
+
+    with open(f"{outdir}/summary.json") as sf:
+        summary = json.load(sf)
+        assert os.path.isfile(f"{outdir}/{summary['input']['par_file']}")
+        assert os.path.isfile(f"{outdir}/{summary['input']['tim_file']}")
+        assert os.path.isfile(f"{outdir}/{summary['input']['jlso_file']}")
 
 
 @pytest.mark.parametrize("dataset", ["NGC6440E", "sim_sw.wb"])

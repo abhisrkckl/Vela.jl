@@ -13,7 +13,7 @@ From: ubuntu:22.04
     conda --version
     python --version
     
-    pip install git+https://github.com/nanograv/PINT.git juliacall black emcee nestle corner tqdm pytest pytest-xdist
+    pip install git+https://github.com/nanograv/PINT.git juliacall black emcee nestle corner tqdm pytest pytest-xdist pocomc
 
     python -c "import pint; print('PINT', pint.__version__)"
     

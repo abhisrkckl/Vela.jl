@@ -1,5 +1,11 @@
 # Unreleased
 ## Added
+## Changed
+## Fixed
+## Removed
+
+# 0.1.6
+## Added
 - Fit timing parameters using PINT while creating SPNTA object to ensure that uncertainties exist for creating cheat priors.
 - `SPNTA.unscale_samples()` method.
 - `get_white_noise_components()` function.
@@ -9,6 +15,7 @@
 - Show log Z in `pyvela_plot` if available.
 - `pyvela-poco` script
 - `SPNTAResults.kstest` property; show the KS test p-value in `pyvela-plot`.
+- Installation instructions for MacOS and apptainer.
 ## Changed
 - Updated the apptainer def file to work in HPC.
 - Use `bbox_inches='tight'` in `pyvela_plot.plot()` while saving the plot.
