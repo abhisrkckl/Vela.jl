@@ -74,6 +74,8 @@ This command created saves the MCMC chain and related metadata into an output di
   - A `JLSO` file that serializes the `SPNTA` object.
   - `chain.h5`: HDF5 file containing all samples.
 
+A similar command-line script, `pyvela-poco`, is similar to `pyvela` but runs using the `pocoMC` sampler instead of `emcee`.
+
 ## `pyvela-plot` script
 
 Creates a [`corner`](https://corner.readthedocs.io/en/latest/) plot from a directory containing the output of the `pyvela` script.

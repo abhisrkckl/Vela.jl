@@ -33,6 +33,12 @@ Now, install the Python dependencies and set the environment variables. The most
 (vela) $ pip install git+https://github.com/nanograv/PINT
 ```
 
+If you wish to use the `pyvela-poco` script, also run
+```
+(vela) $ pip install pocomc
+```
+
+
 The number of threads available to `Vela.jl` for parallel processing can be controlled 
 using the environment variables `JULIA_NUM_THREADS` (for direct use from Julia) or 
 `PYTHON_JULIACALL_THREADS` (for use from within Python). This should be set based on the 
@@ -86,3 +92,17 @@ It is best to reinstall `pyvela`:
 
 Note that both `Vela.jl` and `pyvela` should be updated together. You will get an
 exception if a version mismatch is detected.
+
+## Installing in MacOS
+
+The above instructions should work also in MacOS, except that Mac machines with Apple M?
+chips don't support the long double type natively. This is not a problem for `Vela.jl` itself,
+since it uses the `DoubleFloats` package to handle extended precision arithmetic. However,
+`PINT` relies on `numpy.longdouble` type, and will not work in Apple M? machines normally.
+See [this page](https://nanograv-pint.readthedocs.io/en/latest/installation.html#apple-silicon-m1-m2-m3-processors)
+on how to do this.
+
+## Using with `apptainer`
+
+An `apptainer` definition file for `Vela.jl` along with its dependencies is available 
+[here](https://github.com/abhisrkckl/Vela.jl/blob/main/apptainer/vela.def).
