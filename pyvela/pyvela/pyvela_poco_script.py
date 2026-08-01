@@ -157,7 +157,7 @@ def prepare_outdir(args):
 def main(argv=None):
 
     args = parse_args(argv)
-    
+
     import pocomc as poco
 
     from pyvela import SPNTA
