@@ -247,7 +247,7 @@ def main(argv=None):
         likelihood=spnta.lnlike_vectorized,
         vectorize=True,
         output_dir=args.outdir,
-        pytorch_threads=int(os.environ["PYTHON_JULIACALL_THREADS"]),
+        pytorch_threads=int(os.environ.get("PYTHON_JULIACALL_THREADS", 1)),
     )
     sampler.run(
         n_total=args.nsamples,
