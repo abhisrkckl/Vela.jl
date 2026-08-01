@@ -156,6 +156,8 @@ def prepare_outdir(args):
 
 def main(argv=None):
 
+    args = parse_args(argv)
+
     import pocomc as poco
 
     from pyvela import SPNTA
@@ -164,8 +166,6 @@ def main(argv=None):
         analytic_marginalizable_prefixes,
     )
     from pyvela.results import SPNTAResults
-
-    args = parse_args(argv)
 
     if args.resume:
         # copy info from the prior run into the current arguments
@@ -247,7 +247,7 @@ def main(argv=None):
         likelihood=spnta.lnlike_vectorized,
         vectorize=True,
         output_dir=args.outdir,
-        # pytorch_threads=int(os.environ["PYTHON_JULIACALL_THREADS"]),
+        pytorch_threads=int(os.environ.get("PYTHON_JULIACALL_THREADS", 1)),
     )
     sampler.run(
         n_total=args.nsamples,
