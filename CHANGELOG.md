@@ -1,5 +1,11 @@
 # Unreleased
 ## Added
+## Changed
+## Fixed
+## Removed
+
+# 0.1.6
+## Added
 - Fit timing parameters using PINT while creating SPNTA object to ensure that uncertainties exist for creating cheat priors.
 - `SPNTA.unscale_samples()` method.
 - `conftest.py` for `pyvela` tests
