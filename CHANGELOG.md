@@ -14,6 +14,7 @@
 - Show log Z in `pyvela_plot` if available.
 - `pyvela-poco` script
 - `SPNTAResults.kstest` property; show the KS test p-value in `pyvela-plot`.
+- Installation instructions for MacOS and apptainer.
 ## Changed
 - Updated the apptainer def file to work in HPC.
 - Use `bbox_inches='tight'` in `pyvela_plot.plot()` while saving the plot.
