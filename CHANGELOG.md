@@ -16,6 +16,7 @@
 - Don't save maximum-posterior parameters by default.
 - In `SPNTA.save_pre_analysis_summary()`, create the output directory if it doesn't exist.
 - Reorganized imports to make command line help messages faster. 
+- `get_start_samples` now makes use of the frequentist uncertainties in the par file.
 ## Fixed
 - Support Python 3.11 in pyvela: fix double-quoted dict subscripts inside f-strings
 - Enable and fix previously disabled `pyvela` tests.
