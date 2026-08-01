@@ -7,12 +7,26 @@ def get_start_samples(spnta: SPNTA, s: float, nwalkers: int) -> np.ndarray:
     """Get starting samples for the MCMC. nwalkers is the number of samples
     to be returned."""
 
+    assert np.isfinite(spnta.lnpost(spnta.default_params)), "The default values produce non-finite posterior. Please check your input par file."
+
+    assert 0 < s <= 1
+
     p0_ = np.array(
         [spnta.prior_transform(cube) for cube in np.random.rand(nwalkers, spnta.ndim)]
     )
-    p0 = (
-        ((1 - s) * spnta.maxpost_params + s * p0_)
-        if np.isfinite(spnta.lnpost(spnta.default_params))
-        else p0_
-    )
+
+    p0 = np.empty_like(p0_)
+
+    for ii, (pname, defval, sfac) in enumerate(zip(spnta.param_names, spnta.default_params, spnta.scale_factors)):
+        if pname in  spnta.model_pint_modified and spnta.model_pint_modified[pname].uncertainty is not None:
+            err = spnta.model_pint_modified[pname].uncertainty_value * sfac
+            p0[:, ii] = defval + err * (2 + s) * np.random.randn(nwalkers)
+        else:
+            p0[:, ii] = (1 - s) * defval + s * p0_[:, ii]
+
+    for w in range(nwalkers):
+        lnp = spnta.lnprior(p0[w, :])
+        if not np.isfinite(lnp):
+            p0[w, :] = (1 - s) * spnta.default_params + s * p0_[w, :]
+    
     return p0
