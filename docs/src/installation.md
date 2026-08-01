@@ -33,6 +33,12 @@ Now, install the Python dependencies and set the environment variables. The most
 (vela) $ pip install git+https://github.com/nanograv/PINT
 ```
 
+If you wish to use the `pyvela-poco` script, also run
+```
+(vela) $ pip install pocomc
+```
+
+
 The number of threads available to `Vela.jl` for parallel processing can be controlled 
 using the environment variables `JULIA_NUM_THREADS` (for direct use from Julia) or 
 `PYTHON_JULIACALL_THREADS` (for use from within Python). This should be set based on the 
