@@ -191,6 +191,8 @@ def prepare_outdir(args):
 
 def main(argv=None):
 
+    args = parse_args(argv)
+
     from pyvela import SPNTA
     from pyvela.parameters import (
         analytic_marginalizable_names,
@@ -198,8 +200,6 @@ def main(argv=None):
     )
     from pyvela.results import SPNTAResults
     from pyvela.sampling import get_start_samples
-
-    args = parse_args(argv)
 
     if args.resume:
         # copy info from the prior run into the current arguments

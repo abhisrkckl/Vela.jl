@@ -34,7 +34,8 @@ def parse_args(argv):
 
 
 def main(argv=None):
+    args = parse_args(argv)
+
     from pyvela import pyvela_rethin
 
-    args = parse_args(argv)
     pyvela_rethin.rethin_samples(args.result_dir, burnin=args.burnin, thin=args.thin)

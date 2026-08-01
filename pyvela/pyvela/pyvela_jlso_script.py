@@ -44,9 +44,9 @@ def parse_args(argv):
 
 
 def main(argv=None):
-    from pyvela import SPNTA
-
     args = parse_args(argv)
+
+    from pyvela import SPNTA
 
     spnta = SPNTA(
         args.par_file,

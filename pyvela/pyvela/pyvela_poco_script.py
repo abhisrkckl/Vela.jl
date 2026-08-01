@@ -156,6 +156,8 @@ def prepare_outdir(args):
 
 def main(argv=None):
 
+    args = parse_args(argv)
+    
     import pocomc as poco
 
     from pyvela import SPNTA
@@ -164,8 +166,6 @@ def main(argv=None):
         analytic_marginalizable_prefixes,
     )
     from pyvela.results import SPNTAResults
-
-    args = parse_args(argv)
 
     if args.resume:
         # copy info from the prior run into the current arguments
