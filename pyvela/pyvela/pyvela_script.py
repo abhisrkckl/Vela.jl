@@ -286,11 +286,19 @@ def main(argv=None):
     )
     if not args.resume:
         sampler.run_mcmc(
-            p0, args.nsteps, progress=True, progress_kwargs={"mininterval": 1}
+            p0,
+            args.nsteps,
+            progress=True,
+            progress_kwargs={"mininterval": 1},
+            skip_initial_state_check=True,
         )
     else:
         sampler.run_mcmc(
-            None, args.nsteps, progress=True, progress_kwargs={"mininterval": 1}
+            None,
+            args.nsteps,
+            progress=True,
+            progress_kwargs={"mininterval": 1},
+            skip_initial_state_check=True,
         )
 
     samples_raw = sampler.get_chain(flat=True, discard=args.burnin, thin=args.thin)

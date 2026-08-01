@@ -22,7 +22,7 @@ prior_str = """
     {
         "EFAC": {
             "distribution": "Uniform",
-            "args": [0.5, 1.5]
+            "args": [0.25, 2.5]
         },
         "EQUAD": {
             "distribution": "Normal",
