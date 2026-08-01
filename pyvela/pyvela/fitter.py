@@ -1,8 +1,6 @@
 from typing import IO, Optional
 import emcee
 import numpy as np
-from scipy.optimize import dual_annealing
-from numdifftools import Hessian
 from pint.fitter import Fitter
 from pint.logging import log
 from pint.models import TimingModel

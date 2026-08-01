@@ -1,5 +1,5 @@
 import json
-from typing import Iterable, Literal, Optional
+from typing import Iterable, Literal
 
 from .results import SPNTAResults
 

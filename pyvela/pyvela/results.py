@@ -9,8 +9,6 @@ from pint.toa import TOAs, get_TOAs
 import numpy as np
 import scipy.stats as stats
 
-from .spnta import SPNTA
-
 
 class SPNTAResults:
     """A convenience class to access the results of a SPNTA run."""

@@ -5,7 +5,6 @@ import shutil
 from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
 
 import emcee
-import numpy as np
 
 from pint.logging import setup as setup_log
 
