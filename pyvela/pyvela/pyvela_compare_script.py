@@ -28,9 +28,9 @@ def parse_args(argv):
 
 
 def main(argv=None):
-    from pyvela import SPNTA
-
     args = parse_args(argv)
+
+    from pyvela import SPNTA
 
     m, t = get_model_and_toas(args.par_file, args.tim_file, planets=True)
     t.compute_pulse_numbers(m)
