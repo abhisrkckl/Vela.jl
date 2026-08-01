@@ -46,9 +46,10 @@ def parse_args(argv):
 
 
 def main(argv=None):
+    args = parse_args(argv)
+
     from pyvela import pyvela_plot
 
-    args = parse_args(argv)
     pyvela_plot.plot(
         args.result_dir,
         ignore_params=args.ignore_params,
