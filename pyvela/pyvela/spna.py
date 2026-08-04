@@ -66,6 +66,11 @@ class SPNA:
         return np.array(vl.read_param_values_to_vector(self.spna.param_handler))
 
     @cached_property
+    def scale_factors(self) -> Iterable[float]:
+        """Scale factors for converting free parameters from `PINT` units to `Vela` units."""
+        return np.array(vl.get_scale_factors(self.spna.param_handler))
+
+    @cached_property
     def marginalized_param_names(self) -> List[str]:
         """List of analytically marginalized parameters."""
         return list(vl.get_marginalized_param_names(self.spna))
@@ -131,3 +136,7 @@ class SPNA:
         """Draw a sample of the analytically marginalized parameter values given other parameters."""
         da, lnp = self.get_marginalized_param_offset_sample(params)
         return self.marginalized_default_params + da, lnp
+
+    @cached_property
+    def ntmdim(self):
+        return self.spnta.ntmdim

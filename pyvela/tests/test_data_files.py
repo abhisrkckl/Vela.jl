@@ -517,7 +517,28 @@ def test_spna(dataset):
         np.hstack((spnta.param_names[: spnta.ntmdim], spnta.marginalized_param_names))
         == spna.marginalized_param_names
     )
+
     assert np.all(
-        np.hstack((spna.marginalized_param_names[: spnta.ntmdim], spna.param_names))
+        np.hstack((spna.marginalized_param_names[: spna.ntmdim], spna.param_names))
         == spnta.param_names
+    )
+
+    assert np.all(
+        np.hstack(
+            [spna.marginalized_default_params[: spna.ntmdim], spna.default_params]
+        )
+        == spnta.default_params
+    )
+
+    assert np.all(
+        np.hstack(
+            [spna.marginalized_param_scale_factors[: spna.ntmdim], spna.scale_factors]
+        )
+        == spnta.scale_factors
+    )
+
+    marg_sample, lnp_cond = spna.get_marginalized_param_sample(spna.default_params)
+    assert np.isfinite(lnp_cond)
+    assert np.isfinite(
+        spnta.lnpost(np.hstack([marg_sample[: spnta.ntmdim], spna.default_params]))
     )
