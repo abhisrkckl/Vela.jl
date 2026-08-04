@@ -129,7 +129,7 @@
         )
         parv = read_param_values_to_vector(spna.param_handler, params)
 
-        y, Ninvdiag = Vela.calc_y_and_Ninvdiag(spna, params)
+        y, Ninvdiag = Vela._calc_resids_and_Ninvdiag(spna, params)
         @test length(y) == 2 * length(toas)
         @test length(Ninvdiag) == 2 * length(toas)
         @test all(isfinite, y)

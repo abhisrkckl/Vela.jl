@@ -224,7 +224,7 @@
         params = (EFAC = (dimensionless(1.1),), EQUAD = (time(1e-6),))
         parv = read_param_values_to_vector(spna.param_handler, params)
 
-        y, Ninvdiag = Vela.calc_y_and_Ninvdiag(spna, params)
+        y, Ninvdiag = Vela._calc_resids_and_Ninvdiag(spna, params)
         @test length(y) == length(toas)
         @test length(Ninvdiag) == length(toas)
         @test all(isfinite, y)
