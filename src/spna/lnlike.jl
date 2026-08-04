@@ -1,4 +1,4 @@
-function calc_y_and_Ninvdiag(spna::NarrowbandSPNA, params::NamedTuple)
+function _calc_resids_and_Ninvdiag(spna::NarrowbandSPNA, params::NamedTuple)
     n = length(spna.resids)
 
     result_data = Vector{Float64}(undef, 2 * n)
@@ -15,7 +15,7 @@ function calc_y_and_Ninvdiag(spna::NarrowbandSPNA, params::NamedTuple)
     return ys, Ninvdiag
 end
 
-function calc_y_and_Ninvdiag(spna::WidebandSPNA, params::NamedTuple)
+function _calc_resids_and_Ninvdiag(spna::WidebandSPNA, params::NamedTuple)
     n = length(spna.resids)
 
     result_data = Vector{Float64}(undef, 4 * n)
@@ -40,7 +40,7 @@ function calc_y_and_Ninvdiag(spna::WidebandSPNA, params::NamedTuple)
 end
 
 function calc_lnlike(spna::SPNABase, params::NamedTuple)
-    y, Ninvdiag = calc_y_and_Ninvdiag(spna, params)
+    y, Ninvdiag = _calc_resids_and_Ninvdiag(spna, params)
     M = spna.kernel.noise_basis
     Φinv = calc_noise_weights_inv(spna.kernel, params)
 

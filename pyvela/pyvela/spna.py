@@ -1,7 +1,8 @@
 from functools import cached_property
-from typing import Iterable, List
+from typing import Iterable, List, Tuple
 
 import numpy as np
+from scipy.linalg import cho_solve, cholesky, solve_triangular
 
 from .spnta import SPNTA
 from .vela import vl, jl
@@ -90,3 +91,43 @@ class SPNA:
             )
         )
         return np.array([pdict[pname] for pname in self.marginalized_param_names])
+
+    def get_marginalized_param_offset_mean_and_covinvcf(
+        self, params: np.ndarray
+    ) -> Tuple[np.ndarray, np.ndarray]:
+        """Returns the mean offsets and the inverse-covariance matrix Cholesky factor of the
+        analytically marginalized parameters. Offsets are defined w.r.t. the default values.
+        """
+        params_ = vl.read_params(self.spna.param_handler, params)
+        y, Ninvdiag = vl._calc_resids_and_Ninvdiag(self.spna, params_)
+        M = np.array(self.spna.kernel.noise_basis)
+        Phiinv = np.array(vl.calc_noise_weights_inv(self.spna.kernel, params_))
+        Ninv_M = M * np.array(Ninvdiag)[:, None]
+        MT_Ninv_y = y @ Ninv_M
+        Sigmainv = np.diag(Phiinv) + M.T @ Ninv_M
+        Sigmainv_cf = cholesky(Sigmainv, lower=False)
+        ahat = cho_solve((Sigmainv_cf, False), MT_Ninv_y)
+        return ahat, Sigmainv_cf
+
+    def get_marginalized_param_offset_sample(
+        self, params: np.ndarray
+    ) -> Tuple[np.ndarray, float]:
+        """Draw a sample of the analytically marginalized parameter vector given other parameters."""
+        ahat, Sigmainv_cf = self.get_marginalized_param_offset_mean_and_covinvcf(params)
+        z = np.random.randn(len(ahat))
+        da = solve_triangular(Sigmainv_cf, z, lower=False)
+        a = ahat + da
+        lnp = (
+            -0.5 * (z @ z)
+            + np.sum(np.log(np.diag(Sigmainv_cf)))
+            - 0.5 * len(ahat) * np.log(2 * np.pi)
+        )
+
+        return a, lnp
+
+    def get_marginalized_param_sample(
+        self, params: np.ndarray
+    ) -> Tuple[np.ndarray, float]:
+        """Draw a sample of the analytically marginalized parameter values given other parameters."""
+        da, lnp = self.get_marginalized_param_offset_sample(params)
+        return self.marginalized_default_params + da, lnp

@@ -12,6 +12,7 @@ from pint.toa import TOAs
 
 from pyvela.model import fit_data_for_cheat_priors, fix_params, fix_red_noise_components
 from pyvela.parameters import fdjump_rx
+from pyvela.spna import SPNA
 from pyvela.spnta import SPNTA, convert_model_and_toas
 from pyvela.vela import vl
 
@@ -501,3 +502,22 @@ def test_analytic_marginalize_params_wb():
         "JUMP2",
         "DMJUMP1",
     }
+
+
+@pytest.mark.parametrize("dataset", ["sim_1"])
+def test_spna(dataset):
+    parfile, timfile = f"{datadir}/{dataset}.par", f"{datadir}/{dataset}.tim"
+
+    parfile, timfile = f"{datadir}/{dataset}.par", f"{datadir}/{dataset}.tim"
+
+    spnta = SPNTA(parfile, timfile, analytic_marginalized_params=["PHOFF", "F"])
+    spna = SPNA(spnta)
+
+    assert np.all(
+        np.hstack((spnta.param_names[: spnta.ntmdim], spnta.marginalized_param_names))
+        == spna.marginalized_param_names
+    )
+    assert np.all(
+        np.hstack((spna.marginalized_param_names[: spnta.ntmdim], spna.param_names))
+        == spnta.param_names
+    )
