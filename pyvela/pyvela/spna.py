@@ -67,13 +67,15 @@ class SPNA:
     @cached_property
     def marginalized_param_names(self) -> List[str]:
         """List of analytically marginalized parameters."""
-        return list(vl.get_marginalized_param_names(self.spna.kernel))
+        return list(vl.get_marginalized_param_names(self.spna))
 
     @cached_property
     def marginalized_default_params(self) -> np.ndarray:
         """Default values of analytically marginalized parameters."""
-        return np.array(
-            vl.get_marginalized_param_default_values(
-                self.spna.param_handler, jl.Vector(self.marginalized_param_names)
+        pdict = dict(zip(self.spnta.param_names, self.spnta.default_params)) | dict(
+            zip(
+                self.spnta.marginalized_param_names,
+                self.spnta.marginalized_default_params,
             )
         )
+        return np.array([pdict[pname] for pname in self.marginalized_param_names])

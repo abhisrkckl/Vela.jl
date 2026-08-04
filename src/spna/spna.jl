@@ -51,3 +51,5 @@ show(io::IO, spna::NarrowbandSPNA) =
 show(io::IO, spna::WidebandSPNA) =
     print(io, "WidebandSPNA[$(size(spna.kernel.noise_basis))]")
 show(io::IO, ::MIME"text/plain", spna::SPNABase) = show(io, spna)
+
+get_marginalized_param_names(spna::SPNABase) = get_marginalized_param_names(spna.kernel)
