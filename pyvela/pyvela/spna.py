@@ -140,3 +140,8 @@ class SPNA:
     @cached_property
     def ntmdim(self):
         return self.spnta.ntmdim
+
+    def get_spnta_sample(self, params: np.ndarray):
+        mpar, lnp_cond = self.get_marginalized_param_sample(params)
+        lnp_spna = self.lnpost(params)
+        return np.hstack((mpar[: self.ntmdim], params)), lnp_spna + lnp_cond

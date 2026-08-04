@@ -537,8 +537,6 @@ def test_spna(dataset):
         == spnta.scale_factors
     )
 
-    marg_sample, lnp_cond = spna.get_marginalized_param_sample(spna.default_params)
-    assert np.isfinite(lnp_cond)
-    assert np.isfinite(
-        spnta.lnpost(np.hstack([marg_sample[: spnta.ntmdim], spna.default_params]))
-    )
+    sample, lnp = spna.get_spnta_sample(spna.default_params)
+    assert np.isfinite(lnp)
+    assert np.isfinite(spnta.lnpost(sample))
