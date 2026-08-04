@@ -79,3 +79,14 @@ class SPNA:
             )
         )
         return np.array([pdict[pname] for pname in self.marginalized_param_names])
+
+    @cached_property
+    def marginalized_param_scale_factors(self) -> np.ndarray:
+        """Unit conversion factors for analytically marginalized parameters."""
+        pdict = dict(zip(self.spnta.param_names, self.spnta.scale_factors)) | dict(
+            zip(
+                self.spnta.marginalized_param_names,
+                self.spnta.marginalized_param_scale_factors,
+            )
+        )
+        return np.array([pdict[pname] for pname in self.marginalized_param_names])
