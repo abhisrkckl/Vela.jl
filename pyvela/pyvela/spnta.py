@@ -474,10 +474,10 @@ class SPNTA:
         Opposite of `unscale_samples`."""
         return samples_raw / self.scale_factors
 
-    def unscale_samples(self, samples_raw: np.ndarray) -> np.ndarray:
+    def unscale_samples(self, samples: np.ndarray) -> np.ndarray:
         """Rescale the samples from common units to Vela's internal units.
         Opposite of `rescale_samples`."""
-        return samples_raw * self.scale_factors
+        return samples * self.scale_factors
 
     def save_jlso(self, filename: str) -> None:
         """Write the model and TOAs as a JLSO file"""

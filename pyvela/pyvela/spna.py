@@ -108,7 +108,7 @@ class SPNA:
         M = np.array(self.spna.kernel.noise_basis)
         Phiinv = np.array(vl.calc_noise_weights_inv(self.spna.kernel, params_))
         Ninv_M = M * np.array(Ninvdiag)[:, None]
-        MT_Ninv_y = y @ Ninv_M
+        MT_Ninv_y = np.array(y) @ Ninv_M
         Sigmainv = np.diag(Phiinv) + M.T @ Ninv_M
         Sigmainv_cf = cholesky(Sigmainv, lower=False)
         ahat = cho_solve((Sigmainv_cf, False), MT_Ninv_y)
@@ -145,3 +145,13 @@ class SPNA:
         mpar, lnp_cond = self.get_marginalized_param_sample(params)
         lnp_spna = self.lnpost(params)
         return np.hstack((mpar[: self.ntmdim], params)), lnp_spna + lnp_cond
+
+    def rescale_samples(self, samples_raw: np.ndarray) -> np.ndarray:
+        """Rescale the samples from Vela's internal units to common units.
+        Opposite of `unscale_samples`."""
+        return samples_raw / self.scale_factors
+
+    def unscale_samples(self, samples: np.ndarray) -> np.ndarray:
+        """Rescale the samples from common units to Vela's internal units.
+        Opposite of `rescale_samples`."""
+        return samples * self.scale_factors
