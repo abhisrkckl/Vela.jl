@@ -95,12 +95,24 @@ exception if a version mismatch is detected.
 
 ## Installing in MacOS
 
-The above instructions should work also in MacOS, except that Mac machines with Apple M?
-chips don't support the long double type natively. This is not a problem for `Vela.jl` itself,
-since it uses the `DoubleFloats` package to handle extended precision arithmetic. However,
-`PINT` relies on `numpy.longdouble` type, and will not work in Apple M? machines normally.
-See [this page](https://nanograv-pint.readthedocs.io/en/latest/installation.html#apple-silicon-m1-m2-m3-processors)
-on how to do this.
+The above instructions should work also in MacOS, except that Mac machines with Apple M-series chips don't support the `long double` type natively. This is not a problem for `Vela.jl` itself, since it uses the `DoubleFloats` package to handle extended precision arithmetic. However, `PINT` relies on the `numpy.longdouble` type, and will not work on Apple M-series machines normally.
+
+Furthermore, because `PyVela` bridges Python and Julia using `juliacall`, any architecture mismatch between a native `arm64` Python environment and Intel-based dependencies will cause dynamic linker crashes.
+
+To resolve this, both Python and Julia must be forced into an isolated Intel emulation environment (`osx-64`) using Rosetta 2 and Conda. 
+
+For a complete, step-by-step walkthrough on how to configure this environment, handle the `numpy` dependencies, and properly initialize the Julia backend, please refer to the comprehensive guide:
+📄 **[View the Complete Apple Silicon Installation Guide](./Vela_MacOS.pdf)**
+
+### Troubleshooting: PyVela Version Error in Jupyter
+Because `PyVela` is cloned manually rather than installed via a standard `pip` wheel, it lacks standard package metadata. This can cause version-related errors when executing code.
+
+To easily bypass this without modifying the underlying source files, you can manually assign a dummy version string right after importing it in your Jupyter Notebook:
+
+```python
+import pyvela
+pyvela.__version__ = "1.0.0"
+
 
 ## Using with `apptainer`
 
