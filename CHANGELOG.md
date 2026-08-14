@@ -2,6 +2,7 @@
 ## Added
 ## Changed
 ## Fixed
+- While constructing `SPNTA`, compute TOA pulse numbers only if required.
 ## Removed
 
 # 0.1.6

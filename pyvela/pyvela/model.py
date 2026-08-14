@@ -686,7 +686,8 @@ def pint_model_to_vela(
 
     epoch_mjd = float(model["PEPOCH"].value)
 
-    toas.compute_pulse_numbers(model)
+    if toas.get_pulse_numbers() is None:
+        toas.compute_pulse_numbers(model)
 
     if not marginalize_gp_noise:
         # If we don't want to use the marginalized GP noise models,
