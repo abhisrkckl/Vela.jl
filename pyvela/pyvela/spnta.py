@@ -44,6 +44,7 @@ def convert_model_and_toas(
     analytic_marginalized_param_prior_stds: Dict[str, float],
     cheat_prior_scale: float = 100.0,
     custom_priors: dict = {},
+    tzrtoa: TOAs = None,
 ):
     """Read a pair of par & tim files and create a `Vela.TimingModel` object and a
     Julia `Vector` of `TOA`s."""
@@ -72,6 +73,7 @@ def convert_model_and_toas(
         analytic_marginalized_param_prior_stds,
         ecorr_toa_ranges=ecorr_toa_ranges,
         ecorr_indices=ecorr_indices,
+        tzrtoa=tzrtoa,
     )
     toas_v = pint_toas_to_vela(toas, float(model["PEPOCH"].value))
 
@@ -724,6 +726,7 @@ class SPNTA:
         cheat_prior_scale: float = 100.0,
         custom_priors: dict | str | IO = {},
         center_epochs: bool = False,
+        tzrtoa: TOAs = None,
         check: bool = False,
     ) -> "SPNTA":
         """Construct an `SPNTA` object from PINT `TimingModel` and `TOAs` objects"""
@@ -786,6 +789,7 @@ class SPNTA:
             analytic_marginalized_param_prior_stds,
             cheat_prior_scale=cheat_prior_scale,
             custom_priors=custom_priors,
+            tzrtoa=tzrtoa,
         )
 
         spnta.pulsar = vl.Pulsar(model_v, toas_v)
