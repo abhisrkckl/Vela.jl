@@ -1,6 +1,7 @@
 # Unreleased
 ## Added
 - Installation instructions for MacOS
+- `check` option in `SPNTA` constructor methods.
 ## Changed
 ## Fixed
 - While constructing `SPNTA`, compute TOA pulse numbers only if required.
