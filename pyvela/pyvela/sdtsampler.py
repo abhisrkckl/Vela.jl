@@ -2,7 +2,6 @@ from functools import cached_property
 from typing import List, Optional
 
 import numpy as np
-from joblib import Parallel, delayed
 
 from pint.models import TimingModel
 from pint.toa import TOAs
@@ -33,8 +32,8 @@ class SDTSampler:
             )
         toass.reverse()
 
-        return Parallel(n_jobs=min(8, len(toass)))(
-            delayed(SPNTA.from_pint)(
+        return [
+            SPNTA.from_pint(
                 self.spnta.model_pint_modified,
                 toas,
                 analytic_marginalized_params=self.spnta.analytic_marginalized_params,
@@ -45,7 +44,7 @@ class SDTSampler:
                 ),
             )
             for toas in toass
-        )
+        ]
 
 
 def get_toas_subset(
