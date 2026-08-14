@@ -173,15 +173,6 @@ __version__ = Vela.pkg_version()
 ```
 Save the file and exit (`Ctrl+O`, `Enter`, then `Ctrl+X` if using nano).
 
-### Troubleshooting: Version Mismatch Errors
-Because `pyvela` acts as a direct interface to `Vela.jl`, the two packages are designed to be updated together. If their versions fall out of sync, you will receive a version mismatch error when trying to run `import pyvela`.
-
-While the proper fix is to update both packages (see the **Updating Vela.jl** section), you might need a quick workaround if you are actively testing code in a Jupyter Notebook and cannot update immediately. You can temporarily resolve the error by manually assigning a dummy version string directly in your script:
-
-```python
-import pyvela
-pyvela.__version__ = "1.0.0"
-```
 
 ### Compiling the Julia Backend
 With the Intel architectures aligned, we initialize the Julia backend from within Python to download `Vela.jl` and its required registered/unregistered packages.
