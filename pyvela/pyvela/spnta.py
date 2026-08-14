@@ -682,6 +682,7 @@ class SPNTA:
         cheat_prior_scale: Optional[float] = None,
         analytic_marginalized_params: List[str] = [],
         center_epochs: bool = False,
+        check: bool = False,
     ) -> "SPNTA":
         """Construct an `SPNTA` object from a JLSO file"""
         spnta = cls.__new__(cls)
@@ -706,7 +707,10 @@ class SPNTA:
             add_tzr_to_model=True,
         )
         spnta.model_pint_modified = None
-        spnta._check()
+
+        if check:
+            spnta._check()
+
         return spnta
 
     @classmethod
@@ -720,6 +724,7 @@ class SPNTA:
         cheat_prior_scale: float = 100.0,
         custom_priors: dict | str | IO = {},
         center_epochs: bool = False,
+        check: bool = True,
     ) -> "SPNTA":
         """Construct an `SPNTA` object from PINT `TimingModel` and `TOAs` objects"""
         spnta = cls.__new__(cls)
@@ -784,7 +789,9 @@ class SPNTA:
         )
 
         spnta.pulsar = vl.Pulsar(model_v, toas_v)
-        spnta._check()
+
+        if check:
+            spnta._check()
 
         return spnta
 
