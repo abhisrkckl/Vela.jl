@@ -38,7 +38,7 @@ def test_dmx_exception_exclusive():
     parfile, timfile = f"{datadir}/sim_dmx.par", f"{datadir}/sim_dmx.tim"
     m, t = get_model_and_toas(parfile, timfile, planets=True)
     m["DMXR2_0001"].value = m["DMXR2_0002"].value
-    with pytest.raises(ValueError):
+    with pytest.raises(AssertionError):
         SPNTA.from_pint(m, t)
 
 
@@ -46,7 +46,7 @@ def test_dmx_exception_exhaustive():
     parfile, timfile = f"{datadir}/sim_dmx.par", f"{datadir}/sim_dmx.tim"
     m, t = get_model_and_toas(parfile, timfile, planets=True)
     m["DMXR1_0001"].value += 2
-    with pytest.raises(ValueError):
+    with pytest.raises(AssertionError):
         SPNTA.from_pint(m, t)
 
 
