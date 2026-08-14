@@ -1,11 +1,14 @@
 # Unreleased
 ## Added
-- Installation instructions for MacOS
+- Installation instructions for MacOS.
 ## Changed
+- Optionally provide TZRTOA as an argument in `SPNTA.from_pint()`.
+- Run `fit_data_for_cheat_priors()` only if necessary.
+- Compute pulse numbers only if necessary.
 ## Fixed
 - While constructing `SPNTA`, compute TOA pulse numbers only if required.
-- Make `get_dmx_mask` faster.
-- `check` option included in `SPNTA.from_pint()` and `SPNTA.load_jlso()`
+- Make `get_dmx_mask()` faster.
+- `check` option included in `SPNTA.from_pint()` and `SPNTA.load_jlso()`.
 ## Removed
 
 # 0.1.6
