@@ -1,8 +1,10 @@
 # Unreleased
 ## Added
+- Installation instructions for MacOS
 ## Changed
 ## Fixed
 - While constructing `SPNTA`, compute TOA pulse numbers only if required.
+- Make `get_dmx_mask` faster.
 ## Removed
 
 # 0.1.6
