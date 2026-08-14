@@ -23,6 +23,8 @@ def get_dmx_mask(
         bool_mask = np.logical_and(mjds >= r1, mjds < r2)
         assert np.any(bool_mask), f"No TOAs found for {param_prefix}{ii:4d}."
         output_mask[bool_mask] = ii
-    assert np.all(output_mask > 0), f"Some TOAs don't belong to any {param_prefix} ranges."
-    
+    assert np.all(
+        output_mask > 0
+    ), f"Some TOAs don't belong to any {param_prefix} ranges."
+
     return output_mask
