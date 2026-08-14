@@ -5,6 +5,7 @@
 ## Fixed
 - While constructing `SPNTA`, compute TOA pulse numbers only if required.
 - Make `get_dmx_mask` faster.
+- `check` option included in `SPNTA.from_pint()` and `SPNTA.load_jlso()`
 ## Removed
 
 # 0.1.6
