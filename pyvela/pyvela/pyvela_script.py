@@ -281,8 +281,6 @@ def main(argv=None):
         args.truth,
     )
 
-    p0 = get_start_samples(spnta, args.initial_sample_spread, nwalkers)
-
     sampler = emcee.EnsembleSampler(
         nwalkers,
         spnta.ndim,
@@ -292,9 +290,15 @@ def main(argv=None):
         backend=emcee.backends.HDFBackend(f"{args.outdir}/chain.h5"),
     )
 
+    p0 = (
+        get_start_samples(spnta, args.initial_sample_spread, nwalkers)
+        if not args.resume
+        else sampler.get_chain()[-1, :, :]
+    )
+
     converged, tau = run_emcee_until_converged(
         sampler,
-        (p0 if not args.resume else None),
+        p0,
         max_steps=args.nsteps,
         initial_chunk=args.burnin * 2,
         min_chunk=1000,
