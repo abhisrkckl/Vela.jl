@@ -199,7 +199,7 @@
         cubes = transpose([cube cube cube])
         @test allequal(calc_lnpost_transformed_vectorized(model, toas, cubes))
         @test calc_lnpost_transformed_vectorized(model, toas, cubes)[1] ≈
-              calc_lnpost_transformed(model, toas, cubes)
+              calc_lnpost_transformed(model, toas, cube)
 
         cube[1] = 1.1
         @test !isfinite(calc_lnpost_transformed(model, toas, cube))
