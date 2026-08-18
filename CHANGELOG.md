@@ -2,6 +2,7 @@
 ## Added
 - Installation instructions for MacOS.
 - `SPNA.lnpost_transformed()` and `SPNA.lnpost_transformed_vectorized()` methods.
+- Example notebook showing `run_emcee_until_converged()`.
 ## Changed
 - Optionally provide TZRTOA as an argument in `SPNTA.from_pint()`.
 - Run `fit_data_for_cheat_priors()` only if necessary.
