@@ -4,6 +4,7 @@ import os
 import shutil
 from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
 
+import numpy as np
 import emcee
 
 from pint.logging import setup as setup_log
@@ -284,14 +285,15 @@ def main(argv=None):
     sampler = emcee.EnsembleSampler(
         nwalkers,
         spnta.ndim,
-        spnta.lnpost_vectorized,
+        spnta.lnpost_transformed_vectorized,
         moves=[emcee.moves.StretchMove(), emcee.moves.DESnookerMove()],
         vectorize=True,
         backend=emcee.backends.HDFBackend(f"{args.outdir}/chain.h5"),
     )
 
     p0 = (
-        get_start_samples(spnta, args.initial_sample_spread, nwalkers)
+        # get_start_samples(spnta, args.initial_sample_spread, nwalkers)
+        (np.random.rand(nwalkers, spnta.ndim) - 0.5) * args.initial_sample_spread + 0.5
         if not args.resume
         else sampler.get_chain()[-1, :, :]
     )
@@ -313,9 +315,11 @@ def main(argv=None):
     #     p0, args.nsteps, progress=True, progress_kwargs={"mininterval": 1}
     # )
 
-    samples_raw = sampler.get_chain(
-        flat=True, discard=min(args.burnin, int(10 * max(tau))), thin=args.thin
+    samples_transformed = sampler.get_chain(
+        flat=True, discard=min(args.burnin, int(25 * max(tau))), thin=args.thin
     )
+
+    samples_raw = spnta.prior_transform(samples_transformed)
 
     spnta.save_results(
         args.outdir,
