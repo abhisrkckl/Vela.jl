@@ -264,7 +264,11 @@ class SPNTA:
 
     def prior_transform(self, cube: Iterable[float]) -> Iterable[float]:
         """Compute the prior transform"""
-        return vl.prior_transform(self.pulsar, cube)
+        assert np.ndim(cube) in (1, 2)
+        if np.ndim(cube) == 1:
+            return vl.prior_transform(self.pulsar, cube)
+        else:
+            return np.array([vl.prior_transform(self.pulsar, cube1) for cube1 in cube])
 
     def lnpost(self, params: Iterable[float]) -> float:
         """Compute the log-posterior distribution"""
@@ -275,6 +279,16 @@ class SPNTA:
         of points in the parameter space"""
         return vl.calc_lnpost_vectorized(self.pulsar, paramss)
 
+    def lnpost_transformed(self, cube: np.ndarray) -> float:
+        """Compute the prior-transformed log-posterior distribution on
+        a uniform sample drawn from the unit hypercube."""
+        return vl.calc_lnpost_transformed(self.model, self.toas, cube)
+
+    def lnpost_transformed_vectorized(self, cubes: np.ndarray) -> float:
+        """Compute the prior-transformed log-posterior distribution over
+        a collection of uniform samples drawn from the unit hypercube."""
+        return vl.calc_lnpost_transformed_vectorized(self.model, self.toas, cubes)
+
     @cached_property
     def prior_bounds(self) -> np.ndarray:
         """Upper and lower bounds of each parameter as defined by the prior."""
@@ -284,9 +298,7 @@ class SPNTA:
 
     def draw_from_prior(self, size: int = 1) -> np.ndarray:
         """Draw samples from prior."""
-        return np.array(
-            [self.prior_transform(np.random.rand(self.ndim)) for _ in range(size)]
-        )
+        return self.prior_transform(np.random.rand(size, self.ndim))
 
     @property
     def model(self):
