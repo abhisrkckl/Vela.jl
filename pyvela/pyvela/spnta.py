@@ -44,6 +44,7 @@ def convert_model_and_toas(
     analytic_marginalized_param_prior_stds: Dict[str, float],
     cheat_prior_scale: float = 100.0,
     custom_priors: dict = {},
+    tzrtoa: TOAs = None,
 ):
     """Read a pair of par & tim files and create a `Vela.TimingModel` object and a
     Julia `Vector` of `TOA`s."""
@@ -72,6 +73,7 @@ def convert_model_and_toas(
         analytic_marginalized_param_prior_stds,
         ecorr_toa_ranges=ecorr_toa_ranges,
         ecorr_indices=ecorr_indices,
+        tzrtoa=tzrtoa,
     )
     toas_v = pint_toas_to_vela(toas, float(model["PEPOCH"].value))
 
@@ -262,7 +264,11 @@ class SPNTA:
 
     def prior_transform(self, cube: Iterable[float]) -> Iterable[float]:
         """Compute the prior transform"""
-        return vl.prior_transform(self.pulsar, cube)
+        assert np.ndim(cube) in (1, 2)
+        if np.ndim(cube) == 1:
+            return vl.prior_transform(self.pulsar, cube)
+        else:
+            return np.array([vl.prior_transform(self.pulsar, cube1) for cube1 in cube])
 
     def lnpost(self, params: Iterable[float]) -> float:
         """Compute the log-posterior distribution"""
@@ -273,6 +279,16 @@ class SPNTA:
         of points in the parameter space"""
         return vl.calc_lnpost_vectorized(self.pulsar, paramss)
 
+    def lnpost_transformed(self, cube: np.ndarray) -> float:
+        """Compute the prior-transformed log-posterior distribution on
+        a uniform sample drawn from the unit hypercube."""
+        return vl.calc_lnpost_transformed(self.model, self.toas, cube)
+
+    def lnpost_transformed_vectorized(self, cubes: np.ndarray) -> float:
+        """Compute the prior-transformed log-posterior distribution over
+        a collection of uniform samples drawn from the unit hypercube."""
+        return vl.calc_lnpost_transformed_vectorized(self.model, self.toas, cubes)
+
     @cached_property
     def prior_bounds(self) -> np.ndarray:
         """Upper and lower bounds of each parameter as defined by the prior."""
@@ -282,9 +298,7 @@ class SPNTA:
 
     def draw_from_prior(self, size: int = 1) -> np.ndarray:
         """Draw samples from prior."""
-        return np.array(
-            [self.prior_transform(np.random.rand(self.ndim)) for _ in range(size)]
-        )
+        return self.prior_transform(np.random.rand(size, self.ndim))
 
     @property
     def model(self):
@@ -682,6 +696,7 @@ class SPNTA:
         cheat_prior_scale: Optional[float] = None,
         analytic_marginalized_params: List[str] = [],
         center_epochs: bool = False,
+        check: bool = False,
     ) -> "SPNTA":
         """Construct an `SPNTA` object from a JLSO file"""
         spnta = cls.__new__(cls)
@@ -706,7 +721,10 @@ class SPNTA:
             add_tzr_to_model=True,
         )
         spnta.model_pint_modified = None
-        spnta._check()
+
+        if check:
+            spnta._check()
+
         return spnta
 
     @classmethod
@@ -720,6 +738,8 @@ class SPNTA:
         cheat_prior_scale: float = 100.0,
         custom_priors: dict | str | IO = {},
         center_epochs: bool = False,
+        tzrtoa: TOAs = None,
+        check: bool = False,
     ) -> "SPNTA":
         """Construct an `SPNTA` object from PINT `TimingModel` and `TOAs` objects"""
         spnta = cls.__new__(cls)
@@ -781,10 +801,13 @@ class SPNTA:
             analytic_marginalized_param_prior_stds,
             cheat_prior_scale=cheat_prior_scale,
             custom_priors=custom_priors,
+            tzrtoa=tzrtoa,
         )
 
         spnta.pulsar = vl.Pulsar(model_v, toas_v)
-        spnta._check()
+
+        if check:
+            spnta._check()
 
         return spnta
 

@@ -1,8 +1,20 @@
 # Unreleased
 ## Added
 - Powerlaw solar wind GP model (`PowerlawSolarWindNoiseGP`)
+- Installation instructions for MacOS.
+- `SPNA.lnpost_transformed()` and `SPNA.lnpost_transformed_vectorized()` methods.
+- Example notebook showing `run_emcee_until_converged()`.
 ## Changed
+- Optionally provide TZRTOA as an argument in `SPNTA.from_pint()`.
+- Run `fit_data_for_cheat_priors()` only if necessary.
+- Compute pulse numbers only if necessary.
+- `pyvela` script now runs until a given chain length-to-autocorrelation length ratio is reached. Command line arguments are changed accordingly.
+- `SPNA.prior_transform()` method can now handle vectorized inputs.
 ## Fixed
+- While constructing `SPNTA`, compute TOA pulse numbers only if required.
+- Make `get_dmx_mask()` faster.
+- `check` option included in `SPNTA.from_pint()` and `SPNTA.load_jlso()`.
+- `get_start_samples()` function.
 ## Removed
 
 # 0.1.6
