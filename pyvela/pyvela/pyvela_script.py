@@ -5,9 +5,10 @@ import shutil
 from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
 
 import emcee
-import numpy as np
 
 from pint.logging import setup as setup_log
+
+from .sampling import run_emcee_until_converged
 
 setup_log(level="WARNING")
 
@@ -78,9 +79,9 @@ def parse_args(argv):
     parser.add_argument(
         "-N",
         "--nsteps",
-        default=6000,
+        default=100000,
         type=int,
-        help="Number of ensemble MCMC iterations",
+        help="Maximum number of ensemble MCMC iterations",
     )
     parser.add_argument(
         "-w",
@@ -94,7 +95,13 @@ def parse_args(argv):
         "--burnin",
         default=1500,
         type=int,
-        help="Burn-in length for MCMC chains",
+        help="Minimum burn-in length for MCMC chains",
+    )
+    parser.add_argument(
+        "--tau_mult",
+        default=40,
+        type=int,
+        help="Require chain length N > tau_mult * max(tau) for convergence where tau is the autocorrelation length.",
     )
     parser.add_argument(
         "-t",
@@ -274,8 +281,6 @@ def main(argv=None):
         args.truth,
     )
 
-    p0 = get_start_samples(spnta, args.initial_sample_spread, nwalkers)
-
     sampler = emcee.EnsembleSampler(
         nwalkers,
         spnta.ndim,
@@ -284,16 +289,33 @@ def main(argv=None):
         vectorize=True,
         backend=emcee.backends.HDFBackend(f"{args.outdir}/chain.h5"),
     )
-    if not args.resume:
-        sampler.run_mcmc(
-            p0, args.nsteps, progress=True, progress_kwargs={"mininterval": 1}
-        )
-    else:
-        sampler.run_mcmc(
-            None, args.nsteps, progress=True, progress_kwargs={"mininterval": 1}
-        )
 
-    samples_raw = sampler.get_chain(flat=True, discard=args.burnin, thin=args.thin)
+    p0 = (
+        get_start_samples(spnta, args.initial_sample_spread, nwalkers)
+        if not args.resume
+        else sampler.get_chain()[-1, :, :]
+    )
+
+    converged, tau = run_emcee_until_converged(
+        sampler,
+        p0,
+        max_steps=args.nsteps,
+        initial_chunk=args.burnin * 2,
+        min_chunk=1000,
+        max_chunk=5000,
+        tau_multiplier=args.tau_mult,
+        tau_rtol=0.05,
+        discard_for_tau=args.burnin,
+        min_checks=2,
+        progress=True,
+    )
+    # sampler.run_mcmc(
+    #     p0, args.nsteps, progress=True, progress_kwargs={"mininterval": 1}
+    # )
+
+    samples_raw = sampler.get_chain(
+        flat=True, discard=min(args.burnin, int(10 * max(tau))), thin=args.thin
+    )
 
     spnta.save_results(
         args.outdir,

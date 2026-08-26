@@ -681,12 +681,14 @@ def pint_model_to_vela(
     analytic_marginalized_param_prior_stds: Dict[str, float],
     ecorr_toa_ranges: Optional[List[Tuple[int, int]]] = None,
     ecorr_indices: Optional[List[Tuple[int]]] = None,
+    tzrtoa: TOAs = None,
 ):
     """Construct a `Vela.TimingModel` from a `PINT` `TimingModel`."""
 
     epoch_mjd = float(model["PEPOCH"].value)
 
-    toas.compute_pulse_numbers(model)
+    if toas.get_pulse_numbers() is None:
+        toas.compute_pulse_numbers(model)
 
     if not marginalize_gp_noise:
         # If we don't want to use the marginalized GP noise models,
@@ -716,8 +718,9 @@ def pint_model_to_vela(
         model, free_params, epoch_mjd, cheat_prior_scale, custom_prior_dists
     )
 
-    tzr_toa = model.get_TZR_toa(toas)
-    tzr_toa.compute_pulse_numbers(model)
+    tzr_toa = model.get_TZR_toa(toas) if tzrtoa is None else tzrtoa
+    if tzr_toa.get_pulse_numbers() is None:
+        tzr_toa.compute_pulse_numbers(model)
     tzr_toa = pint_toa_to_vela(tzr_toa, -1, epoch_mjd)
 
     kernel = get_kernel(
@@ -788,7 +791,7 @@ def fit_data_for_cheat_priors(
     if "PHOFF" in model.free_params:
         fit_params += ["PHOFF"]
 
-    if len(fit_params) > 0:
+    if len(set(fit_params).difference({"PHOFF"})) > 0:
         model1 = deepcopy(model)
         model1.free_params = fit_params
         ftr = Fitter.auto(toas, model1, downhill=False)

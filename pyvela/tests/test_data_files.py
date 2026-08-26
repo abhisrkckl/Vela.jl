@@ -280,6 +280,16 @@ def test_posterior(model_and_toas):
 
     assert np.isclose(spnta.lnpost(parv), spnta.lnpost_vectorized(np.array([parv]))[0])
 
+    cube = np.random.rand(spnta.ndim) * 0.9
+    assert np.isfinite(spnta.lnpost_transformed(cube))
+    assert np.isclose(
+        spnta.lnpost_transformed(cube),
+        spnta.lnpost_transformed_vectorized(np.array([cube]))[0],
+    )
+
+    cube[0] = 1.1
+    assert not np.isfinite(spnta.lnpost_transformed(cube))
+
 
 def test_readwrite_jlso(model_and_toas):
     spnta: SPNTA
