@@ -5,7 +5,7 @@ function calc_noise_weights_inv(
     return map(params -> calc_noise_weights_inv(kernel, params), params_list)
 end
 
-function calc_resids_and_Ninvdiag(
+function _calc_resids_and_Ninvdiag(
     model::TimingModel,
     toas::Vector{TOA},
     params_list::AbstractVector{<:NamedTuple},
@@ -38,7 +38,7 @@ function calc_resids_and_Ninvdiag(
     return ys, Ninvdiag
 end
 
-function calc_resids_and_Ninvdiag(
+function _calc_resids_and_Ninvdiag(
     model::TimingModel,
     wtoas::Vector{WidebandTOA},
     params_list::AbstractVector{<:NamedTuple},
@@ -74,4 +74,32 @@ function calc_resids_and_Ninvdiag(
     Ninvdiag = @view result_data[:, 2, :]
 
     return ys, Ninvdiag
+end
+
+function _calc_y_Ninv_y__and__logdet_N(
+    ::WhiteNoiseKernel,
+    Ninvdiag::AbstractArray,
+    y::AbstractArray,
+    ::AbstractVector{<:NamedTuple},
+)
+    @assert size(Ninvdiag) == size(y)
+    Ndata, Nsets = size(y)
+
+    result_data = zeros(Float64, (2, Nsets))
+
+    y_Ninv_y = @view result_data[1, :]
+    logdet_N = @view result_data[2, :]
+    for i = 1:Nsets
+        y_Ninv_y_i = 0.0
+        logdet_N_i = 0.0
+        @inbounds @simd for j = 1:Ndata
+            y_Ninv_y_i += y[j, i] * y[j, i] * Ninvdiag[j, i]
+            logdet_N_i -= log(Ninvdiag[j, i])
+        end # COV_EXCL_LINE
+
+        y_Ninv_y[i] = y_Ninv_y_i
+        logdet_N[i] = logdet_N_i
+    end
+
+    return y_Ninv_y, logdet_N
 end
