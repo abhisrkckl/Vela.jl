@@ -191,6 +191,20 @@
         @test calc_lnpost_vec(paramss)[1] ≈ calc_lnpost_(params)
     end
 
+    @testset "posterior_transformed" begin
+        npar = model.param_handler._nfree
+        cube = rand(npar)
+        @test isfinite(calc_lnpost_transformed(model, toas, cube))
+
+        cubes = transpose([cube cube cube])
+        @test allequal(calc_lnpost_transformed_vectorized(model, toas, cubes))
+        @test calc_lnpost_transformed_vectorized(model, toas, cubes)[1] ≈
+              calc_lnpost_transformed(model, toas, cube)
+
+        cube[1] = 1.1
+        @test !isfinite(calc_lnpost_transformed(model, toas, cube))
+    end
+
     @testset "pulsar" begin
         psr = Pulsar(model, toas)
 

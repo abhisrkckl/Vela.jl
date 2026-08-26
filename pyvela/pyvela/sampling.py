@@ -180,7 +180,7 @@ def run_emcee_until_converged(
         # We want the next chunk to be a fraction of tau.
         # ------------------------------------------------------------
 
-        target_chunk = int(0.5 * tau_max)
+        target_chunk = int(0.5 * tau_max) if np.isfinite(tau_max) else initial_chunk
 
         chunk = np.clip(
             target_chunk,
