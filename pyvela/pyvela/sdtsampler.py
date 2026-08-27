@@ -19,32 +19,38 @@ class SDTSampler:
 
     @cached_property
     def spnta_subsets(self) -> List[SPNTA]:
-        toass = []
-        toas1 = self.spnta.toas_pint
-        while toas1 is not None:
-            print("ntoas = ", len(toas1))
-            toass.append(toas1)
+        tzrtoa = self.spnta.model_pint.get_TZR_toa(self.spnta.toas_pint)
+        tzrtoa.compute_pulse_numbers(self.spnta.model_pint)
+
+        spntas = []
+        spnta1 = self.spnta
+        while True:
+            print(len(spnta1.toas_pint))
+            spntas.append(spnta1)
             toas1 = get_toas_subset(
                 self.spnta.model_pint_modified,
-                toas1,
+                spnta1.toas_pint,
                 self.data_tempering_factor,
                 self.ntoa_min,
             )
-        toass.reverse()
 
-        return [
-            SPNTA.from_pint(
+            if toas1 is None:
+                break
+
+            spnta1 = SPNTA.from_pint(
                 self.spnta.model_pint_modified,
-                toas,
+                toas1,
                 analytic_marginalized_params=self.spnta.analytic_marginalized_params,
                 custom_priors=(
                     self.spnta.custom_priors_dict
                     if hasattr(self.spnta, "custom_priors_dict")
                     else {}
                 ),
+                tzrtoa=tzrtoa,
             )
-            for toas in toass
-        ]
+        spntas.reverse()
+
+        return spntas
 
 
 def get_toas_subset(
