@@ -1,5 +1,6 @@
 # Unreleased
 ## Added
+- Powerlaw solar wind GP model (`PowerlawSolarWindNoiseGP`)
 - Installation instructions for MacOS.
 - `SPNA.lnpost_transformed()` and `SPNA.lnpost_transformed_vectorized()` methods.
 - Example notebook showing `run_emcee_until_converged()`.
@@ -80,6 +81,7 @@
 ## Added
 - Example script `run_example_nested.jl`
 ## Changed
+- Split `gp_noise.py` into multiple files.
 - Parallelize GLS likelihood computation using threads. 
 ## Fixed
 ## Removed
