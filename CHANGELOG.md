@@ -9,6 +9,7 @@
 - Compute pulse numbers only if necessary.
 - `pyvela` script now runs until a given chain length-to-autocorrelation length ratio is reached. Command line arguments are changed accordingly.
 - `SPNA.prior_transform()` method can now handle vectorized inputs.
+- Speed up TOA reading.
 ## Fixed
 - While constructing `SPNTA`, compute TOA pulse numbers only if required.
 - Make `get_dmx_mask()` faster.
