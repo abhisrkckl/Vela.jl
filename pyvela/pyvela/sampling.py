@@ -25,7 +25,7 @@ def run_emcee_until_converged(
     min_chunk=100,
     max_chunk=5000,
     tau_multiplier=50,
-    tau_rtol=0.05,
+    tau_rtol=0.1,
     discard_for_tau=400,
     min_checks=2,
     progress=True,
