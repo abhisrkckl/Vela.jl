@@ -13,7 +13,7 @@ from .dmx import get_dmx_mask
 from .gp_noise import PLChromNoiseGP, PLDMNoiseGP, PLRedNoiseGP
 from .parameters import get_unit_conversion_factor, pint_parameters_to_vela, fdjump_rx
 from .priors import get_default_priors
-from .toas import day_to_s, pint_toa_to_vela
+from .toas import day_to_s, pint_nbtoas_to_vela
 from .vela import jl, vl
 
 
@@ -721,7 +721,7 @@ def pint_model_to_vela(
     tzr_toa = model.get_TZR_toa(toas) if tzrtoa is None else tzrtoa
     if tzr_toa.get_pulse_numbers() is None:
         tzr_toa.compute_pulse_numbers(model)
-    tzr_toa = pint_toa_to_vela(tzr_toa, -1, epoch_mjd)
+    tzr_toa = pint_nbtoas_to_vela(tzr_toa, epoch_mjd)[0]
 
     kernel = get_kernel(
         model,
