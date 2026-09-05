@@ -96,10 +96,12 @@ class SDTSampler:
 
             sampler.run_mcmc(x0, nsteps, progress=True)
 
-            ch = sampler.get_chain(discard=nsteps // 2, flat=True)
-            idx = np.random.choice(len(ch), size=self.nwalkers, replace=False)
-            # x0 = sampler.get_chain()[-1,:,:]
-            x0 = ch[idx, :]
+            if ii < len(self.samplers) - 1:
+                ch = sampler.get_chain(discard=nsteps // 2, flat=True)
+                idx = np.random.choice(len(ch), size=self.nwalkers, replace=False)
+
+                # x0 = sampler.get_chain()[-1,:,:]
+                x0 = ch[idx, :]
 
     def get_chains(self, thin=10):
         return [sampler.get_chain(thin=thin) for sampler in self.samplers]
