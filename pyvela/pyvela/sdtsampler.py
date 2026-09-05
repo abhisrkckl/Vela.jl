@@ -86,17 +86,22 @@ class SDTSampler:
         return self.samplers[-1]
 
     def run_mcmc(self, x0, nsteps_initial=6000, nsteps_mid=1000, nsteps_final=6000):
+        niter = len(self.samplers)
         for ii, sampler in enumerate(self.samplers):
+            print(
+                f"Iteration {ii}/{niter} :: Ntoas = {len(self.spnta_subsets[ii].toas)}"
+            )
+
             if ii == 0:
                 nsteps = nsteps_initial
-            elif ii == len(self.spnta_subsets) - 1:
+            elif ii == niter - 1:
                 nsteps = nsteps_final
             else:
                 nsteps = nsteps_mid
 
             sampler.run_mcmc(x0, nsteps, progress=True)
 
-            if ii < len(self.samplers) - 1:
+            if ii < niter - 1:
                 ch = sampler.get_chain(discard=nsteps // 2, flat=True)
                 idx = np.random.choice(len(ch), size=self.nwalkers, replace=False)
 
