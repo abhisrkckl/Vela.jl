@@ -1,5 +1,6 @@
 from functools import cached_property
 from typing import List, Optional
+from copy import deepcopy
 
 import numpy as np
 
@@ -22,6 +23,8 @@ class SDTSampler:
         tzrtoa = self.spnta.model_pint.get_TZR_toa(self.spnta.toas_pint)
         tzrtoa.compute_pulse_numbers(self.spnta.model_pint)
 
+        model_ = deepcopy(self.spnta.model_pint)
+
         spntas = []
         spnta1 = self.spnta
         while True:
@@ -37,8 +40,14 @@ class SDTSampler:
             if toas1 is None:
                 break
 
+            for par in ["TNREDC", "TNDMC", "TNCHROMC"]:
+                if par in model_:
+                    model_[par].value = max(
+                        int(round(model_[par].value * self.data_tempering_factor)), 4
+                    )
+
             spnta1 = SPNTA.from_pint(
-                self.spnta.model_pint_modified,
+                model_,
                 toas1,
                 analytic_marginalized_params=self.spnta.analytic_marginalized_params,
                 custom_priors=(
