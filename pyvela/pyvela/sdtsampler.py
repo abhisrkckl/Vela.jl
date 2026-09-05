@@ -3,6 +3,7 @@ from typing import List, Optional
 from copy import deepcopy
 
 import numpy as np
+import emcee
 
 from pint.models import TimingModel
 from pint.toa import TOAs
@@ -12,11 +13,17 @@ from .spnta import SPNTA
 
 class SDTSampler:
     def __init__(
-        self, spnta: SPNTA, data_tempering_factor: float = 0.75, ntoa_min: int = 64
+        self,
+        spnta: SPNTA,
+        data_tempering_factor: float = 0.75,
+        ntoa_min: int = 32,
+        nwalkers_per_param=5,
     ):
         self.spnta = spnta
         self.data_tempering_factor = data_tempering_factor
         self.ntoa_min = ntoa_min
+        self.ndim = self.spnta.ndim
+        self.nwalkers = self.ndim * nwalkers_per_param
 
     @cached_property
     def spnta_subsets(self) -> List[SPNTA]:
@@ -60,6 +67,49 @@ class SDTSampler:
         spntas.reverse()
 
         return spntas
+
+    @cached_property
+    def samplers(self):
+        return [
+            emcee.EnsembleSampler(
+                self.nwalkers,
+                self.ndim,
+                spnta_.lnpost_vectorized,
+                vectorize=True,
+                moves=[(emcee.moves.StretchMove(), 0.5), (emcee.moves.DEMove(), 0.5)],
+            )
+            for spnta_ in self.spnta_subsets
+        ]
+
+    @cached_property
+    def final_sampler(self):
+        return self.samplers[-1]
+
+    def run_mcmc(self, x0, nsteps_initial=6000, nsteps_mid=1000, nsteps_final=6000):
+        for ii, sampler in enumerate(self.samplers):
+            if ii == 0:
+                nsteps = nsteps_initial
+            elif ii == len(self.spnta_subsets) - 1:
+                nsteps = nsteps_final
+            else:
+                nsteps = nsteps_mid
+
+            sampler.run_mcmc(x0, nsteps, progress=True)
+
+            ch = sampler.get_chain(discard=nsteps // 2, flat=True)
+            idx = np.random.choice(len(ch), size=self.nwalkers, replace=False)
+            # x0 = sampler.get_chain()[-1,:,:]
+            x0 = ch[idx, :]
+
+    def get_chains(self, thin=10):
+        return [sampler.get_chain(thin=thin) for sampler in self.samplers]
+
+    def get_full_chain(self, thin=10):
+        chains = self.get_chains(thin=thin)
+        return np.concatenate(chains, axis=0)
+
+    def get_final_chain(self, flat=True, thin=10, discard=0):
+        return self.final_sampler.get_chain(flat=flat, thin=thin, discard=discard)
 
 
 def get_toas_subset(
