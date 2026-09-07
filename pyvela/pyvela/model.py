@@ -644,7 +644,7 @@ def construct_woodbury_kernel(
     gp_basis = np.hstack(gp_basis_matrices).astype(float)
 
     return vl.WoodburyKernel(
-        inner_kernel, jl.Tuple(gp_components), jl.Matrix[jl.Float64](gp_basis)
+        inner_kernel, jl.Tuple(gp_components), jl.Matrix[jl.Float32](gp_basis)
     )
 
 
