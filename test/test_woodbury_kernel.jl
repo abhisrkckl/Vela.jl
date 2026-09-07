@@ -6,7 +6,7 @@
             PowerlawDispersionNoiseGP(15, 4, 2.0),
             PowerlawChromaticNoiseGP(5, 4, 2.0),
         ),
-        randn(1000, 84),
+        randn(Float32, 1000, 84),
     )
 
     @test length(get_marginalized_param_names(kernel)) == 84
