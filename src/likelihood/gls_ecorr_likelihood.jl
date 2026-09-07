@@ -15,7 +15,7 @@ function _calc_y_Ninv_y__and__logdet_N(
         @inbounds @threads for group in inner_kernel.ecorr_groups
             ithread = Threads.threadid()
 
-            ecorr = (group.index == 0) ? 0.0 : value(params.ECORR[group.index])
+            ecorr = Float32((group.index == 0) ? 0.0 : value(params.ECORR[group.index]))
             w = ecorr * ecorr
 
             T = promote_type(eltype(y), eltype(Ninvdiag))
@@ -43,7 +43,7 @@ function _calc_y_Ninv_y__and__logdet_N(
         logdet_Nc = 0.0
 
         @inbounds for group in inner_kernel.ecorr_groups
-            ecorr = (group.index == 0) ? 0.0 : value(params.ECORR[group.index])
+            ecorr = Float32((group.index == 0) ? 0.0 : value(params.ECORR[group.index]))
             w = ecorr * ecorr
 
             T = promote_type(eltype(y), eltype(Ninvdiag))
@@ -71,17 +71,19 @@ end
 
 function _calc_Ninv_M(
     inner_kernel::EcorrKernel,
-    M::Matrix{Float64},
+    M::AbstractMatrix,
     Ninvdiag,
     params::NamedTuple;
     parallel::Bool = false,
 )
+    X = eltype(M)
+
     Ntoa, Npar = size(M)
-    A = Matrix{Float64}(undef, Ntoa, Npar)
+    A = Matrix{X}(undef, Ntoa, Npar)
 
     if parallel
         @inbounds @threads for group in inner_kernel.ecorr_groups
-            ecorr = (group.index == 0) ? 0.0 : value(params.ECORR[group.index])
+            ecorr = Float32((group.index == 0) ? 0.0 : value(params.ECORR[group.index]))
             w = ecorr * ecorr
             toa_range = group.start:group.stop
 
@@ -107,7 +109,7 @@ function _calc_Ninv_M(
         end # COV_EXCL_LINE
     else
         @inbounds for group in inner_kernel.ecorr_groups
-            ecorr = (group.index == 0) ? 0.0 : value(params.ECORR[group.index])
+            ecorr = Float32((group.index == 0) ? 0.0 : value(params.ECORR[group.index]))
             w = ecorr * ecorr
             toa_range = group.start:group.stop
 
