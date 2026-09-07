@@ -74,12 +74,12 @@ Reference:
 struct WoodburyKernel{InnerKernel<:Kernel,GPComponentsTuple<:Tuple} <: Kernel
     inner_kernel::InnerKernel
     gp_components::GPComponentsTuple
-    noise_basis::Matrix{Float64}
+    noise_basis::Matrix{Float32}
 
     function WoodburyKernel(
         inner_kernel::Kernel,
         gp_components::Tuple,
-        noise_basis::Matrix{Float64},
+        noise_basis::Matrix{Float32},
     )
         @assert all(is_gp_noise.(gp_components))
         @assert sum(get_gp_npars.(gp_components)) == size(noise_basis)[2]
