@@ -1,8 +1,8 @@
 function calc_lnpost_vectorized(
-    model::TimingModel,
+    model::TimingModel{ComponentsTuple,KernelType,PriorsTuple},
     toas::Vector{T},
     paramss,
-) where {T<:TOABase}
+) where {ComponentsTuple<:Tuple,KernelType<:WoodburyKernel,PriorsTuple<:Tuple,T<:TOABase}
     nparamss = size(paramss, 1)
 
     lnposts = Vector{Float64}(undef, nparamss)

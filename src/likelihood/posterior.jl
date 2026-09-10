@@ -16,18 +16,18 @@ function calc_lnpost_serial(model::TimingModel, toas::Vector{T}, params) where {
     return !isfinite(lnpr) ? lnpr : lnpr + calc_lnlike_serial(model, toas, params)
 end
 
-# function calc_lnpost_vectorized(
-#     model::TimingModel,
-#     toas::Vector{T},
-#     paramss,
-# ) where {T<:TOABase}
-#     nparamss = size(paramss)[1]
-#     result = Vector{Float64}(undef, nparamss)
-#     @threads :static for ii = 1:nparamss
-#         result[ii] = calc_lnpost_serial(model, toas, paramss[ii, :])
-#     end # COV_EXCL_LINE
-#     return result
-# end
+function calc_lnpost_vectorized(
+    model::TimingModel,
+    toas::Vector{T},
+    paramss,
+) where {T<:TOABase}
+    nparamss = size(paramss)[1]
+    result = Vector{Float64}(undef, nparamss)
+    @threads :static for ii = 1:nparamss
+        result[ii] = calc_lnpost_serial(model, toas, paramss[ii, :])
+    end # COV_EXCL_LINE
+    return result
+end
 
 """
     get_lnpost_func(::TimingModel, toas::Vector{T}, vectorize::Bool = false) where {T<:TOABase}
