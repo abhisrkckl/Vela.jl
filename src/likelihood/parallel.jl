@@ -1,3 +1,9 @@
+# This function improves memory usage by pre-allocating memory for 
+# matrix computations. It looks significantly uglier than the 
+# alternative, but it's 20-40% faster and reduces memory usage
+# by almost a factor of 10. 
+#
+# TODO: Clean up repeated code.
 function calc_lnpost_vectorized(
     model::TimingModel{ComponentsTuple,KernelType,PriorsTuple},
     toas::Vector{T},
@@ -42,6 +48,8 @@ function calc_lnpost_vectorized(
             continue
         end
 
+        # Annoyingly, in Julia, the threadid() is not between 1 and nthreads().
+        # This ugly construction is needed to avoid allocating unnecessary memory.
         ithr = findfirst(
             x -> x==threadid(),
             Base.Threads.threadpooltids(Base.Threads.threadpool()),
