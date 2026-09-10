@@ -4,7 +4,7 @@ module Vela
 using GeometricUnits
 using DoubleFloats: Double64
 using LinearAlgebra: dot, Symmetric, cholesky!, ldiv!, logdet, isposdef
-using .Threads: @threads, @spawn, fetch, nthreads, threadid, maxthreadid
+using .Threads: @threads, @spawn, fetch, nthreads, threadid
 using Unrolled: @unroll
 using Distributions
 import Distributions:
