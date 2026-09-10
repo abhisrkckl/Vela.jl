@@ -1,4 +1,4 @@
-function calc_lnpost_vectorized1(
+function calc_lnpost_vectorized(
     model::TimingModel,
     toas::Vector{T},
     paramss,
@@ -256,60 +256,3 @@ function _calc_MT_Ninv_y!(
 
     return u
 end
-
-# function _calc_y_Ninv_y__and__logdet_N(
-#     ::WhiteNoiseKernel,
-#     Ninvdiag::AbstractVector,
-#     y::AbstractVector,
-#     ::NamedTuple
-# )
-#     Ntoa = length(y)
-#     @assert length(Ninvdiag) == Ntoa
-
-#     y_Ninv_y = 0.0
-#     logdet_N = 0.0
-#     @inbounds @simd for j = 1:Ntoa
-#         y_Ninv_y += y[j] * y[j] * Ninvdiag[j]
-#         logdet_N -= log(Ninvdiag[j])
-#     end # COV_EXCL_LINE
-
-#     return y_Ninv_y, logdet_N
-# end
-
-# function _calc_y_Ninv_y__and__logdet_N(
-#     inner_kernel::EcorrKernel,
-#     Ninvdiag::AbstractVector,
-#     y::AbstractVector,
-#     params::NamedTuple;
-# )
-#     Ntoa = length(y)
-#     @assert length(Ninvdiag) == Ntoa
-
-#     y_Ninv_y = 0.0
-#     logdet_Nc = 0.0
-
-#     @inbounds for group in inner_kernel.ecorr_groups
-#         ecorr = (group.index == 0) ? 0.0 : value(params.ECORR[group.index])
-#         w = ecorr * ecorr
-
-#         T = promote_type(eltype(y), eltype(Ninvdiag))
-#         r_r = zero(T)
-#         r_u = zero(T)
-#         u_u = zero(T)
-#         logdet_N = zero(T)
-#         @simd for ii = group.start:group.stop
-#             Ninv_ii = Ninvdiag[ii]
-#             r_u_ii = y[ii] * Ninv_ii
-#             r_r += y[ii] * r_u_ii
-#             r_u += r_u_ii
-#             u_u += Ninv_ii
-#             logdet_N -= log(Ninvdiag[ii])
-#         end # COV_EXCL_LINE
-
-#         denom = (1 + w * u_u)
-#         y_Ninv_y += r_r - w * r_u * r_u / denom
-#         logdet_Nc += logdet_N + log(denom)
-#     end
-
-#     return y_Ninv_y, logdet_Nc
-# end
