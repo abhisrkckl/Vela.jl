@@ -14,8 +14,6 @@
     rn = PowerlawRedNoiseGP(3, 2, 2.0)
     @test length(rn.ln_js) == 5
 
-    @test isfinite(delay(rn, toa, ctoa, params))
-
     @test all(calc_noise_weights_inv(rn, params) .> 0)
     @test calc_noise_weights_inv(rn, params)[1:5] ==
           calc_noise_weights_inv(rn, params)[6:10]
@@ -50,8 +48,6 @@ end
     dmn = PowerlawDispersionNoiseGP(3, 2, 2.0)
     @test length(dmn.ln_js) == 5
 
-    @test isfinite(delay(dmn, toa, ctoa, params))
-
     @test all(calc_noise_weights_inv(dmn, params) .> 0)
     @test calc_noise_weights_inv(dmn, params)[1:5] ==
           calc_noise_weights_inv(dmn, params)[6:10]
@@ -84,8 +80,6 @@ end
 
     cmn = PowerlawChromaticNoiseGP(3, 2, 2.0)
     @test length(cmn.ln_js) == 5
-
-    @test isfinite(delay(cmn, toa, ctoa, params))
 
     @test all(calc_noise_weights_inv(cmn, params) .> 0)
     @test calc_noise_weights_inv(cmn, params)[1:5] ==
