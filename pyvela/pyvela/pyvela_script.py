@@ -245,7 +245,6 @@ def main(argv=None):
             args.tim_file,
             cheat_prior_scale=args.cheat_prior_scale,
             custom_priors=(args.prior_file if args.prior_file is not None else {}),
-            marginalize_gp_noise=True,
             analytic_marginalized_params=args.analytic_marg,
             center_epochs=args.center_epochs,
         )
