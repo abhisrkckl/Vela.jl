@@ -16,47 +16,6 @@ function powerlaw(A, γ, f, f1)
 end
 
 """
-    evaluate_powerlaw_red_noise_gp
-
-Evaluate the power law Fourier-basis red noise delay/DM/CM.
-"""
-function evaluate_powerlaw_red_noise_gp(log10_A, γ, αs, βs, f1, Δt, ln_js)
-    @assert length(αs) == length(βs) == length(ln_js)
-
-    A = exp10(log10_A)
-
-    ϕ1 = 2π * f1 * Δt
-    exp_im_ϕ1 = exp(im * value(ϕ1))
-
-    σ1 = sqrt(powerlaw(A, γ, f1, f1))
-
-    result = dimensionless(0.0)
-
-    # Handle log-spaced harmonics
-    nlog = findfirst(iszero, ln_js) - 1
-    for ii = 1:nlog
-        α, β, ln_j = αs[ii], βs[ii], ln_js[ii]
-        j = exp(ln_j)
-        jfac = exp(-(γ / 2) * ln_j)
-        sincosϕ = sincos(j * ϕ1)
-        result += jfac * dot((α, β), sincosϕ)
-    end
-
-    # Handle linearly spaced harmonics
-    ntot = length(ln_js)
-    exp_im_ϕj = exp_im_ϕ1
-    for ii = (nlog+1):ntot
-        α, β, ln_j = αs[ii], βs[ii], ln_js[ii]
-        jfac = exp(-(γ / 2) * ln_j)
-        sincosϕ = imag(exp_im_ϕj), real(exp_im_ϕj)
-        result += jfac * dot((α, β), sincosϕ)
-        exp_im_ϕj *= exp_im_ϕ1
-    end
-
-    return σ1 * result
-end
-
-"""
     evaluate_powerlaw_red_noise_weights_inv(log10_A, γ, f1, ln_js)
 
 Evaluate the prior weights for a power law red noise.
@@ -119,17 +78,6 @@ get_gp_npars(arn::PowerlawRedNoiseGP) = 2 * length(arn.ln_js)
 get_marginalized_param_names(arn::PowerlawRedNoiseGP) =
     marginalized_param_names_for_gp_noise("PLRED", length(arn.ln_js))
 
-delay(arn::PowerlawRedNoiseGP, toa::TOA, toacorr::TOACorrection, params::NamedTuple) =
-    evaluate_powerlaw_red_noise_gp(
-        params.TNREDAMP,
-        params.TNREDGAM,
-        params.PLREDSIN_,
-        params.PLREDCOS_,
-        params.PLREDFREQ,
-        corrected_toa_value(toa, toacorr, Float64) - params.PLREDEPOCH,
-        arn.ln_js,
-    )
-
 calc_noise_weights_inv(arn::PowerlawRedNoiseGP, params::NamedTuple) =
     evaluate_powerlaw_red_noise_weights_inv(
         params.TNREDAMP,
@@ -164,24 +112,6 @@ get_gp_npars(dmn::PowerlawDispersionNoiseGP) = 2 * length(dmn.ln_js)
 get_marginalized_param_names(dmn::PowerlawDispersionNoiseGP) =
     marginalized_param_names_for_gp_noise("PLDM", length(dmn.ln_js))
 
-function dispersion_slope(
-    dmn::PowerlawDispersionNoiseGP,
-    toa::TOA,
-    toacorr::TOACorrection,
-    params::NamedTuple,
-)
-    νref = frequency(1.4e9)
-    return (νref * νref) * evaluate_powerlaw_red_noise_gp(
-        params.TNDMAMP,
-        params.TNDMGAM,
-        params.PLDMSIN_,
-        params.PLDMCOS_,
-        params.PLDMFREQ,
-        corrected_toa_value(toa, toacorr, Float64) - params.PLDMEPOCH,
-        dmn.ln_js,
-    )
-end
-
 calc_noise_weights_inv(dmn::PowerlawDispersionNoiseGP, params::NamedTuple) =
     evaluate_powerlaw_red_noise_weights_inv(
         params.TNDMAMP,
@@ -215,24 +145,6 @@ is_gp_noise(::PowerlawChromaticNoiseGP) = true # COV_EXCL_LINE
 get_gp_npars(crn::PowerlawChromaticNoiseGP) = 2 * length(crn.ln_js)
 get_marginalized_param_names(crn::PowerlawChromaticNoiseGP) =
     marginalized_param_names_for_gp_noise("PLCHROM", length(crn.ln_js))
-
-function chromatic_slope(
-    crn::PowerlawChromaticNoiseGP,
-    toa::TOA,
-    toacorr::TOACorrection,
-    params::NamedTuple,
-)
-    νref_val = 1400.0
-    return (νref_val^params.TNCHROMIDX) * evaluate_powerlaw_red_noise_gp(
-        params.TNCHROMAMP,
-        params.TNCHROMGAM,
-        params.PLCHROMSIN_,
-        params.PLCHROMCOS_,
-        params.PLCHROMFREQ,
-        corrected_toa_value(toa, toacorr, Float64) - params.PLCHROMEPOCH,
-        crn.ln_js,
-    )
-end
 
 calc_noise_weights_inv(crn::PowerlawChromaticNoiseGP, params::NamedTuple) =
     evaluate_powerlaw_red_noise_weights_inv(

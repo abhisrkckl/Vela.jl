@@ -10,7 +10,7 @@ from pint.models import TimingModel, get_model, get_model_and_toas
 from pint.simulation import make_fake_toas_uniform
 from pint.toa import TOAs
 
-from pyvela.model import fit_data_for_cheat_priors, fix_params, fix_red_noise_components
+from pyvela.model import fit_data_for_cheat_priors, fix_params
 from pyvela.parameters import fdjump_rx
 from pyvela.spnta import SPNTA, convert_model_and_toas
 from pyvela.vela import vl
@@ -26,7 +26,6 @@ datasets = [
     "sim3.gp",
     "sim_ecorr_arn",
     "sim_expdip",
-    "sim3",
     "sim_dmgp_wb",
     "sim_fdjump",
     "sim_ddk",
@@ -58,7 +57,6 @@ def model_and_toas(request):
         parfile,
         timfile,
         custom_priors=custom_priors,
-        marginalize_gp_noise=False,
         center_epochs=(m["BINARY"].value != "ELL1k"),
     )
 
@@ -71,7 +69,6 @@ def model_and_toas(request):
         > 0
     ):
         fix_params(m, t)
-        fix_red_noise_components(m, t)
 
     return spnta, m, t
 
@@ -85,7 +82,6 @@ def test_read_data(dataset):
         m,
         t,
         m.get_params_of_component_type("NoiseComponent"),
-        False,
         [],
         {},
     )
@@ -101,7 +97,6 @@ def test_make_SPNTA_marg(dataset):
         parfile,
         timfile,
         custom_priors=custom_priors,
-        marginalize_gp_noise=True,
         center_epochs=True,
     )
     assert np.isfinite(spnta.lnpost(spnta.default_params))
@@ -191,26 +186,6 @@ def test_data(model_and_toas: Tuple[SPNTA, TimingModel, TOAs]):
             )
 
     assert "PHOFF" in spnta.model_pint_modified
-
-
-def test_chi2(model_and_toas: Tuple[SPNTA, TimingModel, TOAs]):
-    spnta, m, t = model_and_toas
-    calc_chi2 = vl.get_chi2_func(spnta.model, spnta.toas)
-
-    if (
-        len(
-            {"PLRedNoiseGP", "PLDMNoiseGP", "PLChromNoiseGP"}.intersection(
-                m.components.keys()
-            )
-        )
-        == 0
-    ):
-        assert (
-            calc_chi2(spnta.default_params)
-            / len(spnta.toas)
-            / (1 + int(t.is_wideband()))
-            < 1.5
-        )
 
 
 def test_likelihood(model_and_toas):
@@ -309,30 +284,11 @@ def test_readwrite_jlso(model_and_toas):
     os.unlink(jlsoname)
 
 
-def test_gp_model_conversion():
-    dataset = "sim3.gp"
-    parfile, timfile = f"{datadir}/{dataset}.par", f"{datadir}/{dataset}.tim"
-    m, t = get_model_and_toas(parfile, timfile, planets=True)
-
-    assert all(c in m.components for c in ["PLRedNoise", "PLDMNoise", "PLChromNoise"])
-
-    fix_params(m, t)
-
-    fix_red_noise_components(m, t)
-
-    assert all(
-        c not in m.components for c in ["PLRedNoise", "PLDMNoise", "PLChromNoise"]
-    )
-    assert all(
-        c in m.components for c in ["PLRedNoiseGP", "PLDMNoiseGP", "PLChromNoiseGP"]
-    )
-
-
 @pytest.mark.parametrize("dataset", ["sim3.gp", "sim7.gp"])
 def test_gp_model_marg(dataset):
     parfile, timfile = f"{datadir}/{dataset}.par", f"{datadir}/{dataset}.tim"
 
-    spnta1 = SPNTA(parfile, timfile, marginalize_gp_noise=True)
+    spnta1 = SPNTA(parfile, timfile)
     assert len(spnta1.param_names) == len(spnta1.model_pint.free_params)
 
     assert np.isfinite(spnta1.lnpost(spnta1.default_params))

@@ -18,6 +18,7 @@
 - `check` option included in `SPNTA.from_pint()` and `SPNTA.load_jlso()`.
 - `get_start_samples()` function.
 ## Removed
+- Unused delay/phase code for GP components.
 
 # 0.1.6
 ## Added

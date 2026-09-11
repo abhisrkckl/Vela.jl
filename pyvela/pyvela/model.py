@@ -10,7 +10,6 @@ from pint.toa import TOAs
 from pint.fitter import Fitter
 
 from .dmx import get_dmx_mask
-from .gp_noise import PLChromNoiseGP, PLDMNoiseGP, PLRedNoiseGP
 from .parameters import get_unit_conversion_factor, pint_parameters_to_vela, fdjump_rx
 from .priors import get_default_priors
 from .toas import day_to_s, pint_nbtoas_to_vela
@@ -648,35 +647,12 @@ def construct_woodbury_kernel(
     )
 
 
-def fix_red_noise_components(model: TimingModel, toas: TOAs):
-    """Replace the GP red noise components with their non-marginalized counterparts.
-    These non-marginalized components are only used for constructing the Vela `TimingModel`
-    and are not functional `PINT` `Component`s."""
-    epoch = model["PEPOCH"].quantity
-
-    if "PLRedNoise" in model.components:
-        plred_gp = PLRedNoiseGP(model.components["PLRedNoise"], epoch)
-        model.remove_component("PLRedNoise")
-        model.add_component(plred_gp)
-
-    if "PLDMNoise" in model.components:
-        pldm_gp = PLDMNoiseGP(model.components["PLDMNoise"], epoch)
-        model.remove_component("PLDMNoise")
-        model.add_component(pldm_gp)
-
-    if "PLChromNoise" in model.components:
-        pldm_chrom = PLChromNoiseGP(model.components["PLChromNoise"], epoch)
-        model.remove_component("PLChromNoise")
-        model.add_component(pldm_chrom)
-
-
 def pint_model_to_vela(
     model: TimingModel,
     toas: TOAs,
     cheat_prior_scale: float,
     custom_prior_dists: dict,
     noise_params: List[str],
-    marginalize_gp_noise: bool,
     analytic_marginalized_params: List[str],
     analytic_marginalized_param_prior_stds: Dict[str, float],
     ecorr_toa_ranges: Optional[List[Tuple[int, int]]] = None,
@@ -689,19 +665,6 @@ def pint_model_to_vela(
 
     if toas.get_pulse_numbers() is None:
         toas.compute_pulse_numbers(model)
-
-    if not marginalize_gp_noise:
-        # If we don't want to use the marginalized GP noise models,
-        # replace them with dummy components which Vela interprets
-        # as delay components whose parameters have specialized prior
-        # distributions. This determines whether the GP noise components
-        # are part of `components` or `kernel` in the Vela `TimingModel`
-        # type. In the former case the GP amplitudes are treated as free
-        # parameters and in the latter case they are marginalized over.
-        # The marginalization assumes that the residuals are linear in
-        # these parameters, and is an approximation, especially when the
-        # amplitudes are large.
-        fix_red_noise_components(model, toas)
 
     pulsar_name = model["PSR"].value if model["PSR"].value is not None else ""
 

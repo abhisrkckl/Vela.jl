@@ -54,7 +54,6 @@ class VelaFitter(Fitter):
         self.spnta: SPNTA = SPNTA.from_pint(
             model,
             toas,
-            marginalize_gp_noise=True,
             cheat_prior_scale=cheat_prior_scale,
             custom_priors=custom_priors,
         )
