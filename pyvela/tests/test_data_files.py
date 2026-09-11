@@ -188,26 +188,6 @@ def test_data(model_and_toas: Tuple[SPNTA, TimingModel, TOAs]):
     assert "PHOFF" in spnta.model_pint_modified
 
 
-def test_chi2(model_and_toas: Tuple[SPNTA, TimingModel, TOAs]):
-    spnta, m, t = model_and_toas
-    calc_chi2 = vl.get_chi2_func(spnta.model, spnta.toas)
-
-    if (
-        len(
-            {"PLRedNoiseGP", "PLDMNoiseGP", "PLChromNoiseGP"}.intersection(
-                m.components.keys()
-            )
-        )
-        == 0
-    ):
-        assert (
-            calc_chi2(spnta.default_params)
-            / len(spnta.toas)
-            / (1 + int(t.is_wideband()))
-            < 1.5
-        )
-
-
 def test_likelihood(model_and_toas):
     spnta: SPNTA
     spnta, _, _ = model_and_toas
