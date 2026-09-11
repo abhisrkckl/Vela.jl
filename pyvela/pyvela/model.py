@@ -653,7 +653,6 @@ def pint_model_to_vela(
     cheat_prior_scale: float,
     custom_prior_dists: dict,
     noise_params: List[str],
-    marginalize_gp_noise: bool,
     analytic_marginalized_params: List[str],
     analytic_marginalized_param_prior_stds: Dict[str, float],
     ecorr_toa_ranges: Optional[List[Tuple[int, int]]] = None,
