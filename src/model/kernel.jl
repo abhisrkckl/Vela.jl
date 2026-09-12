@@ -75,6 +75,7 @@ struct WoodburyKernel{InnerKernel<:Kernel,GPComponentsTuple<:Tuple} <: Kernel
     inner_kernel::InnerKernel
     gp_components::GPComponentsTuple
     noise_basis::Matrix{Float64}
+    workspace::Array{Float64}
 
     function WoodburyKernel(
         inner_kernel::Kernel,
@@ -83,10 +84,24 @@ struct WoodburyKernel{InnerKernel<:Kernel,GPComponentsTuple<:Tuple} <: Kernel
     )
         @assert all(is_gp_noise.(gp_components))
         @assert sum(get_gp_npars.(gp_components)) == size(noise_basis)[2]
+
+        ndata, nmpar = size(noise_basis)
+        yN_size = 2*ndata
+        Ninv_M_size = ndata*nmpar
+        Sigmainv_size = nmpar*nmpar
+        MT_Ninv_y_size = nmpar
+        nthr = nthreads()
+        workspace = Array{Float64}(
+            undef,
+            (yN_size + Ninv_M_size + Sigmainv_size + MT_Ninv_y_size),
+            nthr,
+        )
+
         return new{typeof(inner_kernel),typeof(gp_components)}(
             inner_kernel,
             gp_components,
             noise_basis,
+            workspace,
         )
     end
 end
