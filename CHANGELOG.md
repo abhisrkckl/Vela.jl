@@ -3,7 +3,8 @@
 - Installation instructions for MacOS.
 - `SPNA.lnpost_transformed()` and `SPNA.lnpost_transformed_vectorized()` methods.
 - Example notebook showing `run_emcee_until_converged()`.
-- New `calc_lnpost_vectorized()` method to reduce memory allocation in batched posterior computation for WoodburyKernel
+- New `calc_lnpost_vectorized()` method to reduce memory allocation in batched posterior computation for WoodburyKernel.
+- Pre-allocate the memory needed for matrix operations in `WoodburyKernel.workspace`.
 ## Changed
 - Optionally provide TZRTOA as an argument in `SPNTA.from_pint()`.
 - Run `fit_data_for_cheat_priors()` only if necessary.
