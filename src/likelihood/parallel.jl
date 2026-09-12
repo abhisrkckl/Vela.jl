@@ -13,9 +13,7 @@ function calc_lnpost_vectorized(
 
     lnposts = Vector{Float64}(undef, nparamss)
 
-    # == Pre-allocating memory ==================================
-    nthr = nthreads()
-
+    # == Pre-allocated memory ==================================
     ndata = get_ndata(toas)
     nmpar = get_nmpar(model.kernel)
 
@@ -24,11 +22,7 @@ function calc_lnpost_vectorized(
     Sigmainv_size = nmpar*nmpar
     MT_Ninv_y_size = nmpar
 
-    memory_buffer = Array{Float64}(
-        undef,
-        (yN_size + Ninv_M_size + Sigmainv_size + MT_Ninv_y_size),
-        nthr,
-    )
+    memory_buffer = model.kernel.workspace
 
     y_Ninvdiag_idx = 1:yN_size
     Ninv_M_idx = (yN_size+1):(yN_size+Ninv_M_size)
