@@ -91,6 +91,8 @@ struct WoodburyKernel{InnerKernel<:Kernel,GPComponentsTuple<:Tuple} <: Kernel
         Sigmainv_size = nmpar*nmpar
         MT_Ninv_y_size = nmpar
         nthr = nthreads()
+
+        # Pre-allocated memory for doing matrix operations
         workspace = Array{Float64}(
             undef,
             (yN_size + Ninv_M_size + Sigmainv_size + MT_Ninv_y_size),
