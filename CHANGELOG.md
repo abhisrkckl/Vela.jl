@@ -13,6 +13,7 @@
 - `SPNA.prior_transform()` method can now handle vectorized inputs.
 - `maxfail` in `pyvela` CI test.
 - Speed up TOA reading.
+- `load_pulsar_data()` re-makes the `WoodburyKernel` to ensure that the workspace size is correct. 
 ## Fixed
 - While constructing `SPNTA`, compute TOA pulse numbers only if required.
 - Make `get_dmx_mask()` faster.
