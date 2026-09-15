@@ -5,7 +5,8 @@ export BinaryDDK
 
 The Damour & Deruelle model for eccentric binaries with Kopeikin corrections included,
 which account for the apparent changes in the orbital elements due to proper motion and 
-parallax.
+parallax. `KOM` is measured from east in the model's sky frame. The annual-parallax
+`I0`/`J0` vectors are built in that same frame.
 
 References:
     [Damour & Deruelle 1986](https://ui.adsabs.harvard.edu/abs/1986AIHPA..44..263D/abstract),
@@ -41,6 +42,13 @@ function DDState(ddk::BinaryDDK, toa::TOA, toacorr::TOACorrection, params::Named
 
     ssb_obs_pos = toa.ephem.ssb_obs_pos
     ssb_psr_pos = toacorr.ssb_psr_pos
+    # SolarSystem stores ssb_psr_pos in ICRS. Ephemeris vectors are ICRS.
+    # KOM is measured from east in the model's sky frame, so the annual-parallax
+    # projector must use that same frame (PINT update_binary_object).
+    if ddk.ecliptic_coordinates
+        ssb_obs_pos = icrs_to_ecliptic(ssb_obs_pos)
+        ssb_psr_pos = icrs_to_ecliptic(ssb_psr_pos)
+    end
 
     a1 = params.A1 + Δt * params.A1DOT
 
@@ -70,6 +78,9 @@ proper_motion(params::NamedTuple, ecliptic_coordinates::Bool)::NTuple{2,GQ{-1,Fl
     ecliptic_coordinates ? (params.PMELONG, params.PMELAT) : (params.PMRA, params.PMDEC)
 
 """Compute the vectors I0 and J0 that appear in the Kopeikin parallax corrections.
+
+`ssb_psr_pos` must be a unit vector in the same sky frame as `KOM`
+(ecliptic east/north for an ecliptic model, equatorial otherwise).
 
 References:
     [Kopeikin 1995](http://doi.org/10.1086/187731)

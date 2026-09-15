@@ -189,3 +189,24 @@ end
         end
     end
 end
+
+@testset "DDK ecliptic annual-parallax frame" begin
+    z = sqrt(1 - 0.3^2 - 0.4^2)
+    L_ecl = dimensionless.((0.3, 0.4, z))
+    L_icrs = Vela.ecliptic_to_icrs(L_ecl)
+    L_back = Vela.icrs_to_ecliptic(L_icrs)
+    @test all(map((a, b) -> a ≈ b, L_ecl, L_back))
+    @test @ballocated(Vela.icrs_to_ecliptic($L_icrs)) == 0
+
+    I0_ecl, J0_ecl = Vela.kopeikin_I0_J0(L_ecl)
+    I0_from_icrs, J0_from_icrs = Vela.kopeikin_I0_J0(Vela.icrs_to_ecliptic(L_icrs))
+    @test all(map((a, b) -> a ≈ b, I0_ecl, I0_from_icrs))
+    @test all(map((a, b) -> a ≈ b, J0_ecl, J0_from_icrs))
+
+    R_icrs = ssb_obs_pos
+    R_ecl = Vela.icrs_to_ecliptic(R_icrs)
+    ΔI_ecl = dot(R_ecl, I0_ecl)
+    I0_mixed, _ = Vela.kopeikin_I0_J0(L_icrs)
+    ΔI_mixed = dot(R_icrs, I0_mixed)
+    @test abs(ΔI_ecl - ΔI_mixed) > distance(1.0)
+end

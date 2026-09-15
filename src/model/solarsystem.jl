@@ -2,6 +2,24 @@ export SolarSystem, correct_toa
 
 const OBL = dimensionless(0.4090926006005829)
 
+"""Rotate an ecliptic vector into ICRS using `OBL`. Inverse of `icrs_to_ecliptic`."""
+function ecliptic_to_icrs(vec)
+    x, y, z = vec
+    sinϵ, cosϵ = sincos(OBL)
+    return (x, cosϵ * y - sinϵ * z, sinϵ * y + cosϵ * z)
+end
+
+"""Rotate an ICRS vector into the ecliptic frame used by `SolarSystem`.
+
+Inverse of `ecliptic_to_icrs`. DDK annual-parallax `I0`/`J0` must live in
+the same frame as `KOM`; for an ecliptic model that is this frame, not ICRS.
+"""
+function icrs_to_ecliptic(vec)
+    x, y, z = vec
+    sinϵ, cosϵ = sincos(OBL)
+    return (x, cosϵ * y + sinϵ * z, -sinϵ * y + cosϵ * z)
+end
+
 const AU = distance(499.00478383615643)
 
 const M_SUN = mass(4.92549094830932e-06)
@@ -83,12 +101,7 @@ function correct_toa(ss::SolarSystem, toa::TOA, toacorr::TOACorrection, params::
     Rvec = toa.ephem.ssb_obs_pos
 
     if ss.ecliptic_coordinates
-        x, y, z = Lhat
-        x1 = x
-        sinϵ, cosϵ = sincos(OBL)
-        y1 = cosϵ * y - sinϵ * z
-        z1 = sinϵ * y + cosϵ * z
-        Lhat = (x1, y1, z1)
+        Lhat = ecliptic_to_icrs(Lhat)
     end
 
     Lhat_dot_Rvec = dot(Lhat, Rvec)

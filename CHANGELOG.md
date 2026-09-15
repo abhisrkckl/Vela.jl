@@ -15,6 +15,7 @@
 - Speed up TOA reading.
 - `load_pulsar_data()` re-makes the `WoodburyKernel` to ensure that the workspace size is correct. 
 ## Fixed
+- Ecliptic DDK annual-orbital parallax used ICRS `I0`/`J0` with ecliptic `KOM`.
 - While constructing `SPNTA`, compute TOA pulse numbers only if required.
 - Make `get_dmx_mask()` faster.
 - `check` option included in `SPNTA.from_pint()` and `SPNTA.load_jlso()`.
