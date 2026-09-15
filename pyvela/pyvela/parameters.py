@@ -227,6 +227,11 @@ def pint_parameters_to_vela(
         "TNREDFLOG_FACTOR",
         "TNDMFLOG_FACTOR",
         "TNCHROMFLOG_FACTOR",
+        "DDRR0",
+        "DDRTHETA0",
+        "DDRRHO0",
+        "DDRZ0",
+        "DDRZSUN",
     ]
 
     assert all(psp not in ignore_params for psp in pseudo_single_params), (

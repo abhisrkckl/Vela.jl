@@ -15,6 +15,32 @@ from .priors import get_default_priors
 from .toas import day_to_s, pint_nbtoas_to_vela
 from .vela import jl, vl
 
+_DDR_GALAXY_DEFAULTS = {
+    "DDRR0": 8.178,
+    "DDRTHETA0": 220.0,
+    "DDRRHO0": 0.10,
+    "DDRZ0": 180.0,
+    "DDRZSUN": 20.0,
+}
+_DDR_PLACEHOLDERS = ("EDOT", "EPS1DOT", "EPS2DOT", "DR", "DTH")
+
+
+def _refuse_nondefault_ddr_galaxy(model: TimingModel) -> None:
+    for name, default in _DDR_GALAXY_DEFAULTS.items():
+        if name not in model or model[name].quantity is None:
+            continue
+        got = float(model[name].value)
+        if abs(got - default) > 1e-12 * max(1.0, abs(default)):
+            raise ValueError(f"{name}={got} is not the Vela DDR default {default}")
+
+
+def _refuse_nonzero_ddr_placeholders(model: TimingModel) -> None:
+    for name in _DDR_PLACEHOLDERS:
+        if name not in model or model[name].quantity is None:
+            continue
+        if abs(float(model[name].value)) > 0:
+            raise ValueError(f"DDR does not evaluate nonzero {name}")
+
 
 def read_mask(toas: TOAs, params: List[maskParameter]) -> np.ndarray:
     """Read a TOA mask from a `maskParameter` in a `Vela`-friendly
@@ -192,10 +218,11 @@ def pint_components_to_vela(model: TimingModel, toas: TOAs):
         )
 
     if model.BINARY.value is not None:
-        assert (model["PB"].quantity is not None) != (
-            model["FB0"].quantity is not None
-        ), "Expecting one and only one of PB and FB0. Please check the par file."
         use_fbx = model["FB0"].quantity is not None
+        if not use_fbx:
+            assert (
+                model["PB"].quantity is not None
+            ), "Expecting PB or FB0 after PINT setup. Please check the par file."
         if "BinaryELL1" in component_names:
             components.append(vl.BinaryELL1(use_fbx))
         elif "BinaryELL1H" in component_names:
@@ -215,6 +242,39 @@ def pint_components_to_vela(model: TimingModel, toas: TOAs):
             ), "`AstrometryEcliptic` or `AstrometryEquatorial` must be present in the model when `BinaryDDK` is used. Please check the par file."
             ecliptic_coords = "AstrometryEcliptic" in component_names
             components.append(vl.BinaryDDK(use_fbx, ecliptic_coords))
+        elif "BinaryDDR" in component_names:
+            assert (
+                "AstrometryEcliptic" in component_names
+                or "AstrometryEquatorial" in component_names
+            ), "BinaryDDR requires astrometry."
+            ecliptic_coords = "AstrometryEcliptic" in component_names
+            use_pk = bool(model["DDRPK"].value)
+            pbdot_mode = str(model["DDRPBDOT"].value).strip().lower()
+            assert pbdot_mode in ("kinematic", "absorb_gw")
+            use_geo = bool(model["DDRGEO"].value)
+            use_kine = bool(model["DDRKINE"].value)
+            if use_fbx:
+                assert (
+                    pbdot_mode == "absorb_gw" and not use_kine
+                ), "DDR FBX requires DDRPBDOT absorb_gw and DDRKINE N"
+            elif use_geo:
+                assert use_kine, "DDRGEO Y implies DDRKINE Y in the PB chart"
+            if use_geo or use_kine:
+                assert model["PX"].quantity is not None and model["PX"].value > 0
+            if use_geo:
+                assert model["KOM"].quantity is not None
+            _refuse_nondefault_ddr_galaxy(model)
+            _refuse_nonzero_ddr_placeholders(model)
+            components.append(
+                vl.BinaryDDR(
+                    use_fbx,
+                    ecliptic_coords,
+                    use_pk,
+                    pbdot_mode == "kinematic",
+                    use_geo,
+                    use_kine,
+                )
+            )
         else:
             raise NotImplementedError(
                 f"BINARY {model.BINARY.value} not (yet?) implemented."
@@ -369,6 +429,7 @@ def fix_params(model: TimingModel, toas: TOAs) -> None:
             param.endswith("EPOCH")
             and isinstance(model[param], MJDParameter)
             and model[param].value is None
+            and not (model.BINARY.value == "DDR" and param == "ORBWAVE_EPOCH")
         ):
             model[param].quantity = model["PEPOCH"].quantity
 
@@ -721,7 +782,7 @@ def center_model_epochs(model: TimingModel, toas: TOAs):
     if "DMEPOCH" in model and model["DMEPOCH"].quantity is not None:
         model.change_dmepoch(new_epoch)
 
-    if model.is_binary:
+    if model.is_binary and model.BINARY.value != "DDR":
         model.change_binary_epoch(new_epoch)
 
 

@@ -210,14 +210,16 @@ AbstractTrees.children(d::DataType) = subtypes(d)
 Markdown.MD(Markdown.Code(repr_tree(BinaryComponent)))
 ```
 
-`Vela.jl` has two families of binary models. The `ELL1` family is used for nearly circular binaries
-and the `DD` family is used for eccentric orbits. The different models are characterized by their treatment
-of Shapiro delay, Kopeikin corrections, etc.
+`Vela.jl` has three families of binary models. The `ELL1` family is used for nearly circular binaries,
+the `DD` family is used for eccentric orbits, and `DDR` provides a regular parameterization in
+Laplace-Lagrange coordinates. The different models are characterized by their treatment of Shapiro delay,
+Kopeikin corrections, etc.
 ```@docs
 BinaryDD
 BinaryDDH
 BinaryDDK
 BinaryDDS
+BinaryDDR
 BinaryELL1
 BinaryELL1H
 BinaryELL1k

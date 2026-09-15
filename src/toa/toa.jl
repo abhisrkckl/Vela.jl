@@ -92,8 +92,10 @@ struct TOACorrection <: TOACorrectionBase
     ssb_psr_pos::NTuple{3,GQ{0,Float64}}
 
     function TOACorrection(delay, phase, efac, equad2, spin_frequency, doppler, ssb_psr_pos)
-        @assert abs(doppler) < dimensionless(1.0) "|doppler| must be less than 1."
-        @assert spin_frequency >= frequency(0.0) "spin_frequency must either be a positive value or a default value of 0.0."
+        # Preserve NaN invalid-model sentinels until likelihood code maps them to ±Inf.
+        @assert isnan(value(doppler)) || abs(doppler) < dimensionless(1.0) "doppler must be NaN or have magnitude less than 1."
+        @assert isnan(value(spin_frequency)) ||
+                (isfinite(value(spin_frequency)) && spin_frequency >= frequency(0.0)) "spin_frequency must be NaN or nonnegative."
 
         @assert all(iszero.(ssb_psr_pos)) ||
                 dot(ssb_psr_pos, ssb_psr_pos) ≈ dimensionless(1.0) "ssb_psr_pos must be a zero vector (representing pending computation) or a unit vector."
