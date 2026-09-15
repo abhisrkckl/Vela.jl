@@ -104,6 +104,28 @@ correct_toa(
     params::NamedTuple,
 ) = correct_toa(model.components, toa, toacorr, params)
 
+@unroll function precompute_derived_params( # COV_EXCL_LINE
+    components::Tuple,
+    params::NamedTuple,
+)::TOACorrectionBase
+    updated_params = params
+    @unroll for component in components
+        updated_params = precompute_derived_params(component, updated_params)
+    end
+    return updated_params
+end
+
+precompute_derived_params(::Kernel, params::NamedTuple) = params
+
+precompute_derived_params(kernel::WoodburyKernel, params::NamedTuple) =
+    precompute_derived_params(kernel.gp_components, params)
+
+precompute_derived_params(model::TimingModel, params::NamedTuple) =
+    precompute_derived_params(
+        model.kernel,
+        precompute_derived_params(model.components, params),
+    )
+
 """Update a `TOA` object using a timing model."""
 correct_toa(model::TimingModel, toa::TOA, params::NamedTuple) =
     correct_toa(model, toa, TOACorrection(), params)

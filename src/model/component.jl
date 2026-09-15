@@ -90,4 +90,6 @@ abstract type BinaryComponent <: DelayComponent end
 Abstract base type of all uncorrelated (white) noise components."""
 abstract type WhiteNoiseComponent <: Component end
 
+precompute_derived_params(::Component, params::NamedTuple) = params
+
 show(io::IO, ::MIME"text/plain", comp::Component) = show(io, comp)

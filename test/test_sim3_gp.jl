@@ -114,6 +114,22 @@
         @test length(model.kernel.gp_components) == 3
     end
 
+    @testset "precompute_derived_params" begin
+        @test isa(
+            Vela.precompute_derived_params(
+                model,
+                model.param_handler._default_params_tuple,
+            ),
+            NamedTuple,
+        )
+        # @test @ballocated(
+        #     Vela.precompute_derived_params(
+        #         $model,
+        #         $model.param_handler._default_params_tuple,
+        #     )
+        # ) == 0
+    end
+
     @testset "_calc_resids_and_Ninvdiag" begin
         params = model.param_handler._default_params_tuple
         y, Ninvdiag = Vela._calc_resids_and_Ninvdiag(model, toas, params)
