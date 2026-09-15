@@ -12,6 +12,9 @@ function _wls_chi2_term(model::TimingModel, toa::TOA, params::NamedTuple, tzrpha
     dphase = GQ{Float64}(phase_residual(toa, ctoa) - tzrphase)
     tres = dphase / doppler_shifted_spin_frequency(ctoa)
     err2 = scaled_toa_error_sqr(toa, ctoa)
+    if !isfinite(value(tres)) || !isfinite(value(err2))
+        return Inf
+    end
     return value(tres * tres / err2)
 end
 

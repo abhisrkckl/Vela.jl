@@ -272,6 +272,9 @@ function calc_lnlike_serial(
     TOAType<:TOABase,
 }
     y, Ninvdiag = _calc_resids_and_Ninvdiag(model, toas, params)
+    if !all(isfinite, y)
+        return -Inf
+    end
     M = model.kernel.noise_basis
     Φinv = calc_noise_weights_inv(model.kernel, params)
 
@@ -289,6 +292,9 @@ function calc_lnlike(
     TOAType<:TOABase,
 }
     y, Ninvdiag = _calc_resids_and_Ninvdiag(model, toas, params; parallel = true)
+    if !all(isfinite, y)
+        return -Inf
+    end
     M = model.kernel.noise_basis
     Φinv = calc_noise_weights_inv(model.kernel, params)
 

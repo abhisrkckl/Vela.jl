@@ -15,6 +15,8 @@
 
     include("test_dd.jl")
 
+    include("test_ddr.jl")
+
     include("test_phoff.jl")
 
     include("test_spindown.jl")

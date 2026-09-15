@@ -26,6 +26,9 @@ function _ecorr_lnlike_group(
         dphase = GQ{Float64}(phase_residual(toa, ctoa) - tzrphase)
         tres = dphase / doppler_shifted_spin_frequency(ctoa)
         err2 = scaled_toa_error_sqr(toa, ctoa)
+        if !isfinite(value(tres)) || !isfinite(value(err2))
+            return dimensionless(Inf)
+        end
 
         r_r += tres * tres / err2
         r_u += tres / err2

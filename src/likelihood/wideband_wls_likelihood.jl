@@ -14,6 +14,12 @@ function _wls_lnlike_term(
 
     dmres = dm_residual(wtoa.dminfo, cwtoa.dm_correction)
     dmerr2 = scaled_dm_error_sqr(wtoa.dminfo, cwtoa.dm_correction)
+    if !isfinite(value(tres)) ||
+       !isfinite(value(err2)) ||
+       !isfinite(value(dmres)) ||
+       !isfinite(value(dmerr2))
+        return Inf
+    end
     norm = log(value(dmerr2))
     lnlike_term_dm = value(dmres * dmres / dmerr2) + norm
 

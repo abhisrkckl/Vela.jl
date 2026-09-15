@@ -1,5 +1,6 @@
 # Unreleased
 ## Added
+- `BinaryDDR`, the Damour-Deruelle-Regular binary model.
 - Installation instructions for MacOS.
 - `SPNA.lnpost_transformed()` and `SPNA.lnpost_transformed_vectorized()` methods.
 - Example notebook showing `run_emcee_until_converged()`.
@@ -15,6 +16,7 @@
 - Speed up TOA reading.
 - `load_pulsar_data()` re-makes the `WoodburyKernel` to ensure that the workspace size is correct. 
 ## Fixed
+- Detect the FBX binary chart from `FB0` after PINT model setup.
 - While constructing `SPNTA`, compute TOA pulse numbers only if required.
 - Make `get_dmx_mask()` faster.
 - `check` option included in `SPNTA.from_pint()` and `SPNTA.load_jlso()`.
