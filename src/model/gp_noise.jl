@@ -36,6 +36,12 @@ function evaluate_powerlaw_red_noise_weights_inv(log10_A, γ, f1, ln_js)
     return weights_inv
 end
 
+function evaluate_powerlaw_red_noise_weight_inv(P1, γ, ln_js, p)
+    npar = length(ln_js)
+    p = (p-1)%npar + 1
+    return 1 / (P1 * exp(-γ * ln_js[p]))
+end
+
 """Compute log(j) for a given number of linear and log-spaced harmonics."""
 function _calc_ln_js(Nlin, Nlog, logfac)
     log_js_lin = map(log, 1:Nlin)
@@ -78,6 +84,21 @@ get_gp_npars(arn::PowerlawRedNoiseGP) = 2 * length(arn.ln_js)
 get_marginalized_param_names(arn::PowerlawRedNoiseGP) =
     marginalized_param_names_for_gp_noise("PLRED", length(arn.ln_js))
 
+precompute_derived_params(::PowerlawRedNoiseGP, params::NamedTuple) = merge(
+    params,
+    (
+        PLREDP1 = powerlaw(
+            exp10(params.TNREDAMP),
+            params.TNREDGAM,
+            params.PLREDFREQ,
+            params.PLREDFREQ,
+        ),
+    ),
+)
+
+calc_noise_weight_inv(arn::PowerlawRedNoiseGP, params::NamedTuple, p) =
+    evaluate_powerlaw_red_noise_weight_inv(params.PLREDP1, params.TNREDGAM, arn.ln_js, p)
+
 calc_noise_weights_inv(arn::PowerlawRedNoiseGP, params::NamedTuple) =
     evaluate_powerlaw_red_noise_weights_inv(
         params.TNREDAMP,
@@ -112,9 +133,21 @@ get_gp_npars(dmn::PowerlawDispersionNoiseGP) = 2 * length(dmn.ln_js)
 get_marginalized_param_names(dmn::PowerlawDispersionNoiseGP) =
     marginalized_param_names_for_gp_noise("PLDM", length(dmn.ln_js))
 
+precompute_derived_params(::PowerlawDispersionNoiseGP, params::NamedTuple) = merge(
+    params,
+    (
+        PLDMP1 = powerlaw(
+            exp10(params.TNDMAMP),
+            params.TNDMGAM,
+            params.PLDMFREQ,
+            params.PLDMFREQ,
+        ),
+    ),
+)
+
 calc_noise_weights_inv(dmn::PowerlawDispersionNoiseGP, params::NamedTuple) =
     evaluate_powerlaw_red_noise_weights_inv(
-        params.TNDMAMP,
+        params.PLDMAMP,
         params.TNDMGAM,
         params.PLDMFREQ,
         dmn.ln_js,
@@ -146,9 +179,21 @@ get_gp_npars(crn::PowerlawChromaticNoiseGP) = 2 * length(crn.ln_js)
 get_marginalized_param_names(crn::PowerlawChromaticNoiseGP) =
     marginalized_param_names_for_gp_noise("PLCHROM", length(crn.ln_js))
 
+precompute_derived_params(::PowerlawChromaticNoiseGP, params::NamedTuple) = merge(
+    params,
+    (
+        PLCHROMP1 = powerlaw(
+            exp10(params.TNCHROMAMP),
+            params.TNCHROMGAM,
+            params.PLCHROMFREQ,
+            params.PLCHROMFREQ,
+        ),
+    ),
+)
+
 calc_noise_weights_inv(crn::PowerlawChromaticNoiseGP, params::NamedTuple) =
     evaluate_powerlaw_red_noise_weights_inv(
-        params.TNCHROMAMP,
+        params.PLCHROMAMP,
         params.TNCHROMGAM,
         params.PLCHROMFREQ,
         crn.ln_js,
